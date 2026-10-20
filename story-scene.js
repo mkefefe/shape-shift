@@ -30,7 +30,11 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
   }
   const config = (renderer.scenes || STORY_SCENES)[scene];
   const loadAssets = renderer.load || loadStoryAssets;
-  const draw = renderer.draw || drawStory;
+  const draw = renderer.draw || ((ctx,art,id,time,options)=>{
+    // Only earned milestone charges restore districts in this edition.
+    const previous={40:25,70:50,90:75};
+    drawStory(ctx,{...art,restorationStage:level=>art.restorationStage(previous[level]??level)},id,time,options);
+  });
   const view = document?.defaultView || globalThis;
   const previousFocus = document?.activeElement;
   const requestFrame = window.ShapeShiftPlatform.requestAnimationFrame?.bind(view);
@@ -259,7 +263,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
       catch { finish({completed: false, skipped: false, failed: true}); return; }
       ready = true;
       dialog.dataset.ready = 'true';
-      dialog.dataset.stage='waiting'; soundButton.textContent='Tap to reveal'; soundButton.disabled=false; soundButton.hidden=false;
+      dialog.dataset.stage='waiting'; soundButton.textContent='Tap to charge'; soundButton.disabled=false; soundButton.hidden=false;
       lastTime = isVisible() ? now() : null;
       lastDrawTime = lastTime;
       playSound();
