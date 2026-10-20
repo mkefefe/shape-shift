@@ -1,5 +1,5 @@
 import {createStoryController} from './story-controller.js';
-import {showStoryScene} from './story-scene.js?v=story1';
+import {showStoryScene} from './story-scene.js?v=story2';
 import {loadStoryAssets,drawStoryIsland} from './story-renderer.js';
 
 export function initStoryUI({document,storage,adventure,admin,adminBackup,settings,beforeScene,afterScene,sound=()=>{}}){
@@ -24,8 +24,10 @@ export function initStoryUI({document,storage,adventure,admin,adminBackup,settin
   dialog.querySelector('.story-library-summary').textContent=summary.complete?'Your world is restored.':summary.percent+' / 100 levels · '+summary.percent+'% charged';
   if(dialog.open)paintIsland();
   const list=dialog.querySelector('.story-library-scenes');list.replaceChildren();
-  const item=document.createElement('button');item.type='button';item.className='primary';item.textContent='Play story';
-  item.onclick=async()=>{sound('click');dialog.close();await controller.replayAll();if(!dialog.open){dialog.showModal();paintIsland();}};list.append(item);
+  for(const chapter of controller.scenes().filter(chapter=>chapter.id!=='credits')){
+   const item=document.createElement('button');item.type='button';item.className='primary';item.textContent=chapter.title;
+   item.onclick=async()=>{sound('click');dialog.close();await controller.replay(chapter.id);};list.append(item);
+  }
   dialog.querySelector('.story-library-next').textContent=summary.next?'Next: '+summary.next.title+' at Level '+summary.next.level:'Adventure complete. Endless and Games are still yours to enjoy.';
  }
  controller=createStoryController({storage,adventure,admin,adminBackup,showScene:options=>showStoryScene({document,...options}),settings,beforeScene,afterScene,changed:refresh});

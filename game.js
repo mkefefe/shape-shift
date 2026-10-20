@@ -3,7 +3,7 @@ import {loadStartupAssets} from './startup-loader.js';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js';
 import {praiseDirector} from './praise-feedback.js';
 import {showAdventureVictory} from './adventure-victory.js';
-import {initStoryUI} from './story-ui.js?v=story1';
+import {initStoryUI} from './story-ui.js?v=story2';
 import {initTouchUI} from './touch-ui.js';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js';
 import {initPianoFlow} from './piano-flow.js?v=keys1';
@@ -40,16 +40,16 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js';
 import {earnsMatchCoin} from './economy.js';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud12';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud13';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js';
 
 
 
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud12';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud13';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud12';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud13';
 
 
 
@@ -69,7 +69,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud12';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud13';
 
 
 
@@ -101,7 +101,7 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud12';
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud13';
 
 
 
@@ -3836,11 +3836,11 @@ const pianoFlow=initPianoFlow({onProgress:progress=>trackAchievements({type:'pia
 gamesHub=initGamesHub({openPiano:()=>pianoFlow.open(),openDrop:()=>shapeDrop.open(),openSlice:()=>shapeSlice.open(),sound:uiSound});
 for(const id of ['shape-drop','shape-slice','piano-flow','games-hub'])bannerObserver.observe(document.getElementById(id),{attributes:true,attributeFilter:['open']});
 const storyUI=initStoryUI({document,storage:window.ShapeShiftPlatform.storage,adventure:store.get('shape-shift-adventure-v1',{}),admin:profile.adminMode===true,adminBackup:store.get('shape-shift-admin-map-backup-v1',null),sound:uiSound,
- settings:()=>({reduced:prefs.motion||matchMedia('(prefers-reduced-motion: reduce)').matches,volume:Math.max(prefs.music?prefs.musicVolume/100:0,prefs.sfx?prefs.sfxVolume/100:0)}),
+ settings:()=>({reduced:prefs.motion||matchMedia('(prefers-reduced-motion: reduce)').matches,effectsVolume:prefs.sfx?prefs.sfxVolume/100:0,volume:Math.max(prefs.music?prefs.musicVolume/100:0,prefs.sfx?prefs.sfxVolume/100:0)}),
  beforeScene:()=>{$('app').dataset.storyActive='true';audio()?.pause();syncMenuBanner();},
  afterScene:()=>{delete $('app').dataset.storyActive;if(!window.ShapeShiftPlatform.paused&&!nativeBackground)audio()?.start();syncMenuBanner();}
 });
-worldUI=initWorldMenu({drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}if(mode==='adventure')await storyUI.beforeAdventure();runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);}});
+worldUI=initWorldMenu({drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}if(mode==='adventure'&&!storyUI.snapshot().seen.includes('intro')){await storyUI.beforeAdventure();worldUI?.map();return;}runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);}});
 
 $('adventure-continue').onclick=async()=>{if(runMode==='endless'){dismissRunScreen();return;}if(runMode!=='adventure'||storyUI.isPlaying())return;const button=$('adventure-continue');button.disabled=true;try{uiSound('leave-result');home(true);worldUI?.map();await storyUI.afterResults();}finally{button.disabled=false;}};
 

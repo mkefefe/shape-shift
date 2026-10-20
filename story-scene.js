@@ -11,8 +11,8 @@ let activeScene = null;
  * canvas, soundtrack and controls. A failed load never claims a chapter seen.
  * @returns {Promise<{completed:boolean, skipped:boolean, failed?:boolean}> & {cancel:Function}}
  */
-export function showStoryScene({scene, document = globalThis.document, reduced = false, volume = 1, done} = {}, renderer = {}) {
-  if(Array.isArray(scene))return showStorySequence({scenes:scene,document,reduced,volume,done},renderer);
+export function showStoryScene({scene, document = globalThis.document, reduced = false, volume = 1, effectsVolume = volume, done} = {}, renderer = {}) {
+  if(Array.isArray(scene))return showStorySequence({scenes:scene,document,reduced,volume,effectsVolume,done},renderer);
   let resolve;
   const result = new Promise(finish => { resolve = finish; });
   let settled = false, dialog, audio, frame, loadTimer, assets, context, soundButton, soundURL, soundRequest;
@@ -20,6 +20,14 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
   let ready = false, nativePaused = false, lastTime = null, lastDrawTime = null, elapsed = 0;
   let audioPending = false, audioBlocked = false, metadataReady = false, soundStarted = false;
   const listeners = [];
+  const cues=[];
+  function playCues(){
+    for(const cue of cues){
+      if(cue.fired || elapsed<cue.at)continue;
+      cue.fired=true;
+      cue.media.play().catch(()=>{});
+    }
+  }
   const config = (renderer.scenes || STORY_SCENES)[scene];
   const loadAssets = renderer.load || loadStoryAssets;
   const draw = renderer.draw || drawStory;
@@ -41,6 +49,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
     settled = true;
     if (loadTimer) window.ShapeShiftPlatform.clearTimeout(loadTimer);
     soundRequest?.abort();
+    for(const cue of cues){cue.media.pause();cue.media.removeAttribute('src');cue.media.load();}
     if (frame != null) cancelFrame?.(frame);
     for (const unlisten of listeners) unlisten();
     if (audio) {
@@ -120,6 +129,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
         catch { finish({completed: false, skipped: false, failed: true}); return; }
       }
       alignSound();
+      playCues();
       if (elapsed >= duration) {
         ended = true; pauseSound(); dialog.dataset.stage='complete';
         soundButton.textContent='Tap to continue'; soundButton.hidden=false;
@@ -156,7 +166,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
     function advance(event) {
       event.preventDefault(); event.stopPropagation();
       if(!ready)return;
-      if(ended){finish({completed:true,skipped:false});return;}
+      if(ended){finish({completed:true,skipped:false,returnToMap:true});return;}
       if(started&&!audioBlocked)return;
       started=true; lastTime=null; audioBlocked=false;
       dialog.dataset.stage='revealing';soundButton.hidden=true;playSound();
@@ -188,6 +198,17 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
     soundButton.focus({preventScroll: true});
 
     const outputVolume = Math.max(0, Math.min(1, Number(volume) || 0));
+    const effectLevel=Math.max(0,Math.min(1,Number(effectsVolume)||0));
+    if(scene!=='credits' && effectLevel>0){
+      const hit=scene==='intro'?3.2:scene==='ending'?1.3:.7;
+      for(const [at,name,gain] of [[hit,'transform',.6],[hit+.9,'spark0',.7]]){
+        const media=document.createElement('audio');media.hidden=true;media.preload='auto';
+        media.dataset.storyCue=name;media.volume=effectLevel*gain;
+        media.src=new URL('assets/audio/victory-'+name+'-v4947.ogg',import.meta.url).href;
+        listeners.push(window.ShapeShiftPlatform.registerMedia(media));
+        dialog.append(media);cues.push({at,media,fired:false});
+      }
+    }
     let soundLoaded = Promise.resolve();
     if (config.audio && outputVolume > 0) {
       audio = document.createElement('audio');
@@ -252,7 +273,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
 
 // Keep one full-screen presentation and one game-audio pause across all unlocked
 // chapters. Each chapter retains its authored soundtrack and fade transitions.
-function showStorySequence({scenes,document,reduced,volume,done},renderer){
+function showStorySequence({scenes,document,reduced,volume,effectsVolume,done},renderer){
  let current,cancelled=false;
  const curtain=document.createElement('div');curtain.className='story-sequence-curtain';
  curtain.setAttribute('aria-hidden','true');document.body.append(curtain);
@@ -261,9 +282,9 @@ function showStorySequence({scenes,document,reduced,volume,done},renderer){
   try{
    for(const scene of scenes){
     if(cancelled)return {completed:false,skipped:true};
-    current=showStoryScene({scene,document,reduced,volume},renderer);
+    current=showStoryScene({scene,document,reduced,volume,effectsVolume},renderer);
     outcome=await current;
-    if(!outcome.completed)return outcome;
+    if(!outcome.completed||outcome.returnToMap)return outcome;
    }
    return outcome;
   }finally{current=null;curtain.remove();}
