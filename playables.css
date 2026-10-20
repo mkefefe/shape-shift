@@ -25,3 +25,9 @@ body { overscroll-behavior: none; }
 
 .browser-preview #delete-profile-open,.browser-preview #player-id-row,.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
 .browser-preview #rankings-enable-open[hidden],.browser-preview #player-id-row[hidden]{display:none !important;}
+
+/* The frame supplies the viewport for every game and full-screen dialog. */
+html,body{overflow:hidden;}
+#app,#app[data-screen=home],#app[data-screen=map],#app[data-screen=game]{width:100%;max-width:100%;height:100dvh;min-height:0;max-height:100dvh;margin:0 auto;}
+/* Keep button feedback and in-game effects; omit the extra decorative tap bursts. */
+#tap-effects,#tap-effects:popover-open{display:none!important;}
