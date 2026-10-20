@@ -40,16 +40,16 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js';
 import {earnsMatchCoin} from './economy.js';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud8';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud9';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js';
 
 
 
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud8';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud9';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud8';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud9';
 
 
 
@@ -69,7 +69,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud8';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud9';
 
 
 
@@ -101,7 +101,7 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud8';
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud9';
 
 
 
@@ -3018,7 +3018,18 @@ let rankingsRequest=0;
 
 
 let lastRankingsSnapshot=null;
+function renderOwnRanking(entries=null){
+ let summary=document.getElementById('leaderboard-own-score');
+ if(!summary){summary=document.createElement('p');summary.id='leaderboard-own-score';summary.className='personal-score-row';summary.setAttribute('aria-live','polite');$('leaderboard-status').before(summary);}
+ const identity=getIdentity(),localBest=Math.max(...Object.values(endlessBests()));
+ const mine=entries?.find(row=>row.isYou);
+ summary.replaceChildren();const title=document.createElement('strong');title.textContent=identity.name+' · You';
+ const detail=document.createElement('span');detail.textContent='Saved Endless best: '+localBest+(mine?' · Online: '+mine.score:entries?' · Not in displayed rankings':'');
+ summary.append(title,detail);
+}
+
 async function rankings(silent=false){
+ renderOwnRanking();
 
 
 
@@ -3047,6 +3058,7 @@ async function rankings(silent=false){
 
 
   const entries=identifyLeaderboardEntries(data.entries,playerId,getIdentity());
+ renderOwnRanking(entries);
 
 
 

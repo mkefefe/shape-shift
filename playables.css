@@ -33,8 +33,12 @@ body { overscroll-behavior: none; }
 }
 
 
-.browser-preview #delete-profile-open,.browser-preview #player-id-row,.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
+.browser-preview #player-id-row,.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
 .browser-preview #rankings-enable-open[hidden],.browser-preview #player-id-row[hidden]{display:none !important;}
+.browser-preview .name-label{display:block!important;}
+.browser-preview .name-row{display:flex!important;}
+#leaderboard-own-score{display:block;font-size:12px;line-height:1.5;margin:8px 0;}
+#leaderboard-own-score strong,#leaderboard-own-score span{display:block;}
 
 /* The frame supplies the viewport for every game and full-screen dialog. */
 html,body{overflow:hidden;}
