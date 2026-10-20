@@ -102,7 +102,7 @@ async function start() {
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=slice-soft1');
     await loadScript('assets/vendor/matter-0.20.0.min.js');
-    await import('./game.js?v=cloud2');
+    await import('./game.js?v=cloud3');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';
@@ -113,6 +113,49 @@ async function start() {
     const retry = cover.querySelector('button'); retry.hidden = false; retry.onclick = () => location.reload();
   }
 }
+// Desktop browsers do not translate a mouse drag into native touch scrolling.
+// Keep native finger scrolling, while giving mouse/pen users the same grab gesture.
+function bindDesktopScroll() {
+  let drag=null,blockClick=false;
+  const clear=()=>{
+    const old=drag;drag=null;
+    if(old){old.scroller.classList.remove('desktop-dragging');
+      if(old.scroller.hasPointerCapture?.(old.id))old.scroller.releasePointerCapture(old.id);}
+  };
+  document.addEventListener('pointerdown',event=>{
+    clear();blockClick=false;
+    if(event.pointerType==='touch'||event.button!==0||event.isPrimary===false||platform.paused)return;
+    const target=event.target;
+    if(!(target instanceof Element)||target.closest('input,select,textarea,[contenteditable],.map-header'))return;
+    if(!target.closest('#adventure-map,dialog[open]'))return;
+    for(let node=target;node&&node!==document.body;node=node.parentElement){
+      if(/^(auto|scroll)$/.test(getComputedStyle(node).overflowY)&&node.scrollHeight>node.clientHeight+2){
+        drag={id:event.pointerId,scroller:node,x:event.clientX,y:event.clientY,top:node.scrollTop,moved:false};break;
+      }
+    }
+  },{capture:true,passive:true});
+  document.addEventListener('pointermove',event=>{
+    if(!drag||drag.id!==event.pointerId)return;
+    const dy=event.clientY-drag.y,dx=event.clientX-drag.x;
+    if(!drag.moved){
+      if(Math.abs(dy)<10)return;
+      if(Math.abs(dx)>Math.abs(dy)){clear();return;}
+      drag.moved=true;blockClick=true;
+      drag.scroller.classList.add('desktop-dragging');
+      try{drag.scroller.setPointerCapture(event.pointerId);}catch{}
+    }
+    drag.scroller.scrollTop=drag.top-dy;
+    if(event.cancelable)event.preventDefault();
+  },{capture:true,passive:false});
+  document.addEventListener('pointerup',event=>{if(drag?.id===event.pointerId)clear();},true);
+  document.addEventListener('pointercancel',event=>{if(drag?.id===event.pointerId)clear();},true);
+  document.addEventListener('lostpointercapture',event=>{if(drag?.id===event.pointerId)clear();},true);
+  document.addEventListener('click',event=>{
+    if(blockClick&&event.detail!==0){blockClick=false;event.preventDefault();event.stopImmediatePropagation();}
+  },true);
+  window.addEventListener('blur',clear);
+}
+bindDesktopScroll();
 start();
 
 

@@ -40,16 +40,16 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js';
 import {earnsMatchCoin} from './economy.js';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud2';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud3';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js';
 
 
 
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud2';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud3';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud2';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud3';
 
 
 
@@ -69,7 +69,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud2';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud3';
 
 
 
@@ -101,7 +101,7 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud2';
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud3';
 
 
 
