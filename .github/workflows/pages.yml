@@ -25,7 +25,7 @@ jobs:
           echo '72b1e734f6818851c4f513157e608d74171c2145d5b9e960ee66366da3f90376  game.zip' | sha256sum --check
           unzip -q game.zip -d _site
           sha256sum --check web-fix.sha256
-          cp game.js mini-continue.js playables-bootstrap.js playables-scores.mjs playables.css index.html world-menu.js audio.js profile.js leaderboard.js audience.js achievements-ui.js story-scene.js story-ui.js _site/
+          cp game.js mini-continue.js playables-bootstrap.js playables-scores.mjs playables.css index.html world-menu.js audio.js profile.js leaderboard.js audience.js achievements-ui.js story-scene.js story-ui.js game-frame.html _site/
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v4
         with:
