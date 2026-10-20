@@ -1,0 +1,33 @@
+name: Publish Shape Shift
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/configure-pages@v5
+      - name: Restore verified game bundle
+        run: |
+          cat game.zip.part00 game.zip.part01 game.zip.part02 > game.zip
+          echo '72b1e734f6818851c4f513157e608d74171c2145d5b9e960ee66366da3f90376  game.zip' | sha256sum --check
+          unzip -q game.zip -d _site
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy game
+        id: deployment
+        uses: actions/deploy-pages@v4
