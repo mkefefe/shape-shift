@@ -27,13 +27,13 @@ import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL
 import {fitBoard} from './board-fit.js';
 import {analytics} from './analytics.js';
 import {ensureTerms} from './terms.js';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=web3';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=web3.1';
 import {observeBoard} from './board-fit.js';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js';
-import {initWorldMenu,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js';
+import {initWorldMenu,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=web3.1';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js';
 
