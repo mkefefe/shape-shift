@@ -171,9 +171,14 @@
 
   function pianoBeat(pulse,energy=1){
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!music||musicVolume<=0||!Number.isInteger(pulse)||pulse<0)return;
-    const step=pulse%8,hits=[['shaker',step%2?.12:.18]];
-    if(step===0||step===4)hits.push(['kick',.48]);
-    if(step===2||step===6)hits.push(['clap',.28]);
+    const step=pulse%8,bar=Math.floor(pulse/8),pattern=Math.floor(bar/2)%4;
+    const kicks=[[0,4],[0,3,4],[0,4,7],[0,3,5]];
+    const hits=[['shaker',step%2?.16:.23]];
+    if(kicks[pattern].includes(step))hits.push(['kick',step===0?.64:.55]);
+    if(step===2||step===6)hits.push(['clap',.37]);
+    // Small fills at phrase endings; quiet sections keep their softer dynamics.
+    if(bar%4===3&&step===7&&energy>.5)hits.push(['clap',.2]);
+    if(pattern===2&&step===5)hits.push(['shaker',.08]);
     for(const [key,volume] of hits){
       const buffer=pianoBuffers.get(key);if(!buffer)continue;
       const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=volume*Math.max(0,Math.min(1,energy));source.connect(gain);gain.connect(musicBus);
