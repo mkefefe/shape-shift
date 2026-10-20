@@ -27,7 +27,7 @@ import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL
 import {fitBoard} from './board-fit.js';
 import {analytics} from './analytics.js';
 import {ensureTerms} from './terms.js';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=web3';
 import {observeBoard} from './board-fit.js';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js';

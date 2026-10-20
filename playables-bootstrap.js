@@ -102,7 +102,7 @@ async function start() {
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js');
     await loadScript('assets/vendor/matter-0.20.0.min.js');
-    await import('./game.js');
+    await import('./game.js?v=web3');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Your best scores');
     scoresButton.title='Your best scores';
