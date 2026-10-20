@@ -15,3 +15,6 @@ body { overscroll-behavior: none; }
 .browser-preview #coins-ad-open, .browser-preview #continue-ad { display:none !important; }
 .personal-score-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 8px; border-bottom:1px solid #aacbd5; }
 .personal-score-row strong { font-size:1.2rem; }
+
+.browser-preview #delete-profile-open,.browser-preview #player-id-row,.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
+.browser-preview #rankings-enable-open[hidden],.browser-preview #player-id-row[hidden]{display:none !important;}

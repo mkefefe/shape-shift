@@ -102,10 +102,10 @@ async function start() {
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=slice-soft1');
     await loadScript('assets/vendor/matter-0.20.0.min.js');
-    await import('./game.js?v=web3.1');
+    await import('./game.js?v=cloud1');
     const scoresButton=document.getElementById('leaderboard-open');
-    scoresButton.setAttribute('aria-label','Your best scores');
-    scoresButton.title='Your best scores';
+    scoresButton.setAttribute('aria-label','Global leaderboard');
+    scoresButton.title='Global leaderboard';
     if (!live) document.querySelector('#coin-help-dialog p').textContent='Play games and collect quest and achievement rewards to earn coins.';
   } catch (error) {
     console.error('Unable to load saved game', error);

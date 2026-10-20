@@ -40,16 +40,16 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js';
 import {earnsMatchCoin} from './economy.js';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud1';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js';
 
 
 
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud1';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud1';
 
 
 
@@ -69,7 +69,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud1';
 
 
 
@@ -101,7 +101,7 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js';
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud1';
 
 
 
@@ -3013,7 +3013,97 @@ function shop(){
 
 
 
-function rankings(){window.ShapeShiftPlatform.showScores();}
+let rankingsRequest=0;
+
+
+
+let lastRankingsSnapshot=null;
+async function rankings(silent=false){
+
+
+
+ const request=++rankingsRequest;
+
+
+
+ if(!silent&&!lastRankingsSnapshot)$('leaderboard-status').textContent='Loading rankings…';
+
+
+
+ try{
+
+
+
+  if(leaderboardAllowed())flushScores().catch(()=>{});
+
+
+
+  const [data,playerId]=await Promise.all([loadLeaderboard(),leaderboardAllowed()?currentPlayerId():Promise.resolve(null)]);
+
+
+
+  if(request!==rankingsRequest)return;
+
+
+
+  const entries=identifyLeaderboardEntries(data.entries,playerId,getIdentity());
+
+
+
+  $('leaderboard-reload').hidden=!data.cached;
+  $('leaderboard-status').textContent=data.cached?rankingLoadMessage(null,true):profile.adminMode?'Admin mode: scores stay on this device and do not go on the leaderboard.':!leaderboardAllowed()?(entries.length?'':'No scores yet.'):profile.pending.length?'Your latest score is waiting to upload.':profile.failedScores?.length?'A score could not be verified. Its run data has been kept on this device.':profile.runs.find(r=>r.mode==='endless')?.ranked===false?'Your latest Endless run was saved only on this device and was not submitted to the leaderboard.':entries.length?'':'No scores yet. Finish an online run to join the leaderboard.';
+
+
+
+  const snapshot=JSON.stringify(entries);
+  if(snapshot===lastRankingsSnapshot)return;
+  lastRankingsSnapshot=snapshot;
+  $('leaderboard-rows').replaceChildren();
+  for(const [i,row] of entries.entries()){
+
+
+
+   const line=document.createElement('div');line.className='rank-card'+(row.isYou?' rank-you':'');
+
+
+
+   const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=i+1;
+
+
+
+   const copy=document.createElement('div');const name=document.createElement('strong');name.textContent=row.name;copy.append(name);
+
+
+
+   if(row.isYou){const badge=document.createElement('span');badge.className='rank-you-badge';badge.textContent='You';copy.append(badge);line.setAttribute('aria-label','Your ranking: '+(i+1)+', '+row.score+' points');}
+
+
+
+   const score=document.createElement('b');score.className='rank-score';score.textContent=row.score;
+
+
+
+   line.append(rank,leaderboardAvatar(row),copy,score);$('leaderboard-rows').append(line);
+
+
+
+  }
+
+
+
+ }catch(error){if(request===rankingsRequest){$('leaderboard-status').textContent=rankingLoadMessage(error,Boolean(lastRankingsSnapshot));$('leaderboard-reload').hidden=false;}}
+
+
+
+}
+
+
+
+
+
+
+
+
 enableHoldBuying($('shop-dialog'));
 $('shop-open').onclick=()=>{analytics.count('shop',({ 'shop-items':'boosts','skin-items':'skins','frame-items':'frames','background-items':'worlds'})[document.querySelector('[data-shop-tab][aria-selected="true"]')?.dataset.shopTab]||'boosts');shop();$('shop-dialog').showModal();};
 
