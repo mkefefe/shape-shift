@@ -9,6 +9,9 @@
   animation-play-state: paused !important;
 }
 body { overscroll-behavior: none; }
+.home-tools .menu-vector { display:block; width:100%; height:100%; pointer-events:none; overflow:visible; }
+#app[data-screen=home] .home-tools #leaderboard-open { display:block; visibility:visible; opacity:1; }
+.home-tools .icon-button:focus-visible { outline:2px solid white; outline-offset:3px; border-radius:50%; }
 .browser-preview #coins-ad-open, .browser-preview #continue-ad { display:none !important; }
 .personal-score-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 8px; border-bottom:1px solid #aacbd5; }
 .personal-score-row strong { font-size:1.2rem; }
