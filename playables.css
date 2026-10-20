@@ -22,6 +22,16 @@ body { overscroll-behavior: none; }
 .personal-score-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 8px; border-bottom:1px solid #aacbd5; }
 .personal-score-row strong { font-size:1.2rem; }
 
+/* Render compact panels as one continuous bitmap, with no join at 50% height. */
+#app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog) {
+  background:transparent url('assets/menu-panel-v240.webp') center/100% 100% no-repeat !important;
+}
+#app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::before,
+#app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::after {
+  content:none !important;
+  display:none !important;
+}
+
 
 .browser-preview #delete-profile-open,.browser-preview #player-id-row,.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
 .browser-preview #rankings-enable-open[hidden],.browser-preview #player-id-row[hidden]{display:none !important;}
