@@ -1,0 +1,14 @@
+/* Features unavailable in the Playables edition are omitted from its UI. */
+#terms-open, #privacy-policy-open, #delete-profile-open,
+#rankings-enable-open, #privacy-options, #player-id-row, #player-id-status,
+.name-label, .name-row, #choose-photo, #profile-photo, #language-open,
+[for="notifications-setting"], #notifications-status, #admin-enter, #admin-exit {
+  display: none !important;
+}
+.platform-paused *, .platform-paused *::before, .platform-paused *::after {
+  animation-play-state: paused !important;
+}
+body { overscroll-behavior: none; }
+.browser-preview #coins-ad-open, .browser-preview #continue-ad { display:none !important; }
+.personal-score-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 8px; border-bottom:1px solid #aacbd5; }
+.personal-score-row strong { font-size:1.2rem; }
