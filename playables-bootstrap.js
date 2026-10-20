@@ -100,7 +100,7 @@ async function start() {
   try {
     await store.initialize();
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
-    await loadScript('audio.js');
+    await loadScript('audio.js?v=slice-soft1');
     await loadScript('assets/vendor/matter-0.20.0.min.js');
     await import('./game.js?v=web3.1');
     const scoresButton=document.getElementById('leaderboard-open');
@@ -114,4 +114,5 @@ async function start() {
   }
 }
 start();
+
 
