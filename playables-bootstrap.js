@@ -1,5 +1,6 @@
 import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs';
 import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs';
+import {prepareMenuImage} from './menu-preload.js';
 
 const sdk = window.ytgame;
 const live = Boolean(sdk?.IN_PLAYABLES_ENV);
@@ -99,10 +100,13 @@ async function start() {
   const cover = document.getElementById('startup-ready');
   try {
     await store.initialize();
+    // The map is a required destination after Adventure results. Decode and retain
+    // its CSS artwork before enabling play, not after the green map is exposed.
+    await Promise.all(['assets/map-route-v102.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp'].map(prepareMenuImage));
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=slice-soft1');
     await loadScript('assets/vendor/matter-0.20.0.min.js');
-    await import('./game.js?v=cloud4');
+    await import('./game.js?v=cloud5');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';
