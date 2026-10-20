@@ -102,7 +102,7 @@ async function start() {
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=slice-soft1');
     await loadScript('assets/vendor/matter-0.20.0.min.js');
-    await import('./game.js?v=cloud1');
+    await import('./game.js?v=cloud2');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';
@@ -114,5 +114,6 @@ async function start() {
   }
 }
 start();
+
 
 
