@@ -18,7 +18,7 @@ import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js';
 import {rankingLoadMessage} from './leaderboard-cache.js';
 import {loadPrivacyContent} from './privacy-content.js';
 import {initSettingsExtras} from './settings-extras.js';
-import {initShapeSlice} from './shape-slice.js';
+import {initShapeSlice} from './shape-slice.js?v=particles1';
 import {claimSliceReward} from './shape-slice-engine.js';
 import {initGamesHub} from './games-hub.js';
 import {initShapeDrop} from './shape-drop.js';
@@ -40,16 +40,16 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js';
 import {earnsMatchCoin} from './economy.js';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud6';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=cloud7';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js';
 
 
 
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud6';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries} from './leaderboard.js?v=cloud7';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud6';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=cloud7';
 
 
 
@@ -69,7 +69,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud6';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=cloud7';
 
 
 
@@ -101,7 +101,7 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud6';
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=cloud7';
 
 
 

@@ -1,5 +1,5 @@
-import {leaderboardAllowed,audience} from './audience.js?v=cloud6';
-import {LEADERBOARD_URL,saveOnlineProfile} from './leaderboard.js?v=cloud6';
+import {leaderboardAllowed,audience} from './audience.js?v=cloud7';
+import {LEADERBOARD_URL,saveOnlineProfile} from './leaderboard.js?v=cloud7';
 const adjectives=['Sunny','Lucky','Swift','Cosmic','Mighty','Jolly','Brave','Bouncy','Golden','Chill','Merry','Electric'];
 const animals=['Fox','Panda','Otter','Dragon','Tiger','Penguin','Koala','Falcon','Lynx','Gecko','Bunny','Bear'];
 export const randomName=(rng=Math.random)=>adjectives[Math.floor(rng()*adjectives.length)]+animals[Math.floor(rng()*animals.length)]+(10+Math.floor(rng()*90));
