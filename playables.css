@@ -33,7 +33,10 @@ body { overscroll-behavior: none; }
 }
 
 
-.browser-preview #player-id-row,.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
+.browser-preview #player-id-status,.browser-preview #rankings-enable-open {display:block !important;}
+.browser-preview #profile-dialog #player-id-row{display:flex!important;align-items:center;justify-content:center;}
+.browser-preview #copy-player-id{display:inline-flex;align-items:center;justify-content:center;margin:0;vertical-align:middle;}
+.browser-preview #copy-player-id img{display:block;}
 .browser-preview #rankings-enable-open[hidden],.browser-preview #player-id-row[hidden]{display:none !important;}
 .browser-preview .name-label{display:block!important;}
 .browser-preview .name-row{display:flex!important;}
