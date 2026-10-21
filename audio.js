@@ -82,9 +82,9 @@
     const gain=context.createGain();gain.connect(effectsBus);source.connect(gain);
     // Keep the logo docking swish brief and fade its tail without a click.
     const length=name==='panel'?Math.min(.22,buffer.duration):buffer.duration;
-    if(name==='panel'){gain.gain.setValueAtTime(1,time);gain.gain.setValueAtTime(1,time+Math.max(0,length-.06));gain.gain.linearRampToValueAtTime(0,time+length);source.stop(time+length);}
+    if(name==='panel'){gain.gain.setValueAtTime(1,time);gain.gain.setValueAtTime(1,time+Math.max(0,length-.06));gain.gain.linearRampToValueAtTime(0,time+length);}
     victorySources.push(source);source.onended=()=>{source.disconnect();gain.disconnect();victorySources=victorySources.filter(item=>item!==source);};
-    source.start(time);
+    source.start(time);if(name==='panel')source.stop(time+length);
   }
 
   function softSweep(time,length,from,to,volume=.07){
