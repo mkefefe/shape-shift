@@ -3,7 +3,7 @@ import {loadStartupAssets} from './startup-loader.js?v=abilities1';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js';
 import {praiseDirector} from './praise-feedback.js';
 import {showAdventureVictory} from './adventure-victory.js?v=abilities1';
-import {initStoryUI} from './story-ui.js?v=charge1';
+import {initStoryUI} from './story-ui.js?v=lock1';
 import {initTouchUI} from './touch-ui.js';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js';
 import {initPianoFlow} from './piano-flow.js?v=hint1';

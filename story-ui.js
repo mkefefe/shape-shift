@@ -70,7 +70,7 @@ export function initStoryUI({document,storage,adventure,admin,adminBackup,settin
   button.setAttribute('aria-label','Color Beacon '+s.percent+' percent. '+button.querySelector('.story-map-next').textContent+'. Open charging.');
   dialog.querySelector('.story-library-summary').textContent=s.percent+' / 100 levels · '+s.percent+'% progress';
   dialog.querySelector('.beacon-charge-count').textContent=s.availableCharges+' charge'+(s.availableCharges===1?'':'s')+' available · '+s.restoredPercent+'% restored';
-  action.disabled=controller.isPlaying()||(!s.ready&&!s.freeSpark);action.hidden=s.complete;
+  action.disabled=controller.isPlaying();action.setAttribute('aria-disabled',String(!s.ready&&!s.freeSpark));action.hidden=s.complete;
   action.textContent='Charge the Beacon';credits.hidden=!s.complete;
   dialog.querySelector('.story-library-next').textContent=s.ready?'Use 1 charge · '+s.ready.title+(s.ready.id==='ending'?' · Full restoration and credits':''):s.complete?'Your final charge brought color home.':s.freeSpark?'Try a free spark. Your first island charge unlocks at Level 10.':'Keep playing! Your next charge unlocks at Level '+s.next.level+'.';
   if(dialog.open)paintIsland();
@@ -79,11 +79,21 @@ export function initStoryUI({document,storage,adventure,admin,adminBackup,settin
  controller=createBeaconController({storage,adventure,admin,adminBackup,settings,beforeScene,afterScene,changed:refresh,showScene:options=>showStoryScene({document,...options})});
  button.onclick=()=>{sound('click');open();};
  action.onclick=async()=>{
-  if(action.disabled)return;action.disabled=true;sound('click');dialog.close();
+  if(action.disabled||controller.isPlaying())return;
+  sound('click');const current=controller.summary();
+  if(!current.ready&&!current.freeSpark){
+   const message=current.next?'Locked — complete Level '+current.next.level+' to charge the Beacon.':'The Beacon is fully charged.';
+   dialog.querySelector('.ability-lock-notice')?.remove();
+   const notice=document.createElement('p');notice.className='ability-lock-notice';notice.setAttribute('role','status');notice.textContent=message;dialog.append(notice);
+   notice.addEventListener('animationend',()=>notice.remove(),{once:true});
+   return;
+  }
+  action.disabled=true;dialog.close();
   const outcome=await controller.charge();
   if(outcome.failed){open();dialog.querySelector('.beacon-status').textContent='The reveal could not load. Your charge is still available—try again.';}
  };
  credits.onclick=async()=>{dialog.close();await controller.replayCredits();};
+ dialog.addEventListener('close',()=>dialog.querySelector('.ability-lock-notice')?.remove());
  dialog.querySelector('.close').onclick=()=>{sound('close');dialog.close();};
  refresh();
  return {...controller,refresh,afterResults:async()=>{if(controller.takeMilestoneNotice())open();}};

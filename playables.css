@@ -82,3 +82,6 @@ html,body{overflow:hidden;}
 #leaderboard-dialog .personal-score-row .avatar{width:38px;height:38px}
 #leaderboard-dialog .personal-score-row .rank-score{font-size:22px;color:#634400}
 #leaderboard-dialog .rank-you:focus-visible,#leaderboard-dialog .personal-score-row:focus-visible{outline:3px solid #077c97;outline-offset:-3px}
+
+#story-library #beacon-charge[aria-disabled=true]{opacity:.55;cursor:pointer}
+#story-library .ability-lock-notice{font-size:15px;line-height:1.4}
