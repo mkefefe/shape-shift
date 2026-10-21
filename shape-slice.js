@@ -1,5 +1,5 @@
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createMiniResults} from './mini-results.js';
+import {createMiniResults} from './mini-results.js?v=hint1';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {sliceViewport} from './slice-viewport.js';

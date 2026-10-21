@@ -21,7 +21,7 @@ function bindPianoKeyboard({host,dialog,active,press,release,pause}){
  }};
 }
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createMiniResults} from './mini-results.js';
+import {createMiniResults} from './mini-results.js?v=hint1';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
