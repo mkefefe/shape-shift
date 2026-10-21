@@ -6,7 +6,7 @@ import {showAdventureVictory} from './adventure-victory.js?v=abilities1';
 import {initStoryUI} from './story-ui.js?v=lock1';
 import {initTouchUI} from './touch-ui.js';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js';
-import {initPianoFlow} from './piano-flow.js?v=hint1';
+import {initPianoFlow} from './piano-flow.js?v=asdf1';
 import {claimPianoReward} from './piano-flow-engine.js';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js';

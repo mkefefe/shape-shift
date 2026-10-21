@@ -1,6 +1,6 @@
 function bindPianoKeyboard({host,dialog,active,press,release,pause}){
  const media=host.matchMedia('(hover: hover) and (pointer: fine)');
- const keys=['d','f','j','k'],held=new Set();let row;
+ const keys=['a','s','d','f'],held=new Set();let row;
  const reset=()=>{for(const key of held)release('key-'+key);held.clear();row?.querySelectorAll('kbd').forEach(el=>el.classList.remove('pressed'));};
  function sync(){dialog.classList.toggle('piano-desktop-keys',media.matches);if(row)row.hidden=!media.matches;if(!media.matches)reset();}
  host.addEventListener('keydown',event=>{
@@ -15,7 +15,7 @@ function bindPianoKeyboard({host,dialog,active,press,release,pause}){
  host.addEventListener('blur',()=>{reset();if(dialog.open)pause();});
  media.addEventListener('change',sync);
  return {reset,mount(){
-  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: D, F, J, K. Hold the key for long notes.');
+  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold the key for long notes.');
   for(const key of keys){const label=dialog.ownerDocument.createElement('kbd');label.textContent=key.toUpperCase();row.append(label);}
   dialog.append(row);sync();return media.matches;
  }};
@@ -122,7 +122,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
   else if(e.type==='countdown')play('countdown');
 
-  else if(e.type==='ready'){play('countdown');hint.textContent=dialog.classList.contains('piano-desktop-keys')?'D F J K · Hold the key for long notes':'Go! Tap anywhere on the next shape’s strip';}
+  else if(e.type==='ready'){play('countdown');hint.textContent=dialog.classList.contains('piano-desktop-keys')?'A S D F · Hold the key for long notes':'Go! Tap anywhere on the next shape’s strip';}
 
  }
 
@@ -238,7 +238,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const hud=el('header','piano-hud'),pauseButton=button('',pause,'piano-pause-button');pauseButton.setAttribute('aria-label','Pause Piano Flow');score=el('strong','piano-score','0');score.setAttribute('aria-label','Score');best=el('small','piano-best');hearts=el('div','piano-lives');hearts.setAttribute('role','img');const wallet=el('div','piano-coins'),coin=el('img');coin.src='assets/coin-v10.webp';coin.alt='Coins';coins=el('strong','','0');wallet.append(coin,coins);hud.append(pauseButton,score,hearts,best,wallet);dialog.append(hud);songLabel=el('p','piano-song');dialog.append(songLabel);
 
   hint=el('p','piano-hint','Tap anywhere on the next shape’s strip');dialog.append(hint);
- if(keyboard.mount())hint.textContent='D F J K · Left to right · Hold the key for long notes';
+ if(keyboard.mount())hint.textContent='A S D F · Left to right · Hold the key for long notes';
 
   game=createPianoGame({...getLoadout(),directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,onEvent:event});settle();update();draw();const card=panel('Piano Flow');const status=el('p','','Preparing the piano…');card.append(status);
 
