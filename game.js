@@ -1,8 +1,8 @@
 import {bombFeedback,bombDebris} from './bomb-feedback.js';
-import {loadStartupAssets} from './startup-loader.js';
+import {loadStartupAssets} from './startup-loader.js?v=abilities1';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js';
 import {praiseDirector} from './praise-feedback.js';
-import {showAdventureVictory} from './adventure-victory.js';
+import {showAdventureVictory} from './adventure-victory.js?v=abilities1';
 import {initStoryUI} from './story-ui.js?v=charge1';
 import {initTouchUI} from './touch-ui.js';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js';
@@ -14,7 +14,7 @@ import {initInputFeedback} from './input-feedback.js';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js';
 import {enableHoldBuying} from './hold-buy.js';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=abilities1';
 import {rankingLoadMessage} from './leaderboard-cache.js';
 import {loadPrivacyContent} from './privacy-content.js';
 import {initSettingsExtras} from './settings-extras.js';
@@ -23,7 +23,7 @@ import {claimSliceReward} from './shape-slice-engine.js';
 import {initGamesHub} from './games-hub.js';
 import {initShapeDrop} from './shape-drop.js';
 import {claimDropReward} from './shape-drop-engine.js';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=abilities1';
 import {fitBoard} from './board-fit.js';
 import {analytics} from './analytics.js';
 import {ensureTerms} from './terms.js';
@@ -77,7 +77,7 @@ import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,a
 
 
 
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,seededRandom} from './engine.js';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,seededRandom} from './engine.js?v=abilities1';
 
 
 
@@ -480,7 +480,7 @@ function update(){
 
 
 
- for(const [name,label,effect] of [['freeze','Double time','twice the time for five boards'],['boost','Five times points','five points per correct pick for five boards'],['shield','Shield','blocks one mistake this run']]){
+ for(const [name,label,effect] of [['freeze','Double time','twice the time for five boards'],['boost','Five times points','five points per correct pick for five boards'],['shield','Shield','blocks one mistake, then waits five completed turns']]){
 
 
 
@@ -500,6 +500,7 @@ function update(){
 
 
 
+  if(name==='shield'&&state.shieldCooldown>0){$(name+'-charges').textContent='Wait '+state.shieldCooldown+' turns';}
   if(!enabled&&profile.inventory[name]===0)autoPowers.delete(name);
 
 
@@ -516,7 +517,7 @@ function update(){
 
 
 
-  $(name).setAttribute('aria-label',label+' — '+effect+'. '+profile.inventory[name]+' charges. Auto refill '+(autoPowers.has(name)?'on':'off'));
+  $(name).setAttribute('aria-label',label+' — '+effect+'. '+profile.inventory[name]+' charges. '+(name==='shield'&&state.shieldCooldown>0?state.shieldCooldown+' turns cooldown. ':'')+'Auto refill '+(autoPowers.has(name)?'on':'off'));
 
 
 
@@ -1518,7 +1519,7 @@ function ability(name){
 
 
 
- $('feedback').textContent=name==='shield'?'Shield on. Tap again to stop.':'On. Uses one every 5 rounds. Tap again to stop.';
+ $('feedback').textContent=name==='shield'?(state.shieldCooldown>0?'Shield queued: ready after '+state.shieldCooldown+' turns.':'Shield on. One hit, then a 5-turn cooldown. Tap again to stop.'):'On. Uses one every 5 rounds. Tap again to stop.';
 
 
 
@@ -2521,7 +2522,7 @@ function applyCosmetics(){
 
 
 
-const itemTips={shield:'Protects one heart. Uses another shield when it breaks. Tap again to stop.',freeze:'Twice as much time for 5 rounds. Uses another when it ends. Tap again to stop.',boost:'5 times the points and coins for 5 rounds. Uses another when it ends. Tap again to stop.',none:'Classic frame. No passive bonus.',gold:'Start each run with four hearts instead of three.',ice:'Every board gives you 10% more time.',blossom:'Randomly removes one of the four shapes for the entire run. Play with three shapes and all four colors on any background. Special items keep their normal effects.',cosmic:'Color Rush: after 10 correct picks in a row, rapidly collect your current color before one shared timer runs out. Each bonus tile gives double points. Then earn the next rush with 20 more, then 30 more. Bonus tiles do not count; mistakes reset progress. Works on every background.',garden:'Your first five successful-pick stages get 0.2 seconds of extra time.',moon:'Every board gives you 10% more time. Combines with Crystal Halo.',sunset:'10% chance of a special item on eligible Adventure boards; 20% in other modes. Items can heal, protect, slow time or clear tiles. Rewind appears only outside Adventure.'};
+const itemTips={shield:'Blocks one mistake, then waits 5 completed turns before using another. Tap again to stop.',freeze:'Twice as much time for 5 rounds. Uses another when it ends. Tap again to stop.',boost:'5 times the points and coins for 5 rounds. Uses another when it ends. Tap again to stop.',none:'Classic frame. No passive bonus.',gold:'Start each run with four hearts instead of three.',ice:'Every board gives you 10% more time.',blossom:'Randomly removes one of the four shapes for the entire run. Play with three shapes and all four colors on any background. Special items keep their normal effects.',cosmic:'Color Rush: after 10 correct picks in a row, rapidly collect your current color before one shared timer runs out. Each bonus tile gives double points. Then earn the next rush with 20 more, then 30 more. Bonus tiles do not count; mistakes reset progress. Works on every background.',garden:'Your first five successful-pick stages get 0.2 seconds of extra time.',moon:'Every board gives you 10% more time. Combines with Crystal Halo.',sunset:'10% chance of a special item on eligible Adventure boards; 20% in other modes. Items can heal, protect, slow time or clear tiles. Rewind appears only outside Adventure.'};
 
 
 
@@ -2948,7 +2949,7 @@ function shop(){
 
 
 
- for(const [name,label,description,art] of [['shield','Shield','Protects one heart.','shield'],['freeze','×2 time','Twice as much time for 5 rounds.','time'],['boost','×5 rewards','5 times the points and coins for 5 rounds.','boost']]){
+ for(const [name,label,description,art] of [['shield','Shield','One hit, then 5 turns to recharge.','shield'],['freeze','×2 time','Twice as much time for 5 rounds.','time'],['boost','×5 rewards','5 times the points and coins for 5 rounds.','boost']]){
 
 
 
@@ -2964,7 +2965,7 @@ function shop(){
 
 
 
-  const icon=document.createElement('button');icon.className='power-art '+(art==='boost'?'boost-art':'');icon.style.setProperty('--power',art==='shield'?2:0);
+  const icon=document.createElement('button');icon.className='power-art '+(art==='boost'?'boost-art':'');icon.dataset.ability=name;icon.style.setProperty('--power',art==='shield'?2:0);
 
 
 
@@ -3927,7 +3928,7 @@ async function prepareStartup(){
  try{
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
   cover.querySelector('p').textContent='Getting ready to play…';
-  await Promise.all([document.fonts.ready,shapeDrop.prepare(),shapeSlice.prepare(),effectArtReady,skinArtReady,ensureSkinArt(activeSkin(),true),audio()?.prepareVictory().then(ready=>{if(!ready)throw Error('Victory samples unavailable');}),audio()?.preparePiano().then(ready=>{if(!ready)throw Error('Piano samples unavailable');}),...['assets/logo-v2-cut.webp','assets/menu-panel-v240.webp','assets/action-v45.webp'].map(src=>{const image=new Image();image.src=src;return image.decode();})]);
+  await Promise.all([document.fonts.ready,shapeDrop.prepare(),shapeSlice.prepare(),effectArtReady,skinArtReady,ensureSkinArt(activeSkin(),true),audio()?.prepareCommon(),audio()?.prepareVictory().then(ready=>{if(!ready)throw Error('Victory samples unavailable');}),audio()?.preparePiano().then(ready=>{if(!ready)throw Error('Piano samples unavailable');}),...['assets/logo-v2-cut.webp','assets/menu-panel-v240.webp','assets/action-v45.webp'].map(src=>{const image=new Image();image.src=src;return image.decode();})]);
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';cover.classList.add('startup-finished');await new Promise(r=>window.ShapeShiftPlatform.setTimeout(r,280));cover.hidden=true;document.getElementById('app').inert=false;window.ShapeShiftPlatform.ready();window.ShapeShiftReminders?.requestFirstLaunch?.();
  }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}
 }

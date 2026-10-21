@@ -78,8 +78,12 @@
     if(name==='transform'){stopVictory();victorySpark=0;}
     if(name==='spark')name='spark'+(victorySpark++%2);
     const buffer=victoryBuffers.get(name);if(!buffer)return;
-    const source=context.createBufferSource();source.buffer=buffer;source.connect(effectsBus);
-    victorySources.push(source);source.onended=()=>{source.disconnect();victorySources=victorySources.filter(item=>item!==source);};
+    const source=context.createBufferSource();source.buffer=buffer;
+    const gain=context.createGain();gain.connect(effectsBus);source.connect(gain);
+    // Keep the logo docking swish brief and fade its tail without a click.
+    const length=name==='panel'?Math.min(.22,buffer.duration):buffer.duration;
+    if(name==='panel'){gain.gain.setValueAtTime(1,time);gain.gain.setValueAtTime(1,time+Math.max(0,length-.06));gain.gain.linearRampToValueAtTime(0,time+length);source.stop(time+length);}
+    victorySources.push(source);source.onended=()=>{source.disconnect();gain.disconnect();victorySources=victorySources.filter(item=>item!==source);};
     source.start(time);
   }
 
@@ -286,7 +290,7 @@
     if(['quest-complete','quest-collect','quest-wallet','coin-arrive'].includes(name))effectPitch=2**((variant-4)*.045/12);
     effectGain=/^(special-|rewind-|heart-fill|shield-arrive|skill-points)/.test(name)?1.7:1;
     const now = context.currentTime;
-    const duckLengths={'victory':.3,'victory-panel':.4,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.4};
+    const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.4};
     // Continuous Piano Flow tapping must not keep its song permanently ducked.
     if(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name))duckMusic(duckLengths[name]??.22);
     const notes = (list, spacing, length, volume = 0.2) => list.forEach((n, i) => tone(midi(n), now + i * spacing, length, volume, 'sine', effectsBus));
@@ -426,6 +430,8 @@
     if(!allowed)pause();else start();
   }
   const resume = start;
-  async function ui(name='click'){if(context?.state==='running'){play(name);if(!active)await start();return;}await start();play(name);}
-  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  let uiEpoch=0;
+  async function ui(name='click'){const epoch=++uiEpoch,requestedAt=Date.now();if(context?.state==='running'){play(name);if(!active)await start();return;}await start();if(epoch===uiEpoch&&!document.hidden&&Date.now()-requestedAt<180)play(name);}
+  async function prepareCommon(){if(!setup())return false;const results=await Promise.all([musicBuffer('menu'),musicBuffer('game'),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
+  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

@@ -60,3 +60,10 @@ html,body{overflow:hidden;}
 #story-library #beacon-charge:disabled{opacity:.55;cursor:default;}
 #story-library #beacon-charge[hidden],#story-library #beacon-credits[hidden]{display:none;}
 #story-library .beacon-status{font-size:13px;color:#075a75;}
+
+/* Dedicated high-resolution raster ability art; avoid atlas-edge sampling. */
+#freeze .power-art,.power-art[data-ability="freeze"]{background-image:url('browser-time-hd1.png');background-position:center;background-size:contain}
+#shield .power-art,.power-art[data-ability="shield"],.health-shield{background-image:url('browser-shield-hd1.png');background-position:center;background-size:contain}
+#boost .power-art,.power-art.boost-art{background-image:url('browser-boost-hd1.png');background-position:center;background-size:contain}
+.power-art,.health-shield{image-rendering:auto;background-repeat:no-repeat}
+#shield-charges{letter-spacing:0;font-size:10px;white-space:nowrap}
