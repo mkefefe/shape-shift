@@ -432,6 +432,16 @@
   const resume = start;
   let uiEpoch=0;
   async function ui(name='click'){const epoch=++uiEpoch,requestedAt=Date.now();if(context?.state==='running'){play(name);if(!active)await start();return;}await start();if(epoch===uiEpoch&&!document.hidden&&Date.now()-requestedAt<180)play(name);}
+  async function prepareGameStart(){
+    // Resume inside the launch gesture, then wait for the actual decoded track.
+    // Muted players must not be held up by an asset they will not hear.
+    if(!window.ShapeShiftPlatform.audioAllowed||(!music&&!sfx))return true;
+    if(!setup())return true;
+    await start();
+    if(context.state!=='running')return false;
+    if(music&&musicVolume>0){if(!await musicBuffer('game'))return false;musicRetry.delete('game');}
+    return true;
+  }
   async function prepareCommon(){if(!setup())return false;const results=await Promise.all([musicBuffer('menu'),musicBuffer('game'),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
-  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

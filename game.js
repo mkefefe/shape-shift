@@ -18,7 +18,7 @@ import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=abi
 import {rankingLoadMessage} from './leaderboard-cache.js';
 import {loadPrivacyContent} from './privacy-content.js';
 import {initSettingsExtras} from './settings-extras.js';
-import {initShapeSlice} from './shape-slice.js?v=hint1';
+import {initShapeSlice} from './shape-slice.js?v=audioentry1';
 import {claimSliceReward} from './shape-slice-engine.js';
 import {initGamesHub} from './games-hub.js';
 import {initShapeDrop} from './shape-drop.js?v=hint1';
@@ -3021,12 +3021,16 @@ let rankingsRequest=0;
 let lastRankingsSnapshot=null;
 function renderOwnRanking(entries=null){
  let summary=document.getElementById('leaderboard-own-score');
- if(!summary){summary=document.createElement('p');summary.id='leaderboard-own-score';summary.className='personal-score-row';summary.setAttribute('aria-live','polite');$('leaderboard-status').before(summary);}
- const identity=getIdentity(),localBest=Math.max(...Object.values(endlessBests()));
- const mine=entries?.find(row=>row.isYou);
- summary.replaceChildren();const title=document.createElement('strong');title.textContent=identity.name+' · You';
- const detail=document.createElement('span');detail.textContent='Saved Endless best: '+localBest+(mine?' · Online: '+mine.score:entries?' · Not in displayed rankings':'');
- summary.append(title,detail);
+ if(!summary){summary=document.createElement('button');summary.type='button';summary.id='leaderboard-own-score';summary.className='personal-score-row';summary.hidden=true;$('leaderboard-dialog').querySelector('.dialog-content').append(summary);}
+ if(!entries)return;
+ const index=entries.findIndex(row=>row.isYou),mine=entries[index];
+ summary.hidden=!mine;if(!mine){summary.replaceChildren();return;}
+ const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=index+1;
+ const name=document.createElement('strong');name.className='personal-rank-name';name.textContent=mine.name;
+ const score=document.createElement('b');score.className='rank-score';score.textContent=mine.score;
+ summary.replaceChildren(rank,leaderboardAvatar(mine),name,score);
+ summary.setAttribute('aria-label','Jump to rank '+(index+1)+', '+mine.name+', '+mine.score+' points');
+ summary.onclick=()=>{const row=$('leaderboard-rows').querySelector('.rank-you');if(row){row.scrollIntoView({block:'center',behavior:document.body.classList.contains('reduce-motion')?'instant':'smooth'});row.focus({preventScroll:true});}};
 }
 
 async function rankings(silent=false){
@@ -3064,7 +3068,7 @@ async function rankings(silent=false){
 
 
   $('leaderboard-reload').hidden=!data.cached;
-  $('leaderboard-status').textContent=data.cached?rankingLoadMessage(null,true):profile.adminMode?'Admin mode: scores stay on this device and do not go on the leaderboard.':!leaderboardAllowed()?(entries.length?'':'No scores yet.'):profile.pending.length?'Your latest score is waiting to upload.':profile.failedScores?.length?'A score could not be verified. Its run data has been kept on this device.':profile.runs.find(r=>r.mode==='endless')?.ranked===false?'Your latest Endless run was saved only on this device and was not submitted to the leaderboard.':entries.length?'':'No scores yet. Finish an online run to join the leaderboard.';
+  $('leaderboard-status').textContent=data.cached?'Offline rankings':entries.length?'':'No scores yet.';
 
 
 
@@ -3088,7 +3092,7 @@ async function rankings(silent=false){
 
 
 
-   if(row.isYou){const badge=document.createElement('span');badge.className='rank-you-badge';badge.textContent='You';copy.append(badge);line.setAttribute('aria-label','Your ranking: '+(i+1)+', '+row.score+' points');}
+   if(row.isYou){line.tabIndex=-1;line.setAttribute('aria-label','Rank '+(i+1)+', '+row.name+', '+row.score+' points');}
 
 
 

@@ -67,3 +67,18 @@ html,body{overflow:hidden;}
 #boost .power-art,.power-art.boost-art{background-image:url('browser-boost-hd1.png');background-position:center;background-size:contain}
 .power-art,.health-shield{image-rendering:auto;background-repeat:no-repeat}
 #shield-charges{letter-spacing:0;font-size:10px;white-space:nowrap}
+
+/* Keep the personal ranking visible while only the ranking list scrolls. */
+#leaderboard-dialog .dialog-content{display:flex;flex-direction:column;overflow:hidden;gap:10px}
+#leaderboard-dialog h2{flex-shrink:0;margin-bottom:8px}
+#leaderboard-dialog #leaderboard-status{flex-shrink:0;margin:0;text-align:center;font-size:12px}
+#leaderboard-dialog #leaderboard-rows{flex:1;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain;scroll-padding:12px}
+#leaderboard-dialog #leaderboard-reload{flex-shrink:0}
+#leaderboard-dialog .rank-you,#leaderboard-dialog .personal-score-row{background:#fff0a3;border:2px solid #e7b52d;color:#634400}
+#leaderboard-dialog .personal-score-row{flex-shrink:0;display:flex;align-items:center;gap:8px;width:100%;padding:10px 8px;margin:0;border-radius:16px;min-height:64px;text-align:left;cursor:pointer;font-family:inherit}
+#leaderboard-dialog .personal-score-row[hidden]{display:none}
+#leaderboard-dialog .personal-score-row .rank-number{font-size:14px;min-width:20px;color:#634400}
+#leaderboard-dialog .personal-rank-name{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#leaderboard-dialog .personal-score-row .avatar{width:38px;height:38px}
+#leaderboard-dialog .personal-score-row .rank-score{font-size:22px;color:#634400}
+#leaderboard-dialog .rank-you:focus-visible,#leaderboard-dialog .personal-score-row:focus-visible{outline:3px solid #077c97;outline-offset:-3px}
