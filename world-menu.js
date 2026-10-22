@@ -1,7 +1,7 @@
-import {starTasks} from './adventure-star-tasks.js?v=49439-web11';
-import {COSMETICS} from './economy.js?v=49439-web11';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web11';
-import {rewardMarkup} from './adventure-rewards.js?v=49439-web11';
+import {starTasks} from './adventure-star-tasks.js?v=49439-web12';
+import {COSMETICS} from './economy.js?v=49439-web12';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web12';
+import {rewardMarkup} from './adventure-rewards.js?v=49439-web12';
 export const GAMES_UNLOCK_LEVEL=1;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];

@@ -318,5 +318,5 @@ input,textarea,[contenteditable="true"],[contenteditable=""],[contenteditable="p
 @media(prefers-reduced-motion:reduce){#board .choice.correct-answer-pulse::after{animation:none;opacity:1}}
 
 /* A shield absorbs the hit: blue feedback, with no message overlay. */
-.shield-flash{animation:shield-tint .34s ease-out}
+.shield-flash{animation:shield-tint .6s ease-out}
 @keyframes shield-tint{15%{box-shadow:inset 0 0 80px #20bfffaa}}

@@ -292,7 +292,7 @@
     if(['quest-complete','quest-collect','quest-wallet','coin-arrive'].includes(name))effectPitch=2**((variant-4)*.045/12);
     effectGain=/^(special-|rewind-|heart-fill|shield-arrive|skill-points)/.test(name)?1.7:1;
     const now = context.currentTime;
-    const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6};
+    const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
     // Continuous Piano Flow tapping must not keep its song permanently ducked.
     if(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name))duckMusic(duckLengths[name]??.22);
     const notes = (list, spacing, length, volume = 0.2) => list.forEach((n, i) => tone(midi(n), now + i * spacing, length, volume, 'sine', effectsBus));
@@ -384,6 +384,13 @@
       case 'skill-points': notes([79,84,88,91],.075,.24,.12);break;
       case 'colorstreak': notes([72,76,79,84,91],.07,.3,.22);break;
       case 'bonus': notes([72,76,79,84,88], .055, .25, .2); break;
+      case 'shield-hit':
+        // A low impact and falling metallic ring distinguish a block from activation.
+        noise(now,.075,.22,1800,effectsBus);
+        tone(180,now,.25,.48,'triangle',effectsBus,65);
+        tone(1250,now,.38,.28,'sine',effectsBus,430);
+        tone(1870,now+.015,.24,.13,'sine',effectsBus,710);
+        break;
       case 'shield': {
         // Preserve the preview timbre, but give its chimes a clear foreground envelope.
         for(const [hz,delay,length,level,type] of [[155,0,.16,.42,'triangle'],[659,.045,.34,.30,'sine'],[988,.095,.45,.24,'sine']]){

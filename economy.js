@@ -1,5 +1,5 @@
-import {frameRewardMultiplier} from './engine.js?v=49439-web11';
-import {normalizeSkins} from './shape-skins.js?v=49439-web11';
+import {frameRewardMultiplier} from './engine.js?v=49439-web12';
+import {normalizeSkins} from './shape-skins.js?v=49439-web12';
 export const BOOST_UNLOCK_LEVELS=Object.freeze({shield:3,freeze:5,boost:8});
 export const boostUnlocked=(profile,name)=>Object.hasOwn(BOOST_UNLOCK_LEVELS,name)&&(profile.adventureCompleted||0)>=BOOST_UNLOCK_LEVELS[name];
 export const PRICES=Object.freeze({shield:100,freeze:100,boost:100});

@@ -113,3 +113,5 @@ html,body{overflow:hidden;}
  #pause-dialog button.keyboard-menu-selected,dialog[data-paused="true"] .drop-pause-panel button.keyboard-menu-selected{outline:4px solid #ffe347;outline-offset:2px;filter:brightness(1.08)}
  #pause-dialog .pause-options::after,dialog[data-paused="true"] .drop-pause-panel::after{content:'W / S select · Space / Enter confirm · Z back';display:block;color:#075570;text-shadow:none;text-align:center;font:800 11px/1.5 Nunito,sans-serif;grid-column:1/-1}
 }
+
+@media (hover:hover) and (pointer:fine){.keyboard-menu-selected{outline:3px solid #ffd35d!important;outline-offset:4px!important}#settings-dialog:has(.keyboard-menu-selected) .hint:empty::after{content:"W / S move · A / D adjust volume · Space / Enter confirm · Z back"}}
