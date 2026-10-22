@@ -1,5 +1,5 @@
-import {publicRankings} from './leaderboard-cache.js?v=49439-web8';
-import {leaderboardAllowed} from './audience.js?v=49439-web8';
+import {publicRankings} from './leaderboard-cache.js?v=49439-web9';
+import {leaderboardAllowed} from './audience.js?v=49439-web9';
 // Public endpoint is enabled only after the score service is published for all players.
 export const LEADERBOARD_URL='https://shape-shift-test-scores.mkplaycraftstudio.workers.dev';
 const key='shape-shift-player-token';

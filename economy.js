@@ -1,9 +1,9 @@
-import {frameRewardMultiplier} from './engine.js?v=49439-web8';
-import {normalizeSkins} from './shape-skins.js?v=49439-web8';
+import {frameRewardMultiplier} from './engine.js?v=49439-web9';
+import {normalizeSkins} from './shape-skins.js?v=49439-web9';
 export const BOOST_UNLOCK_LEVELS=Object.freeze({shield:3,freeze:5,boost:8});
 export const boostUnlocked=(profile,name)=>Object.hasOwn(BOOST_UNLOCK_LEVELS,name)&&(profile.adventureCompleted||0)>=BOOST_UNLOCK_LEVELS[name];
 export const PRICES=Object.freeze({shield:100,freeze:100,boost:100});
-export function boostPrice(profile,item){const base=PRICES[item];if(!base)return 0;const n=profile.purchases?.[item];const count=Number.isSafeInteger(n)&&n>=0?n:0;return Math.min(Number.MAX_SAFE_INTEGER,Math.ceil(base*1.25**count));}
+export function boostPrice(profile,item){const base=PRICES[item];if(!base)return 0;const n=profile.purchases?.[item];const count=Number.isSafeInteger(n)&&n>=0?n:0;return Math.min(Math.floor(Number.MAX_SAFE_INTEGER/5)*5,Math.round(base*1.25**count/5)*5);}
 export function freshProfile(){return {coins:0,ownedSkins:['classic'],ownedAvatars:[0],avatarUnlocksMigrated:false,upgrades:{gold:0,ice:0},purchases:{shield:0,freeze:0,boost:0},inventory:{shield:0,freeze:0,boost:0},runs:[],pending:[],xp:0,owned:[],equipped:{frame:"none",background:"garden",skin:"classic"}};}
 export function normalizeProfile(value){
  const p=value&&typeof value==='object'?value:freshProfile();

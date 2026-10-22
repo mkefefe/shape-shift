@@ -6,17 +6,25 @@ export function directionalChoice(items,current,code){
  return next;
 }
 export function bindBoardKeyboard(root,{enabled,doc=document}){
- let index=0,using=false;
+ let index=0,using=false,held=null,repeatFrame=0,nextMove=0;
+ const host=doc.defaultView;
+ const stop=()=>{held=null;host.cancelAnimationFrame(repeatFrame);repeatFrame=0;};
+ function repeat(now){if(!held||!enabled()){stop();return;}if(now>=nextMove){move(held);nextMove=now+75;}repeatFrame=host.requestAnimationFrame(repeat);}
+ function move(code){using=true;const items=paint();if(!items.length)return;const positions=items.map(el=>{const rect=el.getBoundingClientRect();return {x:rect.left+rect.width/2,y:rect.top+rect.height/2};});index=directionalChoice(positions,index,code);paint();items[index].focus({preventScroll:true});}
+ host.addEventListener('keyup',event=>{if(event.code===held)stop();});
+ host.addEventListener('blur',stop);
+ host.addEventListener('shape-shift-pause',stop);
+ doc.addEventListener('visibilitychange',stop);
+ doc.addEventListener('focusin',event=>{if(!root.contains(event.target))stop();});
  const choices=()=>[...root.querySelectorAll('.choice:not(.collected):not(:disabled)')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
  function paint(){const items=choices();index=Math.max(0,Math.min(index,items.length-1));root.querySelectorAll('.keyboard-choice').forEach(el=>el.classList.remove('keyboard-choice'));if(using)items[index]?.classList.add('keyboard-choice');return items;}
  new MutationObserver(()=>paint()).observe(root,{childList:true});
- root.addEventListener('pointerdown',()=>{using=false;paint();});
+ root.addEventListener('pointerdown',()=>{stop();using=false;paint();});
  doc.addEventListener('keydown',event=>{
   if(!['KeyW','KeyA','KeyS','KeyD','Space'].includes(event.code)||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable="true"]')||!enabled())return;
   event.preventDefault();event.stopImmediatePropagation();if(event.repeat)return;
   using=true;const items=paint();if(!items.length)return;
   if(event.code==='Space'){items[index].click();return;}
-  const positions=items.map(el=>{const rect=el.getBoundingClientRect();return {x:rect.left+rect.width/2,y:rect.top+rect.height/2};});
-  index=directionalChoice(positions,index,event.code);paint();items[index].focus({preventScroll:true});
+  move(event.code);stop();held=event.code;nextMove=host.performance.now()+140;repeatFrame=host.requestAnimationFrame(repeat);
  },true);
 }

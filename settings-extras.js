@@ -1,4 +1,4 @@
-import {LANGUAGES,currentLanguage,setLanguage,translate,initLocalization} from './localization.js?v=49439-web8';
+import {LANGUAGES,currentLanguage,setLanguage,translate,initLocalization} from './localization.js?v=49439-web9';
 const paths={music:'M9 18V5l11-2v13M9 7l11-2M9 18c0 2-6 3-6 0s6-3 6 0M20 16c0 2-6 3-6 0s6-3 6 0',sound:'M4 9h4l5-4v14l-5-4H4zM17 8q5 4 0 8M19 4q9 8 0 16',language:'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20M2 12h20M12 2q-8 10 0 20M12 2q8 10 0 20',bell:'M5 17h14l-2-3V9a5 5 0 0 0-10 0v5zM10 21h4'};
 export function initSettingsExtras(sound){const root=document.querySelector('#settings-dialog .dialog-content'),links=root.querySelector('.settings-links');
  const icon=key=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+paths[key]+'"/></svg>';

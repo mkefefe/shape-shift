@@ -1,4 +1,4 @@
-import {DROP_HEADROOM} from './shape-drop-engine.js?v=49439-web8';
+import {DROP_HEADROOM} from './shape-drop-engine.js?v=49439-web9';
 // The frame's inner rails map to x=0/320; its floor follows the playfield height.
 // Preserve illustrated caps/corners at a uniform scale; only plain rail sections stretch.
 const FRAME_SCALE=.3,FRAME_LEFT=107,FRAME_RIGHT=917,FRAME_FLOOR=1368,FRAME_TIP=95;

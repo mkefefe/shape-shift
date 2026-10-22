@@ -20,8 +20,10 @@ Endless and Adventure accept WASD to select a visible board tile and Space to pi
 
 Desktop browsers use a golden arrow cursor and matching hand pointer on clickable controls. Text editing and drag cursors remain native, and touch devices keep their existing controls.
 
+Held WASD directions repeat after 140 ms and then every 75 ms, independently of operating-system key-repeat settings. Boost prices round to the nearest five coins for both display and purchase.
+
 ## Verify and build
 
-Run `npm test` for the 124 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
+Run `npm test` for the 126 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
 
 The base archive remains split across three files. `web-fix.sha256` lists every deployed overlay file, including current music assets. Android signing material and APK/AAB files are not part of this repository.
