@@ -1,4 +1,4 @@
-import {pianoIcon,PIANO_PITCHES} from './piano-music.js?v=49439-web5';
+import {pianoIcon,PIANO_PITCHES} from './piano-music.js?v=49439-web6';
 // Original, fixed scores: random selection changes the starting tune, never its notes.
 const C=[48,52,55],F=[53,57,60],G=[55,59,62],Am=[45,48,52],Dm=[50,53,57],Em=[52,55,59];
 const form=[['Intro',4],['Verse',8],['Build',4],['Chorus',8],['Verse',8],['Chorus',8],['Outro',4]];

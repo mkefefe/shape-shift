@@ -1,5 +1,5 @@
-import {SHAPE_SKINS} from './shape-skins.js?v=49439-web5';
-import {ARTWORK_CROPS} from './artwork-crops.js?v=49439-web5';
+import {SHAPE_SKINS} from './shape-skins.js?v=49439-web6';
+import {ARTWORK_CROPS} from './artwork-crops.js?v=49439-web6';
 const atlases=new Map(),loads=new Map();let active='classic';
 const atlasKey=(id,chained)=>chained?id+':wrapped':id;
 export function ensureSkinArt(id=active,chained=false){

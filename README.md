@@ -16,8 +16,10 @@ Startup gates play on all 112 shipped media assets, decodes and retains all 70 i
 
 Shield-protected mistakes now use a brief blue flash with the approved low impact and two-note chime. Activating Shield uses the same sound. Feedback stays in the existing HUD without a popup; reduced-motion and sound settings are respected.
 
+Endless and Adventure accept WASD to select a visible board tile and Space to pick it. Games accepts W/S and Space. Z follows Back/Pause and opens Settings from home; H replaces S for the Shield shortcut. Touch and mouse remain available.
+
 ## Verify and build
 
-Run `npm test` for the 121 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
+Run `npm test` for the 124 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
 
 The base archive remains split across three files. `web-fix.sha256` lists every deployed overlay file, including current music assets. Android signing material and APK/AAB files are not part of this repository.

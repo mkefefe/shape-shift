@@ -1,6 +1,6 @@
-import {journeyQuest,journeyDailyPool,questAvailable,advanceJourney} from './quest-journey.js?v=49439-web5';
-import {advanceQuestRun,advanceChallenge} from './quest-challenges.js?v=49439-web5';
-import {COSMETICS,playerLevel} from './economy.js?v=49439-web5';
+import {journeyQuest,journeyDailyPool,questAvailable,advanceJourney} from './quest-journey.js?v=49439-web6';
+import {advanceQuestRun,advanceChallenge} from './quest-challenges.js?v=49439-web6';
+import {COSMETICS,playerLevel} from './economy.js?v=49439-web6';
 const shapes=['circle','triangle','square','star'],colors=['red','blue','green','yellow'];
 export function questPool(p){return [
  ...shapes.map((name,value)=>({id:'shape-'+value,type:'streak',value,target:3,reward:100,title:'Pick 3 '+name+' shapes in a row',hint:'Consecutive correct picks in one run.'})),

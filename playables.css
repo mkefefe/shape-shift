@@ -99,3 +99,12 @@ html,body{overflow:hidden;}
  #shape-drop .drop-keyboard-hint,#home .menu-keyboard-hint{display:block;flex:none;margin:2px 0;text-align:center;color:white;font-size:12px;line-height:18px;font-weight:900;text-shadow:0 1px 3px #114b45}
  #shape-drop .drop-keyboard-hint{pointer-events:none}
 }
+
+.keyboard-play-hint,.hub-keyboard-hint{display:none}
+#board .choice.keyboard-choice{outline:4px solid #ffe347;outline-offset:-4px;box-shadow:0 0 14px #fff5a0}
+@media (hover:hover) and (pointer:fine){
+ .keyboard-play-hint,.hub-keyboard-hint{display:block;text-align:center;font-size:11px;line-height:16px;margin:2px 0;flex:none;color:#fff;font-weight:800;text-shadow:0 1px 3px #03506b}
+ #games-hub .hub-game.keyboard-game{outline:4px solid #ffe347;outline-offset:-4px;filter:brightness(1.08)}
+}
+
+#games-hub .hub-keyboard-hint{color:#075570;text-shadow:none}
