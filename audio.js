@@ -292,7 +292,7 @@
     if(['quest-complete','quest-collect','quest-wallet','coin-arrive'].includes(name))effectPitch=2**((variant-4)*.045/12);
     effectGain=/^(special-|rewind-|heart-fill|shield-arrive|skill-points)/.test(name)?1.7:1;
     const now = context.currentTime;
-    const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.4};
+    const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6};
     // Continuous Piano Flow tapping must not keep its song permanently ducked.
     if(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name))duckMusic(duckLengths[name]??.22);
     const notes = (list, spacing, length, volume = 0.2) => list.forEach((n, i) => tone(midi(n), now + i * spacing, length, volume, 'sine', effectsBus));
@@ -384,12 +384,18 @@
       case 'skill-points': notes([79,84,88,91],.075,.24,.12);break;
       case 'colorstreak': notes([72,76,79,84,91],.07,.3,.22);break;
       case 'bonus': notes([72,76,79,84,88], .055, .25, .2); break;
-      case 'shield':
-        // Approved shield impact: soft low hit, followed by two clear chimes.
-        effectPitch=1;
-        tone(155,now,.12,.16,'triangle',effectsBus);
-        tone(659,now+.045,.25,.10,'sine',effectsBus);
-        tone(988,now+.095,.36,.075,'sine',effectsBus);break;
+      case 'shield': {
+        // Preserve the preview timbre, but give its chimes a clear foreground envelope.
+        for(const [hz,delay,length,level,type] of [[155,0,.16,.42,'triangle'],[659,.045,.34,.30,'sine'],[988,.095,.45,.24,'sine']]){
+          const at=now+delay,osc=context.createOscillator(),gain=context.createGain();
+          osc.type=type;osc.frequency.setValueAtTime(hz,at);
+          gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(level,at+.008);
+          gain.gain.setValueAtTime(level,at+.035);gain.gain.exponentialRampToValueAtTime(.0001,at+length);
+          osc.connect(gain);gain.connect(effectsBus);osc.start(at);osc.stop(at+length+.02);
+          osc.onended=()=>{osc.disconnect();gain.disconnect();};
+        }
+        break;
+      }
       case 'level': case 'levelup': notes([74, 77, 81, 86], 0.085, 0.3, 0.18); break;
       case 'over': case 'gameover': notes([77, 74, 69, 62], 0.14, 0.4, 0.16); break;
       case 'start': notes([62, 69, 74], 0.075, 0.22); break;
