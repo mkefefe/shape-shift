@@ -3951,12 +3951,13 @@ async function prepareStartup(){
   cover.querySelector('p').textContent='Getting ready to play…';
   await Promise.all([document.fonts.ready,shapeDrop.prepare(),shapeSlice.prepare(),audio()?.prepareCommon(),effectArtReady,skinArtReady,ensureSkinArt(activeSkin(),true),audio()?.prepareVictory().then(ready=>{if(!ready)throw Error('Victory samples unavailable');}),audio()?.preparePiano().then(ready=>{if(!ready)throw Error('Piano samples unavailable');}),...['assets/logo-v2-cut.webp','assets/menu-panel-v240.webp','assets/action-v45.webp'].map(src=>{const image=new Image();image.src=src;return image.decode();})]);
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';cover.classList.add('startup-finished');await new Promise(r=>window.ShapeShiftPlatform.setTimeout(r,280));
+  window.ShapeShiftPlatform.ready();
   if(firstEndless.pending){
    runMode='endless';const launch=start(true);
    // start() switches to the game synchronously, before revealing the app.
    cover.hidden=true;document.getElementById('app').inert=false;await launch;
   }else{cover.hidden=true;await storyUI.onFirstOpen();document.getElementById('app').inert=false;}
-  window.ShapeShiftPlatform.ready();window.ShapeShiftReminders?.requestFirstLaunch?.();
+  window.ShapeShiftReminders?.requestFirstLaunch?.();
  }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}
 }
 prepareStartup();
