@@ -1,14 +1,14 @@
-import {createMiniTutorial} from './mini-tutorial.js';
-import {createMiniResults} from './mini-results.js?v=hint1';
-import {createMiniContinue} from './mini-continue.js';
-import {createHitFeedback} from './mini-hit-feedback.js';
-import {sliceViewport} from './slice-viewport.js';
-import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js?v=particles1';
-import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js';
-import {miniGameCoins} from './mini-game-rewards.js';
-import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js';
-import {shapeArtReady,paintMiniShape} from './mini-shape-art.js';
-import {cutShape,splitFragment,stepFragments,artworkBox} from './slice-fragments.js';
+import {createMiniTutorial} from './mini-tutorial.js?v=49439-web1';
+import {createMiniResults} from './mini-results.js?v=49439-web1';
+import {createMiniContinue} from './mini-continue.js?v=49439-web1';
+import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web1';
+import {sliceViewport} from './slice-viewport.js?v=49439-web1';
+import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js?v=49439-web1';
+import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js?v=49439-web1';
+import {miniGameCoins} from './mini-game-rewards.js?v=49439-web1';
+import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=49439-web1';
+import {shapeArtReady,paintMiniShape} from './mini-shape-art.js?v=49439-web1';
+import {cutShape,splitFragment,stepFragments,artworkBox} from './slice-fragments.js?v=49439-web1';
 const bomb=new Image();bomb.src='assets/slice-bomb-v239.webp';const bombReady=bomb.decode().then(()=>true).catch(()=>false);
 const galaxy=new Image();galaxy.src='assets/slice-galaxy-v260.webp';const galaxyReady=galaxy.decode().then(()=>true).catch(()=>false);
 const KEY='shape-shift-slice-v1',colors=['#ff5878','#49ceff','#6bff89','#ffe56c'];
@@ -77,18 +77,18 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   if(game&&!paused&&!game.over)drawSliceTrail(trailCtx,trail,game.time,quiet);
  }
  function tick(now){if(!game||!dialog.open)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;if(!paused&&!window.ShapeShiftPlatform.paused){game.step(hitFeedback.step(dt));lifeLossTime=Math.max(0,lifeLossTime-dt);lifeNotice.hidden=lifeLossTime===0;if(pointer!==null){if(game.time-motionAt>.06)motionEnergy*=Math.exp(-dt*15);window.gameAudio?.sliceMotion(motionEnergy);}fragments=stepFragments(fragments,dt,transform?.bounds);stepSliceEffects(effects,dt);impacts=stepBombImpacts(impacts,dt);for(const p of sparks){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;}for(const l of labels)l.age+=dt;sparks=sparks.filter(p=>p.age<.5).slice(-150);labels=labels.filter(l=>l.age<.85).slice(-20);trail=trail.filter(p=>game.time-p.time<SLICE_TRAIL_LIFETIME).slice(-320);flash=Math.max(0,flash-dt);paintTime+=dt;if(paintTime>=1/60){paintTime%=1/60;update();render();}if(game.over&&!hitFeedback.active&&lifeLossTime===0&&!bombImpactPending(impacts)){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
- async function start(){if(game&&!save())return;const audioReady=window.gameAudio?.prepareGameStart()?.catch(()=>false)??Promise.resolve(true);stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;swipeSeconds=0;swipeColor=sliceTrailColor(0);runId='shape-slice-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;
+ async function start(){if(game&&!save())return;const audioReady=window.gameAudio?.prepareGameStart('slice')?.catch(()=>false)??Promise.resolve(true);stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;swipeSeconds=0;swipeColor=sliceTrailColor(0);runId='shape-slice-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const scenery=el('div','slice-scenery');scenery.setAttribute('aria-hidden','true');scenery.append(el('div','slice-stars slice-stars-far'),el('div','slice-stars slice-stars-near'));dialog.append(scenery);
   const hud=el('div','slice-play-hud'),pauseButton=button('',pause,'drop-icon drop-icon-pause');pauseButton.setAttribute('aria-label','Pause Shape Slice');scoreText=el('strong','slice-current-score','0');scoreText.setAttribute('aria-label','Current score');const best=el('div','slice-best');bestText=el('strong','','0');best.append(el('span','','BEST'),bestText);livesText=el('div','slice-lives');livesText.setAttribute('role','img');const coins=el('div','mini-run-coins'),coinIcon=el('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';coinText=el('strong','','0');coins.append(coinIcon,coinText);hud.append(pauseButton,scoreText,best,livesText,coins);dialog.append(hud);const stage=el('div','drop-stage');canvas=el('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;trailCanvas=el('canvas','slice-trail-canvas');trailCanvas.setAttribute('aria-hidden','true');dialog.append(trailCanvas);trailCtx=trailCanvas.getContext('2d');
   const help=el('div','slice-help');notice=el('span','','Swipe shapes · Avoid the bombs');notice.setAttribute('aria-live','polite');help.append(notice);dialog.append(help);lifeNotice=el('div','slice-life-loss');lifeNotice.hidden=true;lifeNotice.setAttribute('role','status');lifeNotice.setAttribute('aria-live','assertive');lifeNotice.setAttribute('aria-atomic','true');dialog.append(lifeNotice);
   const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close));
   let loadingTimer;
-  const ready=await Promise.race([Promise.all([shapeArtReady,bombReady,galaxyReady,audioReady]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=setTimeout(()=>resolve(false),10000);})]);
-  clearTimeout(loadingTimer);
+  const ready=await Promise.race([Promise.all([shapeArtReady,bombReady,galaxyReady,audioReady]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),10000);})]);
+  window.ShapeShiftPlatform.clearTimeout(loadingTimer);
   if(token!==version||!dialog.open)return;
   if(!ready){const card=panel('Unable to load');card.append(el('p','','Check your connection and try again.'),button('Retry',start),button('Games',close));return;}
   overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
-  settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});teaching.mount(dialog);onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('game');last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});teaching.mount(dialog);onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('slice');last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const point=e=>{const p=slicePointerPoint(e,canvas.getBoundingClientRect(),transform);return {...p,x:p.x-camera.x/transform.scale,y:p.y-camera.y/transform.scale};};
   const addTrail=e=>{const r=dialog.getBoundingClientRect();trail.push({x:e.clientX-r.left,y:e.clientY-r.top,time:game.time,stroke,color:swipeColor});};
   const overControl=e=>[...dialog.querySelectorAll('button')].some(b=>{const r=b.getBoundingClientRect();return r.width>0&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;});

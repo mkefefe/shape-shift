@@ -1,0 +1,1 @@
+const noop=()=>{}; export const createAnalytics=()=>({count:noop,flush:noop,sample:noop,sessionStart:noop,sessionEnd:noop,input:noop,enable:noop,startRun:noop,pick:noop,endRun:noop,snapshot:()=>({})});export const analytics=createAnalytics();

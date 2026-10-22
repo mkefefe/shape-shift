@@ -1,0 +1,450 @@
+/* Generated raster surfaces. All images retain their original aspect ratio.
+   The portrait panel is always 2:3; long content scrolls inside it. */
+dialog,#app dialog,#app dialog:has(> .close){
+ --panel-width:min(380px,calc(100vw - 24px),calc((100dvh - 24px)*2/3));
+ width:var(--panel-width);height:calc(var(--panel-width)*1.5);max-width:none;max-height:none;
+ padding:0;border:0;border-radius:24px;overflow:hidden;
+ background:transparent url('assets/menu-panel-v240.webp') center/contain no-repeat;
+ color:#12465b;box-shadow:0 16px 54px #001f4770;
+}
+dialog::backdrop{background:#002940b8;backdrop-filter:blur(3px)}
+dialog .dialog-content{height:100%;max-height:none;padding:54px 25px 28px;overflow:auto;scroll-padding-top:54px;scrollbar-width:thin;scrollbar-color:#42bdce transparent;overscroll-behavior:contain}
+dialog > .close,#app dialog > .close{position:absolute;right:8px;top:7px;width:54px;height:54px;min-width:54px;min-height:54px;padding:0;border:0;border-radius:50%;background:none;box-shadow:none;z-index:20;line-height:0}
+dialog > .close img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+dialog > .close:active{filter:brightness(.88)}
+dialog h2{padding:0 8px;margin:0 0 24px;text-align:center;color:#07566d;font-size:28px;line-height:1.18;font-weight:1000;text-shadow:0 2px #fff}
+dialog .primary,dialog .reward-button,dialog .exit-button,dialog .quest-collect:not(:disabled),dialog .shop-buy{
+ display:block;position:relative;width:min(100%,270px);aspect-ratio:3;min-height:48px;height:auto;margin:12px auto 0;
+ padding:8px 16px;border:0;border-radius:0;background:transparent url('assets/action-v45.webp') center/contain no-repeat;
+ box-shadow:none;color:#684200;font:1000 16px/1.15 Nunito,sans-serif;text-shadow:0 1px #fff4b0;
+}
+dialog .primary:active,dialog .reward-button:active,dialog .exit-button:active,dialog .shop-buy:active{filter:brightness(.9);transform:none}
+dialog .reward-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:12px 22px}
+dialog .reward-button strong{font-size:21px}dialog .reward-button span{font-size:12px}
+dialog .shop-buy{width:100%;font-size:12px;padding:6px 9px;min-height:44px;margin-top:auto}
+dialog .shop-buy.frame-upgrade{margin-top:2px}
+dialog .shop-buy:disabled,dialog .reward-button:disabled,dialog .shop-buy.unavailable{background-color:transparent;filter:saturate(.2);opacity:.62;color:#4c5c60;text-shadow:none}
+dialog .secondary{color:#176780;border:1px solid #66c5d878;background:#d6f6fa85;border-radius:14px;min-height:44px;padding:10px 14px;font-weight:900}
+dialog .setting{border-bottom:1px solid #6dbccd55;padding:15px 0}dialog .setting input{width:25px;height:25px;accent-color:#08aebd}
+dialog .hint{color:#366778;margin:14px 0;font-size:12px}
+dialog .cosmetic-card,dialog .profile-cosmetic,dialog .quest-card{background:#c9f0f780;border:1px solid #4bb9ce66;box-shadow:inset 0 1px 0 #ffffffb3}
+dialog .quest-card{border-radius:20px}.quest-card .quest-collect:not(:disabled){min-width:0;width:190px;font-size:16px;margin:8px auto 0}
+dialog .rank-card{padding:12px 10px;border:1px solid #55bed055;border-radius:16px;background:#c9f0f780;margin-bottom:9px}
+#leaderboard-rows{max-height:none;overflow:visible}
+#over-dialog .result-content{text-align:center;padding-top:25px;display:flex;flex-direction:column;align-items:center}
+.result-mark{display:block;width:150px;height:100px;object-fit:contain;margin:0 auto 2px}
+#over-dialog #record{font-size:15px;font-weight:1000;color:#087289;letter-spacing:2px;margin:4px 0 0}
+#over-dialog #final-score{color:#086f86;text-shadow:0 3px #fff;font-size:64px;line-height:1;margin:7px 0 14px;padding:0}
+#over-dialog #result-progress{margin:0;font-size:13px}#over-dialog #level-progress{width:80%;height:16px;border:1px solid #6fb4c8;margin:8px auto 12px}
+#over-dialog .best-line{margin:0 0 6px;font-size:14px}#over-dialog .result-actions{width:100%;margin:0}#over-dialog .exit-button{width:225px;font-size:15px;margin:0 auto}
+#over-dialog #continue-ad{margin-top:4px;width:260px;flex-shrink:0}#over-dialog #ad-status{font-size:11px;margin:5px 0;min-height:0}
+#pause-dialog .dialog-content{display:flex;flex-direction:column;justify-content:center;padding-top:45px}#pause-dialog h2{margin:0 0 16px}
+#pause-dialog .pause-options{margin:0;gap:8px}#pause-dialog .pause-option{border-radius:18px;background:#c6f2f76b;border:1px solid #86d4e466}
+#coins-ad-dialog .reward-preview{width:95px;height:95px}#coins-ad-dialog .coin-reward-amount{font-size:30px}
+#age-dialog .dialog-content{height:100%}#age-dialog p{font-size:14px}
+@media(max-width:360px),(max-height:600px){dialog .dialog-content{padding:52px 20px 22px}dialog h2{font-size:24px}dialog .cosmetic-card strong{font-size:12px}dialog .shop-buy{font-size:11px}#over-dialog .result-mark{width:112px;height:75px}#over-dialog #final-score{font-size:54px}#over-dialog .result-content{padding-top:20px}}
+
+
+/* Inset the scroll viewport so content never covers the painted rim. */
+dialog .dialog-content{height:calc(100% - 32px);margin:16px 0;padding-top:38px;padding-bottom:16px}
+#settings-dialog h2{margin-bottom:12px}#settings-dialog .setting{padding:11px 0}
+#settings-dialog .secondary{margin:6px auto;padding:9px 12px}#settings-dialog .hint:empty{display:none}
+#settings-dialog .primary{width:225px;margin-top:9px}
+#over-dialog .result-content{padding-top:9px}#pause-dialog .dialog-content{padding-top:25px}
+
+/* Fit the welcome panel without a second scroll surface. */
+html:has(#age-dialog[open]),body:has(#age-dialog[open]){overflow:hidden;overscroll-behavior:none}
+#age-dialog{--panel-width:min(320px,calc(100vw - 24px),calc((100dvh - 24px)*2/3));overscroll-behavior:none}
+#age-dialog .age-content{height:calc(100% - 32px);padding:4px 22px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+#age-dialog .age-content>*{flex-shrink:0}
+#age-dialog h2{font-size:25px;margin:0;line-height:1.15}
+#age-dialog .age-question{font-size:17px;margin:0;font-weight:900;line-height:1.2}
+.age-picker{position:relative;width:160px;margin:2px auto;border-radius:25px;background:#c6f1f5;border:2px solid #65c5d6;box-shadow:inset 0 2px 10px #2888a326}
+.age-picker:after{content:"";position:absolute;pointer-events:none;left:8px;right:8px;top:68px;height:48px;border-radius:14px;border:2px solid #13a5bd;background:#ffffff35}
+#age-dialog .age-step{display:block;width:100%;height:44px;min-height:44px;margin:0;padding:0;background:none;border:0;box-shadow:none;color:#087289;font-size:23px;touch-action:manipulation}
+.age-wheel{height:96px;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:none;scrollbar-width:none;padding:24px 0;touch-action:none;position:relative;user-select:none;cursor:grab}
+.age-wheel:active{cursor:grabbing}.age-wheel::-webkit-scrollbar{display:none}
+.age-option{height:48px;min-height:48px;line-height:48px;scroll-snap-align:center;font-size:25px;font-weight:900;color:#538c9b;cursor:pointer}
+.age-option[aria-selected=true]{color:#07566d;font-size:30px}.age-option[data-age=""]{font-size:19px}
+#age-dialog .age-help{display:none}
+#age-dialog .hint{font-size:11px;line-height:1.25;margin:3px 0;max-width:250px}
+#age-dialog .primary{width:144px;min-height:48px;margin:0}
+#age-dialog .primary:disabled{filter:grayscale(.8);opacity:.55}
+#age-dialog .secondary{margin:0;min-height:44px;padding:6px 12px;font-size:13px}
+@media(max-height:480px){#age-dialog .age-content{gap:2px;padding:2px 18px}#age-dialog h2{font-size:20px}#age-dialog .hint{font-size:10px}#age-dialog .age-question{font-size:15px}}
+
+/* Keep the instructional pointer moving independently of decorative FX. */
+#tutorial-dialog .dialog-content{padding:44px 25px 16px;text-align:center}
+#tutorial-dialog #tutorial-step{margin:0 36px 8px;font-size:11px;color:#087289}
+#tutorial-dialog h2{font-size:25px;margin:0 0 12px;padding:0}
+#tutorial-dialog #tutorial-copy{font-size:14px;line-height:1.45;margin:0 auto;max-width:285px}
+#tutorial-dialog #tutorial-current{margin:12px 0;gap:8px;font-size:14px}
+#tutorial-dialog #tutorial-current .sprite{width:48px;height:48px}
+#tutorial-dialog #tutorial-board{gap:18px;margin:14px auto 38px;width:min(100%,260px)}
+#tutorial-dialog .tutorial-choice{background:#83dce780;border:2px solid #55bdcf;border-radius:22px;margin:0;overflow:visible;touch-action:manipulation}
+#tutorial-dialog .tutorial-choice .sprite{width:80px;height:80px}
+#tutorial-dialog .tutorial-target{outline:3px solid #ffd447;outline-offset:4px;background:#b0f2e9;box-shadow:0 0 16px #ffc83d66}
+#tutorial-dialog .tutorial-hand{width:74px;height:auto;aspect-ratio:1312/1199;object-fit:contain;bottom:auto;top:80%;left:50%;transform-origin:91% 91%;animation:tutorial-point 1.2s ease-in-out infinite!important;will-change:transform}
+@keyframes tutorial-point{0%,100%{transform:translate(-91%,-91%) translateY(8px) rotate(var(--hand-angle,-135deg))}45%,60%{transform:translate(-91%,-91%) translateY(0) rotate(var(--hand-angle,-135deg))}}
+@keyframes tutorial-point-gentle{0%,100%{transform:translate(-91%,-91%) translateY(3px) rotate(var(--hand-angle,-135deg))}50%{transform:translate(-91%,-91%) rotate(var(--hand-angle,-135deg))}}
+body.reduce-motion #tutorial-dialog .tutorial-hand{animation:tutorial-point-gentle 1.8s ease-in-out infinite!important}
+
+#tutorial-dialog #tutorial-note{font-size:12px;line-height:1.35;min-height:0;margin:8px 0;color:#9d304a}
+#tutorial-dialog #tutorial-note:empty{display:none}
+#tutorial-dialog #tutorial-next{width:225px;margin:12px auto 0;font-size:15px}
+#tutorial-dialog > .close{width:58px;height:58px;min-width:58px;min-height:58px;top:6px;right:7px}
+@media(max-width:360px),(max-height:600px){#tutorial-dialog .dialog-content{padding:40px 22px 12px}#tutorial-dialog h2{font-size:21px;margin-bottom:7px}#tutorial-dialog #tutorial-copy{font-size:12px;line-height:1.35}#tutorial-dialog #tutorial-current{margin:8px 0;font-size:12px}#tutorial-dialog #tutorial-board{width:210px;gap:16px;margin:10px auto 32px}#tutorial-dialog .tutorial-choice .sprite{width:68px;height:68px}#tutorial-dialog #tutorial-next{width:195px;font-size:13px}#tutorial-dialog .tutorial-hand{width:62px;height:auto;left:50%;top:80%;bottom:auto}}
+
+/* Quest feedback stays in the existing heading, clear of tappable tiles. */
+.board-heading{position:relative}
+#quest-notice{position:absolute;inset:-3px 0;z-index:2;display:flex;align-items:center;justify-content:center;gap:6px;background:#07685b;border:1px solid #9eedcf;border-radius:10px;color:#fff5b0;font-size:11px;pointer-events:none;box-shadow:0 2px 8px #003e5540}
+#quest-notice img{width:24px;height:24px;object-fit:contain}
+.quest-notice-enter{animation:quest-notice-in .45s ease-out both}.quest-badge-pop{animation:quest-badge-pop .65s ease-out}
+.quest-card{position:relative;transform-origin:center;overflow:hidden}
+.quest-state{text-align:center;color:#08796b;font-size:13px;font-weight:1000;letter-spacing:.4px;margin-bottom:10px}
+.quest-card.complete .quest-progress-fill{background:#3bd2a9}
+.quest-claiming{pointer-events:none;animation:quest-card-out .42s ease-in both}
+.quest-claiming .quest-reward{animation:quest-coins-rise .38s ease-out both}
+.quest-new{animation:quest-card-in .48s cubic-bezier(.2,.8,.2,1) both}
+.quest-new .quest-state{color:#8a6100}
+@keyframes quest-notice-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes quest-badge-pop{40%{transform:scale(1.25)}to{transform:scale(1)}}
+@keyframes quest-card-out{0%,45%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(-24px)}}
+@keyframes quest-coins-rise{to{opacity:0;transform:translateY(-24px)}}
+@keyframes quest-card-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.quest-card > .quest-state{display:block;text-align:center;margin:0 0 10px}
+
+/* Identify this device's player without publishing its private profile. */
+dialog .rank-card.rank-you{border:2px solid #e5ac27;background:#fff3ba;box-shadow:0 0 12px #ffd45d55}
+.rank-you-badge{display:inline-block;margin-top:4px;padding:2px 10px;border-radius:12px;background:#087f98;color:white;font-size:11px;font-weight:900}
+
+/* Pause uses the same painted action buttons and fixed close control as settings. */
+#pause-dialog .dialog-content{justify-content:flex-start;padding-top:42px;text-align:center}
+#pause-dialog h2{margin:0 0 28px}
+#pause-dialog .pause-options{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+#pause-dialog .pause-option{display:flex;flex-direction:row;justify-content:center;align-items:center;gap:12px;width:100%;aspect-ratio:3;min-height:0;padding:10px 22px;border:0;border-radius:0;background:transparent url('assets/action-v45.webp') center/contain no-repeat;color:#684200;font:1000 18px Nunito,sans-serif;text-shadow:0 1px #fff4b0;box-shadow:none}
+#pause-dialog .pause-option img{width:42px;height:42px;object-fit:contain;flex-shrink:0}
+#pause-dialog .pause-option:active{transform:none;filter:brightness(.9)}
+@media(max-height:650px){#pause-dialog .dialog-content{padding-top:35px}#pause-dialog h2{margin-bottom:12px}#pause-dialog .pause-options{gap:8px}#pause-dialog .pause-option{font-size:15px}#pause-dialog .pause-option img{width:32px;height:32px}}
+
+#achievements-dialog{text-align:center}#achievement-count{font-weight:900;color:#087f98;margin:0 0 18px}.achievement-card{padding:16px 12px;margin:12px 0;border:1px solid #65bdcd;border-radius:18px;background:#c9f0f780}.achievement-card.earned{background:#fff0b7;border:2px solid #e5ad2c}.achievement-card h3{margin:0 0 6px;font-size:18px}.achievement-card p{font-size:13px;margin:6px 0 12px}.achievement-card progress{width:90%;height:20px;accent-color:#0ca9b6}.achievement-card strong{display:block;margin-top:5px;font-size:13px}
+
+#achievement-notice{position:absolute;inset:-3px 0;z-index:3;display:grid;place-items:center;pointer-events:none;border:1px solid #e5ad2c;border-radius:10px;background:#fff0b7;color:#684200;font-size:11px;font-weight:900;animation:quest-notice-in .35s ease-out}
+
+/* Feedback is one compact coin message; effects render above the play surface. */
+#play-feedback.coin-earned{display:block;background:none;padding:2px;color:#ffe98b;box-shadow:none;text-shadow:0 1px 3px #273b46}
+#play-feedback.coin-earned strong{font-size:16px;margin:0}
+.special-flight-layer,.starburst-overlay{z-index:60}
+.special-flying-art{display:block;width:80px!important;height:96px!important;overflow:hidden;background-repeat:no-repeat;filter:drop-shadow(0 0 16px var(--effect-tint))}
+.shape-coin-flight{position:fixed;z-index:61;pointer-events:none;will-change:transform,left,top,opacity}.shape-coin-flight>.sprite{display:block;pointer-events:none}
+
+#avatar-items .avatar{width:70px;height:70px;margin:5px auto}#avatar-presets .avatar-locked{position:relative;opacity:.5}#avatar-presets .avatar-locked:after{content:'Locked';position:absolute;bottom:-5px;left:0;right:0;font-size:8px;border-radius:5px;color:white;background:#225467}
+
+/* Three compact quests share the available portrait panel without scrolling. */
+#quests-dialog .dialog-content{display:flex;flex-direction:column;padding:48px 22px 22px;overflow:auto}
+#quests-dialog h2{flex:none;margin:0 0 8px;font-size:25px;line-height:30px}
+#quest-list{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;flex:1;min-height:0}
+#quests-dialog .quest-card{display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:0;margin:0;padding:9px 10px;border-radius:15px;overflow:visible}
+#quests-dialog .quest-card h3{font-size:14px;line-height:1.2;margin:0;text-align:center;max-width:none}
+#quests-dialog .quest-progress{height:25px;min-height:25px;margin:0;flex:none}
+#quests-dialog .quest-progress strong{font-size:13px;line-height:21px}
+#quests-dialog .quest-footer{display:flex;justify-content:center;align-items:center;gap:12px;margin:0;flex:none}
+#quests-dialog .quest-reward{display:flex;justify-content:center;align-items:center;gap:3px;margin:0;font-size:16px;color:#895707}
+#quests-dialog .quest-reward img{width:23px;height:23px;object-fit:contain}
+#quests-dialog .quest-collect,#quests-dialog .quest-collect:not(:disabled){width:126px;min-width:0;height:42px;min-height:42px;aspect-ratio:3;padding:5px;margin:0;font-size:13px;flex:none}
+#quests-dialog .quest-state{position:absolute;top:0;left:50%;transform:translate(-50%,-45%);font-size:10px;line-height:14px;padding:0 8px;border-radius:9px;background:#fff0b7;color:#766000;white-space:nowrap;margin:0;z-index:1}
+.home-tools #achievements-open{margin:0;padding:0;display:block}
+.home-tools #achievements-open img{width:54px;height:54px;object-fit:contain;display:block}
+@media(max-width:360px),(max-height:650px){#quests-dialog .dialog-content{padding:45px 18px 17px}#quests-dialog h2{font-size:22px;line-height:26px;margin-bottom:6px}#quest-list{gap:7px}#quests-dialog .quest-card{padding:6px 8px;gap:4px}#quests-dialog .quest-card h3{font-size:12px}#quests-dialog .quest-progress{height:22px;min-height:22px}#quests-dialog .quest-progress strong{line-height:18px}#quests-dialog .quest-collect,#quests-dialog .quest-collect:not(:disabled){height:40px;min-height:40px;width:120px;font-size:12px}.home-tools{gap:3px}}
+
+.shop-wallet{display:flex;align-items:center;justify-content:center;gap:6px}.shop-wallet img{width:25px;height:25px;object-fit:contain;flex:none}
+
+/* Fixed purchase column keeps every boost button identical. */
+#shop-items .shop-item{display:grid;grid-template-columns:46px minmax(0,1fr) 126px;gap:8px;align-items:center}
+#shop-items .shop-item>div{min-width:0}
+#shop-items .shop-item strong{font-size:14px;line-height:1.25}
+#shop-items .shop-buy{width:126px;min-width:126px;max-width:126px;height:44px;min-height:44px;max-height:44px;aspect-ratio:auto;margin:0;padding:6px 9px;justify-self:end;align-self:center;background-size:contain}
+
+#countdown{z-index:90;background:#00243fd1}#countdown strong{font-variant-numeric:tabular-nums;text-shadow:0 4px 0 #9c681c,0 0 28px #ffdc7770}
+.health.refilling .heart,#health.refilling .heart{animation:heart-refill .45s ease-out both;animation-delay:var(--heart-delay,0ms)}
+@keyframes heart-refill{from{opacity:.15;transform:scale(.6)}60%{opacity:1;transform:scale(1.25);filter:brightness(1.7)}to{opacity:1;transform:scale(1)}}
+.burst-dom{overflow:hidden}.burst-beam{position:absolute;height:6px;margin-top:-3px;background:#fff4ac;border-radius:8px;transform-origin:left center;box-shadow:0 0 8px 3px #ffbd33,0 0 18px #ffdf85;pointer-events:none}
+.burst-points{position:absolute;font:1000 23px Nunito,sans-serif;color:#fff5bc;text-shadow:0 2px 1px #6f4500,0 0 9px #ffca4e;transform:translate(-50%,-50%);pointer-events:none}
+.burst-pulse,.burst-spark{position:absolute;width:44px;height:44px;border-radius:50%;border:3px solid #fff3b2;box-shadow:0 0 20px #ffce57,inset 0 0 15px #ffce57;pointer-events:none}
+.rewind-card{display:grid!important;place-items:center!important;box-shadow:0 0 16px #90ffee77;border-color:#9affec!important;background:#196c7dd9!important;will-change:left,top,width,height,opacity}
+
+.burst-mote{position:absolute;width:13px;height:13px;border-radius:50%;background:radial-gradient(circle,#fffef1 0 15%,#ffe49b 35%,#ffc45a77 65%,transparent 75%);filter:drop-shadow(0 0 5px #ffd46a);pointer-events:none}
+.burst-impact{position:absolute;width:52px;height:52px;border-radius:50%;background:radial-gradient(circle,#fff9d7cc, #ffd77b55 35%,transparent 70%);pointer-events:none}
+
+/* Keep four navigation icons on the right; rewards sit below the wallet on the left. */
+.home-tools.home-extras{left:env(safe-area-inset-left,0px);right:auto;top:calc(env(safe-area-inset-top,0px) + 72px);gap:12px}
+
+.quest-reward-flight{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:transparent;overflow:visible;pointer-events:none;z-index:200}
+.quest-reward-flight::backdrop{background:transparent;pointer-events:none}
+.quest-reward-receipt,.reward-wallet{position:absolute;display:flex;align-items:center;justify-content:center;gap:5px;color:#fff4ae;font:1000 27px Nunito,sans-serif;text-shadow:0 2px 3px #734300;white-space:nowrap}
+.quest-reward-receipt img{width:30px;height:30px;object-fit:contain}.reward-wallet{transform:translate(-50%,-50%);padding:5px 10px;border-radius:22px;background:#065780;font-size:22px}.reward-wallet img{width:28px;height:28px;object-fit:contain}
+.quest-flying-coin{position:absolute;left:0;top:0;width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 0 5px #ffda65)}
+.choice.picked-tile{animation:pick-tile-glow .46s ease-out both}.picked-tile>.sprite{animation:pick-art-fade .46s ease-out both}.tile-points{position:absolute;inset:0;display:grid;place-items:center;z-index:3;color:#fff4a5;font:1000 clamp(24px,7vw,38px) Nunito,sans-serif;text-shadow:0 2px 3px #745200,0 0 12px #ffc431;pointer-events:none;animation:pick-points .46s ease-out both}
+@keyframes pick-tile-glow{0%{box-shadow:inset 0 0 0 3px #fff5ac,0 0 18px #ffd74c}65%{opacity:1}100%{opacity:0}}
+@keyframes pick-art-fade{0%,20%{opacity:1}75%,100%{opacity:0}}
+@keyframes pick-points{0%{opacity:0;transform:translateY(8px)}20%,70%{opacity:1}100%{opacity:0;transform:translateY(-15px)}}
+.reduce-motion .choice.picked-tile,.reduce-motion .picked-tile>.sprite,.reduce-motion .tile-points{animation-duration:.18s}
+
+.special-flying-art.shield-flying-art{width:60px!important;height:60px!important;filter:drop-shadow(0 0 7px #b8faff)}
+.heart-restored{animation:heart-restored .28s ease-out both}.shield-forming{opacity:.18;filter:grayscale(1)}.shield-restored{animation:shield-restored .35s ease-out both}
+@keyframes heart-restored{0%{opacity:.3;filter:brightness(2);transform:translateY(4px)}65%{opacity:1;filter:brightness(1.35)}100%{transform:translateY(0);filter:none}}
+@keyframes shield-restored{0%{filter:brightness(2) drop-shadow(0 0 10px #b1faff)}100%{filter:none}}
+.reduce-motion .heart-restored{animation:none}
+
+/* Shared icon and label columns keep pause actions aligned despite label length. */
+#pause-dialog .pause-option{display:flex;justify-content:center;align-items:center;gap:0;text-align:center}
+#pause-dialog .pause-option span{text-align:center;white-space:nowrap}
+
+
+.burst-energy-orb,.burst-energy-head{position:absolute;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#fff 0 14%,#fff3a0 25%,#ffc62e 47%,transparent 72%);box-shadow:0 0 22px #ffd64b;pointer-events:none;transform:translate(-50%,-50%)}.burst-energy-head{width:18px;height:18px;box-shadow:0 0 13px 3px #ffe670}
+.burst-moving-trail{position:absolute;height:4px;transform-origin:left center;border-radius:4px;background:linear-gradient(90deg,#ffb92366,#fff7b0);box-shadow:0 0 7px 2px #ffdd59;pointer-events:none}
+.burst-tile-flash{position:absolute;border-radius:18px;background:radial-gradient(circle,#fff8bc,#ffc933);box-shadow:inset 0 0 16px #fff4c1,0 0 15px #ffc847;pointer-events:none}
+
+#result-return-countdown{font:900 13px Nunito,sans-serif;text-align:center;color:#286478;margin:8px 0 0;min-height:18px}
+
+#over-dialog .result-coins{display:flex;align-items:center;justify-content:center;gap:10px;color:#286478;margin:-5px 0 9px;font:900 14px Nunito,sans-serif}
+#over-dialog .result-coins>div{display:flex;align-items:center;gap:5px}
+#over-dialog .result-coins img{width:28px;height:28px;object-fit:contain}
+#over-dialog #final-coins{font-size:24px;color:#975500;font-variant-numeric:tabular-nums}
+#over-dialog #final-score{font-variant-numeric:tabular-nums}
+
+button.level-chip{min-height:44px;border:1px solid #a0ecff55;font-family:inherit;cursor:pointer;touch-action:manipulation}
+button.level-chip:active{filter:brightness(1.25)}button.level-chip:focus-visible{outline:3px solid #ffe75d;outline-offset:3px}
+#xp-help-dialog{text-align:center}#xp-help-level{display:block;font-size:24px;color:#087289;margin:0 0 14px}
+#xp-help-dialog p{font-size:14px;line-height:1.5;margin:14px 0}#xp-help-dialog .hint{font-size:12px}
+.xp-help-meter{position:relative;height:30px;width:100%;margin:auto}.xp-help-meter progress{display:block;appearance:none;width:100%;height:100%;border:1px solid #329db4;border-radius:16px;overflow:hidden;background:#bfdfeb}
+.xp-help-meter progress::-webkit-progress-bar{background:#bfdfeb}.xp-help-meter progress::-webkit-progress-value{background:#6cd8bc}.xp-help-meter progress::-moz-progress-bar{background:#6cd8bc}
+.xp-help-meter span{position:absolute;inset:0;display:grid;place-items:center;color:#074456;font-size:14px;font-weight:900}
+
+#profile-dialog .player-id-row{display:flex;justify-content:center;align-items:center;gap:4px;margin:7px 0 0;color:#286478;font-size:12px;text-align:center}
+#profile-dialog .player-id-row[hidden]{display:none}#public-player-id{user-select:text;-webkit-user-select:text;font-variant-numeric:tabular-nums}
+#copy-player-id{width:44px;height:44px;min-height:44px;flex:0 0 44px;padding:3px;border:0;background:transparent;box-shadow:none;cursor:pointer}
+#copy-player-id img{width:100%;height:100%;object-fit:contain}#copy-player-id:active{filter:brightness(1.2)}
+#player-id-status{min-height:16px;margin:0 0 6px;text-align:center;font-size:12px;color:#087289}
+
+/* Keep result actions and auto-return visible on compact phones. */
+#over-dialog .result-mark{height:80px;flex-shrink:0}
+#over-dialog .result-content>*{flex-shrink:0}
+@media(max-height:650px){#over-dialog .result-mark{display:none}#over-dialog .result-content{padding-top:12px}#over-dialog #final-score{font-size:46px;margin:5px 0 9px}#over-dialog #continue-ad{width:220px;min-height:60px}#over-dialog .exit-button{width:195px;min-height:48px}#over-dialog #ad-status{font-size:10px}#over-dialog #level-progress{margin:6px auto 8px}}
+
+#profile-dialog .player-id-row>span{grid-column:2;white-space:nowrap;text-align:center}
+#copy-player-id{grid-column:3;padding:7px}
+
+/* Settings is a single fixed page, with paired utility actions. */
+html:has(#settings-dialog[open]),body:has(#settings-dialog[open]){overflow:hidden;overscroll-behavior:none}
+#settings-dialog{--panel-width:min(320px,calc(100vw - 24px),calc((100dvh - 24px)*2/3))}
+#settings-dialog .dialog-content{display:flex;flex-direction:column;gap:12px;justify-content:flex-start;padding:23px 20px 20px;overflow:hidden;overscroll-behavior:none}
+#settings-dialog .dialog-content>*{flex-shrink:0}
+#settings-dialog h2{font-size:25px;margin:0 38px 15px;padding:0;line-height:1.15;text-align:center}
+#settings-dialog .setting{min-height:44px;margin:0;padding:6px 2px;font-size:14px}
+#settings-dialog .settings-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%}
+#settings-dialog .secondary{width:100%;min-height:44px;margin:0;padding:5px 7px;font-size:12px;line-height:1.2}
+#settings-dialog .primary{width:144px;min-height:48px;margin:0 auto}
+#settings-dialog .hint{font-size:11px;line-height:1.25;margin:0;text-align:center}
+
+/* Run results stay on one page; only the numbers animate. */
+html:has(#over-dialog[open]),body:has(#over-dialog[open]){overflow:hidden;overscroll-behavior:none}
+#over-dialog .result-content{overflow:hidden;overscroll-behavior:none;justify-content:center;gap:2px;padding:6px 20px}
+#over-dialog .result-mark{display:none}
+#over-dialog #record{margin:0;font-size:14px;line-height:18px}
+#over-dialog #final-score{font-size:44px;line-height:1;margin:0}
+#over-dialog .result-coins{margin:2px 0;font-size:12px;gap:8px;min-height:26px}
+#over-dialog .result-coins img{width:24px;height:24px}
+#over-dialog #final-coins{font-size:22px}
+#over-dialog #result-progress{margin:0;font-size:12px;line-height:16px}
+#over-dialog #level-progress{height:12px;margin:3px auto;width:80%}
+#over-dialog .best-line{margin:2px 0;font-size:12px;line-height:20px;padding:0}
+#over-dialog .best-line strong{font-size:17px}
+#over-dialog #continue-ad{width:210px;max-width:100%;height:60px;min-height:60px;aspect-ratio:auto;margin:0;padding:6px 10px;gap:2px}
+#over-dialog #continue-ad strong{font-size:20px}#over-dialog #continue-ad span{font-size:10px}
+#over-dialog #ad-status{font-size:10px;line-height:13px;margin:2px 0;min-height:0}
+#over-dialog #ad-status:empty{display:none}
+#over-dialog .result-actions{margin:0;gap:0}
+#over-dialog .exit-button{width:144px;min-height:48px;height:48px;margin:0 auto;padding:6px;font-size:13px}
+#over-dialog #result-return-countdown{margin:0;font-size:11px;line-height:16px;min-height:16px}
+
+.floating-points{position:fixed;z-index:9;pointer-events:none;user-select:none;color:#fff4a5;font:1000 28px Nunito,sans-serif;line-height:1;text-shadow:0 2px 3px #745200,0 0 10px #ffc431;will-change:transform,opacity}
+
+#quests-collect-all{flex:none;align-self:center;width:180px;min-height:44px;height:44px;margin:10px auto 0;padding:7px 16px;font-size:15px}#quests-collect-all[hidden]{display:none}
+
+/* Keep each reward inside its centered action, including when Collect all is available. */
+#quests-dialog .quest-collect,#quests-dialog .quest-collect:not(:disabled){display:inline-flex;align-items:center;justify-content:center;gap:10px;width:190px;max-width:100%;height:48px;min-height:48px;margin:0 auto;padding:7px 15px;font-size:15px}
+#quests-dialog .quest-collect[hidden]{display:none}
+#quests-dialog .quest-collect .quest-reward,#quests-collect-all .quest-reward{color:inherit;font-size:inherit;white-space:nowrap;gap:4px}
+#quests-collect-all{display:flex;align-items:center;justify-content:center;gap:10px;width:220px;max-width:100%;height:48px;min-height:48px}
+@media(max-width:360px),(max-height:650px){#quests-dialog .quest-collect,#quests-dialog .quest-collect:not(:disabled){width:180px;height:44px;min-height:44px;font-size:14px}#quests-collect-all{height:44px;min-height:44px}}
+#quests-dialog:has(#quests-collect-all:not([hidden])) .quest-state{display:none}
+
+#over-dialog .result-home-hint{max-width:240px;margin:6px auto 2px;text-align:center;font:800 12px/1.4 Nunito,sans-serif;color:#286478}
+
+#coins-ad-skip{display:block;margin:12px auto 0;min-width:130px}#coins-ad-skip[hidden]{display:none}
+
+#coins-ad-dialog .dialog-content{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:44px 22px 18px;overflow:hidden}
+#coins-ad-dialog h2{margin:0;font-size:24px}
+#coins-ad-dialog .reward-preview{width:70px;height:70px;margin:0}
+#coins-ad-dialog .coin-reward-amount{font-size:27px}
+#coins-ad-dialog #coins-ad-status{margin:0;font-size:13px;line-height:1.4;text-align:center}
+#coins-ad-dialog #coins-ad-watch{margin:0;min-height:58px;height:64px;flex-shrink:0}
+#coins-ad-dialog #coins-ad-skip{margin:0;min-height:44px;flex-shrink:0}
+
+.choice.rewind-reveal .sprite{animation:rewind-shape-reveal .24s ease-out both}@keyframes rewind-shape-reveal{from{opacity:0}to{opacity:1}}
+
+/* Initial result focus announces the heading, without preselecting the ad. */
+#over-dialog #record:focus{outline:none}
+
+/* Touch-friendly volume controls retain the existing panel proportions. */
+#settings-dialog .dialog-content{gap:8px}
+#settings-dialog h2{margin-bottom:8px}
+#settings-dialog .audio-setting{width:100%;padding:0 3px}
+#settings-dialog .audio-setting .setting{min-height:28px;padding:0;display:flex;justify-content:space-between;align-items:center}
+#settings-dialog .volume-row{display:flex;align-items:center;gap:10px;height:36px}
+#settings-dialog .volume-row output{min-width:38px;text-align:right;color:#07566d;font-size:12px;font-weight:900;font-variant-numeric:tabular-nums}
+#settings-dialog input[type=range]{appearance:none;-webkit-appearance:none;flex:1;min-width:0;width:100%;height:32px;margin:0;background:transparent;cursor:pointer;touch-action:pan-y;border:0;padding:0;box-shadow:none}
+#settings-dialog input[type=range]::-webkit-slider-runnable-track{height:10px;border:1px solid #2298b0;border-radius:8px;background:linear-gradient(to right,#ffcc42 0 var(--volume),#b4e3ee var(--volume) 100%);box-shadow:inset 0 2px 3px #12658030}
+#settings-dialog input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin-top:-9px;border:2px solid #fff3b5;border-radius:50%;background:linear-gradient(#fff1a1,#ffbe27);box-shadow:0 2px 4px #07566d66}
+#settings-dialog input[type=range]::-moz-range-track{height:10px;border:1px solid #2298b0;border-radius:8px;background:#b4e3ee}
+#settings-dialog input[type=range]::-moz-range-progress{height:10px;background:#ffcc42;border-radius:8px}
+#settings-dialog input[type=range]::-moz-range-thumb{width:24px;height:24px;border:2px solid #fff3b5;border-radius:50%;background:#ffcc42}
+#settings-dialog input[type=range]:focus-visible{outline:2px solid #08728e;outline-offset:2px;border-radius:10px}
+
+/* Opaque power trays remain readable against bright Adventure scenery. */
+#game .power,#game .power:disabled:not(.armed){background:#155571;opacity:1;border-color:#458aa4;box-shadow:0 3px 0 #07364b}
+#game .power.level-locked{background:#294c5d;color:#d4e4ed}
+#game .power.level-locked .power-art{opacity:.55}
+#game .power.armed{background:#08728e;border-color:#7affdf;box-shadow:0 0 0 2px #064254,0 0 12px #65f6d9}
+#ability-guide{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:hidden}
+#ability-guide::backdrop{background:#001b36b8;backdrop-filter:none}
+#ability-guide section{position:fixed;left:50%;transform:translateX(-50%);width:min(340px,calc(100vw - 32px));padding:16px;border:3px solid #66e5ef;border-radius:20px;background:#e4faff;color:#12465b;text-align:center;box-shadow:0 5px 0 #08617a}
+#ability-guide h2{font-size:23px;margin:0 0 8px;padding:0}
+#ability-guide p{font-size:14px;line-height:1.4;margin:0 0 10px}
+#ability-guide strong{font-size:13px;color:#08728e}
+#ability-guide .guide-target{position:fixed;margin:0;box-sizing:border-box;opacity:1;border:3px solid #ffe167;box-shadow:0 0 0 5px #ffda5b55,0 0 22px #ffe167;background-color:#155571;z-index:2;animation:abilityTargetGlow 1s ease-in-out infinite}
+#ability-guide .guide-target .sprite{width:72%;height:auto;aspect-ratio:1;margin:auto}
+#ability-guide .ability-guide-hand{position:fixed;width:74px;height:68px;object-fit:contain;pointer-events:none;z-index:3;animation:abilityHandTap .85s ease-in-out infinite}
+@keyframes abilityHandTap{0%,100%{transform:translate(-6px,-6px)}50%{transform:translate(0,0)}}
+@keyframes abilityTargetGlow{50%{box-shadow:0 0 0 7px #ffda5b66,0 0 28px #ffe167}}
+
+.ability-lock-notice{position:fixed;z-index:1000;left:50%;top:45%;transform:translateX(-50%);width:max-content;max-width:85vw;background:#07566d;color:white;border:2px solid #7ae7ee;border-radius:16px;padding:14px 18px;text-align:center;font-weight:800;pointer-events:none;animation:abilityLockFloat 2.2s both}
+@keyframes abilityLockFloat{0%{opacity:0;transform:translate(-50%,12px)}15%,75%{opacity:1}100%{opacity:0;transform:translate(-50%,-20px)}}
+
+#ability-guide .guide-special-icon{position:relative;display:block;flex:none;overflow:hidden;margin:auto;min-width:24px;min-height:28px;visibility:visible;opacity:1}
+#ability-guide .guide-special-icon img{position:absolute;display:block;width:500%!important;max-width:none!important;height:auto!important;top:50%;transform:translateY(-50%);visibility:visible;opacity:1;pointer-events:none}
+#ability-guide .guide-art-fallback{color:#fff3a2;font:900 15px Nunito,sans-serif;padding:8px}
+
+#board-guide{position:fixed;inset:0;z-index:1000;pointer-events:none}
+.board-guide-hand{position:fixed;width:74px;height:68px;object-fit:contain;animation:teach-tap 1s ease-in-out infinite}
+.board-guide-copy{position:fixed;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 40px);padding:12px 16px;border:2px solid #b5f2ff;border-radius:16px;background:#073953;color:#fff;font-size:15px;font-weight:800;text-align:center;box-shadow:0 4px 12px #001d3c66}
+#game .live-guide-target{outline:3px solid #ffe167;outline-offset:3px;box-shadow:0 0 15px #ffdc72!important;opacity:1!important}
+
+/* Explain briefly, then teach with the real board. */
+#board-guide .board-guide-copy{width:260px;max-width:calc(100vw - 48px);box-sizing:border-box;padding:13px 16px;border:3px solid #80edff;background:linear-gradient(#e4fcff,#b9eff9);color:#064563;border-radius:19px;box-shadow:0 3px 0 #008dad,0 8px 20px #002a4955;pointer-events:auto;font-size:16px;line-height:1.3}
+.board-guide-copy p{margin:0 0 10px}
+#board-guide .board-guide-continue{display:block;min-height:44px;width:160px;max-width:100%;margin:0 auto;padding:7px 15px;font-size:17px;line-height:1.2}
+#board-guide .board-guide-copy[hidden]{display:none}
+#board-guide[data-phase="practice"] .board-guide-copy{pointer-events:none}
+#board-guide[data-phase="practice"] .board-guide-copy p{margin:0}
+#game .live-guide-focus{outline:3px solid #ffe167;outline-offset:5px;border-radius:12px;animation:guide-focus-pulse .9s ease-in-out infinite;opacity:1!important}
+@keyframes guide-focus-pulse{50%{box-shadow:0 0 20px 5px #ffdb7299;outline-color:#fff4c2}}
+
+/* Compact achievement gallery: four columns and four visible rows. */
+#app #achievements-dialog{width:min(440px,calc(100vw - 16px));height:min(690px,calc(100dvh - 20px));max-height:calc(100dvh - 20px);background:#d9f9ff;border:5px solid #20c9df;border-radius:26px;box-shadow:inset 0 0 0 3px #b2faff,0 12px 35px #00395566}
+#achievements-dialog .dialog-content{display:flex;flex-direction:column;gap:8px;padding:18px 13px 16px;overflow:hidden}
+#achievements-dialog h2{margin:0 30px 0;font-size:27px;line-height:1.25;color:#075570}
+#achievements-dialog #achievement-count{margin:0;font-size:12px;color:#12647a}
+#achievement-tabs{display:flex;gap:5px;flex-shrink:0;order:0}
+#achievement-tabs button{flex:1;min-width:0;min-height:40px;padding:5px;border:1px solid #52b8cc;border-radius:12px;background:#b4e6f3;color:#12536c;font:900 13px Nunito}
+#achievement-tabs button.selected{background:linear-gradient(#fff2a4,#ffd159);border-color:#eab130;color:#674414;box-shadow:0 2px #cb9428}
+#achievement-tabs button:focus:not(:focus-visible),.achievement-tile:focus:not(:focus-visible){outline:none}
+#achievements-dialog #achievement-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:calc((100% - 24px)/4);gap:8px;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#53bfce transparent;padding:2px 3px 3px}
+#achievements-dialog .achievement-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;width:100%;min-height:0;padding:4px 3px;border:1px solid #8fcbd8;border-radius:15px;background:linear-gradient(#effdff,#bae7f2);color:#11526a;box-shadow:0 2px #80c2d1;font-family:Nunito;cursor:pointer}
+.achievement-tile .achievement-medal{display:block;width:clamp(25px,5dvh,42px);height:clamp(25px,5dvh,42px);object-fit:contain;filter:saturate(.45)}
+.achievement-tile.earned{border-color:#e3af35!important;background:linear-gradient(#fff7cb,#ffe5a0)!important}
+.achievement-tile.earned .achievement-medal{filter:none}
+.achievement-mini-title{font-size:10px;font-weight:900;line-height:1.1;max-width:100%;text-align:center}
+.achievement-tier{position:absolute;right:5px;top:3px;font-size:10px;font-weight:1000;color:#88600d}
+.achievement-meter{display:block;width:90%;height:8px;overflow:hidden;border:1px solid #7ca9b9;border-radius:8px;background:#6593a6;box-shadow:inset 0 1px 2px #234f6455;flex-shrink:0}
+.achievement-meter i{height:100%;display:block;background:linear-gradient(#fff6a7 0%,#ffdf60 40%,#f5ae25 100%);border-radius:inherit;box-shadow:inset 0 1px #fff9c9}
+.achievement-mini-progress{font-size:10px;line-height:1.1;font-weight:900}
+.achievement-tile.earned:not(.claimed) .achievement-mini-progress{background:#ffda60;border-radius:7px;padding:3px 5px;color:#684307}
+.achievement-empty{grid-column:1/-1;align-self:center;font-size:15px;padding:24px 10px}
+#achievement-detail{flex:1;min-height:0;overflow:auto;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:15px;padding:5px 14px}
+#achievement-detail .achievement-back{align-self:flex-start;margin-bottom:auto;padding:7px 15px}
+#achievement-detail>.achievement-medal{width:95px;height:95px;object-fit:contain}
+#achievement-detail h3{margin:0;font-size:24px;color:#075570}
+#achievement-detail p{margin:0;font-size:16px;line-height:1.4}
+#achievement-detail .achievement-meter{height:20px;width:100%}
+#achievement-detail>strong{font-size:19px}
+.achievement-reward{display:flex;align-items:center;gap:5px;font-size:23px;font-weight:1000;color:#74500d}
+.achievement-reward img{width:30px;height:30px;object-fit:contain}
+#achievement-detail .achievement-collect{min-height:48px;min-width:170px;font-size:19px;margin-bottom:auto}
+.achievement-collected{color:#247254;font-weight:900;margin-bottom:auto!important}
+#achievements-dialog [hidden]{display:none!important}
+#achievements-dialog #achievement-status:empty{display:none}
+#achievements-dialog #achievement-status{font-size:11px;margin:0}
+@media(max-height:650px){#achievements-dialog .dialog-content{gap:5px;padding:12px 10px}#achievements-dialog h2{font-size:23px}#achievement-detail{gap:8px}#achievement-detail>.achievement-medal{width:60px;height:60px}#achievement-detail h3{font-size:20px}.achievement-mini-title{font-size:9px}.achievement-tile .achievement-medal{width:26px;height:26px}}
+
+.achievement-shape-art{position:relative;overflow:hidden;flex-shrink:0}.achievement-shape-art>img{position:absolute;width:400%;height:400%;max-width:none;pointer-events:none}
+
+/* Fixed badge rows: labels and reward state cannot move the artwork. */
+#achievements-dialog .achievement-tile{display:grid;grid-template-rows:minmax(26px,1fr) 24px 8px 18px;justify-items:center;align-items:center;gap:3px;padding:5px 3px}
+#achievements-dialog .achievement-mini-title{height:24px;display:flex;align-items:center;justify-content:center;line-height:12px}
+#achievements-dialog .achievement-mini-progress{box-sizing:border-box;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;white-space:nowrap}
+.achievement-atlas-art{position:relative;display:block;overflow:hidden;flex-shrink:0}
+.achievement-atlas-art>img{position:absolute;display:block;width:400%;height:auto;max-width:none;pointer-events:none}
+/* Detail is an independent compact modal above the still-visible gallery. */
+dialog#achievement-detail-popup{box-sizing:border-box;width:min(330px,calc(100vw - 44px));height:fit-content;max-height:calc(100dvh - 40px);padding:26px 20px 17px;border:4px solid #23c8dc;border-radius:23px;background:linear-gradient(#effeff,#c9f3fa);box-shadow:inset 0 0 0 2px #b6f7ff,0 12px 35px #002e4b77;overflow:auto;color:#075570;text-align:center}
+#achievement-detail-popup::backdrop{background:#002c4866;backdrop-filter:none}
+#achievement-detail-popup>.close{right:4px;top:4px;width:40px;height:40px;min-width:40px;min-height:40px}
+#achievement-detail-popup #achievement-detail{display:grid;grid-template-rows:68px 46px 60px 14px 22px 30px 48px;justify-items:center;align-items:center;gap:7px;padding:0;overflow:visible}
+#achievement-detail-popup #achievement-detail>.achievement-medal{display:block;width:68px;height:68px;object-fit:contain;margin:0;filter:none}
+#achievement-detail-popup #achievement-detail h3{display:flex;align-items:center;justify-content:center;font-size:21px;line-height:23px;margin:0;max-width:100%}
+#achievement-detail-popup #achievement-detail p{font-size:14px;line-height:18px;margin:0;max-width:100%}
+#achievement-detail-popup #achievement-detail>.achievement-meter{width:100%;height:14px}
+#achievement-detail-popup #achievement-detail>strong{font-size:16px}
+#achievement-detail-popup .achievement-reward{font-size:21px}
+#achievement-detail-popup .achievement-reward img{height:26px;width:26px}
+.achievement-detail-footer{display:flex;align-items:center;justify-content:center;min-height:48px;width:100%}
+#achievement-detail-popup .achievement-collect{min-width:160px;min-height:46px;margin:0;font-size:18px}
+#achievement-detail-popup .achievement-collected,#achievement-detail-popup .achievement-in-progress{display:inline-flex;align-items:center;justify-content:center;min-height:38px;border-radius:12px;padding:0 20px;background:#abdce8;color:#245e73;font-size:14px;font-weight:900;margin:0!important}
+#achievement-detail-popup .achievement-collected{background:#baebd6;color:#236647}
+@media(max-height:650px){#achievements-dialog .achievement-tile{grid-template-rows:minmax(22px,1fr) 22px 7px 15px;gap:2px;padding:3px}#achievements-dialog .achievement-mini-title{height:22px;line-height:11px}#achievements-dialog .achievement-mini-progress{height:15px;font-size:9px}#achievement-detail-popup #achievement-detail{grid-template-rows:56px 42px 60px 12px 20px 26px 44px;gap:5px}#achievement-detail-popup #achievement-detail>.achievement-medal{width:56px;height:56px}}
+
+#achievement-detail-popup .achievement-detail-footer{height:60px;min-height:60px}#achievement-detail-popup .achievement-collect{box-sizing:border-box;width:180px;max-width:100%;height:60px;min-height:60px;padding:8px 16px}
+
+/* Keep swipe and wheel scrolling without browser scrollbar tracks in game menus. */
+html body dialog,html body dialog *{scrollbar-width:none!important}
+html body dialog::-webkit-scrollbar,html body dialog *::-webkit-scrollbar{display:none;width:0;height:0}
+
+#board-guide .board-guide-title{display:block;font-size:18px;line-height:1.2;margin-bottom:8px}
+
+/* Anchor the fingertip below the turn meter, with the hand clear of the shape. */
+.board-guide-hand.board-guide-hand-meter{transform-origin:67px 62px;rotate:225deg;animation:meter-hand-tap 1s ease-in-out infinite}
+@keyframes meter-hand-tap{0%,100%{transform:scale(1)}50%{transform:scale(.94)}}
+
+#app[data-screen="game"] #achievement-notice,#app[data-screen="game"] #quest-notice{display:none!important}
+#game #streak-praise{position:fixed;left:50%;top:50%;width:max-content;max-width:90vw;text-align:center;font-size:clamp(28px,7vw,38px);padding:8px 24px;transform:translate(-50%,-50%)}
+
+#achievement-grid-wrap{position:relative;flex:1;min-height:0}
+#achievements-dialog #achievement-grid-wrap #achievement-list{height:100%;box-sizing:border-box}
+#achievement-tabs button{position:relative}
+.achievement-tab-dot,.achievement-ready-dot{position:absolute;width:10px;height:10px;background:#ffcf36;border:2px solid #fff4ad;border-radius:50%;box-shadow:0 1px 3px #785400;top:3px;left:3px;pointer-events:none}
+.achievement-tab-dot{left:auto;right:3px}
+#achievement-tabs .achievement-tab-dot[hidden],#achievement-badge[hidden]{display:none!important}
+
+.shop-buy[data-repeat-buy]{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+
+/* Keep compact tutorial copy inside its available space on short displays. */
+#board-guide .board-guide-copy{overflow-y:auto;scrollbar-width:none}
+#board-guide .board-guide-copy::-webkit-scrollbar{display:none}
+
+
+
+
+/* The reward action stays below the independently scrolling achievement grid. */
+#achievements-dialog #achievement-collect-all{flex:0 0 64px;align-self:center;width:250px;max-width:100%;min-height:64px;height:64px;margin:4px auto 0;padding:8px 20px;font-size:20px}
+.mode-card.mode-rush.locked{filter:saturate(.35)}

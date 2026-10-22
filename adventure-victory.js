@@ -3,7 +3,7 @@ const clamp=n=>Math.max(0,Math.min(1,n));
 const ease=n=>{n=clamp(n);return n*n*(3-2*n);};
 export function victoryPose(ms){return {dim:ease(ms/420),enter:ease((ms-1700)/650),gather:ease((ms-600)/850),dock:ease((ms-3650)/1100),panel:ease((ms-3900)/900)};}
 
-export function victoryTimeline(done,{visible=()=>true,update=()=>{},raf=window.ShapeShiftPlatform.requestAnimationFrame,caf=window.ShapeShiftPlatform.cancelAnimationFrame,now=()=>window.ShapeShiftPlatform.now()}={}){
+export function victoryTimeline(done,{visible=()=>true,update=()=>{},raf=requestAnimationFrame,caf=cancelAnimationFrame,now=()=>window.ShapeShiftPlatform.now()}={}){
  let elapsed=0,last=now(),frame,ended=false;
  const finish=()=>{if(ended)return;ended=true;caf(frame);done();};
  function tick(time){if(ended)return;const delta=Math.min(80,Math.max(0,time-last));last=time;if(visible())elapsed+=delta;update(elapsed/VICTORY_DURATION);if(elapsed>=VICTORY_DURATION)finish();else if(!ended)frame=raf(tick);}

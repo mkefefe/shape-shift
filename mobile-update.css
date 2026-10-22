@@ -1,0 +1,78 @@
+#story-scene.story-scene[open] { display:flex; align-items:center; justify-content:center; width:100vw; height:100dvh; min-width:0; min-height:0; box-sizing:border-box; }
+#story-scene .story-scene-canvas { flex:none; width:min(100vw,56.25dvh); height:min(100dvh,177.7778vw); min-width:0; min-height:0; max-width:100%; max-height:100%; object-fit:contain; }
+#story-scene .story-scene-sound { top:50%; bottom:auto; left:50%; transform:translate(-50%,-50%); z-index:3; }
+#story-scene[data-stage=complete] .story-scene-sound { top:max(8px,env(safe-area-inset-top)); bottom:auto; min-height:44px; height:44px; font-size:18px; transform:translateX(-50%); }
+#story-scene[data-stage=complete] .story-scene-sound{top:50%;left:50%;bottom:auto;transform:translate(-50%,-50%);width:auto;max-width:90%;height:auto;min-height:44px;padding:12px 16px;background:none;border:0;border-radius:0;box-shadow:none;color:#fff;font-size:24px;text-shadow:0 2px 5px #102d43;white-space:nowrap;}
+#story-library .beacon-charge-count{font-size:16px;font-weight:900;color:#075a75;margin:8px 0;}
+#story-library #beacon-charge:disabled{opacity:.55;cursor:default;}
+#story-library #beacon-charge[hidden],#story-library #beacon-credits[hidden]{display:none;}
+#story-library .beacon-status{font-size:13px;color:#075a75;}
+/* Render compact panels as one continuous bitmap, with no join at 50% height. */
+#app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog) {
+  background:transparent url('assets/menu-panel-v240.webp') center/100% 100% no-repeat !important;
+}
+#app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::before,
+#app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::after {
+  content:none !important;
+  display:none !important;
+}
+
+
+#profile-dialog #player-id-row{display:flex;align-items:center;justify-content:center;}#copy-player-id{display:inline-flex;align-items:center;justify-content:center;margin:0;}#copy-player-id img{display:block;}
+#shield-charges{letter-spacing:0;font-size:10px;white-space:nowrap}
+
+/* Both quest tabs occupy the available panel height without a scrolling list. */
+#app #quests-dialog{height:min(740px,calc(100dvh - 16px));max-height:calc(100dvh - 16px);overflow:clip}
+#quests-dialog .dialog-content{display:flex;min-height:0;overflow:clip;padding:14px 12px 12px;gap:6px}
+#quests-dialog h2{margin:4px 42px 2px;font-size:24px;line-height:28px}
+#quests-dialog #quest-list,#quests-dialog #quest-list:has(.quest-objectives){flex:1;min-height:0;grid-template-rows:repeat(3,minmax(0,1fr));grid-auto-rows:auto;align-content:stretch;gap:6px;padding:0;overflow:clip}
+#quests-dialog .quest-card,#quests-dialog .quest-card:has(.quest-objectives){min-height:0;justify-content:center;gap:4px;padding:7px 8px;overflow:visible}
+#quests-dialog .quest-card h3{font-size:14px;line-height:1.15}
+#quests-dialog .quest-objectives{padding:0;margin:0;text-align:center;font-size:12px;line-height:1.2}
+#quests-dialog .quest-progress{height:26px;min-height:26px}
+#quests-dialog .quest-progress strong{font-size:15px}
+#quests-dialog .quest-footer{min-height:24px;margin:0}
+#quests-dialog .quest-reward{font-size:15px;line-height:22px}
+#quests-dialog .quest-collect,#quests-dialog .quest-collect:not(:disabled),#quests-dialog #quests-collect-all{height:44px;min-height:44px;max-height:44px;margin:0 auto;font-size:14px}
+#quests-dialog .quest-collect[hidden],#quests-dialog #quests-collect-all[hidden]{display:none}
+@media(max-height:650px){
+ #quests-dialog .dialog-content{gap:4px;padding:10px 10px 8px}
+ #quests-dialog h2{font-size:21px;line-height:24px;margin:2px 42px 0}
+ #quests-dialog .quest-tabs button{min-height:34px;font-size:14px;padding:3px}
+ #quests-dialog .quest-card,#quests-dialog .quest-card:has(.quest-objectives){gap:3px;padding:4px 6px}
+ #quests-dialog .quest-card h3{font-size:12px}
+ #quests-dialog .quest-objectives{font-size:11px;line-height:1.15}
+ #quests-dialog .quest-progress{height:22px;min-height:22px}
+ #quests-dialog .quest-progress strong{font-size:13px}
+}
+/* Keep the frame requirement readable alongside the level goals and Play button. */
+#app #level-dialog:has(#level-frame-requirement:not([hidden])){width:min(380px,calc(100vw - 16px));height:min(700px,calc(100dvh - 16px));background-size:100% 100%}
+#level-dialog:has(#level-frame-requirement:not([hidden])) .dialog-content{justify-content:flex-start;gap:8px;padding:48px 18px 18px;overflow-y:auto}
+#level-frame-requirement{font-size:13px;line-height:1.3;margin:0;color:#14576b}
+#level-choose-frame{flex:none;min-height:44px;padding:6px 12px}
+#level-dialog #level-play:disabled{font-size:14px;line-height:1.2;width:210px;flex:none}
+#level-dialog #level-frame-requirement[hidden],#level-dialog #level-choose-frame[hidden]{display:none}
+
+/* The ranking list scrolls independently above the always-visible personal row. */
+#leaderboard-dialog .dialog-content{display:flex;flex-direction:column;overflow:hidden;gap:10px}
+#leaderboard-dialog h2{flex:none;margin-bottom:8px}
+#leaderboard-dialog #leaderboard-status{flex:none;margin:0;text-align:center;font-size:12px}
+#leaderboard-dialog #leaderboard-rows{flex:1;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;scroll-padding:10px}
+#leaderboard-dialog #leaderboard-reload{flex:none;margin:0}
+#leaderboard-dialog .rank-you,#leaderboard-dialog .personal-score-row{background:#fff0a3;border:2px solid #e7b52d;color:#634400}
+#leaderboard-dialog .personal-score-row{box-sizing:border-box;flex:none;display:flex;align-items:center;gap:8px;width:100%;padding:10px 8px;margin:0;border-radius:16px;min-height:68px;text-align:left;font-family:inherit;cursor:pointer}
+#leaderboard-dialog .personal-score-row:disabled{opacity:1;cursor:default}
+#leaderboard-dialog .personal-score-row .rank-number{font-size:14px;min-width:20px;color:#634400}
+#leaderboard-dialog .personal-rank-copy{flex:1;min-width:0}
+#leaderboard-dialog .personal-rank-name{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#leaderboard-dialog .personal-rank-copy small{display:block;font-size:10px;line-height:1.3;margin-top:3px}
+#leaderboard-dialog .personal-score-row .avatar{width:36px;height:36px}
+#leaderboard-dialog .personal-score-row .avatar-shell{flex:none;width:44px;height:44px}
+#leaderboard-dialog .personal-score-row .rank-score{font-size:21px;color:#634400;flex:none}
+#leaderboard-dialog .rank-you:focus,#leaderboard-dialog .personal-score-row:focus-visible{outline:3px solid #087c96;outline-offset:-3px}
+@media(max-height:650px){
+ #level-dialog:has(#level-frame-requirement:not([hidden])) .dialog-content{gap:4px;padding:42px 14px 12px}
+ #level-dialog:has(#level-frame-requirement:not([hidden])) #level-objectives{font-size:12px;gap:4px;margin:2px 0}
+ #level-dialog:has(#level-frame-requirement:not([hidden])) .star-tasks-heading{margin:3px 0}
+ #level-dialog:has(#level-frame-requirement:not([hidden])) #level-design{font-size:11px;margin:2px 0}
+}

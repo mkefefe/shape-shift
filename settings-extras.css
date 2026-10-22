@@ -1,0 +1,146 @@
+/* Compact game-style sliders and settings rows. */
+#settings-dialog{--panel-width:min(370px,calc(100vw - 20px),calc((100dvh - 20px)*2/3))}
+#settings-dialog .dialog-content{gap:7px;padding:25px 22px 22px}
+#settings-dialog .volume-row output{display:none}
+#settings-dialog .audio-setting{display:grid;grid-template-columns:108px 1fr;gap:7px;align-items:center;padding:0}
+#settings-dialog .audio-setting .setting{justify-content:flex-start;position:relative;min-height:44px}
+#settings-dialog .audio-setting .setting span{display:flex;gap:6px;align-items:center;font-size:12px}
+#settings-dialog .audio-setting .setting input{position:absolute;opacity:0;width:30px;height:38px;left:0;cursor:pointer}
+#settings-dialog .audio-setting:has(input[type=checkbox]:not(:checked)) svg{opacity:.4}
+#settings-dialog svg{width:28px;height:28px;flex-shrink:0;fill:none;stroke:#058eb9;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 0 #fff)}
+#settings-dialog .setting:focus-within{outline:2px solid #09a0bf;border-radius:10px}
+#settings-dialog .volume-row{height:44px}
+#settings-dialog input[type=range]::-webkit-slider-runnable-track{height:18px;border:2px solid white;background:linear-gradient(to right,#ffc43d 0 var(--volume),#88b3e7 var(--volume) 100%);border-radius:8px}
+#settings-dialog input[type=range]::-webkit-slider-thumb{width:21px;height:33px;margin-top:-9px;border-radius:7px;background:linear-gradient(#2cdded,#039cc6);border:2px solid white;box-shadow:0 2px 0 #08739d}
+#settings-dialog input[type=range]::-moz-range-track{height:18px;border:2px solid white;background:#88b3e7}
+#settings-dialog input[type=range]::-moz-range-progress{height:18px;background:#ffc43d}
+#settings-dialog input[type=range]::-moz-range-thumb{width:19px;height:31px;border-radius:7px;background:#13c6df;border:2px solid white}
+#settings-dialog .settings-feature{display:flex;align-items:center;gap:8px;width:100%;min-height:42px;padding:6px 8px;border:1px solid #69bdce;border-radius:12px;background:#e6fbff;color:#07566d;font:900 13px Nunito,sans-serif;box-shadow:0 2px 0 #70bdcf;margin:0}
+#settings-dialog .settings-feature strong{margin-left:auto;font-size:12px}#settings-dialog .settings-feature input{margin-left:auto;width:24px;height:24px;accent-color:#0abdaf}
+.settings-note{font-size:10px;line-height:1.3;text-align:center;color:#235569;margin:0}
+#settings-dialog .settings-links{gap:5px}#settings-dialog .settings-links button{font-size:11px;min-height:36px}
+#language-dialog .dialog-content{padding:40px 22px 20px}#language-dialog h2{font-size:24px}.language-list{display:grid;gap:8px}.language-option{min-height:42px;border:2px solid #4ab8d0;border-radius:12px;background:#e9fcff;color:#07566d;font-weight:900}.language-option[aria-pressed=true]{background:#ffe78b;border-color:#dfa92d}#language-dialog .settings-note{margin-top:15px}
+body[data-language=ur] #settings-dialog span,body[data-language=ur] #settings-dialog h2,body[data-language=ur] #notifications-status{direction:rtl;font-family:Tahoma,Arial,sans-serif}
+@media(max-height:650px){#settings-dialog .dialog-content{gap:3px;padding:20px 17px 16px}#settings-dialog h2{font-size:21px;margin-bottom:3px}#settings-dialog .audio-setting{grid-template-columns:87px 1fr;gap:4px}#settings-dialog .audio-setting .setting span{font-size:10px}#settings-dialog svg{width:23px;height:23px}#settings-dialog .settings-feature{min-height:34px;padding:3px 5px;font-size:11px}#settings-dialog .settings-links button{min-height:29px;font-size:10px}#settings-dialog .settings-note{font-size:9px}}
+/* Fit Settings to its content, cropping only the panel's unused middle. */
+#app #settings-dialog{
+ width:min(370px,calc(100vw - 20px));height:auto;max-height:calc(100dvh - 20px);
+ background:transparent;isolation:isolate;border-radius:24px;
+}
+#settings-dialog::before,#settings-dialog::after{
+ content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;
+ background:url('assets/menu-panel-v240.webp') center top/100% auto no-repeat;
+}
+#settings-dialog::before{top:0}
+#settings-dialog::after{bottom:0;background-position:center bottom}
+#app #settings-dialog .dialog-content{height:auto;max-height:calc(100dvh - 20px);padding-bottom:26px;overflow-y:auto}
+#settings-dialog #privacy-status:empty{display:none}
+#app #settings-dialog{height:fit-content;min-height:0}
+
+/* Shared game palette v228. Semantic roles apply across every game menu.
+   Sprite artwork remains unchanged; these tokens unify its surrounding UI. */
+:root{
+ --ui-ink:#075570;--ui-text:#12536c;--ui-muted:#326476;
+ --ui-panel:#e5fcff;--ui-card:#d8f3fa;--ui-border:#52b8cc;
+ --ui-tab:#b4e6f3;--ui-gold-top:#fff2a4;--ui-gold:#ffd159;
+ --ui-gold-edge:#eab130;--ui-gold-ink:#674414;--ui-gold-shadow:#cb9428;
+ --ui-track:#a8d5e2;--ui-dark:#073953;--ui-light:#ffffff;
+ --ui-danger:#9d304a;--ui-disabled:#acd4dc;
+ --ui-selected:linear-gradient(var(--ui-gold-top),var(--ui-gold));
+ --ui-progress:linear-gradient(#fff6a7 0%,#ffdf60 40%,#f5ae25 100%);
+ --ui-focus:3px solid var(--ui-ink);
+}
+body,button,input,select,textarea{font-family:Nunito,system-ui,sans-serif}
+#app dialog,body>dialog{color:var(--ui-text)}
+#app dialog h2:not(#final-score),body>dialog h2:not(#final-score),:is(#shape-drop,#shape-slice,#games-hub) h2{
+ color:var(--ui-ink);font-family:Nunito,system-ui,sans-serif;font-weight:1000;
+ font-size:clamp(22px,6vw,28px);line-height:1.18;text-align:center;text-shadow:0 1px #fff;
+}
+#app dialog h3,body>dialog h3{color:var(--ui-ink);font-weight:900}
+#app dialog .hint,#app dialog .settings-note,#app dialog .difficulty-note,
+#quest-cycle-status,#achievement-count,.tasks-note,.tasks-paused{color:var(--ui-muted)}
+#app dialog::backdrop,body>dialog::backdrop{background:#002940b8;backdrop-filter:blur(3px)}
+/* One visual language for selected and unselected tabs and choices. */
+#app dialog :is(.shop-tabs,.quest-tabs,#achievement-tabs) button,
+#language-dialog .language-option,#difficulty-dialog .difficulty-option{
+ color:var(--ui-text);background:var(--ui-tab);border-color:var(--ui-border);font-weight:900;
+}
+#app dialog :is(.shop-tabs,.quest-tabs,#achievement-tabs) button[aria-selected=true],
+#app dialog #achievement-tabs button.selected,
+#language-dialog .language-option[aria-pressed=true],#difficulty-dialog .difficulty-option[aria-pressed=true]{
+ color:var(--ui-gold-ink);background:var(--ui-selected);border-color:var(--ui-gold-edge);
+ box-shadow:0 2px var(--ui-gold-shadow);text-shadow:0 1px #fff7cf;
+}
+#app dialog .secondary,#settings-dialog .settings-feature{
+ color:var(--ui-ink);background:var(--ui-card);border-color:var(--ui-border);font-weight:900;
+}
+/* Keep the existing painted gold action buttons and icon navigation. */
+#app dialog :is(.primary,.reward-button,.exit-button,.pause-option,.quest-collect,.shop-buy):not(:disabled),
+:is(#shape-drop,#shape-slice,#games-hub) .drop-action,#board-guide .board-guide-continue{color:var(--ui-gold-ink);text-shadow:0 1px #fff4b0;font-weight:1000}
+#board-guide .board-guide-continue{background:var(--ui-selected);border:2px solid var(--ui-gold-edge);box-shadow:0 2px var(--ui-gold-shadow);border-radius:14px}
+#board-guide .board-guide-copy{color:var(--ui-text);background:linear-gradient(var(--ui-panel),var(--ui-card));border-color:var(--ui-border)}
+/* The painted border supplies its own fill; backing paint leaks through its transparent corners. */
+:is(#shape-drop,#shape-slice,#games-hub) .drop-panel{color:var(--ui-text);background:transparent;border-color:var(--ui-border)}
+#board-guide .board-guide-title{color:var(--ui-ink);font-weight:1000}
+#app dialog :is(.quest-card,.rank-card,.cosmetic-card,.profile-cosmetic,.level-task-card){color:var(--ui-text);border-color:var(--ui-border)}
+#app dialog .quest-state,#app dialog .achievement-collected{color:var(--ui-ink)}
+#app .quest-progress-fill,#app .quest-card.complete .quest-progress-fill,
+.achievement-meter i,:is(#shape-drop,#shape-slice,#games-hub) .drop-timer>span{background:var(--ui-progress)}
+#app .quest-progress,.achievement-meter,:is(#shape-drop,#shape-slice,#games-hub) .drop-timer{background-color:var(--ui-track);border-color:var(--ui-border)}
+#app .quest-progress strong{color:var(--ui-dark);text-shadow:0 1px #ffffff88}
+#app #settings-dialog input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(to right,var(--ui-gold) 0 var(--volume),var(--ui-tab) var(--volume) 100%);border-color:var(--ui-border)}
+#app #settings-dialog input[type=range]::-moz-range-track{background:var(--ui-tab);border-color:var(--ui-border)}
+#app #settings-dialog input[type=range]::-moz-range-progress{background:var(--ui-gold)}
+#settings-dialog svg{stroke:var(--ui-ink)}
+#settings-dialog .settings-feature input{accent-color:var(--ui-ink)}
+#app #terms-dialog{color:var(--ui-text);background-color:var(--ui-panel)}
+#terms-dialog .terms-shell{background:linear-gradient(var(--ui-panel),var(--ui-card))}
+#terms-dialog .terms-kicker,#terms-dialog .terms-exit,#terms-dialog a{color:var(--ui-ink)}
+#app #delete-profile-confirm{color:var(--ui-danger);text-shadow:none}
+#app #tutorial-note,#delete-profile-status:not(:empty){color:var(--ui-danger)}
+#app dialog button:focus-visible,#board-guide button:focus-visible,body>dialog button:focus-visible{outline:var(--ui-focus);outline-offset:2px}
+#app dialog button:focus:not(:focus-visible){outline:none}
+#app dialog :is(.dialog-content,.difficulty-options),#terms-dialog .terms-scroll{scrollbar-width:none}
+#app dialog :is(.dialog-content,.difficulty-options)::-webkit-scrollbar,#terms-dialog .terms-scroll::-webkit-scrollbar{display:none}
+@media(max-height:650px){#app dialog h2:not(#final-score),body>dialog h2:not(#final-score),:is(#shape-drop,#shape-slice,#games-hub) h2{font-size:22px}}
+
+#app #result-xp-bar #level-progress::-webkit-progress-value,
+#app .xp-help-meter progress::-webkit-progress-value,
+#app .level-task-card progress::-webkit-progress-value{background:var(--ui-progress)}
+#app #result-xp-bar #level-progress::-moz-progress-bar,
+#app .xp-help-meter progress::-moz-progress-bar,
+#app .level-task-card progress::-moz-progress-bar{background:var(--ui-progress)}
+#app #result-xp-bar #level-progress::-webkit-progress-bar,
+#app .xp-help-meter progress::-webkit-progress-bar,
+#app .level-task-card progress::-webkit-progress-bar{background:var(--ui-track)}
+#app #result-xp-bar{border-color:var(--ui-ink);background:var(--ui-track)}
+#app #result-xp-label{color:var(--ui-dark)}
+#app #shop-dialog .shop-buy:disabled,#app #shop-dialog .shop-buy.unavailable,
+#app #shop-dialog .cosmetic-card .shop-buy:disabled,
+#app #shop-dialog #shop-items .shop-buy:disabled{
+ background:linear-gradient(var(--ui-card),var(--ui-disabled));color:var(--ui-text);
+ border:1px solid var(--ui-border);border-radius:14px;box-shadow:inset 0 1px #fff,0 2px #79a8b4;
+ opacity:1;filter:none;text-shadow:none;
+}
+#terms-dialog .terms-scroll:focus-visible{outline:2px solid var(--ui-ink);outline-offset:-2px;border-radius:8px}
+#terms-dialog .terms-scroll:focus:not(:focus-visible){outline:none}
+
+#app #avatar-presets button[aria-pressed=true]{border-color:var(--ui-gold-edge);background:var(--ui-selected)}
+#app .name-row input{color:var(--ui-text);border-color:var(--ui-border)}
+#app .name-row button{color:var(--ui-ink);background:var(--ui-card)}
+#app .rank-card small,#app .rank-number{color:var(--ui-muted)}
+#app .rank-score,#app #over-dialog #record{color:var(--ui-ink)}
+#app .rank-card:first-child .rank-number{color:var(--ui-gold-ink)}
+
+
+/* Use the opaque painted center as a texture. The track clips its outline;
+   transparent sprite padding and stretched illustrated caps never enter the fill. */
+#app #result-xp-bar #level-progress{inset:0;width:100%;height:100%;margin:0;padding:0;border:0}
+#app #result-xp-bar #level-progress::-webkit-progress-value{
+ border-image:none;border:0;border-radius:0 18px 18px 0;box-shadow:none;
+ background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
+}
+#app #result-xp-bar #level-progress::-moz-progress-bar{
+ border-image:none;border:0;border-radius:0 18px 18px 0;box-shadow:none;
+ background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
+}

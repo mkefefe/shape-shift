@@ -1,0 +1,1 @@
+export const TERMS_VERSION='youtube-platform'; export const ensureTerms=async()=>false;

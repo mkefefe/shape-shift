@@ -1,0 +1,27 @@
+.mini-shape-icon{display:inline-block;width:48px;height:48px;background-repeat:no-repeat;pointer-events:none;flex:none}
+#games-hub{width:min(470px,calc(100vw - 20px));height:fit-content;max-height:calc(100dvh - 20px);overflow:auto;padding:10px 12px 18px}
+#games-hub .drop-header{display:flex;justify-content:center;height:58px;padding:0 58px;margin-bottom:5px}
+#games-hub .drop-header h2{padding:0}
+/* Use the same frame-corner control and artwork as the other menus. */
+#games-hub > .hub-back{position:absolute;left:8px;right:auto;top:0;width:58px;height:58px;min-width:58px;min-height:58px;padding:0;border:0;border-radius:50%;background:none;box-shadow:none;z-index:20;line-height:0}
+#games-hub > .hub-back img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+#games-hub > .hub-back:active{filter:brightness(.88)}
+.hub-games{display:grid;gap:16px;min-height:0;padding:0 2px 3px}
+#games-hub .hub-game{display:flex;flex-direction:column;align-items:stretch;text-align:center;width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:#e9faff;color:#07516c;box-shadow:0 3px 0 #478ca4,0 5px 12px #063c5930;transition:transform .12s,filter .12s;cursor:pointer}
+#games-hub .hub-cover{display:block;width:100%;height:auto;aspect-ratio:2/1;object-fit:cover;pointer-events:none}
+#games-hub .hub-copy{display:flex;flex-direction:column;gap:2px;padding:9px 10px 11px;background:linear-gradient(#f3fdff,#ceeff8)}
+#games-hub .hub-title{font-size:25px;font-weight:900;line-height:1.15}
+#games-hub .hub-description{font-size:14px;font-weight:800;line-height:1.35;color:#32728b}
+#games-hub .hub-game:active{transform:scale(.98);filter:brightness(1.08)}
+#games-hub .hub-game:focus:not(:focus-visible){outline:none}
+#games-hub .hub-game:focus-visible{outline:3px solid #086b99;outline-offset:3px}
+@media(max-height:700px) and (orientation:portrait){#games-hub{width:min(410px,calc(100vw - 20px))}.hub-games{gap:12px}#games-hub .hub-cover{max-height:calc((100dvh - 265px)/2)}#games-hub .hub-title{font-size:23px}}
+@media(orientation:landscape) and (max-height:600px){#games-hub{width:min(860px,calc(100vw - 20px));padding:5px 12px 12px}.hub-games{grid-template-columns:1fr 1fr;gap:15px}#games-hub .hub-cover{max-height:calc(100dvh - 190px)}#games-hub .hub-copy{padding:6px}#games-hub .hub-title{font-size:23px}}
+#shape-slice[data-view='menu']{width:min(430px,calc(100vw - 12px));height:fit-content;max-height:calc(100dvh - 12px);overflow:auto}
+.slice-preview{width:100%;height:170px;position:relative;border:2px solid #79dbe9;border-radius:20px;overflow:hidden;background:radial-gradient(ellipse at bottom,#165d7f,#172851)}.slice-preview .mini-shape-icon{position:absolute;width:60px;height:60px;transform:translate(-50%,-50%) rotate(-12deg)}
+.slice-preview-stroke{position:absolute;left:10%;top:50%;width:80%;height:4px;background:linear-gradient(90deg,transparent,#b6ffff,#fff);transform:rotate(-28deg);border-radius:50%;box-shadow:0 0 9px #62edff;pointer-events:none}
+.slice-warning{display:flex;align-items:center;justify-content:center;gap:10px;margin:5px 0;font-size:14px;font-weight:900;color:#723b4d}.slice-hazard-icon{display:inline-grid;place-items:center;width:36px;height:36px;background:#292d45;color:#ff9aa6;clip-path:polygon(50% 0,62% 15%,82% 8%,85% 30%,100% 40%,88% 60%,94% 82%,71% 84%,50% 100%,35% 86%,12% 92%,15% 68%,0 50%,14% 35%,8% 14%,32% 16%);font-size:30px;font-weight:900}
+#shape-slice .slice-lives{color:#b92c57;font-size:22px;letter-spacing:2px}#shape-slice .drop-score-box:last-child{align-items:flex-end}.slice-help{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:900;min-height:39px;flex:none;justify-content:center}.slice-help small{font-size:10px;color:#38768e}
+@media(max-width:350px){#shape-slice .slice-lives{font-size:19px}}
+@media(max-height:650px){.slice-preview{height:110px}.slice-help{font-size:10px;min-height:30px}}
+@media(orientation:landscape) and (max-height:550px){#shape-slice[data-view='play']{grid-template-columns:160px 1fr 160px}#shape-slice .slice-help{grid-column:3;grid-row:2;align-self:center;padding:10px;line-height:1.5}#shape-slice .drop-stage{grid-row:1/5}#shape-slice .drop-score-box:last-child{align-items:center}}

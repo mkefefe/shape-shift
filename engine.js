@@ -29,6 +29,7 @@ export const endlessIntensity=state=>{
  const d=difficultyFor(state);
  return Math.min(1,endlessPressure(state)*d.ramp/(d.start-d.floor));
 };
+export const frameRewardMultiplier=frame=>frame==='blossom'?2:1;
 export const difficultyFor=state=>DIFFICULTIES[state.mode==='endless'?state.difficulty:'normal']||DIFFICULTIES.normal;
 export const duration = state => {
  const d=difficultyFor(state);
@@ -37,7 +38,7 @@ export const duration = state => {
  return Math.round((base+(state.map==='garden'&&state.picks<5?200:0))*(state.timeFactor||1));
 };
 export const randomTile = (rng=Math.random) => ({shape:Math.min(3,Math.floor(rng()*4)),color:Math.min(3,Math.floor(rng()*4))});
-export const createRun = (rng=Math.random) => ({current:randomTile(rng),score:0,picks:0,chainProgress:0,chainTarget:10,difficultyRound:0,sweepPending:false,sweepBoard:null,maxLives:3,strikes:0,level:1,colorStreak:0,shapeStreak:0,lastPick:null,bonus:0,freeze:1,boost:1,shield:1,shieldEnabled:false,shieldCooldown:0,shieldJustBroken:false,protected:false,protectionHits:0,multiplier:1,slow:false,slowRounds:0,boostRounds:0,continued:false,over:false,outcome:'ready'});
+export const createRun = (rng=Math.random) => ({current:randomTile(rng),score:0,picks:0,chainProgress:0,chainTarget:10,difficultyRound:0,sweepPending:false,sweepBoard:null,maxLives:3,strikes:0,level:1,colorStreak:0,shapeStreak:0,lastPick:null,bonus:0,freeze:1,boost:1,shield:1,shieldEnabled:false,shieldCooldown:0,shieldJustBroken:false,protected:false,protectionHits:0,multiplier:1,slow:false,slowRounds:0,pickupSlowRounds:0,boostRounds:0,continued:false,over:false,outcome:'ready'});
 export const streakBonus=n=>n===3||n===5||(n>=10&&n%5===0)?n:0;
 export function seededRandom(seed){let n=seed>>>0;return ()=>{n=(Math.imul(1664525,n)+1013904223)>>>0;return n/4294967296;};}
 
@@ -65,6 +66,7 @@ function sparseMatch(state,all,rng) {
   return pool[Math.min(pool.length-1,Math.floor(rng()*pool.length))];
 }
 export function makeBoard(state,rng=Math.random,capacity=boardSize(state)) {
+  if(state.sweepPending)return Array.from({length:capacity},()=>({shape:state.current.shape,color:state.current.color,bonusTile:true}));
   if(state.bombRefillBoard){
     const allowed=[0,1,2,3].filter(shape=>shape!==state.excludedShape),blast=new Set(state.blastTargets);
     return state.bombRefillBoard.map((tile,i)=>blast.has(i)?{shape:allowed[Math.min(allowed.length-1,Math.floor(rng()*allowed.length))],color:Math.min(3,Math.floor(rng()*4))}:{...tile});
@@ -82,7 +84,6 @@ export function makeBoard(state,rng=Math.random,capacity=boardSize(state)) {
     return state.heldBoard.map((t,i)=>i===state.replacedIndex?replacement:{...t});
   }
   if(state.sweepBoard)return state.sweepBoard.map(tile=>({...tile}));
-  if(state.sweepPending)return Array.from({length:boardSize(state)},(_,i)=>({shape:i%4,color:state.current.color,bonusTile:true}));
   const all=Array.from({length:16},(_,i)=>({shape:i%4,color:Math.floor(i/4)})).filter(t=>t.shape!==state.excludedShape);
   const valid=shuffled(all.filter(t=>matches(state.current,t)),rng);
   const invalid=shuffled(all.filter(t=>!matches(state.current,t)),rng);
@@ -137,30 +138,30 @@ export function choose(state,board,index) {
   if(state.mode==='adventure'&&state.matchRule&&!tile.special&&!tile.bonusTile&&matches(state.current,tile)&&state.current[state.matchRule]!==tile[state.matchRule])return state;
   if(tile.special==='bomb'){
    const blast=bombTargets(board,index,state.boardColumns,state.boardCells),remaining=board.map((t,i)=>({...t,collected:t.collected||blast.includes(i)}));
-   const earned=blast.length*state.multiplier*difficultyFor(state).points;
+   const earned=blast.length*state.multiplier*difficultyFor(state).points*frameRewardMultiplier(state.frame);
    return {...state,score:state.score+earned,picks:state.picks+1,earned,bonus:0,specialEffect:'bomb',nextBombPick:state.picks+1+BOMB_PICKUP_GAP,lastBombSlot:index,blastTargets:blast,heldBoard:null,replacedIndex:null,bombBoard:true,bombRefillBoard:board.map(t=>({...t})),sweepBoard:null,pendingSpecials:retained(remaining).filter(e=>!blast.includes(e.slot)),outcome:'correct'};
   }
   if(tile.bonusTile){
     const remaining=board.map((t,i)=>({...t,collected:t.collected||i===index}));
-    return {...state,current:{shape:tile.shape,color:tile.color},score:state.score+2*state.multiplier*difficultyFor(state).points,picks:state.picks+1,stage:state.stage??state.picks,earned:2*state.multiplier*difficultyFor(state).points,bonus:0,specialEffect:null,sweepPending:false,sweepBoard:remaining.some(t=>!t.collected)?remaining:null,sweepStarted:false,outcome:'correct'};
+    return {...state,current:{shape:tile.shape,color:tile.color},score:state.score+2*state.multiplier*difficultyFor(state).points*frameRewardMultiplier(state.frame),picks:state.picks+1,stage:state.stage??state.picks,earned:2*state.multiplier*difficultyFor(state).points*frameRewardMultiplier(state.frame),bonus:0,specialEffect:null,sweepPending:false,sweepBoard:remaining.some(t=>!t.collected)?remaining:null,sweepStarted:false,outcome:'correct'};
   }
   if(state.bombBoard)state={...state,bombBoard:false,bombRefillBoard:null,sweepBoard:null};
-  const progress=(state.chainProgress||0)+1,target=state.chainTarget||10;
-  const chain={chainProgress:progress>=target?0:progress,chainTarget:progress>=target?target+10:target,sweepPending:state.sweepPending||(state.frame==='cosmic'&&progress>=target),sweepStarted:state.frame==='cosmic'&&progress>=target};
+  const progress=(state.chainProgress||0)+1,target=10;
+  const chain={chainProgress:progress>=target?0:progress,chainTarget:10,sweepPending:state.sweepPending||(state.frame==='cosmic'&&progress>=target),sweepStarted:state.frame==='cosmic'&&progress>=target};
   state={...state,heldBoard:null,replacedIndex:null,pendingSpecials:[...retained(board,index),...(state.pendingSpecials||[]).slice(board.length)],specialEffect:null,earned:0};
   if(tile.special){
     const local=['heart','hourglass','crystal'].includes(tile.special);
-    const earned=(tile.special==='starburst'?board.filter(t=>!t.special&&!t.collected&&!t.memory).length:1)*state.multiplier*difficultyFor(state).points;
+    const earned=(tile.special==='starburst'?board.filter(t=>!t.special&&!t.collected&&!t.memory).length:1)*state.multiplier*difficultyFor(state).points*frameRewardMultiplier(state.frame);
     return {...state,...chain,score:state.score+earned,picks:state.picks+1,stage:tile.special==='reset'?0:(state.stage??state.picks)+(local?0:1),heldBoard:null,replacedIndex:null,earned,specialEffect:tile.special,bonus:0,colorStreak:0,shapeStreak:0,lastPick:null,outcome:'correct',
       pendingSpecials:tile.special==='reset'?[]:state.pendingSpecials,
       strikes:tile.special==='heart'?0:state.strikes,protected:tile.special==='crystal'||state.protected,protectionHits:tile.special==='crystal'?Math.max(state.protectionHits||0,1):state.protectionHits,shieldEnabled:tile.special==='crystal'||state.shieldEnabled,
-      slow:tile.special==='hourglass'||state.slow,slowRounds:tile.special==='hourglass'?Math.max(3,state.slowRounds):state.slowRounds};
+      slow:tile.special==='hourglass'||state.slow,pickupSlowRounds:tile.special==='hourglass'?Math.max(3,state.pickupSlowRounds||0):(state.pickupSlowRounds||0)};
   }
   if(!(state.mode==='adventure'&&state.matchRule?state.current[state.matchRule]===tile[state.matchRule]:matches(state.current,tile))) return mistake(state,'wrong');
   const colorStreak=state.lastPick?.color===tile.color?state.colorStreak+1:1;
   const shapeStreak=state.lastPick?.shape===tile.shape?state.shapeStreak+1:1;
   const streak=streakBonus(colorStreak)+streakBonus(shapeStreak);const bonus=streak;
-  const score=state.score+(state.multiplier+bonus)*difficultyFor(state).points;
+  const score=state.score+(state.multiplier+bonus)*difficultyFor(state).points*frameRewardMultiplier(state.frame);
   const picks=state.picks+1;
   return {...state,...chain,current:{...tile},lastPick:{...tile},colorStreak,shapeStreak,bonus,score,picks,stage:(state.stage??state.picks)+1,earned:score-state.score,strikes:state.strikes,level:levelFor(picks),protected:state.protected,outcome:'correct'};
 }
@@ -178,17 +179,19 @@ export function spendAbility(state,ability) {
 export function advanceBoard(state){
  if(state.bombRefillBoard||state.heldBoard||state.sweepBoard||['heart','hourglass','crystal'].includes(state.specialEffect))return {...state,outcome:'ready'};
  if(!['correct','wrong','miss','protected','pass'].includes(state.outcome))return state;
- const slowRounds=Math.max(0,(state.slowRounds||0)-1),boostRounds=Math.max(0,(state.boostRounds||0)-1);
+ const slowRounds=Math.max(0,(state.slowRounds||0)-1),pickupSlowRounds=Math.max(0,(state.pickupSlowRounds||0)-1),boostRounds=Math.max(0,(state.boostRounds||0)-1);
  const difficultyRound=state.specialEffect==='reset'?0:(state.difficultyRound??state.stage??state.picks)+(state.sweepBoard||state.outcome!=='correct'?0:1);
  const shieldCooldown=state.shieldJustBroken?(state.shieldCooldown||0):Math.max(0,(state.shieldCooldown||0)-1);
- return {...state,shieldCooldown,shieldJustBroken:false,difficultyRound,slowRounds,boostRounds,slow:slowRounds>0,multiplier:boostRounds>0?5:1,outcome:'ready'};
+ return {...state,shieldCooldown,shieldJustBroken:false,difficultyRound,slowRounds,pickupSlowRounds,boostRounds,slow:slowRounds>0||pickupSlowRounds>0,multiplier:boostRounds>0?5:1,outcome:'ready'};
 }
 
 export function revive(state){
  if(!state.over||state.continued)return state;
  return {...state,strikes:0,over:false,continued:true,protected:state.protected,heldBoard:null,replacedIndex:null,outcome:"revived"};
 }
-export const elapsedBoardTime=(delta,slow)=>Math.max(0,delta)*(slow?0.5:1);
+// The board pickup and inventory boost have independent lifetimes and multiply.
+export const timeSlowRate=state=>(state?.slowRounds>0?.5:1)*(state?.pickupSlowRounds>0?.5:1);
+export const elapsedBoardTime=(delta,state)=>Math.max(0,delta)*(typeof state==='object'?timeSlowRate(state):state?.5:1);
 
 // A stalled rendering frame must not consume an unseen board in one update.
 export const frameDelta=(now,last)=>Math.min(100,Math.max(0,now-last));
@@ -196,26 +199,27 @@ export const frameDelta=(now,last)=>Math.min(100,Math.max(0,now-last));
 // Shared by every mode that uses hearts. Only the equipped frame grants its bonus.
 export const maxLivesForFrame=(frame='none',upgrade=0)=>frame==='gold'?4+(upgrade===1?1:0):3;
 
+// Score replays preserve the equipped frame and its point multiplier.
+export const replayFrame=frame=>frame;
 export function applyLoadout(state,frame='none',map='garden',rng=Math.random,upgrade=0){
  if(!['none','gold','ice','blossom','cosmic'].includes(frame)||!['garden','moon','sunset'].includes(map))throw Error('Invalid loadout');
  if(!Number.isInteger(upgrade)||upgrade<0||upgrade>(frame==='gold'?1:frame==='ice'?2:0))throw Error('Invalid frame upgrade');
- const excludedShape=frame==='blossom'?Math.min(3,Math.floor(rng()*4)):null;
- const allowed=[0,1,2,3].filter(shape=>shape!==excludedShape);
- const current=state.current.shape===excludedShape?{...state.current,shape:allowed[Math.min(2,Math.floor(rng()*3))]}:state.current;
+ const excludedShape=null;
+ const current=state.current;
  return {...state,current,excludedShape,frame,map,upgrade,maxLives:maxLivesForFrame(frame,upgrade),timeFactor:(frame==='ice'?1.1+upgrade*.05:1)*(map==='moon'?1.1:1)};
 }
 export const abilityActive=(state,name)=>name==='shield'?state.protected:name==='freeze'?state.slowRounds>0:name==='boost'?state.boostRounds>0:false;
 export function stopAbility(state,name){
  if(!abilityActive(state,name))return state;
  if(name==='shield')return {...state,protected:false,protectionHits:0,shieldCooldown:Math.max(5,state.shieldCooldown||0),shieldJustBroken:false};
- if(name==='freeze')return {...state,slow:false,slowRounds:0};
+ if(name==='freeze')return {...state,slow:(state.pickupSlowRounds||0)>0,slowRounds:0};
  return {...state,multiplier:1,boostRounds:0};
 }
 
 // Settle the visible victory board once, before recording the run or showing results.
 export function awardVictoryBoard(state,board,won){
  if(state.mode!=='adventure'||!won||state.over||state.victoryBoardAwarded)return state;
- const value=state.multiplier*difficultyFor(state).points;
+ const value=state.multiplier*difficultyFor(state).points*frameRewardMultiplier(state.frame);
  const victoryPoints=board.map(tile=>tile&&!tile.collected?value:0);
  const victoryBonus=victoryPoints.reduce((sum,n)=>sum+n,0);
  return {...state,score:state.score+victoryBonus,victoryBoardAwarded:true,victoryBonus,victoryPoints};

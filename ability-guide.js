@@ -1,6 +1,6 @@
 export const BOOST_LESSONS={
  shield:['Shield','Blocks one mistake. Wait 5 completed turns before another shield equips automatically. Tap again to stop.'],
- freeze:['Double Time','Tap for twice as much time for 5 rounds. Uses another when it ends. Tap again to stop.'],
+ freeze:['Double Time','Tap for twice as much time for 5 rounds. Combines with Time Crystal for 4x time. Uses another when it ends. Tap again to stop only this boost.'],
  boost:['5x Multiplier','Tap for 5 times the points and coins for 5 rounds. Uses another when it ends. Tap again to stop.']
 };
 export const SPECIAL_LESSONS={
@@ -8,7 +8,7 @@ export const SPECIAL_LESSONS={
  starburst:['Starburst','Tap Starburst to collect every visible shape and earn points and coins. Covered memory cards stay.'],
  reset:['Rewind','Tap to go back to one box. Keep your points.'],
  heart:['Heart Refill','Tap to fill your hearts. At full health, collect points instead.'],
- hourglass:['Time Crystal','Tap Time Crystal to slow the timer for 3 rounds, giving you longer to choose.'],
+ hourglass:['Time Crystal','Tap Time Crystal for twice as much time for 3 rounds. It ends automatically and cannot be toggled off. Use Double Time too for 4x time.'],
  crystal:['Shield Crystal','Tap Shield Crystal to block one mistake without losing a heart.']
 };
 // Only a real, uncollected lesson may pause the game loop.

@@ -1,4 +1,4 @@
-import {loadStoryAssets, drawStory, STORY_SCENES} from './story-renderer.js';
+import {loadStoryAssets, drawStory, STORY_SCENES} from './story-renderer.js?v=49439-web1';
 
 const ASSET_BASE = new URL('./assets/story-beacon/', import.meta.url);
 const MAX_LOAD_MS = 5000;
@@ -108,11 +108,11 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
       });
     } catch { audioPending = false; audioBlocked = true; soundButton.hidden = false; }
   }
-  function pauseSound() { try { audio?.pause(); } catch {} }
+  function pauseSound() { try { audio?.pause(); for(const cue of cues)cue.media.pause(); } catch {} }
   function syncVisibility() {
     lastTime = null;
     lastDrawTime = null;
-    if (isVisible()) playSound(); else pauseSound();
+    if (isVisible()) {playSound();for(const cue of cues)if(cue.fired&&!cue.media.ended)cue.media.play().catch(()=>{});} else pauseSound();
   }
   function tick(timestamp) {
     if (settled) return;
@@ -185,7 +185,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
       listen(dialog, event, event => event.stopPropagation(), {passive: true});
     }
     listen(dialog, 'keydown', event => {
-      if (event.key === 'Escape') { event.stopPropagation(); result.cancel(); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); result.cancel(); }
       else if (event.key === 'Tab') {
         event.preventDefault();
         soundButton.focus({preventScroll: true});

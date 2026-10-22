@@ -1,19 +1,19 @@
-import {dropBombFeedback} from './bomb-feedback.js';
-import {createMiniTutorial} from './mini-tutorial.js';
-import {createMiniResults} from './mini-results.js?v=hint1';
-import {createMiniContinue} from './mini-continue.js';
-import {createHitFeedback} from './mini-hit-feedback.js';
-import {ARTWORK_CROPS} from './artwork-crops.js';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js';
-import {miniGameCoins} from './mini-game-rewards.js';
-import {dropLayout,fitDropArtwork,dropFramePatches} from './shape-drop-view.js';
-import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js';
+import {dropBombFeedback} from './bomb-feedback.js?v=49439-web1';
+import {createMiniTutorial} from './mini-tutorial.js?v=49439-web1';
+import {createMiniResults} from './mini-results.js?v=49439-web1';
+import {createMiniContinue} from './mini-continue.js?v=49439-web1';
+import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web1';
+import {ARTWORK_CROPS} from './artwork-crops.js?v=49439-web1';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=49439-web1';
+import {miniGameCoins} from './mini-game-rewards.js?v=49439-web1';
+import {dropLayout,fitDropArtwork,dropFramePatches} from './shape-drop-view.js?v=49439-web1';
+import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=49439-web1';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image();containerArt.src='assets/drop-container-v241.webp';const containerReady=containerArt.decode().then(()=>true).catch(()=>false);
 const obstacleArt=new Image();obstacleArt.src='assets/shape-lock-chains-v202.webp';const obstacleReady=obstacleArt.decode().then(()=>true).catch(()=>false);
 const bombArt=new Image();bombArt.src='assets/slice-bomb-v239.webp';const bombReady=bombArt.decode().catch(()=>{});
 const COLORS=['#ff4f69','#36caff','#65f078','#ffe367'];
-export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent=()=>{},onClose=()=>{}}={}){
+export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
  const M=window.Matter;
  const teaching=createMiniTutorial('drop');
  const dialog=document.createElement('dialog');dialog.id='shape-drop';dialog.setAttribute('aria-label','Shape Drop');document.body.append(dialog);
@@ -120,8 +120,8 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
   const [,containerLoaded,obstacleLoaded]=await Promise.all([prepareArtwork(),containerArt.decode().then(()=>true).catch(()=>false),obstacleArt.decode().then(()=>true).catch(()=>false),skinArtReady]);if(token!==version||!dialog.open)return;if(!M||!crops.length||!containerLoaded||!obstacleLoaded){const card=panel('Unable to load');card.classList.add('drop-result-panel');card.append(make('p','','Shape Drop could not load its artwork. Please try again.'),button('Retry',start),button('Games',close,'drop-secondary'));return;}
-  settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{height:layout.worldHeight,autoDrop:false,onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+1'});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length:'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});play('drop-pop');if(event.combo>1)play('drop-chain');for(const [i,b] of event.pieces.entries())fx.push({x:b.position.x,y:b.position.y,at:game.time,color:COLORS[b.drop.color],label:i===0?'+'+event.score:''});announcement.textContent='Match!  +'+event.score;}});
-  teaching.mount(dialog);onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('game');canvas.focus();last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),height:layout.worldHeight,autoDrop:false,onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});play('drop-pop');if(event.combo>1)play('drop-chain');for(const [i,b] of event.pieces.entries())fx.push({x:b.position.x,y:b.position.y,at:game.time,color:COLORS[b.drop.color],label:i===0?'+'+event.score:''});announcement.textContent='Match!  +'+event.score;}});
+  teaching.mount(dialog);onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const aim=e=>{if(paused||game.over||!transform)return;const r=canvas.getBoundingClientRect();game.aimAt((e.clientX-r.left-transform.x)/transform.scale);};
   canvas.onpointerdown=e=>{if(e.button!==0||drag!==null||paused||game.over||!transform)return;drag=e.pointerId;canvas.setPointerCapture(e.pointerId);aim(e);};canvas.onpointermove=e=>{if(drag===e.pointerId)aim(e);};canvas.onpointerup=e=>{if(drag===e.pointerId){aim(e);drag=null;release();render();}};canvas.onpointercancel=()=>{drag=null;render();};canvas.onlostpointercapture=()=>{drag=null;render();};
  }

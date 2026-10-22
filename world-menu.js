@@ -1,8 +1,12 @@
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js';
-import {rewardMarkup} from './adventure-rewards.js';
+import {starTasks} from './adventure-star-tasks.js?v=49439-web1';
+import {COSMETICS} from './economy.js?v=49439-web1';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web1';
+import {rewardMarkup} from './adventure-rewards.js?v=49439-web1';
 export const GAMES_UNLOCK_LEVEL=1;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
-export const MODES=['endless','adventure','rush'];
+export const MODES=['adventure','endless','rush'];
+export function adventureFrameRequirement(level){return COSMETICS.find(c=>c.id===({20:'gold',40:'ice',60:'blossom',80:'cosmic'})[level])||null;}
+export function adventureFrameAllowed(){return true;}
 export const WORLD_NAMES=['Sunny Beginnings','Waterfall Way','Crystal Crossing','Blossom Heights','Golden Bridges','Cloud Gardens','Moonlit Trails','Sunset Shores','Starlight Summit','Castle in the Sky'];
 export function levelSpec(level){const n=Math.max(1,Math.min(100,Math.floor(Number(level)||1)));return {level:n,world:Math.floor((n-1)/10),target:8+Math.floor((n-1)*.55),maxChoices:n<4?4:n<11?6:n<26?9:n<51?12:16,timeBonus:Math.max(0,650-(n-1)*8)};}
 export function normalizeAdventure(value={}){return {cleared:Array.from({length:100},(_,i)=>value?.cleared?.[i]===true||Number(value?.stars?.[i])>0),lightning:Array.from({length:100},(_,i)=>value?.lightning?.[i]===true&&Number(value?.stars?.[i])>=3),stars:Array.from({length:100},(_,i)=>Math.max(0,Math.min(3,Math.floor(Number(value?.stars?.[i])||0)))),rushBest:Math.max(0,Math.floor(Number(value?.rushBest)||0))};}
@@ -31,29 +35,36 @@ export function adventureLayout(level,count){
  // Complete, predictable grids: no decorative gaps or corner blockers.
  return {columns:count===1?1:count===3?3:count<=4?2:count<=9?3:count>16?5:4,cells:[],name:'classic'};
 }
-export function levelTasks(level){
- const n=levelSpec(level).level,goals=levelRequirements(n),total=goals.reduce((sum,g)=>sum+g.target,0);
- const memory=goals.find(g=>g.type==='memoryCollected')?.target||0;
- const seconds=adventureTimeTarget(n);
- const mistakes=n<=3?2:n<=20?1:n%3===0?1:0;
- return [{type:'wrong',target:mistakes,label:mistakes?'Finish with at most '+mistakes+' wrong '+(mistakes===1?'pick':'picks'):'Finish without a wrong pick'},
- {type:'time',target:seconds,label:'Finish within '+formatLevelTime(seconds)},
- n>=25&&n%2===1?{type:'turns',target:total*2+memory+6,label:'Finish within '+(total*2+memory+6)+' turns'}:
- {type:'streak',target:n<=3?2:n<=20?3:5,label:'Make '+(n<=3?2:n<=20?3:5)+' correct picks in a row'}];
+// Deliberate obstacle lessons, separated by clear boards for new mechanics.
+// Fixed footprints keep cleared blocks from returning as the run progresses.
+export function adventureDesign(level){
+ const n=levelSpec(level).level;
+ const lessons={4:['First block',6,[5],1],9:['Crack and clear',6,[2],2],16:['Around the center',9,[5],1],18:['Two paths',9,[4,6],1],19:['Twin blocks',9,[4,6],2]};
+ let plan=lessons[n];
+ if(n>=24){
+  const size=n<51?9:12,columns=size===9?3:4;
+  const patterns={4:['Center passage',[columns+2]],7:['Side steps',[columns+1,columns*2]],9:['Split path',[2,size-1]],0:['World finale',[columns+2,size-1]]};
+  const pattern=patterns[n%10];if(pattern)plan=[pattern[0],size,pattern[1],2];
+ }
+ return plan?{name:plan[0],size:plan[1],blocks:plan[2],hits:plan[3]}:null;
 }
+export function levelTasks(level){const n=levelSpec(level).level;return starTasks(n,{seconds:adventureTimeTarget(n),frameName:id=>COSMETICS.find(c=>c.id===id)?.name||id});}
 export function levelRequirementStatus(level,stats={}){return taskStatus(levelRequirements(level),stats);}
 export function trackLevelPick(stats={},tile,correct,outcome){
+ if(tile?.special&&outcome==='correct')return {...stats,pickups:{...stats.pickups,[tile.special]:(stats.pickups?.[tile.special]||0)+1}};
  if(!correct)return ['wrong','miss','protected'].includes(outcome)?{...stats,streak:0}:stats;
  stats=trackLevelCollection(stats,[tile]);
  return {...stats,memoryCollected:(stats.memoryCollected||0)+(tile?.memory?1:0),streak:(stats.streak||0)+1,bestStreak:Math.max(stats.bestStreak||0,(stats.streak||0)+1),
  colorChanges:(stats.colorChanges||0)+(stats.previous&&stats.previous.color!==tile.color?1:0),
  shapeChanges:(stats.shapeChanges||0)+(stats.previous&&stats.previous.shape!==tile.shape?1:0),previous:{color:tile.color,shape:tile.shape}};
 }
-function objectiveMet(task,stats){if(task.type==='collection')return (stats.collections?.[task.color+':'+task.shape]||0)>=task.target;return task.type==='time'?(stats.elapsed||0)<=task.target*1000:task.type==='wrong'?(stats.wrong||0)<=task.target:task.type==='turns'?(stats.turns||0)<=task.target:(stats[task.type==='streak'?'bestStreak':task.type]||0)>=task.target;}
+export function starTaskValue(task,stats){if(task.type==='frame')return stats.frame===task.frame?1:0;if(task.type==='pickup')return stats.pickups?.[task.special]||0;if(task.type==='ability')return task.ability==='all'?['shield','freeze','boost'].filter(n=>stats.abilities?.[n]).length:stats.abilities?.[task.ability]?1:0;return null;}
+export function trackLevelAbility(stats,name){return ['shield','freeze','boost'].includes(name)?{...stats,abilities:{...stats.abilities,[name]:true}}:stats;}
+function objectiveMet(task,stats){const value=starTaskValue(task,stats);if(value!==null)return value>=task.target;if(task.type==='collection')return (stats.collections?.[task.color+':'+task.shape]||0)>=task.target;return task.type==='time'?(stats.elapsed||0)<=task.target*1000:task.type==='wrong'?(stats.wrong||0)<=task.target:task.type==='turns'?(stats.turns||0)<=task.target:(stats[task.type==='streak'?'bestStreak':task.type]||0)>=task.target;}
 export function levelObjectives(level,stats={}){return levelTasks(level).map(task=>({label:task.label,done:!!stats.won&&objectiveMet(task,stats)}));}
 export function saveObjectiveStars(progress,level,count){if(level>unlockedLevel(progress)||level<1||level>100||count<0)return progress;const next=normalizeAdventure(progress);next.cleared[level-1]=true;next.stars[level-1]=Math.max(next.stars[level-1],Math.min(3,count));return next;}
 export function starTotal(progress){return progress.stars.reduce((a,b)=>a+b,0);}
-export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,setDifficulty,getPlayerLevel=()=>1,canStart=()=>true,isAdmin=()=>false,onAdventureComplete=()=>{},drawShape}){
+export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,setDifficulty,getPlayerLevel=()=>1,getFrame=()=>'none',openFrames=()=>{},canStart=()=>true,isAdmin=()=>false,onAdventureComplete=()=>{},drawShape}){
  const $=id=>document.getElementById(id);
  const top=document.querySelector('.home-tools:not(.home-extras)'),bottom=document.createElement('nav');bottom.className='home-bottom';bottom.setAttribute('aria-label','Profile');$('home').append(bottom);bottom.append($('profile-open'));top.append($('leaderboard-open'),$('achievements-open'),$('shop-open'));
  const walletGroup=document.createElement('div');walletGroup.className='home-wallet-group';$('home').append(walletGroup);walletGroup.append($('coin-help-open'),$('coins-ad-open'));document.querySelector('.home-extras').hidden=true;$('mode-prev').hidden=true;$('mode-next').hidden=true;
@@ -64,14 +75,14 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  const save=()=>{try{window.ShapeShiftPlatform.storage.setItem('shape-shift-adventure-v1',JSON.stringify(progress));}catch{}};
  const stars=n=>Array.from({length:3},(_,i)=>`<span class="map-star ${i<n?'earned':''}"><img src="assets/stars-v101.webp" alt=""></span>`).join('');
  function refresh(){
-  const names=['Endless','Adventure','Games'],copy=['Keep playing. Beat your best!','100 levels. A brighter world.','60 seconds. Make every pick count.'];
+  const names=['Adventure','Endless','Games'],copy=['100 levels. A brighter world.','Keep playing. Beat your best!','60 seconds. Make every pick count.'];
   names.forEach((name,i)=>{
    let b=$('mode-cards').children[i],dot=$('mode-dots').children[i];
    if(!b){b=document.createElement('button');b.className='mode-card mode-'+MODES[i];b.setAttribute('aria-label',name+' mode');b.innerHTML=`<strong>${name}</strong><em></em><small></small>`;b.onclick=e=>{if(e.detail!==0||window.ShapeShiftPlatform.now()-lastPointerTap<600)return;if(i!==selected)select(i);else launchCard(i);};$('mode-cards').append(b);dot=document.createElement('button');dot.setAttribute('aria-label','Select '+name);dot.onclick=()=>select(i);$('mode-dots').append(dot);}
-   b.dataset.position=carouselPosition(i,selected);b.setAttribute('aria-pressed',String(i===selected));b.querySelector('em').textContent=i===1?starTotal(progress)+' / '+(progress.stars.length*3):'';b.querySelector('em').hidden=i!==1;b.querySelector('em').setAttribute('aria-label',i===1?starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned':'');b.querySelector('small').textContent=i===0?'Best: '+getBest():i===1?'Level '+unlockedLevel(progress):(gamesUnlocked(getPlayerLevel())?'3 endless games':'Unlocks at level '+GAMES_UNLOCK_LEVEL);b.classList.toggle('locked',i===2&&!gamesUnlocked(getPlayerLevel()));b.setAttribute('aria-label',name+' mode'+(i===2&&!gamesUnlocked(getPlayerLevel())?', locked until player level '+GAMES_UNLOCK_LEVEL:''));dot.classList.toggle('selected',i===selected);dot.setAttribute('aria-pressed',String(i===selected));
+   b.dataset.position=carouselPosition(i,selected);b.setAttribute('aria-pressed',String(i===selected));b.querySelector('em').textContent=i===0?starTotal(progress)+' / '+(progress.stars.length*3):'';b.querySelector('em').hidden=i!==0;b.querySelector('em').setAttribute('aria-label',i===0?starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned':'');b.querySelector('small').textContent=i===1?'Best: '+getBest():i===0?'Level '+unlockedLevel(progress):(gamesUnlocked(getPlayerLevel())?'3 endless games':'Unlocks at level '+GAMES_UNLOCK_LEVEL);b.classList.toggle('locked',i===2&&!gamesUnlocked(getPlayerLevel()));b.setAttribute('aria-label',name+' mode'+(i===2&&!gamesUnlocked(getPlayerLevel())?', locked until player level '+GAMES_UNLOCK_LEVEL:''));dot.classList.toggle('selected',i===selected);dot.setAttribute('aria-pressed',String(i===selected));
   });
   $('map-star-total').textContent=starTotal(progress)+' / '+(progress.stars.length*3);$('map-stars').setAttribute('aria-label',starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned');
-  const locked=selected===2&&!gamesUnlocked(getPlayerLevel());$('play').textContent=locked?'Level '+GAMES_UNLOCK_LEVEL:'Play';$('play').disabled=locked||launching;$('play').setAttribute('aria-label',locked?'Games unlocks at player level '+GAMES_UNLOCK_LEVEL:'Play '+names[selected]);$('view-map').hidden=selected!==1;$('view-map').textContent='View Map';
+  const locked=selected===2&&!gamesUnlocked(getPlayerLevel());$('play').textContent=locked?'Level '+GAMES_UNLOCK_LEVEL:'Play';$('play').disabled=locked||launching;$('play').setAttribute('aria-label',locked?'Games unlocks at player level '+GAMES_UNLOCK_LEVEL:'Play '+names[selected]);$('view-map').hidden=selected!==0;$('view-map').textContent='View Map';
  }
  function select(i){cardTaps.reset();lastTapPoint=null;selected=(i+3)%3;sound('click');refresh();}
  $('mode-prev').onclick=()=>select(selected-1);$('mode-next').onclick=()=>select(selected+1);
@@ -94,8 +105,8 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  // Dialog transitions must not leave a pointer or double-tap pending on the home carousel.
  new MutationObserver(()=>menuSwipe.reset()).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','data-screen']});
  carousel.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();select(selected+(e.key==='ArrowRight'?1:-1));}});
- function launchCard(i){cardTaps.reset();if(i===1)level=unlockedLevel(progress);startMode(MODES[i]);}
- function playSelected(){if(launching||!canStart())return;cardTaps.reset();if(selected===1)openLevel(unlockedLevel(progress));else startMode(MODES[selected]);}
+ function launchCard(i){cardTaps.reset();if(i===0)level=unlockedLevel(progress);startMode(MODES[i]);}
+ function playSelected(){if(launching||!canStart())return;cardTaps.reset();if(selected===0)openLevel(unlockedLevel(progress));else startMode(MODES[selected]);}
  bindLaunchTap($('play'),playSelected);
  async function startMode(mode){
   if(launching||!canStart())return;
@@ -109,11 +120,20 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   if(launching||!canStart()||!['home','map'].includes($('app').dataset.screen))return;
   if(!isAdmin()&&n>unlockedLevel(progress)){sound('map-locked');showMapNotice('Complete Level '+(n-1)+' to unlock Level '+n+'.');return;}
   level=n;$('level-title').textContent='Level '+n;$('level-goal').textContent='Collect to win';
+  let designNote=$('level-design');if(!designNote){designNote=document.createElement('p');designNote.id='level-design';$('level-goal').after(designNote);}
+  const design=adventureDesign(n);designNote.hidden=!design;
+  designNote.textContent=design?design.name+' · Black blocks break after '+design.hits+' adjacent '+(design.hits===1?'match':'matches')+'. No bomb needed.':'';
   let requirements=$('level-requirements');if(!requirements){requirements=document.createElement('div');requirements.id='level-requirements';$('level-goal').after(requirements);}
   renderLevelRequirements(requirements,n,{},drawShape);
   let goals=$('level-objectives');if(!goals){const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Star tasks';goals=document.createElement('ul');goals.id='level-objectives';requirements.after(heading,goals);}
   goals.innerHTML=levelTasks(n).map(task=>'<li class="star-challenge"><span class="map-star earned" aria-hidden="true"><img src="assets/stars-v101.webp" alt=""></span><span>'+task.label+'</span></li>').join('');
-  $('level-dialog').showModal();sound('click');
+  let frameNote=$('level-frame-requirement');if(!frameNote){frameNote=document.createElement('p');frameNote.id='level-frame-requirement';frameNote.setAttribute('role','status');$('level-goal').after(frameNote);}
+  let frameButton=$('level-choose-frame');if(!frameButton){frameButton=document.createElement('button');frameButton.id='level-choose-frame';frameButton.className='secondary';frameButton.textContent='Choose frame';frameNote.after(frameButton);frameButton.onclick=()=>{$('level-dialog').close();openFrames();};}
+  const required=adventureFrameRequirement(n),ready=!required||getFrame()===required.id;
+  frameNote.hidden=!required;frameButton.hidden=!required||ready;
+  frameNote.textContent=required?(ready?'Frame star ready. Any frame can play.':'Optional frame star. Any frame can play.'):'';
+  $('level-play').disabled=false;$('level-play').textContent='Play';
+  if(!$('level-dialog').open)$('level-dialog').showModal();sound('click');
  }
  $('level-close').onclick=()=>$('level-dialog').close();bindLaunchTap($('level-play'),()=>startMode('adventure'));
  let mapWindow='',mapFrame=0,mapWidth=0;
@@ -144,9 +164,9 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  },true);
  $('adventure-map').addEventListener('scroll',()=>{if(!mapFrame)mapFrame=window.ShapeShiftPlatform.requestAnimationFrame(paintMap);},{passive:true});
  new ResizeObserver(()=>{if($('adventure-map').hidden)return;const width=$('adventure-map').clientWidth;if(width&&width!==mapWidth){const ratio=$('adventure-map').scrollTop/Math.max(1,mapWidth);sizeMap();$('adventure-map').scrollTop=ratio*width;paintMap();}}).observe($('adventure-map'));
- $('view-map').onclick=()=>{if(selected===1)map();};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
+ $('view-map').onclick=()=>{if(selected===0)map();};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
  document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-shop-tab]').forEach(t=>{const on=t===b;t.setAttribute('aria-selected',String(on));$(t.dataset.shopTab).hidden=!on;});sound('click');});
- refresh();return {refresh,map,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
+ refresh();return {refresh,map,openLevel,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
 }
 
 // Two measured path-center anchors per square raster tile. Odd tiles mirror vertically.
@@ -155,6 +175,7 @@ export function visibleMapSections(scroll,height,width){const first=Math.max(0,M
 
 export function levelTaskStatus(level,stats={}){return taskStatus(levelTasks(level),stats);}
 function taskStatus(tasks,stats){return tasks.map(task=>{
+ const special=starTaskValue(task,stats);if(special!==null)return {label:task.label,value:task.type==='frame'?(special?'Equipped':'Not equipped'):Math.min(special,task.target)+' / '+task.target,progress:Math.min(1,special/task.target),state:special>=task.target?'complete':'active'};
  if(task.type==='turns'){const used=stats.turns||0;return {label:task.label,value:used+' / '+task.target,progress:Math.min(1,used/task.target),state:used>task.target?'missed':'active'};}
  if(task.type==='time'){const left=Math.max(0,Math.ceil(task.target-(stats.elapsed||0)/1000));return {label:task.label,value:formatLevelTime(left)+' remaining',progress:Math.max(0,Math.min(1,left/task.target)),state:(stats.elapsed||0)>task.target*1000?'missed':'active'};}
  if(task.type==='wrong'){const missed=(stats.wrong||0)>task.target;return {label:task.label,value:missed?'Missed this attempt':task.target?(stats.wrong||0)+' / '+task.target+' wrong picks':'Still on track',progress:missed?0:1,state:missed?'missed':'active'};}
@@ -197,7 +218,8 @@ export function collectionBoard(level,state,board,rng=Math.random,stats={}){
 // Blockers occupy selected holes, never ordinary card indices. Unchosen holes stay empty.
 export function createRockLayout(level,count){
  const layout=adventureLayout(level,count);
- return {...layout,baseCount:count,cells:Array.from({length:count},(_,i)=>i+1),rocks:[],opened:[]};
+ const design=adventureDesign(level),blocked=design&&count===design.size?design.blocks:[];
+ return {...layout,name:blocked.length?'obstacles':layout.name,baseCount:count,cells:Array.from({length:count},(_,i)=>i+1).filter(cell=>!blocked.includes(cell)),rocks:blocked.map(cell=>({cell,hits:design.hits})),opened:[]};
 }
 export function damageAdjacentRocks(layout,indices,{hitCells=null,minimumHits=0}={}){
  if(!layout)return layout;
@@ -347,3 +369,11 @@ export function renderColorChangeCue(current,picks,enabled){
  Array.from(cue.children).forEach((segment,index)=>segment.classList.toggle('filled',index<filled));
 }
 
+// Star pickups are offered on ordinary boards, so optional stars do not rely on luck.
+export function ensureStarPickup(level,stats,state,board){
+ const task=levelTasks(level).find(t=>t.type==='pickup');
+ if(!task||objectiveMet(task,stats)||state.heldBoard||state.bombRefillBoard||state.sweepBoard||state.sweepPending||board.some(t=>t.special===task.special))return board;
+ const slots=board.flatMap((tile,i)=>!tile.special&&!tile.memory&&!tile.collected&&!tile.bonusTile?[i]:[]);
+ if(slots.length<3)return board;
+ const result=board.slice();result[slots.at(-1)]={special:task.special};return result;
+}

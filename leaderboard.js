@@ -1,5 +1,5 @@
-import {publicRankings} from './leaderboard-cache.js';
-import {leaderboardAllowed} from './audience.js?v=cloud14';
+import {publicRankings} from './leaderboard-cache.js?v=49439-web1';
+import {leaderboardAllowed} from './audience.js?v=49439-web1';
 // Public endpoint is enabled only after the score service is published for all players.
 export const LEADERBOARD_URL='https://shape-shift-test-scores.mkplaycraftstudio.workers.dev';
 const key='shape-shift-player-token';
@@ -8,11 +8,11 @@ function token(){let value=window.ShapeShiftPlatform.storage.getItem(key);if(!va
 async function call(path,body,timeout=6000){
  if(!leaderboardAllowed()&&path!=='/api/delete'&&path!=='/api/leaderboard')throw Error('Online features are unavailable with these privacy settings.');
  if(!LEADERBOARD_URL)throw Error('Online leaderboard is not connected yet.');
- if(window.ShapeShiftPlatform.live)throw Error('Cloud rankings are available in the browser edition only.');const epoch=sessionEpoch,credential=body?token():null;const controller=new AbortController();inFlight.add(controller);const timer=setTimeout(()=>controller.abort(),timeout);
- try{const request=()=>{if(epoch!==sessionEpoch)throw Error('Ranking session changed.');return fetch(LEADERBOARD_URL+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','Authorization':'Bearer '+credential}:undefined,body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit'});};let r=await request();if(r.status===503&&path!=='/api/run'){await r.text();r=await request();}if(r.status===429&&path==='/api/profile'){await r.text();await new Promise(resolve=>setTimeout(resolve,1600));r=await request();}if(!r.ok){const error=Error('Leaderboard is temporarily unavailable.');error.status=r.status;throw error;}return await r.json();}finally{clearTimeout(timer);inFlight.delete(controller);}
+ if(window.ShapeShiftPlatform.live)throw Error('Cloud rankings are available in the browser edition only.');const epoch=sessionEpoch,credential=body?token():null;const controller=new AbortController();inFlight.add(controller);const timer=window.ShapeShiftPlatform.setTimeout(()=>controller.abort(),timeout);
+ try{const request=()=>{if(epoch!==sessionEpoch)throw Error('Ranking session changed.');return fetch(LEADERBOARD_URL+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','Authorization':'Bearer '+credential}:undefined,body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit'});};let r=await request();if(r.status===503&&path!=='/api/run'){await r.text();r=await request();}if(r.status===429&&path==='/api/profile'){await r.text();await new Promise(resolve=>window.ShapeShiftPlatform.setTimeout(resolve,1600));r=await request();}if(!r.ok){const error=Error('Leaderboard is temporarily unavailable.');error.status=r.status;throw error;}return await r.json();}finally{window.ShapeShiftPlatform.clearTimeout(timer);inFlight.delete(controller);}
 }
 // Each rules version binds the difficulty on the server before play begins.
-export const RANKED_RULES=Object.freeze({easy:27,normal:28,hard:29,extreme:30});
+export const RANKED_RULES=Object.freeze({easy:39,normal:40,hard:41,extreme:42});
 const requestRankedRun=async(difficulty='normal')=>{const rules=RANKED_RULES[difficulty];if(!rules)throw Error('Invalid ranked difficulty');const run=await call('/api/run',{rules,protocol:2},6000);if(run.rules!==rules)throw Error('Score service update pending');return run;};
 const preparedRuns=new Map();
 export function prepareRankedRun(difficulty='normal'){
@@ -75,4 +75,11 @@ export function identifyLeaderboardEntries(entries,playerId,identity){
   const isYou=typeof playerId==='string'&&/^[a-f0-9]{64}$/.test(playerId)&&row.id===playerId;
   return {...row,isYou,...(isYou?{name:identity.name,avatar:identity.avatar,frame:identity.frame}:{} )};
  });
+}
+
+// A local best is useful outside the returned list, but is not a verified rank.
+export function personalRanking(entries=[],bests={}){
+ const index=entries.findIndex(row=>row.isYou===true);
+ if(index>=0)return {rank:index+1,score:entries[index].score,listed:true};
+ return {rank:null,score:Math.max(0,...Object.values(bests).filter(value=>Number.isFinite(value)&&value>=0)),listed:false};
 }

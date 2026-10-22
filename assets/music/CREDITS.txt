@@ -1,0 +1,31 @@
+Shape Shift piano music
+
+Current original arrangements: "Sunny Shapes" (menu, 92 BPM) and "Little Sparks" (gameplay, 104 BPM), created for Shape Shift / MK Playcraft Studio. These replace the previous quiet piano arrangements.
+
+The soft kick, clap and shaker samples were synthesized specifically for these original pop arrangements. No third-party drum recordings or commercial songs are used. Piano Flow uses the same three percussion samples, synchronized to its interactive chart, with major-key piano accompaniment.
+
+Piano recordings: Salamander Grand Piano v3 by Alexander Holm.
+Source: https://github.com/sfzinstruments/SalamanderGrandPiano
+Original sample archive: https://archive.org/details/SalamanderGrandPianoV3
+License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+Full license text: LICENSE.txt in this directory.
+
+Changes: selected recorded notes were trimmed, pitch-shifted by up to two semitones, sequenced into original arrangements, mixed with release envelopes and room reverb, and encoded as stereo Ogg Vorbis loops. These are sampled acoustic-piano arrangements, not recordings of a live pianist playing the complete pieces. No endorsement by the original sample author is implied.
+
+Piano Flow also uses trimmed, Ogg-encoded individual Salamander piano recordings for interactive melody and accompaniment notes. The same attribution and CC BY 3.0 license apply.
+
+Piano Flow 4.42 interactive charts:
+16 fixed shape/color notes (C4 through D6, C-major scale).
+100 original four-bar melody/progression variations authored for Shape Shift.
+New simple piano arrangements of the traditional melodies Twinkle, Twinkle, Little Star and Frere Jacques. No commercial song recordings or modern arrangements were imported.
+Historical references:
+https://www.loc.gov/item/2023832590/
+https://www.loc.gov/item/jukebox-18041/
+These references document the traditional repertoire; the linked recordings are not bundled or sampled. Interactive sounds use the credited Salamander recordings above.
+
+4.94.31 original groove arrangements:
+Front Porch (menu, 96 BPM), Bright Momentum (main game, 110 BPM), Ribbon Rush (Shape Slice, 118 BPM), Pocket Gravity (Shape Drop, 100 BPM).
+Original repeated piano motifs with octave answers, broken chords, synthesized harmonic bass, and the existing original kick/clap/shaker samples. Piano notes use the Salamander recordings credited above. Mixed as 32-bar stereo loops with wrapped release tails and encoded as Ogg Vorbis. No commercial melodies or recordings were imported.
+
+Victory arrangement 4.94.34: original C-major piano fanfare using the credited Salamander samples, pitch-shifted, enveloped and mixed with synchronized firework impacts.

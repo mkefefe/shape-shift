@@ -1,0 +1,72 @@
+/* Gameplay fills the display; menus only appear when the player pauses. */
+#shape-slice[data-view='play']{position:fixed;inset:0;width:100%;height:100dvh;max-width:none;max-height:none;margin:0;border:0;border-image:none;border-radius:0;box-shadow:none;background:#050b21;padding:max(12px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));overflow:hidden;isolation:isolate;grid-template:none;gap:0!important;color:white}
+#shape-slice[data-view='play'][open]{display:flex;flex-direction:column}
+#shape-slice[data-view='play']::backdrop{background:#050b21;backdrop-filter:none}
+#shape-slice .slice-scenery{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050b21}
+/* Original Slice galaxy painting, with a closed, continuous drift cycle. */
+#shape-slice .slice-scenery::before{content:'';position:absolute;inset:-4%;background:url('assets/slice-galaxy-v260.webp') 74% center/cover no-repeat;animation:slice-galaxy-orbit 64s ease-in-out infinite;will-change:transform}
+#shape-slice .slice-scenery::after{content:'';position:absolute;inset:0;background:linear-gradient(#03091f80,transparent 25%,#03091f18 70%,#03091f60);pointer-events:none}
+/* Each star layer travels by exactly one repeated tile, so the loop never jumps. */
+#shape-slice .slice-stars{position:absolute;inset:-384px;pointer-events:none;will-change:transform;background-repeat:repeat;background-size:384px 384px;animation:slice-stars-far 140s linear infinite;opacity:.42;
+ background-image:radial-gradient(circle at 24px 53px,#d9eaff 0 1px,transparent 1.7px),radial-gradient(circle at 122px 210px,#cfbaff 0 .8px,transparent 1.5px),radial-gradient(circle at 235px 88px,#eff8ff 0 1px,transparent 1.8px),radial-gradient(circle at 340px 307px,#c7e6ff 0 .8px,transparent 1.5px),radial-gradient(circle at 72px 326px,#c5cfff 0 .6px,transparent 1.2px),radial-gradient(circle at 299px 187px,#e3d7ff 0 .7px,transparent 1.4px)}
+#shape-slice .slice-stars-near{inset:-640px;background-size:640px 640px;opacity:.65;animation:slice-stars-near 90s linear infinite;
+ background-image:radial-gradient(circle at 90px 110px,#effcff 0 1.4px,#a1d8ff50 2px,transparent 4px),radial-gradient(circle at 430px 360px,#f2e5ff 0 1.1px,#c1a6ff40 2px,transparent 4px),radial-gradient(circle at 252px 520px,#dceeff 0 1px,transparent 2px),radial-gradient(circle at 581px 60px,#f4dcff 0 1px,transparent 2px)}
+#shape-slice .slice-play-hud{position:relative;width:100%;height:104px;flex:none;margin:0;display:grid;grid-template-columns:minmax(90px,1fr) minmax(0,1fr) minmax(90px,1fr);grid-template-rows:64px 28px;align-items:center;padding:0 8px;text-shadow:0 2px 6px #09213c}
+#shape-slice .slice-current-score{position:static;grid-column:2;grid-row:1;justify-self:center;transform:none;font-size:clamp(44px,13vw,64px);font-weight:1000;color:#fff8de;-webkit-text-stroke:1.5px #194c74;paint-order:stroke fill;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;text-shadow:0 4px 0 #1b476d,0 5px 13px #041e4e77}
+/* The shared pause icon stays identical across all game modes. */
+#shape-slice .slice-play-hud .drop-icon-pause{position:relative;grid-column:1;grid-row:1;justify-self:start;left:auto;top:auto;width:56px;height:56px;border:0;border-radius:50%;background:transparent url('assets/pause-v30.webp') center/contain no-repeat;box-shadow:none}
+#shape-slice .slice-best{position:static;grid-column:1;grid-row:2;justify-self:start;display:flex;flex-direction:row;gap:6px;align-items:baseline;min-width:0;color:#c4eaff;line-height:1.25}
+#shape-slice .slice-best span{font-size:10px;letter-spacing:1.5px;font-weight:900}#shape-slice .slice-best strong{font-size:16px;font-weight:1000;font-variant-numeric:tabular-nums}
+#shape-slice .slice-lives{position:static;grid-column:3;grid-row:1;justify-self:end;transform:none;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:3px;letter-spacing:0;max-width:100%;width:100%;justify-content:flex-end;--heart-size:min(28px,calc((100% - (var(--heart-count,3) - 1)*3px)/var(--heart-count,3)))}
+#shape-slice .slice-lives .heart{width:var(--heart-size);height:auto;flex:0 0 var(--heart-size);display:block;aspect-ratio:1;background:url('assets/health-boost-v5.webp') left center/200% 100% no-repeat;filter:drop-shadow(0 2px 3px #07234666);transition:opacity .2s,filter .2s}
+#shape-slice .slice-lives.slice-bomb-damage{filter:drop-shadow(0 0 6px #ff4937)}
+#shape-slice .slice-lives .heart.empty{opacity:.22;filter:grayscale(1)}
+#shape-slice[data-view='play'] .drop-stage{position:relative;flex:1;min-height:0;width:min(600px,100%);height:auto;margin:0 auto;grid-row:auto;grid-column:auto;overflow:hidden;background:none;border:0;box-shadow:none}
+#shape-slice[data-view='play'] .drop-canvas{border:0;border-radius:0;background:transparent;outline-offset:-3px}
+#shape-slice .slice-help{flex:none;min-height:36px;display:flex;align-items:center;justify-content:center;margin:0;padding:0;text-shadow:0 1px 4px #062449;color:#e5faff;pointer-events:none;font-size:12px}
+#shape-slice .slice-help small{font-size:10px;color:#c5e8f4}
+#shape-slice[data-view='play'] .drop-overlay{border-radius:0;background:#071b406b;backdrop-filter:blur(5px);padding:18px}
+#shape-slice[data-view='play'] .drop-panel{width:min(340px,100%);padding:26px 22px;gap:15px;border:2px solid #ffffffaa;border-image:none;border-radius:28px;background:#edf9fff5;color:#254e70;box-shadow:0 18px 50px #061d4555}
+#shape-slice[data-view='play'] .drop-panel h2{font-size:26px;color:#254e70;text-shadow:none}
+#shape-slice[data-view='play'] .drop-result-score{font-size:78px;color:#25729b;line-height:1}
+#shape-slice[data-view='play'] .drop-panel .drop-action{aspect-ratio:auto;min-height:52px;width:100%;padding:12px 20px;border:0;border-radius:18px;background:#318eaf;color:#fff;font-size:19px;text-shadow:none;box-shadow:0 3px 0 #1d617c}
+#shape-slice[data-view='play'] .drop-panel .drop-secondary{width:100%;border:1px solid #a8ccdb;border-radius:18px;background:transparent;color:#36738b;font-size:16px;box-shadow:none}
+#shape-slice[data-paused='true'] .slice-scenery::before,#shape-slice[data-paused='true'] .slice-stars{animation-play-state:paused}
+@keyframes slice-galaxy-orbit{0%,100%{transform:translate3d(-1%,-.7%,0) scale(1.025)}25%{transform:translate3d(1%,-1%,0) scale(1.035)}50%{transform:translate3d(1%,.7%,0) scale(1.025)}75%{transform:translate3d(-1%,1%,0) scale(1.035)}}
+@keyframes slice-stars-far{from{transform:translate3d(0,0,0)}to{transform:translate3d(-384px,384px,0)}}
+@keyframes slice-stars-near{from{transform:translate3d(0,0,0)}to{transform:translate3d(-640px,640px,0)}}
+@media(max-height:650px){#shape-slice .slice-play-hud{height:84px;grid-template-rows:56px 24px}#shape-slice .slice-current-score{font-size:48px}#shape-slice .slice-help{min-height:30px;font-size:10px}#shape-slice[data-view='play'] .drop-panel{padding:18px;gap:10px}}
+@media(orientation:landscape) and (max-height:550px){#shape-slice[data-view='play']{padding-top:5px;padding-bottom:5px}#shape-slice .slice-play-hud{height:80px}#shape-slice .slice-current-score{font-size:48px}#shape-slice .slice-help{min-height:22px;flex-direction:row;gap:12px}#shape-slice[data-view='play'] .drop-stage{width:100%;max-width:none}#shape-slice .slice-help small{font-size:10px}}
+@media(prefers-reduced-motion:reduce){#shape-slice .slice-scenery::before,#shape-slice .slice-stars{animation:none}}
+body.reduce-motion #shape-slice .slice-scenery::before,body.reduce-motion #shape-slice .slice-stars{animation:none}
+
+#shape-slice .mini-run-coins{position:static;grid-column:3;grid-row:2;justify-self:end;font-size:16px}
+@media(max-height:650px){#shape-slice .mini-run-coins{font-size:14px}#shape-slice .mini-run-coins img{width:20px;height:20px}}
+
+
+/* The slash belongs to the whole screen, independently of the shape arena. */
+#shape-slice[data-view='play']{touch-action:none;user-select:none;-webkit-user-select:none}
+#shape-slice .slice-trail-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;border:0;border-radius:0}
+#shape-slice .slice-play-hud .drop-icon-pause{z-index:3}
+
+/* The launch floor is the display edge, not an inset, letterboxed arena. */
+#shape-slice[data-view='play'] .drop-stage{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0}
+#shape-slice .slice-play-hud{z-index:3;pointer-events:none}
+#shape-slice .slice-play-hud button{pointer-events:auto}
+#shape-slice .slice-help{position:absolute;left:0;right:0;bottom:max(8px,env(safe-area-inset-bottom));z-index:1}
+#shape-slice[data-view='play'] .drop-overlay{z-index:4}
+
+@media(orientation:landscape){#shape-slice .slice-scenery::before{background-position:center 18%}}
+
+/* Overscan keeps screen shake from exposing an empty edge. */
+#shape-slice .slice-scenery{inset:-12px}
+
+/* A missed batch must be visible even when its shapes have left the display. */
+#shape-slice .slice-life-loss{position:absolute;top:max(126px,calc(env(safe-area-inset-top) + 114px));left:50%;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:180px;padding:10px 20px;border:2px solid #ff9aab;border-radius:18px;background:#581b36ed;box-shadow:0 4px 22px #03091999;color:#fff5f7;text-shadow:0 2px #451227;pointer-events:none}
+#shape-slice .slice-life-loss[hidden]{display:none}
+#shape-slice .slice-life-loss strong{font-size:26px;font-weight:1000;line-height:1.1}
+#shape-slice .slice-life-loss span{font-size:13px;font-weight:900}
+#shape-slice .slice-lives.slice-life-damage{filter:drop-shadow(0 0 8px #ff466b)}
+#shape-slice .mini-damage-layer.damage-flash{animation:slice-life-flash .8s ease-out}
+@keyframes slice-life-flash{0%{background:#ff24441a;box-shadow:inset 0 0 100px 18px #ff244466}18%{background:#ff24442e;box-shadow:inset 0 0 110px 22px #ff2444bb}100%{background:transparent;box-shadow:inset 0 0 30px transparent}}
+@media(max-height:650px){#shape-slice .slice-life-loss{top:104px;padding:8px 16px}#shape-slice .slice-life-loss strong{font-size:23px}}

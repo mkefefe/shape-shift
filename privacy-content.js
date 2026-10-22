@@ -1,0 +1,1 @@
+export function bindSupportLinks(){} export async function loadPrivacyContent(host){host.textContent='Game progress is saved using YouTube Playables. Your YouTube privacy settings apply.';}

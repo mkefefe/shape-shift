@@ -1,0 +1,25 @@
+#adventure-victory{position:fixed;inset:0;margin:0;width:100%;height:100dvh;max-width:none;max-height:none;padding:0;border:0;border-image:none;border-radius:0;box-shadow:none;background:transparent;color:#fff8ca;text-align:center;overflow:hidden;isolation:isolate}
+#adventure-victory[open]{display:block}
+#adventure-victory::backdrop{background:rgb(3 15 35 / calc(.55 * var(--victory-dim,0)));backdrop-filter:none}
+#adventure-victory .victory-logo{position:absolute;left:50%;top:46%;width:min(68vw,330px);height:auto;max-height:34vh;object-fit:contain;z-index:2;filter:drop-shadow(0 4px 0 #063966) drop-shadow(0 0 16px #ffe08a80);opacity:var(--victory-opacity,1);will-change:transform;transform:translate(-50%,-50%)}
+#adventure-victory #victory-title{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#adventure-victory .victory-glow{position:absolute;left:50%;top:46%;width:min(95vw,520px);aspect-ratio:1;z-index:0;background:repeating-conic-gradient(from 10deg,#ffe48b00 0deg 16deg,#ffe48b38 16deg 27deg,#ffe48b00 27deg 40deg);mask-image:radial-gradient(circle,#0008 0%,#0005 28%,transparent 68%);transform:translate(-50%,-50%);pointer-events:none;opacity:var(--victory-opacity,1)}
+#adventure-victory .victory-piece{position:absolute;left:50%;top:46%;width:var(--spark-size);height:var(--spark-size);margin:-3px;z-index:1;pointer-events:none;background:var(--spark-color);border-radius:50%;box-shadow:0 0 7px var(--spark-color);will-change:transform,opacity}
+#adventure-victory .victory-piece.square{border-radius:1px}
+#adventure-victory .victory-logo,#adventure-victory .victory-glow,#adventure-victory .victory-piece{opacity:0}
+#adventure-victory .victory-logo{max-height:none;will-change:transform,opacity,width,top,left}
+#adventure-victory .victory-glow{top:44%;background:radial-gradient(circle,#fff4ad88 0%,#ffda5c38 24%,#ffe48b00 65%);mask-image:none}
+#adventure-victory .victory-orb{position:absolute;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#fffde5,#ffe592 35%,#ffd34900 72%);box-shadow:0 0 14px #ffdd6280;pointer-events:none;opacity:0}
+#over-dialog.adventure-results.victory-result .result-mark{display:block;order:-1;width:min(132px,30vw);height:auto;max-height:none;object-fit:contain;margin:0 auto 2px;flex-shrink:0;filter:drop-shadow(0 2px 2px #18507444)}
+#over-dialog.victory-arriving .result-mark{visibility:hidden}
+#over-dialog.victory-arriving.victory-quiet .result-mark{visibility:visible}
+#over-dialog.victory-arriving::backdrop{background:rgb(3 15 35 / .55);backdrop-filter:none}
+#over-dialog.victory-result:not(.victory-arriving)::backdrop{background:rgb(3 15 35 / .55);backdrop-filter:none}
+@media(max-height:650px){#over-dialog.adventure-results.victory-result .result-mark{width:90px}}
+#over-dialog.adventure-results.victory-result .result-content{justify-content:flex-start}
+
+#adventure-victory .victory-orb b{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);color:#fff3a8;font:900 20px Nunito,sans-serif;text-shadow:0 2px 4px #513300;white-space:nowrap}
+
+/* Orbs and the central burst remain visible above the dimmed board. */
+#adventure-victory .victory-orb{z-index:3}
+#adventure-victory .victory-piece{box-shadow:0 0 8px 2px var(--spark-color)}

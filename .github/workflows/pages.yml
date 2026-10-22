@@ -18,15 +18,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify gameplay
+        run: npm test
       - uses: actions/configure-pages@v5
       - name: Restore verified game bundle
-        run: |
-          cat game.zip.part00 game.zip.part01 game.zip.part02 > game.zip
-          echo '72b1e734f6818851c4f513157e608d74171c2145d5b9e960ee66366da3f90376  game.zip' | sha256sum --check
-          unzip -q game.zip -d _site
-          sha256sum --check web-fix.sha256
-          cp game.js mini-results.js shape-drop.js mini-continue.js playables-bootstrap.js playables-scores.mjs playables.css index.html world-menu.js audio.js profile.js leaderboard.js audience.js achievements-ui.js story-scene.js story-ui.js game-frame.html shape-slice.js slice-effects.js piano-flow.js piano-flow-engine.js piano-songs.js browser-leaderboard-hd1.png browser-shop-hd1.png browser-achievements-hd1.png browser-quests-hd1.png engine.js ability-guide.js adventure-victory.js startup-loader.js browser-time-hd1.png browser-shield-hd1.png browser-boost-hd1.png _site/
-          touch _site/.nojekyll
+        run: python3 scripts/build-site.py
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
