@@ -20,16 +20,16 @@ function bindPianoKeyboard({host,dialog,active,press,release,pause}){
   dialog.append(row);sync();return media.matches;
  }};
 }
-import {createMiniTutorial} from './mini-tutorial.js?v=49439-web3';
-import {createMiniResults} from './mini-results.js?v=49439-web3';
-import {createMiniContinue} from './mini-continue.js?v=49439-web3';
-import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web3';
-import {drawPianoHoldGlow} from './piano-hold-glow.js?v=49439-web3';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49439-web3';
+import {createMiniTutorial} from './mini-tutorial.js?v=49439-web4';
+import {createMiniResults} from './mini-results.js?v=49439-web4';
+import {createMiniContinue} from './mini-continue.js?v=49439-web4';
+import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web4';
+import {drawPianoHoldGlow} from './piano-hold-glow.js?v=49439-web4';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49439-web4';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49439-web3';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49439-web4';
 
-import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js?v=49439-web3';
+import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js?v=49439-web4';
 
 const STRIP_LINGER=1.6,STRIP_FADE=1.3;
 

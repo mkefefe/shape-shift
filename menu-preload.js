@@ -8,8 +8,13 @@ export function createMenuPreloader({idle, schedule=fn=>window.ShapeShiftPlatfor
  }
  return {add(key,job){if(keys.has(key))return;keys.add(key);jobs.push(job);if(!running){running=true;schedule(pump);}}};
 }
-const retained=new Map();
-export async function prepareMenuImage(src){
- if(retained.has(src))return;
- const image=new Image();image.decoding='async';image.src=src;await image.decode();retained.set(src,image);
+// Retain decoded art and share concurrent requests; a failed load may be retried.
+const retained=new Map(),pending=new Map();
+export function prepareMenuImage(src){
+ if(retained.has(src))return Promise.resolve(retained.get(src));
+ if(pending.has(src))return pending.get(src);
+ const loading=(async()=>{const image=new Image();image.decoding='async';image.src=src;await image.decode();retained.set(src,image);return image;})();
+ pending.set(src,loading);
+ loading.then(()=>pending.delete(src),()=>pending.delete(src));
+ return loading;
 }

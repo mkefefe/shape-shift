@@ -12,8 +12,10 @@ Startup now attempts music automatically when browser policy permits it, with cl
 
 Shape Drop supports continuous A/D aiming and S to drop, with held inputs cleared on pause or focus loss. The home carousel accepts one A/D mode change per press. Desktop hints explain both controls; touch and mouse input remain available.
 
+Startup gates play on all 112 shipped media assets, decodes and retains all 70 images, and prepares every skin variant. The build checks asset coverage so new media cannot silently skip preloading. Tutorial art reuses the decoded images and no longer leaves timeout labels over recovered icons.
+
 ## Verify and build
 
-Run `npm test` for the 117 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
+Run `npm test` for the 121 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
 
 The base archive remains split across three files. `web-fix.sha256` lists every deployed overlay file, including current music assets. Android signing material and APK/AAB files are not part of this repository.

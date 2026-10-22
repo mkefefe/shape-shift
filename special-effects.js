@@ -1,4 +1,4 @@
-import {fitBoard} from './board-fit.js?v=49439-web3';
+import {fitBoard} from './board-fit.js?v=49439-web4';
 export const SPECIAL_DESTINATIONS=Object.freeze({heart:'health',crystal:'shield',hourglass:'timer',reset:'board'});
 export const effectDuration=reduced=>reduced?400:1050;
 const clamp=x=>Math.max(0,Math.min(1,x));

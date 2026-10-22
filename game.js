@@ -1,85 +1,77 @@
-import {bindResultKeyboard} from './result-keyboard.js?v=49439-web3';
-import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web3';
-import {loadStartupAssets} from './startup-loader.js?v=49439-web3';
-import {firstEndlessLaunch} from './first-endless.js?v=49439-web3';
-import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web3';
-import {praiseDirector} from './praise-feedback.js?v=49439-web3';
-import {showAdventureVictory} from './adventure-victory.js?v=49439-web3';
-import {initStoryUI} from './story-ui.js?v=49439-web3';
-import {initTouchUI} from './touch-ui.js?v=49439-web3';
-import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web3';
-import {initPianoFlow} from './piano-flow.js?v=49439-web3';
-import {claimPianoReward} from './piano-flow-engine.js?v=49439-web3';
-import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web3';
-import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web3';
-import {initInputFeedback} from './input-feedback.js?v=49439-web3';
-import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web3';
-import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web3';
-import {enableHoldBuying} from './hold-buy.js?v=49439-web3';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49439-web3';
-import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web3';
-import {loadPrivacyContent} from './privacy-content.js?v=49439-web3';
-import {initSettingsExtras} from './settings-extras.js?v=49439-web3';
-import {initShapeSlice} from './shape-slice.js?v=49439-web3';
-import {claimSliceReward} from './shape-slice-engine.js?v=49439-web3';
-import {initGamesHub} from './games-hub.js?v=49439-web3';
-import {initShapeDrop} from './shape-drop.js?v=49439-web3';
-import {claimDropReward} from './shape-drop-engine.js?v=49439-web3';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web3';
-import {fitBoard} from './board-fit.js?v=49439-web3';
-import {analytics} from './analytics.js?v=49439-web3';
-import {ensureTerms} from './terms.js?v=49439-web3';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web3';
-import {observeBoard} from './board-fit.js?v=49439-web3';
+import {bindResultKeyboard} from './result-keyboard.js?v=49439-web4';
+import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web4';
+import {loadStartupAssets} from './startup-loader.js?v=49439-web4';
+import {firstEndlessLaunch} from './first-endless.js?v=49439-web4';
+import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web4';
+import {praiseDirector} from './praise-feedback.js?v=49439-web4';
+import {showAdventureVictory} from './adventure-victory.js?v=49439-web4';
+import {initStoryUI} from './story-ui.js?v=49439-web4';
+import {initTouchUI} from './touch-ui.js?v=49439-web4';
+import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web4';
+import {initPianoFlow} from './piano-flow.js?v=49439-web4';
+import {claimPianoReward} from './piano-flow-engine.js?v=49439-web4';
+import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web4';
+import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web4';
+import {initInputFeedback} from './input-feedback.js?v=49439-web4';
+import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web4';
+import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web4';
+import {enableHoldBuying} from './hold-buy.js?v=49439-web4';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49439-web4';
+import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web4';
+import {loadPrivacyContent} from './privacy-content.js?v=49439-web4';
+import {initSettingsExtras} from './settings-extras.js?v=49439-web4';
+import {initShapeSlice} from './shape-slice.js?v=49439-web4';
+import {claimSliceReward} from './shape-slice-engine.js?v=49439-web4';
+import {initGamesHub} from './games-hub.js?v=49439-web4';
+import {initShapeDrop} from './shape-drop.js?v=49439-web4';
+import {claimDropReward} from './shape-drop-engine.js?v=49439-web4';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web4';
+import {fitBoard} from './board-fit.js?v=49439-web4';
+import {analytics} from './analytics.js?v=49439-web4';
+import {ensureTerms} from './terms.js?v=49439-web4';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web4';
+import {observeBoard} from './board-fit.js?v=49439-web4';
 observeBoard(document.getElementById('board'));
-import {createGameplayScene} from './gameplay-scene.js?v=49439-web3';
-import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web3';
-import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web3';
-import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web3';
-import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web3';
-import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web3';
+import {createGameplayScene} from './gameplay-scene.js?v=49439-web4';
+import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web4';
+import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web4';
+import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web4';
+import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web4';
+import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web4';
 
-import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web3';
-import {earnsMatchCoin} from './economy.js?v=49439-web3';
+import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web4';
+import {earnsMatchCoin} from './economy.js?v=49439-web4';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web3';
-import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web3';
-
-
-
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=49439-web3';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web4';
+import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web4';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=49439-web3';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=49439-web4';
 
 
 
-import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=49439-web3';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=49439-web4';
 
 
 
-import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=49439-web3';
+import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=49439-web4';
 
 
 
-import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=49439-web3';
+import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=49439-web4';
 
 
 
-import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49439-web3';
+import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=49439-web4';
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49439-web3';
+import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49439-web4';
 
 
 
-
-
-
-
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web3';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49439-web4';
 
 
 
@@ -87,7 +79,7 @@ import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECI
 
 
 
-import {requestReward} from './rewarded.js?v=49439-web3';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web4';
 
 
 
@@ -95,7 +87,7 @@ import {requestReward} from './rewarded.js?v=49439-web3';
 
 
 
-import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=49439-web3';
+import {requestReward} from './rewarded.js?v=49439-web4';
 
 
 
@@ -103,7 +95,15 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=49439-web3';
+import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=49439-web4';
+
+
+
+
+
+
+
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=49439-web4';
 
 
 
@@ -3712,7 +3712,7 @@ function renderLesson(){
 
 
 
- lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/ability-hand-v169.webp';hand.alt='Tap here';hand.style.setProperty('--hand-angle',index===0?'180deg':'-90deg');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
+ lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/ability-hand-v169.webp';hand.alt='';hand.setAttribute('aria-hidden','true');hand.style.setProperty('--hand-angle',index===0?'180deg':'-90deg');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
 
 
 
@@ -3952,7 +3952,7 @@ async function prepareStartup(){
  try{
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
   cover.querySelector('p').textContent='Getting ready to play…';
-  await Promise.all([document.fonts.ready,shapeDrop.prepare(),shapeSlice.prepare(),audio()?.prepareCommon(),effectArtReady,skinArtReady,ensureSkinArt(activeSkin(),true),audio()?.prepareVictory().then(ready=>{if(!ready)throw Error('Victory samples unavailable');}),audio()?.preparePiano().then(ready=>{if(!ready)throw Error('Piano samples unavailable');}),...['assets/logo-v2-cut.webp','assets/menu-panel-v240.webp','assets/action-v45.webp'].map(src=>{const image=new Image();image.src=src;return image.decode();})]);
+  await Promise.all([document.fonts.ready,shapeDrop.prepare(),shapeSlice.prepare(),audio()?.prepareCommon(),effectArtReady,skinArtReady,...SHAPE_SKINS.map(skin=>skin.id).flatMap(id=>[false,true].map(chained=>ensureSkinArt(id,chained).then(ready=>{if(!ready)throw Error('Skin artwork unavailable: '+id);}))),audio()?.prepareVictory().then(ready=>{if(!ready)throw Error('Victory samples unavailable');}),audio()?.preparePiano().then(ready=>{if(!ready)throw Error('Piano samples unavailable');}),...['assets/logo-v2-cut.webp','assets/menu-panel-v240.webp','assets/action-v45.webp'].map(src=>{const image=new Image();image.src=src;return image.decode();})]);
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';cover.classList.add('startup-finished');await new Promise(r=>window.ShapeShiftPlatform.setTimeout(r,280));
   window.ShapeShiftPlatform.ready();
   if(firstEndless.pending){

@@ -1,3 +1,4 @@
+import {prepareMenuImage} from './menu-preload.js?v=49439-web4';
 export const BOOST_LESSONS={
  shield:['Shield','Blocks one mistake. Wait 5 completed turns before another shield equips automatically. Tap again to stop.'],
  freeze:['Double Time','Tap for twice as much time for 5 rounds. Combines with Time Crystal for 4x time. Uses another when it ends. Tap again to stop only this boost.'],
@@ -74,13 +75,14 @@ export async function showAbilityGuide(target,lesson,onTap){
  const abilityImages={freeze:'browser-time-hd1.png',shield:'browser-shield-hd1.png',boost:'browser-boost-hd1.png'};
  const sheet=boostKey?[abilityImages[boostKey],1,0]:specialKey==='bomb'?['assets/slice-bomb-v239.webp',1,0]:specialKey?['assets/specials-v13.webp',5,['starburst','hourglass','crystal','reset','heart'].indexOf(specialKey)]:boostKey==='boost'?['assets/health-boost-v5.webp',2,1]:['assets/abilities-v4.webp',3,boostKey==='shield'?2:0];
  try{
- const art=new Image();art.src=sheet[0];let timeout;
- try{await Promise.race([art.decode(),new Promise((_,reject)=>{timeout=window.ShapeShiftPlatform.setTimeout(()=>reject(new Error('Artwork timeout')),5000);})]);}finally{window.ShapeShiftPlatform.clearTimeout(timeout);}
+ const art=await prepareMenuImage(sheet[0]);
+ target.querySelectorAll('.guide-art-fallback').forEach(label=>label.remove());
  const canvas=document.createElement('canvas');canvas.className='guide-raster-icon';canvas.setAttribute('aria-hidden','true');
  const sw=art.naturalWidth/sheet[1],sh=specialKey&&specialKey!=='bomb'?sw*1.2:art.naturalHeight;canvas.width=Math.round(sw);canvas.height=Math.round(sh);
  canvas.getContext('2d').drawImage(art,sheet[2]*sw,(art.naturalHeight-sh)/2,sw,sh,0,0,canvas.width,canvas.height);
  const slot=target.querySelector('.sprite,.power-art');if(slot){const r=slot.getBoundingClientRect();slot.style.background='none';slot.classList.remove('special-art');canvas.style.cssText='position:static;width:100%;height:100%;object-fit:contain;display:block';const box=target.getBoundingClientRect(),width=r.width||Math.min(box.width*.65,box.height*.65/(sh/sw)),height=r.height||width*sh/sw;slot.style.width=width+'px';slot.style.height=height+'px';slot.replaceChildren(canvas);}
- }catch{target.setAttribute('aria-label',lesson[0]);const label=document.createElement('strong');label.textContent=lesson[0];label.className='guide-art-fallback';target.append(label);}
+ }catch{target.setAttribute('aria-label',lesson[0]);}
+ // The guide already has a visible title; never append a permanent label over its art.
  open=false;
  if(target.isConnected)showBoardGuide(target,lesson,onTap);
 }
