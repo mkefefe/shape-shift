@@ -16,14 +16,16 @@ Startup gates play on all 114 shipped media assets, decodes and retains all 72 i
 
 Shield-protected mistakes now use a brief blue flash with the approved low impact and two-note chime. Activating Shield uses the same sound. Feedback stays in the existing HUD without a popup; reduced-motion and sound settings are respected.
 
-Endless and Adventure accept WASD to select a visible board tile and Space to pick it. Games accepts W/S and Space. Z follows Back/Pause and opens Settings from home; H replaces S for the Shield shortcut. Touch and mouse remain available.
+Endless and Adventure accept WASD to select a visible board tile and Space to pick it. Games accepts W/S and Space. Z follows Back/Pause and opens Settings from home; 1/2/3 activate Shield/Double Time/×5 rewards; H/F/B remain alternate shortcuts. Touch and mouse remain available.
 
 Desktop browsers use a golden arrow cursor and matching hand pointer on clickable controls. Text editing and drag cursors remain native, and touch devices keep their existing controls.
 
 Held WASD directions repeat after 140 ms and then every 75 ms, independently of operating-system key-repeat settings. Boost prices round to the nearest five coins for both display and purchase.
 
+Board navigation wraps at edges, preserves held input through round locks, and restores selection focus after board replacement. Game keys reaching the outer page return focus to the game without intercepting browser modifier shortcuts.
+
 ## Verify and build
 
-Run `npm test` for the 126 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
+Run `npm test` for the 127 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
 
 The base archive remains split across three files. `web-fix.sha256` lists every deployed overlay file, including current music assets. Android signing material and APK/AAB files are not part of this repository.

@@ -1,4 +1,4 @@
-import {STORY_KEY,STORY_MILESTONES,migrateStory,recordStoryClear,markStorySeen,storySummary} from './story-progress.js?v=49439-web9';
+import {STORY_KEY,STORY_MILESTONES,migrateStory,recordStoryClear,markStorySeen,storySummary} from './story-progress.js?v=49439-web10';
 
 export const CHARGE_KEY='shape-shift-beacon-charges-v1';
 export function createBeaconController({storage,adventure,admin=false,adminBackup=null,showScene,settings=()=>({}),beforeScene=()=>{},afterScene=()=>{},changed=()=>{}}){
@@ -44,8 +44,8 @@ export function createBeaconController({storage,adventure,admin=false,adminBacku
  };
 }
 
-import {showStoryScene} from './story-scene.js?v=49439-web9';
-import {loadStoryAssets,drawStoryIsland} from './story-renderer.js?v=49439-web9';
+import {showStoryScene} from './story-scene.js?v=49439-web10';
+import {loadStoryAssets,drawStoryIsland} from './story-renderer.js?v=49439-web10';
 
 export function initStoryUI({document,storage,adventure,admin,adminBackup,settings,beforeScene,afterScene,sound=()=>{}}){
  const header=document.querySelector('#adventure-map .map-header');
