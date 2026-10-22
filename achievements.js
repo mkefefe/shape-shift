@@ -1,4 +1,4 @@
-import {normalizeModeStats,advanceModeStats} from './achievement-catalog.js?v=49439-web7';
+import {normalizeModeStats,advanceModeStats} from './achievement-catalog.js?v=49439-web8';
 export const ACHIEVEMENTS=[
  {id:'first_match',name:'First Match',description:'Make your first correct pick.',stat:'picks',target:1},
  {id:'score_50',name:'Finding Your Flow',description:'Score 50 points in one run.',stat:'best',target:50},

@@ -12,11 +12,13 @@ Startup now attempts music automatically when browser policy permits it, with cl
 
 Shape Drop supports continuous A/D aiming and S to drop, with held inputs cleared on pause or focus loss. The home carousel accepts one A/D mode change per press. Desktop hints explain both controls; touch and mouse input remain available.
 
-Startup gates play on all 112 shipped media assets, decodes and retains all 70 images, and prepares every skin variant. The build checks asset coverage so new media cannot silently skip preloading. Tutorial art reuses the decoded images and no longer leaves timeout labels over recovered icons.
+Startup gates play on all 114 shipped media assets, decodes and retains all 72 images, and prepares every skin variant. The build checks asset coverage so new media cannot silently skip preloading. Tutorial art reuses the decoded images and no longer leaves timeout labels over recovered icons.
 
 Shield-protected mistakes now use a brief blue flash with the approved low impact and two-note chime. Activating Shield uses the same sound. Feedback stays in the existing HUD without a popup; reduced-motion and sound settings are respected.
 
 Endless and Adventure accept WASD to select a visible board tile and Space to pick it. Games accepts W/S and Space. Z follows Back/Pause and opens Settings from home; H replaces S for the Shield shortcut. Touch and mouse remain available.
+
+Desktop browsers use a golden arrow cursor and matching hand pointer on clickable controls. Text editing and drag cursors remain native, and touch devices keep their existing controls.
 
 ## Verify and build
 

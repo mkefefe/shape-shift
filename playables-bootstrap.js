@@ -1,6 +1,6 @@
-import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=49439-web7';
-import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=49439-web7';
-import {prepareMenuImage} from './menu-preload.js?v=49439-web7';
+import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=49439-web8';
+import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=49439-web8';
+import {prepareMenuImage} from './menu-preload.js?v=49439-web8';
 
 const sdk = window.ytgame;
 const live = Boolean(sdk?.IN_PLAYABLES_ENV);
@@ -104,9 +104,9 @@ async function start() {
     // its CSS artwork before enabling play, not after the green map is exposed.
     await Promise.all(['assets/map-route-v102.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp'].map(prepareMenuImage));
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
-    await loadScript('audio.js?v=49439-web7');
-    await loadScript('assets/vendor/matter-0.20.0.min.js?v=49439-web7');
-    await import('./game.js?v=49439-web7');
+    await loadScript('audio.js?v=49439-web8');
+    await loadScript('assets/vendor/matter-0.20.0.min.js?v=49439-web8');
+    await import('./game.js?v=49439-web8');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

@@ -1,0 +1,7 @@
+/* Native cursors keep precise hotspots and never trail behind mouse movement. */
+@media (hover:hover) and (pointer:fine){
+ html,body,dialog,canvas{cursor:url('assets/cursor-gold.svg') 4 3,auto}
+ html body :is(button,a,[role="button"],summary,input[type="checkbox"],input[type="radio"],input[type="range"]):not(:disabled){cursor:url('assets/cursor-gold-pointer.svg') 13 4,pointer}
+ html body :is(button,input):disabled{cursor:url('assets/cursor-gold.svg') 4 3,default}
+ html body :is(textarea,input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="password"],[contenteditable="true"]){cursor:text}
+}

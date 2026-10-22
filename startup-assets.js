@@ -25,6 +25,8 @@ export const STARTUP_ASSETS=[
  "assets/close-v45.webp",
  "assets/coin-v10.webp",
  "assets/copy-v77.webp",
+ "assets/cursor-gold-pointer.svg",
+ "assets/cursor-gold.svg",
  "assets/dash-portal-v221.webp",
  "assets/drop-circle-hd-v250.webp",
  "assets/drop-container-v241.webp",
