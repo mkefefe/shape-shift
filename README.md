@@ -24,6 +24,8 @@ Held WASD directions repeat after 140 ms and then every 75 ms, independently of 
 
 Board navigation wraps at edges, preserves held input through round locks, and restores selection focus after board replacement. Game keys reaching the outer page return focus to the game without intercepting browser modifier shortcuts.
 
+Pause menus accept W/S selection and Space/Enter confirmation, including all three mini-game Resume/End panels. Z retains its existing back/resume behavior; nested Settings controls keep their normal keyboard behavior.
+
 ## Verify and build
 
 Run `npm test` for the 127 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.

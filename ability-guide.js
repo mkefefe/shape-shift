@@ -1,4 +1,4 @@
-import {prepareMenuImage} from './menu-preload.js?v=49439-web10';
+import {prepareMenuImage} from './menu-preload.js?v=49439-web11';
 export const BOOST_LESSONS={
  shield:['Shield','Blocks one mistake. Wait 5 completed turns before another shield equips automatically. Tap again to stop.'],
  freeze:['Double Time','Tap for twice as much time for 5 rounds. Combines with Time Crystal for 4x time. Uses another when it ends. Tap again to stop only this boost.'],

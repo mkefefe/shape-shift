@@ -1,4 +1,4 @@
-import {playerLevel} from './economy.js?v=49439-web10';
+import {playerLevel} from './economy.js?v=49439-web11';
 export const SHAPE_SKINS=Object.freeze([
  {id:'classic',level:1,name:'Classic',price:0,art:'assets/shapes-v2.webp',chainedArt:'assets/skin-classic-wrapped-v318.webp'},
  {id:'candy',level:5,name:'Candy Swirl',price:300,art:'assets/skin-candy-v273.webp',chainedArt:'assets/skin-candy-wrapped-v318.webp'},

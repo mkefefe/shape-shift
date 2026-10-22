@@ -108,3 +108,8 @@ html,body{overflow:hidden;}
 }
 
 #games-hub .hub-keyboard-hint{color:#075570;text-shadow:none}
+
+@media (hover:hover) and (pointer:fine){
+ #pause-dialog button.keyboard-menu-selected,dialog[data-paused="true"] .drop-pause-panel button.keyboard-menu-selected{outline:4px solid #ffe347;outline-offset:2px;filter:brightness(1.08)}
+ #pause-dialog .pause-options::after,dialog[data-paused="true"] .drop-pause-panel::after{content:'W / S select · Space / Enter confirm · Z back';display:block;color:#075570;text-shadow:none;text-align:center;font:800 11px/1.5 Nunito,sans-serif;grid-column:1/-1}
+}

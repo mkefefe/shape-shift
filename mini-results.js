@@ -1,6 +1,6 @@
-import {formatSurvivalTime} from './survival-clock.js?v=49439-web10';
-import {playerProgress} from './economy.js?v=49439-web10';
-import {startResultTally} from './countdown.js?v=49439-web10';
+import {formatSurvivalTime} from './survival-clock.js?v=49439-web11';
+import {playerProgress} from './economy.js?v=49439-web11';
+import {startResultTally} from './countdown.js?v=49439-web11';
 
 // All modes share the same results DOM, artwork, buttons and XP progress track.
 export function createMiniResults({host=window}={}){
