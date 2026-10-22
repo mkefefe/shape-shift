@@ -1,4 +1,4 @@
-import {loadStoryAssets, drawStory, STORY_SCENES} from './story-renderer.js?v=49439-web1';
+import {loadStoryAssets, drawStory, STORY_SCENES} from './story-renderer.js?v=49439-web2';
 
 const ASSET_BASE = new URL('./assets/story-beacon/', import.meta.url);
 const MAX_LOAD_MS = 5000;

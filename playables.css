@@ -85,3 +85,11 @@ html,body{overflow:hidden;}
 
 #story-library #beacon-charge[aria-disabled=true]{opacity:.55;cursor:pointer}
 #story-library .ability-lock-notice{font-size:15px;line-height:1.4}
+
+/* Keyboard help is steady and only shown on desktop-style input devices. */
+.result-keyboard-hint{display:none}
+@media (hover:hover) and (pointer:fine){
+ #over-dialog .result-keyboard-hint{display:block;flex:none;order:100;text-align:center;font-size:13px;line-height:1.3;margin:5px 0;color:#075a75;animation:none}
+ #over-dialog.continue-offer:has(#result-return-countdown:not([hidden])) .result-keyboard-hint{visibility:hidden}
+ #over-dialog .result-home-hint{animation:none}
+}

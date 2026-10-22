@@ -1,6 +1,6 @@
-import {createSongSequence} from './piano-songs.js?v=49439-web1';
-import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=49439-web1';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=49439-web1';
+import {createSongSequence} from './piano-songs.js?v=49439-web2';
+import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=49439-web2';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=49439-web2';
 export const PIANO_LANES=3,PIANO_WINDOW=.38;
 // At the fastest strip tempo this still leaves over half a second to change strips.
 export const PIANO_HOLD_GAP=1.5,PIANO_MAX_HOLD=4.5;
