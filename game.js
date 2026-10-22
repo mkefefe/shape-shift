@@ -1,85 +1,77 @@
-import {bindResultKeyboard} from './result-keyboard.js?v=49439-web4';
-import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web4';
-import {loadStartupAssets} from './startup-loader.js?v=49439-web4';
-import {firstEndlessLaunch} from './first-endless.js?v=49439-web4';
-import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web4';
-import {praiseDirector} from './praise-feedback.js?v=49439-web4';
-import {showAdventureVictory} from './adventure-victory.js?v=49439-web4';
-import {initStoryUI} from './story-ui.js?v=49439-web4';
-import {initTouchUI} from './touch-ui.js?v=49439-web4';
-import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web4';
-import {initPianoFlow} from './piano-flow.js?v=49439-web4';
-import {claimPianoReward} from './piano-flow-engine.js?v=49439-web4';
-import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web4';
-import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web4';
-import {initInputFeedback} from './input-feedback.js?v=49439-web4';
-import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web4';
-import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web4';
-import {enableHoldBuying} from './hold-buy.js?v=49439-web4';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49439-web4';
-import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web4';
-import {loadPrivacyContent} from './privacy-content.js?v=49439-web4';
-import {initSettingsExtras} from './settings-extras.js?v=49439-web4';
-import {initShapeSlice} from './shape-slice.js?v=49439-web4';
-import {claimSliceReward} from './shape-slice-engine.js?v=49439-web4';
-import {initGamesHub} from './games-hub.js?v=49439-web4';
-import {initShapeDrop} from './shape-drop.js?v=49439-web4';
-import {claimDropReward} from './shape-drop-engine.js?v=49439-web4';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web4';
-import {fitBoard} from './board-fit.js?v=49439-web4';
-import {analytics} from './analytics.js?v=49439-web4';
-import {ensureTerms} from './terms.js?v=49439-web4';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web4';
-import {observeBoard} from './board-fit.js?v=49439-web4';
+import {bindResultKeyboard} from './result-keyboard.js?v=49439-web5';
+import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web5';
+import {loadStartupAssets} from './startup-loader.js?v=49439-web5';
+import {firstEndlessLaunch} from './first-endless.js?v=49439-web5';
+import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web5';
+import {praiseDirector} from './praise-feedback.js?v=49439-web5';
+import {showAdventureVictory} from './adventure-victory.js?v=49439-web5';
+import {initStoryUI} from './story-ui.js?v=49439-web5';
+import {initTouchUI} from './touch-ui.js?v=49439-web5';
+import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web5';
+import {initPianoFlow} from './piano-flow.js?v=49439-web5';
+import {claimPianoReward} from './piano-flow-engine.js?v=49439-web5';
+import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web5';
+import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web5';
+import {initInputFeedback} from './input-feedback.js?v=49439-web5';
+import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web5';
+import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web5';
+import {enableHoldBuying} from './hold-buy.js?v=49439-web5';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49439-web5';
+import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web5';
+import {loadPrivacyContent} from './privacy-content.js?v=49439-web5';
+import {initSettingsExtras} from './settings-extras.js?v=49439-web5';
+import {initShapeSlice} from './shape-slice.js?v=49439-web5';
+import {claimSliceReward} from './shape-slice-engine.js?v=49439-web5';
+import {initGamesHub} from './games-hub.js?v=49439-web5';
+import {initShapeDrop} from './shape-drop.js?v=49439-web5';
+import {claimDropReward} from './shape-drop-engine.js?v=49439-web5';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web5';
+import {fitBoard} from './board-fit.js?v=49439-web5';
+import {analytics} from './analytics.js?v=49439-web5';
+import {ensureTerms} from './terms.js?v=49439-web5';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web5';
+import {observeBoard} from './board-fit.js?v=49439-web5';
 observeBoard(document.getElementById('board'));
-import {createGameplayScene} from './gameplay-scene.js?v=49439-web4';
-import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web4';
-import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web4';
-import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web4';
-import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web4';
-import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web4';
+import {createGameplayScene} from './gameplay-scene.js?v=49439-web5';
+import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web5';
+import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web5';
+import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web5';
+import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web5';
+import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web5';
 
-import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web4';
-import {earnsMatchCoin} from './economy.js?v=49439-web4';
+import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web5';
+import {earnsMatchCoin} from './economy.js?v=49439-web5';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web4';
-import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web4';
-
-
-
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=49439-web4';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web5';
+import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web5';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=49439-web4';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=49439-web5';
 
 
 
-import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=49439-web4';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=49439-web5';
 
 
 
-import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=49439-web4';
+import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=49439-web5';
 
 
 
-import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=49439-web4';
+import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=49439-web5';
 
 
 
-import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49439-web4';
+import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=49439-web5';
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49439-web4';
+import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49439-web5';
 
 
 
-
-
-
-
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web4';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49439-web5';
 
 
 
@@ -87,7 +79,7 @@ import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECI
 
 
 
-import {requestReward} from './rewarded.js?v=49439-web4';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web5';
 
 
 
@@ -95,7 +87,7 @@ import {requestReward} from './rewarded.js?v=49439-web4';
 
 
 
-import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=49439-web4';
+import {requestReward} from './rewarded.js?v=49439-web5';
 
 
 
@@ -103,7 +95,15 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=49439-web4';
+import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=49439-web5';
+
+
+
+
+
+
+
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=49439-web5';
 
 
 
@@ -1097,7 +1097,8 @@ function showPlayFeedback(outcome,oldStrikes){
 
 
 
- if(hurt&&!prefs.motion){$('game').classList.remove('damage-flash');void $('game').offsetWidth;$('game').classList.add('damage-flash');}
+ $('game').classList.remove('damage-flash','shield-flash');
+ if((hurt||outcome==='protected')&&!prefs.motion){void $('game').offsetWidth;$('game').classList.add(outcome==='protected'?'shield-flash':'damage-flash');}
 
 
 
@@ -1535,7 +1536,7 @@ function ability(name){
 
 
 
- update();timer();sound(name==='freeze'?'special-hourglass':name==='shield'?'special-crystal':'skill-points');
+ update();timer();sound(name==='freeze'?'special-hourglass':name==='shield'?'shield':'skill-points');
 
 
 

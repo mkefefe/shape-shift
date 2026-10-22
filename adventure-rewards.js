@@ -1,4 +1,4 @@
-import {playerProgress} from './economy.js?v=49439-web4';
+import {playerProgress} from './economy.js?v=49439-web5';
 // Presentation only: saved stars, currency and XP are awarded by the game.
 export function rewardMarkup(objectives,lightning=false){return '<div class="reward-star-slots" aria-label="Level stars">'+[0,1,2].map(()=>'<span class="reward-star" aria-label="Empty star"></span>').join('')+'</div><ul class="reward-objectives">'+objectives.map(o=>'<li data-earned="'+!!o.done+'"><i></i><span>'+o.label+'</span></li>').join('')+'</ul>';}
 export function rewardSteps(completed){let time=120,slot=0;return completed.map((earned,row)=>{const step={row,earned,slot:earned?slot++:null,start:time,flight:time+350,land:time+750,end:time+(earned?900:420)};time=step.end;return step;});}

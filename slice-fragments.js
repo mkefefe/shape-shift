@@ -1,5 +1,5 @@
-import {SLICE_DEFAULT_BOUNDS} from './slice-viewport.js?v=49439-web4';
-import {sliceOutline} from './shape-slice-engine.js?v=49439-web4';
+import {SLICE_DEFAULT_BOUNDS} from './slice-viewport.js?v=49439-web5';
+import {sliceOutline} from './shape-slice-engine.js?v=49439-web5';
 export const MAX_FRAGMENT_DEPTH=4,FRAGMENT_RECUT_DELAY=.06;
 export function polygonArea(poly){return Math.abs(poly.reduce((sum,p,i)=>{const q=poly[(i+1)%poly.length];return sum+p.x*q.y-q.x*p.y;},0))/2;}
 export function shapeMask(shape,r){return shape===0?Array.from({length:40},(_,i)=>({x:Math.cos(i*Math.PI/20)*r,y:Math.sin(i*Math.PI/20)*r})):sliceOutline(shape,r);}

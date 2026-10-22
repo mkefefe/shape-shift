@@ -384,7 +384,12 @@
       case 'skill-points': notes([79,84,88,91],.075,.24,.12);break;
       case 'colorstreak': notes([72,76,79,84,91],.07,.3,.22);break;
       case 'bonus': notes([72,76,79,84,88], .055, .25, .2); break;
-      case 'shield': tone(880,now,.20,.16,'sine',effectsBus,1175);notes([88,91],.08,.22,.09);break;
+      case 'shield':
+        // Approved shield impact: soft low hit, followed by two clear chimes.
+        effectPitch=1;
+        tone(155,now,.12,.16,'triangle',effectsBus);
+        tone(659,now+.045,.25,.10,'sine',effectsBus);
+        tone(988,now+.095,.36,.075,'sine',effectsBus);break;
       case 'level': case 'levelup': notes([74, 77, 81, 86], 0.085, 0.3, 0.18); break;
       case 'over': case 'gameover': notes([77, 74, 69, 62], 0.14, 0.4, 0.16); break;
       case 'start': notes([62, 69, 74], 0.075, 0.22); break;

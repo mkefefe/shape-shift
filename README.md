@@ -14,6 +14,8 @@ Shape Drop supports continuous A/D aiming and S to drop, with held inputs cleare
 
 Startup gates play on all 112 shipped media assets, decodes and retains all 70 images, and prepares every skin variant. The build checks asset coverage so new media cannot silently skip preloading. Tutorial art reuses the decoded images and no longer leaves timeout labels over recovered icons.
 
+Shield-protected mistakes now use a brief blue flash with the approved low impact and two-note chime. Activating Shield uses the same sound. Feedback stays in the existing HUD without a popup; reduced-motion and sound settings are respected.
+
 ## Verify and build
 
 Run `npm test` for the 121 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
