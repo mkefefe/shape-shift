@@ -10,8 +10,10 @@ The browser retains its portrait frame, high-resolution artwork, A/S/D/F piano c
 
 Startup now attempts music automatically when browser policy permits it, with click and keyboard fallback. Result screens accept Space, Enter or Esc and show a steady desktop keyboard hint; existing save and rewarded-continue guards remain in effect.
 
+Shape Drop supports continuous A/D aiming and S to drop, with held inputs cleared on pause or focus loss. The home carousel accepts one A/D mode change per press. Desktop hints explain both controls; touch and mouse input remain available.
+
 ## Verify and build
 
-Run `npm test` for the 114 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
+Run `npm test` for the 117 gameplay regression checks. Run `python scripts/build-site.py` to reconstruct `_site` from the checksum-verified original bundle and the current deployment overlay. Serve `_site` with a local HTTP server. GitHub Pages runs both checks and deployment on pushes to main.
 
 The base archive remains split across three files. `web-fix.sha256` lists every deployed overlay file, including current music assets. Android signing material and APK/AAB files are not part of this repository.

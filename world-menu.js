@@ -1,7 +1,7 @@
-import {starTasks} from './adventure-star-tasks.js?v=49439-web2';
-import {COSMETICS} from './economy.js?v=49439-web2';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web2';
-import {rewardMarkup} from './adventure-rewards.js?v=49439-web2';
+import {starTasks} from './adventure-star-tasks.js?v=49439-web3';
+import {COSMETICS} from './economy.js?v=49439-web3';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web3';
+import {rewardMarkup} from './adventure-rewards.js?v=49439-web3';
 export const GAMES_UNLOCK_LEVEL=1;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
@@ -104,6 +104,11 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  });
  // Dialog transitions must not leave a pointer or double-tap pending on the home carousel.
  new MutationObserver(()=>menuSwipe.reset()).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','data-screen']});
+ const keyboardHint=document.createElement('p');keyboardHint.className='menu-keyboard-hint';keyboardHint.textContent='A / D to switch modes';$('mode-dots').after(keyboardHint);
+ document.addEventListener('keydown',event=>{
+  if(!['KeyA','KeyD'].includes(event.code)||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+  event.preventDefault();menuSwipe.reset();select(selected+(event.code==='KeyD'?1:-1));
+ });
  carousel.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();select(selected+(e.key==='ArrowRight'?1:-1));}});
  function launchCard(i){cardTaps.reset();if(i===0)level=unlockedLevel(progress);startMode(MODES[i]);}
  function playSelected(){if(launching||!canStart())return;cardTaps.reset();if(selected===0)openLevel(unlockedLevel(progress));else startMode(MODES[selected]);}

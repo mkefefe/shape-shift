@@ -93,3 +93,9 @@ html,body{overflow:hidden;}
  #over-dialog.continue-offer:has(#result-return-countdown:not([hidden])) .result-keyboard-hint{visibility:hidden}
  #over-dialog .result-home-hint{animation:none}
 }
+
+.drop-keyboard-hint,.menu-keyboard-hint{display:none}
+@media (hover:hover) and (pointer:fine){
+ #shape-drop .drop-keyboard-hint,#home .menu-keyboard-hint{display:block;flex:none;margin:2px 0;text-align:center;color:white;font-size:12px;line-height:18px;font-weight:900;text-shadow:0 1px 3px #114b45}
+ #shape-drop .drop-keyboard-hint{pointer-events:none}
+}

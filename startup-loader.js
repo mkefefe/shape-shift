@@ -1,5 +1,5 @@
-import {STARTUP_ASSETS} from './startup-assets.js?v=49439-web2';
-import {prepareMenuImage} from './menu-preload.js?v=49439-web2';
+import {STARTUP_ASSETS} from './startup-assets.js?v=49439-web3';
+import {prepareMenuImage} from './menu-preload.js?v=49439-web3';
 const loaded=new Set();
 export async function loadStartupAssets(progress,{fetcher=fetch}={}){
  let cursor=0,complete=0;

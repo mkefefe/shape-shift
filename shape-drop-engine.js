@@ -1,7 +1,7 @@
-import {frameRewardMultiplier} from './engine.js?v=49439-web2';
-import {miniGameCoins} from './mini-game-rewards.js?v=49439-web2';
-import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=49439-web2';
-import {createDropSequence} from './drop-sequence.js?v=49439-web2';
+import {frameRewardMultiplier} from './engine.js?v=49439-web3';
+import {miniGameCoins} from './mini-game-rewards.js?v=49439-web3';
+import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=49439-web3';
+import {createDropSequence} from './drop-sequence.js?v=49439-web3';
 export const DROP_WIDTH=320,DROP_HEIGHT=520,DROP_LINE=68,DROP_RADIUS=21;
 export const DROP_HEADROOM=12;
 // Extra portrait height should not provide permanent extra capacity. Preserve
