@@ -104,11 +104,20 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  });
  // Dialog transitions must not leave a pointer or double-tap pending on the home carousel.
  new MutationObserver(()=>menuSwipe.reset()).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','data-screen']});
- const keyboardHint=document.createElement('p');keyboardHint.className='menu-keyboard-hint';keyboardHint.textContent='A / D to switch modes';$('mode-dots').after(keyboardHint);
+ const keyboardHint=document.createElement('p');keyboardHint.className='menu-keyboard-hint';keyboardHint.textContent='A / D switch modes | Space play';$('mode-dots').after(keyboardHint);
  document.addEventListener('keydown',event=>{
-  if(!['KeyA','KeyD'].includes(event.code)||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable="true"]'))return;
-  event.preventDefault();menuSwipe.reset();select(selected+(event.code==='KeyD'?1:-1));
- });
+  if(!['KeyA','KeyD','Space'].includes(event.code)||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+  // Preserve Space activation for other home controls, such as Settings and Profile.
+  if(event.code==='Space'&&event.target.closest?.('button,a,[role="button"]')&&!event.target.closest?.('#mode-cards,#mode-dots,#play,#mode-prev,#mode-next'))return;
+  event.preventDefault();
+  if(event.code==='Space')event.stopImmediatePropagation();
+  if(event.repeat)return;
+  menuSwipe.reset();
+  if(event.code==='Space'){if(!$('play').disabled)playSelected();return;}
+  select(selected+(event.code==='KeyD'?1:-1));
+  // The focused control must follow the selection, not an old card or dot.
+  $('play').focus({preventScroll:true});
+ },true);
  carousel.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();select(selected+(e.key==='ArrowRight'?1:-1));}});
  function launchCard(i){cardTaps.reset();if(i===0)level=unlockedLevel(progress);startMode(MODES[i]);}
  function playSelected(){if(launching||!canStart())return;cardTaps.reset();if(selected===0)openLevel(unlockedLevel(progress));else startMode(MODES[selected]);}
