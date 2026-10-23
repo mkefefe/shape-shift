@@ -106,14 +106,14 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  new MutationObserver(()=>menuSwipe.reset()).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','data-screen']});
  const keyboardHint=document.createElement('p');keyboardHint.className='menu-keyboard-hint';keyboardHint.textContent='A / D switch modes | Space play';$('mode-dots').after(keyboardHint);
  document.addEventListener('keydown',event=>{
-  if(!['KeyA','KeyD','Space'].includes(event.code)||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+  if(!['KeyA','KeyD','Space','Enter','NumpadEnter'].includes(event.code)||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
   // Preserve Space activation for other home controls, such as Settings and Profile.
-  if(event.code==='Space'&&event.target.closest?.('button,a,[role="button"]')&&!event.target.closest?.('#mode-cards,#mode-dots,#play,#mode-prev,#mode-next'))return;
+  if(['Space','Enter','NumpadEnter'].includes(event.code)&&event.target.closest?.('button,a,[role="button"]')&&!event.target.closest?.('#mode-cards,#mode-dots,#play,#mode-prev,#mode-next'))return;
   event.preventDefault();
-  if(event.code==='Space')event.stopImmediatePropagation();
+  if(['Space','Enter','NumpadEnter'].includes(event.code))event.stopImmediatePropagation();
   if(event.repeat)return;
   menuSwipe.reset();
-  if(event.code==='Space'){if(!$('play').disabled)playSelected();return;}
+  if(['Space','Enter','NumpadEnter'].includes(event.code)){if(!$('play').disabled)playSelected();return;}
   select(selected+(event.code==='KeyD'?1:-1));
   // The focused control must follow the selection, not an old card or dot.
   $('play').focus({preventScroll:true});
@@ -150,17 +150,43 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   if(!$('level-dialog').open)$('level-dialog').showModal();sound('click');
  }
  $('level-close').onclick=()=>$('level-dialog').close();bindLaunchTap($('level-play'),()=>startMode('adventure'));
- let mapWindow='',mapFrame=0,mapWidth=0;
+ let mapWindow='',mapFrame=0,mapWidth=0,mapSelected=1,mapKeyboard=false;
+ function markMapSelection(focus=false){
+  $('map-levels').querySelectorAll('.level-node').forEach(node=>{
+   const selected=Number(node.dataset.level)===mapSelected;
+   node.classList.toggle('keyboard-map-selected',mapKeyboard&&selected);
+   if(focus&&selected)node.focus({preventScroll:true});
+  });
+ }
+ function selectMapLevel(n){
+  mapSelected=Math.max(1,Math.min(100,n));mapKeyboard=true;
+  const viewport=$('adventure-map'),pos=mapNodePosition(mapSelected,mapWidth);
+  viewport.scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-viewport.clientHeight*.55);
+  paintMap();markMapSelection(true);
+ }
+ document.addEventListener('keydown',event=>{
+  if($('app').dataset.screen!=='map'||document.querySelector('dialog[open]')||window.ShapeShiftPlatform.paused||launching||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+  if(!['KeyW','KeyA','KeyS','KeyD','Space','Enter','NumpadEnter'].includes(event.code))return;
+  const confirm=['Space','Enter','NumpadEnter'].includes(event.code);
+  if(confirm&&event.target.closest?.('button,a')&&!event.target.closest('.level-node'))return;
+  event.preventDefault();event.stopImmediatePropagation();
+  if(confirm){if(!event.repeat)openLevel(mapSelected);return;}
+  selectMapLevel(mapSelected+(['KeyW','KeyD'].includes(event.code)?1:-1));
+ },true);
+ $('map-levels').addEventListener('focusin',event=>{const node=event.target.closest('.level-node');if(node){mapSelected=Number(node.dataset.level);markMapSelection();}});
+ $('map-levels').addEventListener('pointerdown',()=>{mapKeyboard=false;markMapSelection();});
+ const mapHint=document.createElement('p');mapHint.className='map-keyboard-hint';mapHint.textContent='W / D next | S / A previous | Space / Enter select | Z back';$('adventure-map').append(mapHint);
  function paintMap(){
-  mapFrame=0;const viewport=$('adventure-map'),width=viewport.clientWidth||390,range=visibleMapSections(viewport.scrollTop,viewport.clientHeight,width),key=range.join(':')+':'+width+':'+starTotal(progress)+':'+progress.lightning.join('');
-  if(key===mapWindow)return;mapWindow=key;$('map-levels').replaceChildren();
+  mapFrame=0;const viewport=$('adventure-map'),width=viewport.clientWidth||390,range=visibleMapSections(Math.max(0,viewport.scrollTop-$('map-landscape').offsetTop),viewport.clientHeight,width),key=range.join(':')+':'+width+':'+starTotal(progress)+':'+progress.lightning.join('');
+  if(key===mapWindow)return;const restoreFocus=mapKeyboard&&$('map-levels').contains(document.activeElement);mapWindow=key;$('map-levels').replaceChildren();
   for(let section=range[0];section<=range[1];section++){
    const tile=document.createElement('div');tile.className='route-tile'+(section%2?' flipped':'');tile.style.top=((49-section)*width)+'px';tile.style.height=(width+1)+'px';$('map-levels').append(tile);
-   for(let j=0;j<2;j++){const n=section*2+j+1,pos=mapNodePosition(n,width),b=document.createElement('button'),locked=!isAdmin()&&n>unlockedLevel(progress);b.className='level-node'+(locked?' locked':n===unlockedLevel(progress)?' next':' completed');b.style.left=(pos.x*100)+'%';b.style.top=pos.y+'px';b.setAttribute('aria-label','Level '+n+(locked?' locked':', '+progress.stars[n-1]+' stars'+(progress.lightning[n-1]?', Lightning Finish':'')));b.setAttribute('aria-disabled',String(locked));b.innerHTML=`<strong>${n}</strong><span class="level-stars" aria-hidden="true">${stars(progress.stars[n-1])}</span>${progress.lightning[n-1]?'<span class=map-lightning aria-hidden=true>&#9889;</span>':''}`;b.onclick=()=>openLevel(n);$('map-levels').append(b);}
+   for(let j=0;j<2;j++){const n=section*2+j+1,pos=mapNodePosition(n,width),b=document.createElement('button'),locked=!isAdmin()&&n>unlockedLevel(progress);b.dataset.level=String(n);b.className='level-node'+(locked?' locked':n===unlockedLevel(progress)?' next':' completed');b.style.left=(pos.x*100)+'%';b.style.top=pos.y+'px';b.setAttribute('aria-label','Level '+n+(locked?' locked':', '+progress.stars[n-1]+' stars'+(progress.lightning[n-1]?', Lightning Finish':'')));b.setAttribute('aria-disabled',String(locked));b.innerHTML=`<strong>${n}</strong><span class="level-stars" aria-hidden="true">${stars(progress.stars[n-1])}</span>${progress.lightning[n-1]?'<span class=map-lightning aria-hidden=true>&#9889;</span>':''}`;b.onclick=()=>{mapSelected=n;openLevel(n);};$('map-levels').append(b);}
   }
+  markMapSelection(restoreFocus);
  }
  function sizeMap(){const width=$('adventure-map').clientWidth||390;mapWidth=width;$('map-landscape').style.height=(50*width)+'px';mapWindow='';}
- function map(){screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
+ function map(){mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
  const mapNotice=document.createElement('div');mapNotice.id='map-notice';mapNotice.setAttribute('role','status');mapNotice.setAttribute('aria-live','polite');mapNotice.hidden=true;document.body.append(mapNotice);let mapNoticeAnimation;
  function showMapNotice(message){
  mapNoticeAnimation?.cancel();mapNotice.textContent=message;mapNotice.hidden=false;

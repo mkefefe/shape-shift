@@ -12,8 +12,8 @@ export function bindPauseKeyboard(doc=document){
   const pause=dialog?.id==='pause-dialog'||(mini&&dialog.dataset.paused==='true');
   const panel=mini?dialog.querySelector('.drop-pause-panel'):dialog||(home?doc.querySelector('#app'):null);
   if(!panel||doc.querySelector('#startup-ready:not([hidden])'))return;
-  // A/D on the central mode card still switches the main-menu carousel.
-  if(home&&['KeyA','KeyD'].includes(event.code)&&(!panel.contains(focused)||focused.closest('.mode-carousel,#mode-dots,.home-actions')))return;
+  // The carousel owns mode switching and confirmation, even with a stale card/dot focus.
+  if(home&&['KeyA','KeyD','Space','Enter','NumpadEnter'].includes(event.code)&&(!panel.contains(focused)||focused.closest('.mode-carousel,#mode-dots,.home-actions')))return;
   const selector=dialog?.id==='games-hub'?'.hub-game':dialog?.id==='pause-dialog'?'#resume,.pause-option':'button,a[href],input:not([type=hidden]),select,textarea';
   const items=[...panel.querySelectorAll(selector)].filter(el=>!el.disabled&&!el.closest('[inert],[hidden]')&&el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
   if(!items.length)return;

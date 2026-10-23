@@ -115,3 +115,13 @@ html,body{overflow:hidden;}
 }
 
 @media (hover:hover) and (pointer:fine){.keyboard-menu-selected{outline:3px solid #ffd35d!important;outline-offset:4px!important}#settings-dialog:has(.keyboard-menu-selected) .hint:empty::after{content:"W / S move · A / D adjust volume · Space / Enter confirm · Z back"}}
+
+/* Keep the selected level clear while the map recycles its offscreen nodes. */
+#map-levels .level-node.keyboard-map-selected{outline:4px solid #ffe347;outline-offset:6px;filter:brightness(1.12)}
+.map-keyboard-hint{display:none}
+@media (hover:hover) and (pointer:fine){
+ .map-keyboard-hint{display:block;position:sticky;bottom:8px;z-index:5;width:calc(100% - 24px);margin:0 12px -32px;padding:7px 8px;border-radius:12px;background:#06485ee8;color:#fff;font:800 11px/1.3 Nunito,sans-serif;text-align:center;pointer-events:none}
+}
+
+/* Leave room above the final level for the sticky map and Beacon controls. */
+#map-landscape{margin-top:90px}
