@@ -8,7 +8,7 @@ export function initInputFeedback(){
  const layer=document.createElement('div');layer.id='tap-effects';layer.setAttribute('popover','manual');layer.setAttribute('aria-hidden','true');document.body.append(layer);
  function ring(x,y){
   if(!Number.isFinite(x)||!Number.isFinite(y))return;
-  if(layer.showPopover){if(!layer.matches(':popover-open'))layer.showPopover();}
+  if(layer.showPopover){if(layer.matches(':popover-open'))layer.hidePopover();layer.showPopover();}
   else (document.querySelector('dialog[open]')||document.body).append(layer);
   while(layer.children.length>=8)layer.firstChild.remove();
   const mark=document.createElement('span');mark.className='tap-burst';mark.style.left=x+'px';mark.style.top=y+'px';layer.append(mark);
@@ -21,19 +21,19 @@ export function initInputFeedback(){
   animate('tap-ring',quiet?[
    {opacity:.75,transform:'scale(.45)'},{opacity:0,transform:'scale(.45)'}
   ]:[
-   {opacity:.95,transform:'scale(.22)'},
-   {opacity:.8,transform:'scale(.65)',offset:.4},
-   {opacity:0,transform:'scale(1)'}
-  ],quiet?180:600);
+   {opacity:1,transform:'scale(.12)'},
+   {opacity:.85,transform:'scale(.65)',offset:.35},
+   {opacity:0,transform:'scale(1.25)'}
+  ],quiet?180:650);
   if(!quiet){
    const phase=Math.random()*Math.PI*2;
-   for(let i=0;i<4;i++){
-    const angle=phase+i*Math.PI/2+(Math.random()-.5)*.65,distance=20+Math.random()*14,dx=Math.cos(angle),dy=Math.sin(angle);
+   for(let i=0;i<8;i++){
+    const angle=phase+i*Math.PI/4+(Math.random()-.5)*.65,distance=32+Math.random()*22,dx=Math.cos(angle),dy=Math.sin(angle);
     animate('tap-spark',[
-     {opacity:0,transform:`translate(${dx*5}px,${dy*5}px) scale(.4)`},
-     {opacity:.9,transform:`translate(${dx*distance*.45}px,${dy*distance*.45}px) scale(1)`,offset:.22},
+     {opacity:0,transform:`translate(${dx*5}px,${dy*5}px) scale(.65)`},
+     {opacity:1,transform:`translate(${dx*distance*.45}px,${dy*distance*.45}px) scale(1)`,offset:.22},
      {opacity:0,transform:`translate(${dx*distance}px,${dy*distance}px) scale(.2)`}
-    ],520+(i%3)*50);
+    ],540+(i%3)*55);
    }
   }
   Promise.all(animations).finally(()=>{mark.remove();if(!layer.childElementCount&&layer.hidePopover&&layer.matches(':popover-open'))layer.hidePopover();});
