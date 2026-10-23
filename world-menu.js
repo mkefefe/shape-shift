@@ -147,7 +147,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   frameNote.hidden=!required;frameButton.hidden=!required||ready;
   frameNote.textContent=required?(ready?'Frame star ready. Any frame can play.':'Optional frame star. Any frame can play.'):'';
   $('level-play').disabled=false;$('level-play').textContent='Play';
-  if(!$('level-dialog').open)$('level-dialog').showModal();sound('click');
+  if(!$('level-dialog').open)$('level-dialog').showModal();$('level-play').focus({preventScroll:true});sound('click');
  }
  $('level-close').onclick=()=>$('level-dialog').close();bindLaunchTap($('level-play'),()=>startMode('adventure'));
  let mapWindow='',mapFrame=0,mapWidth=0,mapSelected=1,mapKeyboard=false;
@@ -159,23 +159,23 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   });
  }
  function selectMapLevel(n){
-  mapSelected=Math.max(1,Math.min(100,n));mapKeyboard=true;
+  mapSelected=Math.max(1,Math.min(isAdmin()?100:unlockedLevel(progress),n));mapKeyboard=true;
   const viewport=$('adventure-map'),pos=mapNodePosition(mapSelected,mapWidth);
   viewport.scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-viewport.clientHeight*.55);
   paintMap();markMapSelection(true);
  }
  document.addEventListener('keydown',event=>{
   if($('app').dataset.screen!=='map'||document.querySelector('dialog[open]')||window.ShapeShiftPlatform.paused||launching||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
-  if(!['KeyW','KeyA','KeyS','KeyD','Space','Enter','NumpadEnter'].includes(event.code))return;
+  if(!['KeyW','KeyS','Space','Enter','NumpadEnter'].includes(event.code))return;
   const confirm=['Space','Enter','NumpadEnter'].includes(event.code);
   if(confirm&&event.target.closest?.('button,a')&&!event.target.closest('.level-node'))return;
   event.preventDefault();event.stopImmediatePropagation();
   if(confirm){if(!event.repeat)openLevel(mapSelected);return;}
-  selectMapLevel(mapSelected+(['KeyW','KeyD'].includes(event.code)?1:-1));
+  selectMapLevel(mapSelected+(event.code==='KeyW'?1:-1));
  },true);
  $('map-levels').addEventListener('focusin',event=>{const node=event.target.closest('.level-node');if(node){mapSelected=Number(node.dataset.level);markMapSelection();}});
  $('map-levels').addEventListener('pointerdown',()=>{mapKeyboard=false;markMapSelection();});
- const mapHint=document.createElement('p');mapHint.className='map-keyboard-hint';mapHint.textContent='W / D next | S / A previous | Space / Enter select | Z back';$('adventure-map').append(mapHint);
+ const mapHint=document.createElement('p');mapHint.className='map-keyboard-hint';mapHint.textContent='W next | S previous | Space select | Z back';$('adventure-map').append(mapHint);
  function paintMap(){
   mapFrame=0;const viewport=$('adventure-map'),width=viewport.clientWidth||390,range=visibleMapSections(Math.max(0,viewport.scrollTop-$('map-landscape').offsetTop),viewport.clientHeight,width),key=range.join(':')+':'+width+':'+starTotal(progress)+':'+progress.lightning.join('');
   if(key===mapWindow)return;const restoreFocus=mapKeyboard&&$('map-levels').contains(document.activeElement);mapWindow=key;$('map-levels').replaceChildren();
