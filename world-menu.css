@@ -314,10 +314,10 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 #shop-dialog .frame-preview[data-cosmetic="cosmic"]{--portrait-x:48.5%;--portrait-y:47%}
 
 /* Keep XP readable inside its meter, then collapse every finished objective row. */
-#result-xp-bar{position:relative;display:block;width:100%;max-width:300px;height:44px;min-height:44px;flex-shrink:0;align-self:center;margin:6px auto 10px;border:3px solid #075570;border-radius:22px;overflow:hidden;background:#d0edf5;box-shadow:0 2px 0 #07395326}
-#result-xp-bar #level-progress{appearance:none;-webkit-appearance:none;position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0}
-#result-xp-bar #level-progress::-webkit-progress-value{background:linear-gradient(180deg,#64efff,#1ab9e9 50%,#0785ce);border-radius:0}
-#result-xp-label{position:absolute;inset:0;display:grid;place-items:center;font:1000 17px/1 Nunito,sans-serif;white-space:nowrap;color:#073e62;text-shadow:0 1px 1px #ffffffcc;pointer-events:none}
+:is(#result-xp-bar,.xp-help-meter){position:relative;display:block;width:100%;max-width:300px;height:44px;min-height:44px;flex-shrink:0;align-self:center;margin:6px auto 10px;border:3px solid #075570;border-radius:22px;overflow:hidden;background:#d0edf5;box-shadow:0 2px 0 #07395326}
+:is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress){appearance:none;-webkit-appearance:none;position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0}
+:is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-webkit-progress-value{background:linear-gradient(180deg,#64efff,#1ab9e9 50%,#0785ce);border-radius:0}
+:is(#result-xp-label,#xp-help-count){position:absolute;inset:0;display:grid;place-items:center;font:1000 17px/1 Nunito,sans-serif;white-space:nowrap;color:#073e62;text-shadow:0 1px 1px #ffffffcc;pointer-events:none}
 #over-dialog.adventure-results #result-xp-bar{order:5}
 #over-dialog.continue-offer #result-xp-bar{display:none}
 .rewards-revealed .reward-objectives{max-height:0!important;margin:0!important;opacity:0;transition:max-height .6s ease,opacity .3s ease}

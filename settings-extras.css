@@ -104,17 +104,17 @@ body,button,input,select,textarea{font-family:Nunito,system-ui,sans-serif}
 #app dialog :is(.dialog-content,.difficulty-options)::-webkit-scrollbar,#terms-dialog .terms-scroll::-webkit-scrollbar{display:none}
 @media(max-height:650px){#app dialog h2:not(#final-score),body>dialog h2:not(#final-score),:is(#shape-drop,#shape-slice,#games-hub) h2{font-size:22px}}
 
-#app #result-xp-bar #level-progress::-webkit-progress-value,
+#app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-webkit-progress-value,
 #app .xp-help-meter progress::-webkit-progress-value,
 #app .level-task-card progress::-webkit-progress-value{background:var(--ui-progress)}
-#app #result-xp-bar #level-progress::-moz-progress-bar,
+#app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-moz-progress-bar,
 #app .xp-help-meter progress::-moz-progress-bar,
 #app .level-task-card progress::-moz-progress-bar{background:var(--ui-progress)}
-#app #result-xp-bar #level-progress::-webkit-progress-bar,
+#app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-webkit-progress-bar,
 #app .xp-help-meter progress::-webkit-progress-bar,
 #app .level-task-card progress::-webkit-progress-bar{background:var(--ui-track)}
-#app #result-xp-bar{border-color:var(--ui-ink);background:var(--ui-track)}
-#app #result-xp-label{color:var(--ui-dark)}
+#app :is(#result-xp-bar,.xp-help-meter){border-color:var(--ui-ink);background:var(--ui-track)}
+#app :is(#result-xp-label,#xp-help-count){color:var(--ui-dark)}
 #app #shop-dialog .shop-buy:disabled,#app #shop-dialog .shop-buy.unavailable,
 #app #shop-dialog .cosmetic-card .shop-buy:disabled,
 #app #shop-dialog #shop-items .shop-buy:disabled{
@@ -135,12 +135,12 @@ body,button,input,select,textarea{font-family:Nunito,system-ui,sans-serif}
 
 /* Use the opaque painted center as a texture. The track clips its outline;
    transparent sprite padding and stretched illustrated caps never enter the fill. */
-#app #result-xp-bar #level-progress{inset:0;width:100%;height:100%;margin:0;padding:0;border:0}
-#app #result-xp-bar #level-progress::-webkit-progress-value{
+#app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress){inset:0;width:100%;height:100%;margin:0;padding:0;border:0}
+#app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-webkit-progress-value{
  border-image:none;border:0;border-radius:0 18px 18px 0;box-shadow:none;
  background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
 }
-#app #result-xp-bar #level-progress::-moz-progress-bar{
+#app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-moz-progress-bar{
  border-image:none;border:0;border-radius:0 18px 18px 0;box-shadow:none;
  background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
 }
