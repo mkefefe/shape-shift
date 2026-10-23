@@ -53,7 +53,7 @@ export function initStoryUI({document,storage,adventure,admin,adminBackup,settin
  button.innerHTML='<span class="story-map-label">Color Beacon <strong></strong></span><span class="story-map-next"></span><span class="story-map-action">Charge</span>';
  header.append(button);
  const dialog=document.createElement('dialog');dialog.id='story-library';dialog.setAttribute('aria-labelledby','story-library-title');
- dialog.innerHTML='<button class="close" aria-label="Close Color Beacon"><img src="assets/close-v45.webp" alt=""></button><div class="dialog-content"><h2 id="story-library-title">Color Beacon</h2><canvas class="story-library-art" width="400" height="400" role="img" aria-label="Your restored island"></canvas><p class="story-library-summary"></p><p class="beacon-charge-count" aria-live="polite"></p><p class="story-library-explanation">Clear levels 10, 25, 50, 75, and 100 to earn one charge each. Use a charge to bring color back to your island.</p><p class="story-star-note">Each milestone awards its charge once. Stars and replays do not earn extra charges.</p><div class="story-library-scenes"><button class="primary" id="beacon-charge">Charge the Beacon</button><button class="primary" id="beacon-credits" hidden>Watch credits</button></div><p class="story-library-next"></p><p class="beacon-status" role="status"></p></div>';
+ dialog.innerHTML='<button class="close" aria-label="Close Color Beacon"><img src="assets/close-v45.webp" alt=""></button><div class="dialog-content"><h2 id="story-library-title">Color Beacon</h2><canvas class="story-library-art" width="400" height="400" role="img" aria-label="Your restored island"></canvas><p class="beacon-charge-count" aria-live="polite"></p><div class="story-library-scenes"><button class="primary" id="beacon-charge">Charge the Beacon</button><button class="primary" id="beacon-credits" hidden>Watch credits</button></div><p class="story-library-next"></p><p class="beacon-status" role="status"></p></div>';
  document.body.append(dialog);
  let controller,art,artLoading;
  const action=dialog.querySelector('#beacon-charge'),credits=dialog.querySelector('#beacon-credits');
@@ -68,11 +68,10 @@ export function initStoryUI({document,storage,adventure,admin,adminBackup,settin
   button.querySelector('.story-map-action').textContent=s.complete?'Full':'Charge';
   button.querySelector('.story-map-next').textContent=s.ready?s.availableCharges+' charge'+(s.availableCharges===1?'':'s')+' ready · '+s.ready.title:s.complete?'Your island is full of color':'Next charge · Level '+s.next.level;
   button.setAttribute('aria-label','Color Beacon '+s.percent+' percent. '+button.querySelector('.story-map-next').textContent+'. Open charging.');
-  dialog.querySelector('.story-library-summary').textContent=s.percent+' / 100 levels · '+s.percent+'% progress';
   dialog.querySelector('.beacon-charge-count').textContent=s.availableCharges+' charge'+(s.availableCharges===1?'':'s')+' available · '+s.restoredPercent+'% restored';
   action.disabled=controller.isPlaying();action.setAttribute('aria-disabled',String(!s.ready&&!s.freeSpark));action.hidden=s.complete;
   action.textContent='Charge the Beacon';credits.hidden=!s.complete;
-  dialog.querySelector('.story-library-next').textContent=s.ready?'Use 1 charge · '+s.ready.title+(s.ready.id==='ending'?' · Full restoration and credits':''):s.complete?'Your final charge brought color home.':s.freeSpark?'Try a free spark. Your first island charge unlocks at Level 10.':'Keep playing! Your next charge unlocks at Level '+s.next.level+'.';
+  dialog.querySelector('.story-library-next').textContent=s.ready?'Use 1 charge to restore color':s.complete?'Island fully restored':s.freeSpark?'Free spark available':'Next charge: Level '+s.next.level;
   if(dialog.open)paintIsland();
  }
  const open=()=>{refresh();dialog.querySelector('.beacon-status').textContent='';if(!dialog.open)dialog.showModal();paintIsland();};
@@ -90,7 +89,7 @@ export function initStoryUI({document,storage,adventure,admin,adminBackup,settin
   }
   action.disabled=true;dialog.close();
   const outcome=await controller.charge();
-  if(outcome.failed){open();dialog.querySelector('.beacon-status').textContent='The reveal could not load. Your charge is still available—try again.';}
+  if(outcome.failed){open();dialog.querySelector('.beacon-status').textContent='Could not load. Charge saved—try again.';}
  };
  credits.onclick=async()=>{dialog.close();await controller.replayCredits();};
  dialog.addEventListener('close',()=>dialog.querySelector('.ability-lock-notice')?.remove());
