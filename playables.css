@@ -125,3 +125,6 @@ html,body{overflow:hidden;}
 
 /* Leave room above the final level for the sticky map and Beacon controls. */
 #map-landscape{margin-top:90px}
+
+.menu-input-hint{display:none}
+@media (hover:hover) and (pointer:fine){.menu-input-hint{display:block;font-size:11px;margin:4px 0 12px;color:#075570}}

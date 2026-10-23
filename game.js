@@ -1,4 +1,4 @@
-import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web16';
+import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web17';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
@@ -31,13 +31,13 @@ import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web16';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web17';
 import {observeBoard} from './board-fit.js?v=49439-web12';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=49439-web12';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web12';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web12';
-import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web16';
+import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web17';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web12';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web12';
 
@@ -2151,7 +2151,7 @@ window.handleAndroidBack=()=>{
   const close=top.querySelector('.close:not([disabled]),[data-close="'+top.id+'"]:not([disabled])');
   if(close){close.click();return true;}
   // Custom game screens own their back stack through the dialog cancel event.
-  top.dispatchEvent(new Event('cancel',{cancelable:true}));
+  if(top.dispatchEvent(new Event('cancel',{cancelable:true})))top.close();
   return true;
  }
  if(abilityGuideOpen())return true;
@@ -2163,8 +2163,8 @@ window.addEventListener('androidback',()=>window.handleAndroidBack());
 bindBoardKeyboard($('board'),{suspended:()=>!active||paused||abilityGuideOpen()||window.ShapeShiftPlatform.paused||!!document.querySelector('dialog[open]'),enabled:()=>['endless','adventure'].includes(runMode)&&active&&!paused&&!locked&&!counting&&!abilityGuideOpen()&&!window.ShapeShiftPlatform.paused&&!document.querySelector('dialog[open]')});
 const boardKeys=document.createElement('p');boardKeys.className='keyboard-play-hint';boardKeys.textContent='WASD move · Space pick · Z pause · 1 Shield · 2 Time · 3 ×5';$('board').before(boardKeys);
 document.addEventListener('keydown',event=>{
- if(event.code!=='KeyZ'||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing||event.target.closest?.('textarea,select,[contenteditable],input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button])')||!$('startup-ready').hidden)return;
- event.preventDefault();event.stopImmediatePropagation();if(!window.handleAndroidBack())openSettings();
+ if(!['KeyZ','Escape'].includes(event.code)||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing||(event.code==='KeyZ'&&event.target.closest?.('textarea,select,[contenteditable],input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button])')&&event.target.dataset.menuEditing!=='false')||!$('startup-ready').hidden)return;
+ event.preventDefault();event.stopImmediatePropagation();if(!window.handleAndroidBack()&&event.code==='KeyZ')openSettings();
 },true);
 
 
