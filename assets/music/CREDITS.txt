@@ -33,3 +33,7 @@ Victory arrangement 4.94.34: original C-major piano fanfare using the credited S
 4.94.52 original world menu arrangements:
 Waterlight Walk (Sunny Garden, 88 BPM, C major, 32 bars), Lanterns on Still Water (Moonlit Forest, 80 BPM, A minor, 32 bars), Golden Hour Drift (Sunset Islands, 84 BPM, D major, 32 bars).
 Original chord-following piano melodies with A/A-variation/B/A phrasing, rolled seventh/ninth voicings, warm synthesized bass and pads, restrained original synthesized percussion, and circular room reflections. Piano notes use the Salamander recordings credited above, pitch shifted, filtered, enveloped, sequenced, and mixed into stereo Ogg Vorbis loops. Release tails wrap across each loop boundary. No commercial melody or recording was imported.
+
+4.94.54 original chill-pop world menu arrangements:
+Sunbeam Shuffle (Sunny Garden, 100 BPM, C major, 32 bars), Starlight Bounce (Moonlit Forest, 94 BPM, F major, 32 bars), Golden Coast Groove (Sunset Islands, 104 BPM, D major, 32 bars).
+Original connected piano hooks, major/add6/add9 chord progressions, syncopated plucked bass, clear kick/snare-clap/shaker grooves, small bell answers, and short room reflections. Recorded piano notes use the Salamander samples credited above, pitch shifted, trimmed, filtered, sequenced, and mixed with a mono-compatible center. Bass, bells, and percussion are synthesized original voices. Instrument tails wrap across each stereo Ogg Vorbis loop. No commercial melody or recording was imported.

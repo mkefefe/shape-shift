@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
-const path=world=>'assets/music/menu-'+world+'-v49452.ogg';
+const path=world=>'assets/music/menu-'+world+'-v49454.ogg';
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const response=()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
 function buffer(channels,length,rate=44100){

@@ -221,7 +221,7 @@
     }
   }
 
-  const musicTracks={'menu-garden':'assets/music/menu-garden-v49452.ogg','menu-moon':'assets/music/menu-moon-v49452.ogg','menu-sunset':'assets/music/menu-sunset-v49452.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
+  const musicTracks={'menu-garden':'assets/music/menu-garden-v49454.ogg','menu-moon':'assets/music/menu-moon-v49454.ogg','menu-sunset':'assets/music/menu-sunset-v49454.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
   const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
   const musicBuffers=new Map(),musicRetry=new Map(),musicPositions=Object.fromEntries(Object.keys(musicTracks).map(key=>[key,0]));
   let musicVoice=null,musicEpoch=0,musicPending=null;
