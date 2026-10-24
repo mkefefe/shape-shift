@@ -30,3 +30,27 @@
 @media(max-width:360px){.profile-tabs{gap:4px}.profile-tabs button{font-size:11px}#quests-dialog #quest-list{gap:12px!important}}
 @media(prefers-reduced-motion:reduce){#living-water{display:none}}
 .reduce-motion #living-water{display:none}
+
+/* One illustrated frame for every popup. Nine-slicing preserves square corners
+   and the same rim thickness when the content needs a short or tall panel.
+   Fullscreen scenes keep their scenery; their popup cards use this frame. */
+html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"]),
+html body :is(#shape-drop,#shape-slice,#piano-flow) .drop-panel,
+html body #ability-guide section {
+ border:0 solid transparent!important;
+ border-image:url('assets/menu-panel-v240.webp') 96 fill / 32px / 0 stretch!important;
+ border-radius:24px!important;
+ background:none!important;
+ box-shadow:0 16px 54px #001f4770!important;
+}
+/* Retire the old independently stretched top and bottom frame layers. */
+html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"])::before,
+html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"])::after {
+ content:none!important;display:none!important;
+}
+/* Keep content inside the illustrated rim on panels formerly using thin CSS borders. */
+html body :is(#quests-dialog,#achievements-dialog) .dialog-content{padding-left:24px!important;padding-right:24px!important}
+html body #terms-dialog .terms-shell{margin:16px;height:calc(100% - 32px);background:transparent}
+html body :is(#games-hub,#shape-drop[data-view="menu"],#shape-slice[data-view="menu"]){padding:24px 22px!important}
+html body #ability-guide section{padding:28px}
+html body :is(#shape-drop,#shape-slice,#piano-flow) .drop-panel.drop-pause-panel{padding:32px 26px!important}
