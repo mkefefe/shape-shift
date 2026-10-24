@@ -4,6 +4,7 @@ export const STARTUP_ASSETS=[
  "assets/abilities-v4.webp",
  "assets/ability-hand-v169.webp",
  "assets/achievement-medals-v208.webp",
+ "assets/achievements-v350.png",
  "assets/achievements-v59.webp",
  "assets/action-v45.webp",
  "assets/adventure-map-v101.webp",
@@ -76,9 +77,11 @@ export const STARTUP_ASSETS=[
  "assets/praise/impressive.wav",
  "assets/praise/perfect.wav",
  "assets/quests-v33.webp",
+ "assets/quests-v351.png",
  "assets/reward-pointer-v226.webp",
  "assets/reward-video-v41.webp",
  "assets/settings-v3.webp",
+ "assets/settings-v351.png",
  "assets/shape-lock-chains-v202.webp",
  "assets/shapes-v2.webp",
  "assets/skin-candy-v273.webp",
@@ -113,6 +116,5 @@ export const STARTUP_ASSETS=[
  "browser-quests-hd1.png",
  "browser-shield-hd1.png",
  "browser-shop-hd1.png",
- "browser-time-hd1.png",
- "assets/achievements-v350.png"
+ "browser-time-hd1.png"
 ];

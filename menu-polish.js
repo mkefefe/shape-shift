@@ -1,3 +1,4 @@
+import {initLivingBackground} from './living-backgrounds.js?v=49451';
 // Daily discoveries share one receipt ledger across every equipped world.
 export const discoveryDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
 export function discoveryOrder(day,world='garden'){
@@ -20,6 +21,7 @@ export function initProfileTabs(){
  const panels=new Map(definitions.map(([id])=>{const panel=document.createElement('section');panel.id='profile-panel-'+id;panel.className='profile-tab-panel';panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby','profile-tab-'+id);panel.hidden=id!=='identity';return [id,panel];}));
  const move=(id,selector)=>dialog.querySelectorAll(selector).forEach(el=>panels.get(id).append(el));
  move('identity','#profile-preview,#player-id-row,#player-id-status,.name-label,.name-row,.menu-input-hint,#avatar-presets,#profile-photo');
+ const avatarHeading=document.createElement('h3');avatarHeading.id='profile-avatar-heading';avatarHeading.textContent='Avatars';const avatars=panels.get('identity').querySelector('#avatar-presets');avatars.before(avatarHeading);avatars.setAttribute('aria-labelledby',avatarHeading.id);
  document.getElementById('profile-shop').hidden=true;
  for(const id of ['skins','frames','backgrounds']){
   const grid=document.getElementById('profile-'+id),panel=panels.get(id);
@@ -40,29 +42,8 @@ export function initLivingMenu({getProfile,commit,sound=()=>{}}){
  initProfileTabs();
  initMenuScrolling();
  const app=document.getElementById('app'),home=document.getElementById('home');
- const canvas=document.createElement('canvas');canvas.id='living-water';canvas.setAttribute('aria-hidden','true');home.prepend(canvas);
- const waterArt=new Image();waterArt.src='assets/home-world-v101.webp';
- const ctx=canvas.getContext('2d'),motion=matchMedia('(prefers-reduced-motion: reduce)');let frame=0,last=0;
- const running=()=>app.dataset.screen==='home'&&!document.hidden&&!document.body.classList.contains('reduce-motion')&&!motion.matches&&!document.querySelector('dialog[open]')&&(!app.dataset.background||app.dataset.background==='garden');
- function paint(time){frame=0;if(!running())return;frame=requestAnimationFrame(paint);if(time-last<50)return;last=time;
-  const w=home.clientWidth,h=home.clientHeight;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
-  ctx.clearRect(0,0,w,h);const scale=Math.max(w/941,h/1672),ox=(w-941*scale)/2,oy=(h-1672*scale)/2;
-  ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);
-  // Displace only painted water: moving texture, falling highlights, and foam.
-  const falls=[[53,520,45,140],[84,675,78,204],[45,845,65,183],[148,917,91,310],[325,1105,48,82],[145,1240,73,100]];
-  for(const [x,y,fw,fh] of falls){
-   ctx.save();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+fw*.65,y+5);ctx.lineTo(x+fw,y+fh);ctx.lineTo(x+fw*.24,y+fh);ctx.closePath();ctx.clip();
-   if(waterArt.complete&&waterArt.naturalWidth){ctx.globalAlpha=.58;for(let row=0;row<fh;row+=5){const sy=(row+time*.085)%fh;ctx.drawImage(waterArt,x,y+sy,fw,Math.min(5,fh-sy),x+Math.sin(row*.07+time*.003)*2,y+row,fw,5);}ctx.globalAlpha=1;}
-   for(let i=0;i<18;i++){const yy=y+((time*.12+i*31)%fh),xx=x+fw*(.15+(i%6)*.13);const gradient=ctx.createLinearGradient(xx,yy,xx+3,yy+40);gradient.addColorStop(0,'#eaffff00');gradient.addColorStop(.65,'#eaffff99');gradient.addColorStop(1,'#eaffff00');ctx.strokeStyle=gradient;ctx.lineWidth=1.4+i%3;ctx.beginPath();ctx.moveTo(xx,yy);ctx.quadraticCurveTo(xx+4,yy+22,xx+2,yy+42);ctx.stroke();}
-   ctx.restore();
-   for(let i=0;i<5;i++){const age=(time/1300+i/5)%1;ctx.strokeStyle='rgba(240,255,255,'+(.38*(1-age))+')';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x+fw*.7,y+fh+5,fw*(.22+age*.52),3+age*7,0,0,Math.PI*2);ctx.stroke();}
-  }
-  ctx.save();ctx.beginPath();ctx.moveTo(250,1268);ctx.lineTo(624,1200);ctx.lineTo(672,1252);ctx.lineTo(420,1400);ctx.lineTo(560,1533);ctx.lineTo(310,1512);ctx.lineTo(50,1455);ctx.lineTo(8,1380);ctx.lineTo(320,1323);ctx.closePath();ctx.clip();
-  if(waterArt.complete&&waterArt.naturalWidth){ctx.globalAlpha=.65;for(let y=1200;y<1560;y+=4){const dx=Math.sin(y*.047-time*.0024)*5,dy=Math.sin(y*.06-time*.003)*2;ctx.drawImage(waterArt,0,y+dy,800,4,dx,y,800,4);}ctx.globalAlpha=1;}
-  for(let i=0;i<60;i++){const drift=(time*.018+i*43)%330,x=30+(i*97)%620+Math.sin(time/1100+i)*12,y=1220+drift;ctx.strokeStyle='rgba(231,255,255,'+(.15+.35*(.5+.5*Math.sin(time/650+i)))+')';ctx.lineWidth=1.7;ctx.beginPath();ctx.ellipse(x,y,7+i%14,1.5,0,0,Math.PI);ctx.stroke();}ctx.restore();ctx.restore();
- }
- function refresh(){if(frame)cancelAnimationFrame(frame);frame=0;canvas.hidden=!running();if(running())frame=requestAnimationFrame(paint);}
- new MutationObserver(refresh).observe(app,{attributes:true,attributeFilter:['data-screen','data-background']});new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['class','open'],subtree:true});document.addEventListener('visibilitychange',refresh);motion.addEventListener('change',refresh);refresh();
+ initLivingBackground(app,home);
+ const motion=matchMedia('(prefers-reduced-motion: reduce)');
  const notice=document.createElement('span');notice.id='discovery-notice';notice.setAttribute('role','status');notice.hidden=true;home.append(notice);let noticeTimer;
  const logo=home.querySelector('h1');logo.setAttribute('role','button');logo.tabIndex=0;logo.setAttribute('aria-label','Shape Shift logo');
  function bounce(){if(!motion.matches&&!document.body.classList.contains('reduce-motion'))logo.animate([{transform:'scale(1)'},{transform:'scale(1.06) rotate(-2deg)'},{transform:'scale(1)'}],{duration:360,easing:'ease-out'});sound('click');}

@@ -1,9 +1,9 @@
-import {initLivingMenu} from './menu-polish.js?v=49439-web24';
+import {initLivingMenu} from './menu-polish.js?v=49451';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
-import {loadStartupAssets} from './startup-loader.js?v=49439-web12';
+import {loadStartupAssets} from './startup-loader.js?v=49451';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
@@ -45,7 +45,7 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web12';
 import {earnsMatchCoin} from './economy.js?v=49439-web12';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web24';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=49451';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web24';
 
 
