@@ -1,5 +1,5 @@
 // Complete shipped artwork, music, effects and fonts. Verified against the built site.
-export const STARTUP_ASSETS=[
+export const STARTUP_ASSETS=["assets/audio/victory-reward-fill-v49459.ogg","assets/audio/victory-reward-flight-v49459.ogg","assets/audio/victory-reward-land1-v49459.ogg","assets/audio/victory-reward-land2-v49459.ogg","assets/audio/victory-reward-land3-v49459.ogg",
  "assets/Nunito.ttf",
  "assets/abilities-v4.webp",
  "assets/ability-hand-v169.webp",

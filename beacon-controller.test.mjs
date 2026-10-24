@@ -22,7 +22,7 @@ test('only clearing all 100 Adventure levels unlocks one restoration',async()=>{
  }
  assert.deepEqual(played,[]);assert.equal(controller.summary().next,null);
  await controller.charge();
- assert.deepEqual(played,[{scene:'ending',autoplay:true}]);
+ assert.deepEqual(played,[{scene:'ending',autoplay:false}]);
  assert.equal(controller.summary().complete,true);assert.equal(controller.summary().restoredPercent,100);
  assert.equal(controller.summary().availableCharges,0);assert.equal((await controller.charge()).unavailable,true);
  assert.deepEqual(controller.snapshot().seen,['ending','credits']);

@@ -262,7 +262,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
       dialog.dataset.ready = 'true';
       started=Boolean(autoplay);
       dialog.dataset.stage=started?'revealing':'waiting';
-      soundButton.textContent=scene==='ending'?'Restore island':scene==='credits'?'Play credits':'Tap to play';
+      soundButton.textContent=scene==='ending'?'Tap anywhere':scene==='credits'?'Play credits':'Tap to play';
       soundButton.disabled=false; soundButton.hidden=started;
       lastTime = isVisible() ? now() : null;
       lastDrawTime = lastTime;

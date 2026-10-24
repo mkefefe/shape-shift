@@ -166,3 +166,15 @@ test('returning to menu keeps the current music until its theme has decoded',asy
  audio.setScene('menu');await flush();assert.equal(game.stops.length,0);
  resolveMenu(response());await flush();assert.equal(tracks().length,2);assert.equal(game.stops.length,1);
 });
+
+
+test('star rewards use the recorded victory family through the centered effects bus',async()=>{
+ const {audio,state}=harness();await audio.start();await audio.prepareVictory();
+ for(const [cue,name] of [['objective-fill','fill'],['star-flight','flight'],['star-land-1','land1'],['star-land-2','land2'],['star-land-3','land3']]){
+  audio.play(cue);const voice=state.sources.at(-1);
+  assert.equal(voice.buffer.url,'assets/audio/victory-reward-'+name+'-v49459.ogg');
+  assert.equal(voice.connections[0].connections[0],state.gains[2]);
+ }
+ assert.equal(state.gains[2].channelCount,1);const count=state.sources.length;
+ audio.setSfx(false);audio.play('star-land-1');assert.equal(state.sources.length,count);
+});

@@ -19,7 +19,7 @@
 #profile-dialog .dialog-content{gap:10px}
 #app[data-screen=home] .home-tools #achievements-open>img{width:38px!important;height:38px!important;min-height:0!important;margin:3px auto;object-fit:contain}
 /* Reserve a real header band, so the Beacon never overlays a level node. */
-#adventure-map .map-header{height:122px!important;margin-bottom:0!important;background:linear-gradient(#164c5cf5,#247f8bf5)!important}
+#adventure-map .map-header{height:62px!important;margin-bottom:-62px!important;background:none!important}
 #adventure-map{scroll-padding-top:145px}
 #map-landscape{margin-top:0!important;border-top:0;box-sizing:content-box}
 #living-water{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}

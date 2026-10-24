@@ -28,7 +28,7 @@ test('one Restore island click plays a complete finale without a second charge p
 });
 
 test('automatic post-results presentation waits for one tap, then keeps playing through further taps',async()=>{
- const f=fixture({duration:.7}),run=f.launch();await flush();for(let n=0;n<10;n++)f.tick();assert.equal(f.draws.at(-1).t,0);assert.equal(f.dialog.dataset.stage,'waiting');assert.equal(f.button.textContent,'Restore island');
+ const f=fixture({duration:.7}),run=f.launch();await flush();for(let n=0;n<10;n++)f.tick();assert.equal(f.draws.at(-1).t,0);assert.equal(f.dialog.dataset.stage,'waiting');assert.equal(f.button.textContent,'Tap anywhere');
  f.button.dispatchEvent(new Event('click',{cancelable:true}));f.tick();f.tick();const before=f.draws.at(-1).t;f.dialog.dispatchEvent(new Event('click',{cancelable:true}));f.tick();assert(f.draws.at(-1).t>before);assert.equal(f.dialog.dataset.stage,'revealing');run.cancel();await run;
 });
 

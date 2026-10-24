@@ -68,9 +68,9 @@
   const victoryBuffers=new Map(),victoryLoads=new Map();let victorySpark=0;
   async function prepareVictory(){
     if(!setup())return false;
-    const ready=await Promise.all(['transform','gather','burst','spark0','spark1','spark2','spark3','resolve','panel'].map(name=>{
+    const ready=await Promise.all(['transform','gather','burst','spark0','spark1','spark2','spark3','resolve','panel','reward-fill','reward-flight','reward-land1','reward-land2','reward-land3'].map(name=>{
       if(victoryBuffers.has(name))return true;
-      if(!victoryLoads.has(name))victoryLoads.set(name,fetch('assets/audio/victory-'+name+(['burst','spark0','spark1','spark2','spark3'].includes(name)?'-v49436.ogg':'-v4947.ogg')).then(r=>{if(!r.ok)throw Error('Victory audio unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).then(buffer=>{victoryBuffers.set(name,buffer);return true;}).catch(()=>{victoryLoads.delete(name);return false;}));
+      if(!victoryLoads.has(name))victoryLoads.set(name,fetch('assets/audio/victory-'+name+(name.startsWith('reward-')?'-v49459.ogg':['burst','spark0','spark1','spark2','spark3'].includes(name)?'-v49436.ogg':'-v4947.ogg')).then(r=>{if(!r.ok)throw Error('Victory audio unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).then(buffer=>{victoryBuffers.set(name,buffer);return true;}).catch(()=>{victoryLoads.delete(name);return false;}));
       return victoryLoads.get(name);
     }));return ready.every(Boolean);
   }
@@ -380,9 +380,9 @@
         tone(784,now,.20,.115,'sine',effectsBus);tone(988,now+.075,.23,.075,'sine',effectsBus);tone(1175,now+.18,.28,.055,'sine',effectsBus);break;
       case 'streak-praise': notes([79,83,86],.075,.22,.13);break;
       case 'lightning-finish': notes([76,81,85,88],.09,.32,.14);break;
-      case 'objective-fill': tone(784,now,.38,.09,'sine',effectsBus,1175);break;
-      case 'star-flight': tone(988,now,.35,.075,'sine',effectsBus,1568);break;
-      case 'star-land-1': case 'star-land-2': case 'star-land-3': {const f=[1046,1318,1568][Number(name.slice(-1))-1];tone(f,now,.32,.13,'sine',effectsBus);tone(f*1.5,now+.07,.36,.055,'sine',effectsBus);break;}
+      case 'objective-fill': victoryCue('reward-fill',now);break;
+      case 'star-flight': victoryCue('reward-flight',now);break;
+      case 'star-land-1': case 'star-land-2': case 'star-land-3': victoryCue('reward-land'+name.slice(-1),now);break;
       case 'result-xp-tick': tone(1046,now,.06,.065,'sine',effectsBus,1320);break;
       case 'result-score-tick': tone(660,now,.055,.045,'triangle',effectsBus,820);break;
       case 'result-coin-tick': tone(1100,now,.065,.045,'sine',effectsBus,1450);break;

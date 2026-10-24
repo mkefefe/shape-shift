@@ -3,12 +3,12 @@ import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
-import {loadStartupAssets} from './startup-loader.js?v=49458';
+import {loadStartupAssets} from './startup-loader.js?v=49459';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
-import {initStoryUI} from './story-ui.js?v=49456';
+import {initStoryUI} from './story-ui.js?v=49459';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
 import {initPianoFlow} from './piano-flow.js?v=49458';
@@ -1006,7 +1006,7 @@ function finish(finalize=false){
  if(runMode==='rush'){$('result-return-countdown').hidden=false;cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent='Main menu in '+n+'s';},()=>{uiSound('leave-result');home();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open});}
  };
  const startResultRewards=()=>{
-  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,tally,{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground});
+  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{if(modeWon&&storyUI.summary().ready){home(true);worldUI?.map();void storyUI.afterResults();}else tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground});
   else tally();
  };
  const presentResults=(animateRewards=true)=>{

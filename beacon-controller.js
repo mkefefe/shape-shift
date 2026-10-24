@@ -25,7 +25,7 @@ export function createBeaconController({storage,adventure,admin=false,adminBacku
   if(busy)return {completed:false,busy:true};
   busy=true;notify();let outcome={completed:false};
   try{
-   beforeScene();current=showScene({...settings(),scene:id,autoplay:true});outcome=await current||outcome;
+   beforeScene();current=showScene({...settings(),scene:id,autoplay:id==='credits'});outcome=await current||outcome;
    if(outcome.completed===true&&!outcome.failed&&!outcome.skipped&&!outcome.cancelled){
     state=markStorySeen(state,id);persist();
    }
