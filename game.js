@@ -1,3 +1,4 @@
+import {animateQuestRedemption} from './quest-redemption.js?v=49466';
 import {initLivingMenu} from './menu-polish.js?v=49461';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
@@ -3664,10 +3665,7 @@ async function collectQuestRewards(quests,next,source,all){
  let delivered=0;
  showQuestReward({getBoundingClientRect:()=>origin},$('coin-help-open'),reward,oldBalance,reduced,{rewards,onCollect:()=>uiSound('quest-collect'),onArrive:amount=>{delivered+=amount;pendingWalletCoins=Math.max(0,pendingWalletCoins-amount);saveProfile();uiSound('quest-wallet');}}).catch(()=>{}).finally(()=>{pendingWalletCoins=Math.max(0,pendingWalletCoins-(reward-delivered));saveProfile();});
  try{
-  await Promise.all(cards.map(card=>{
-   card.classList.add('quest-redeeming');card.classList.toggle('quest-redeeming-reduced',reduced);
-   return card.animate([{opacity:1,transform:'scale(1)'},{opacity:1,transform:'scale(1)',offset:.7},{opacity:0,transform:reduced?'scale(1)':'scale(.96)'}],{duration:reduced?180:900,easing:'ease-in-out',fill:'forwards'}).finished.catch(()=>{});
-  }));
+  await animateQuestRedemption(cards,{reduced,sound:uiSound});
  }finally{
   const sameList=questRenderVersion===version&&questTab===claimedTab;
   const previous=new Map(sameList?[...list.querySelectorAll('.quest-card')].map(c=>[c.dataset.questId,c.getBoundingClientRect().top]):[]);

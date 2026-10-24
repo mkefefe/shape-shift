@@ -387,6 +387,9 @@
       case 'result-score-tick': tone(660,now,.055,.045,'triangle',effectsBus,820);break;
       case 'result-coin-tick': tone(1100,now,.065,.045,'sine',effectsBus,1450);break;
       case 'result-tally-done': tone(784,now,.17,.065,'triangle',effectsBus);tone(1175,now+.07,.22,.045,'sine',effectsBus);break;
+      case 'quest-release':
+        // A soft resolution as the claimed card dissolves; one cue per batch.
+        tone(988,now,.26,.045,'sine',effectsBus);tone(1319,now+.045,.30,.028,'sine',effectsBus);tone(1568,now+.09,.32,.018,'sine',effectsBus);break;
       case 'quest-wallet': tone(1046,now,.22,.14,'sine',effectsBus);tone(1568,now+.045,.26,.065,'sine',effectsBus);break;
       case 'coin-arrive': tone(784,now,.23,.07,'sine',effectsBus);tone(1175,now+.035,.28,.032,'sine',effectsBus);break;
       case 'achievement-complete': notes([60,67,72,79],.1,.4,.10);break;
