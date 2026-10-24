@@ -1,15 +1,16 @@
+import {xpForLevel} from './economy.js';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {claimDiscovery,discoveryOrder} from './menu-polish.js';
 import {sortedAchievements,MODE_ACHIEVEMENTS,claimAchievement,achievementVisible} from './achievement-catalog.js';
 import {levelRequirements,levelTasks,levelObjectives,collectionBoard,trackLevelPick,levelComplete,ensureStarChoice,ensureStarPickup} from './world-menu.js';
 import {seededRandom,duration} from './engine.js';
-test('daily discoveries persist 30/30/40 once across all worlds and reject clock rollback',()=>{
+test('daily discoveries persist 100/100/100 once across all worlds and reject clock rollback',()=>{
  const today=Date.UTC(2026,9,23),p={coins:9};let next=p;
  for(const slot of [2,0,1,2,1,0])next=claimDiscovery(next,slot,today);
- assert.equal(next.coins,109);assert.equal(p.coins,9);assert.equal(next.discoveries.claimed.length,3);
+ assert.equal(next.coins,309);assert.equal(p.coins,9);assert.equal(next.discoveries.claimed.length,3);
  assert.equal(claimDiscovery(next,0,today-86400000),next);
- const reload=JSON.parse(JSON.stringify(next));assert.equal(claimDiscovery(reload,0,today).coins,109);
- assert.equal(claimDiscovery(reload,0,today+86400000).coins,139);
+ const reload=JSON.parse(JSON.stringify(next));assert.equal(claimDiscovery(reload,0,today).coins,309);
+ assert.equal(claimDiscovery(reload,0,today+86400000).coins,409);
  for(const invalid of [-1,3,NaN,.5])assert.equal(claimDiscovery(next,invalid,today),next);
  assert.deepEqual(discoveryOrder('2026-10-23'),discoveryOrder('2026-10-23'));assert.notDeepEqual(discoveryOrder('2026-10-23'),discoveryOrder('2026-10-24'));
 });
@@ -47,3 +48,12 @@ test('achievement order puts completed first, then percentage progress, then unt
 });
 
 test('learning stages allow more time without changing Endless timers',()=>{for(let n=1;n<=20;n++)assert(duration({mode:'adventure',adventureLevel:n,picks:10})>=3500);assert.equal(duration({mode:'endless',difficulty:'normal',picks:0}),2800);});
+
+test('achievement catalog grows in whole batches at ten-level boundaries, including old receipts',()=>{
+ for(const mode of ['endless','adventure','games'])for(let level=0;level<=100;level++){
+  const stats={adventure:{highest:level}},profile={xp:xpForLevel(Math.max(1,level))};
+  const list=sortedAchievements(stats,mode,profile);assert.equal(list.length%5,0,mode+' '+level);
+  if(level>1&&level%10!==0)assert.equal(list.length,sortedAchievements({adventure:{highest:level-1}},mode,{xp:xpForLevel(level-1)}).length);
+ }
+ for(const a of MODE_ACHIEVEMENTS.filter(a=>a.mode==='endless'))assert.equal(sortedAchievements({},'endless',{achievementClaims:[a.id]}).length%10,0);
+});

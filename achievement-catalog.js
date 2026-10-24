@@ -59,6 +59,10 @@ games.push(
  family('pianoCleanBest','Flawless Phrase',[20,50,100,200,400],n=>`Complete ${n} Piano Flow notes without losing a life.`),
  family('pianoRuns','Encore',[5,25,75,200,500],n=>`Finish ${n} Piano Flow runs with at least 10 completed notes.`)
 );
+adventure.push(
+ family('streakBest','Sure Footed',[10,20,40,80,150],n=>`Make ${n} correct picks in a row on the Adventure trail.`,'map'),
+ family('runs','Trail Regular',[5,15,30,75,150],n=>`Set out on ${n} Adventure runs.`,'map')
+);
 export const MODE_ACHIEVEMENTS=Object.entries({endless,adventure,games}).flatMap(([mode,families])=>families.flatMap(f=>f.targets.map((target,tier)=>({id:`${mode}_${f.stat}_${f.receiptTargets?.[tier]??target}`,mode,stat:f.stat,target,tier,name:f.name+' '+['I','II','III','IV','V'][tier],shortName:f.name,description:f.description(target),art:f.art,reward:Math.round(([50,75,100,150,250][tier]*f.weight)/25)*25}))));
 const integer=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 export function normalizeModeStats(raw={}){return Object.fromEntries(['endless','adventure','games'].map(mode=>{const stats={};for(const a of MODE_ACHIEVEMENTS.filter(a=>a.mode===mode))stats[a.stat]=integer(raw?.[mode]?.[a.stat]);for(const key of ['streak','colorChain','shapeChain','runScore',...['drop','slice','piano'].flatMap(m=>[m+'RunHits',m+'Clean',m+'RunActive'])])stats[key]=integer(raw?.[mode]?.[key]);for(const key of ['lastColor','lastShape'])stats[key]=Number.isInteger(raw?.[mode]?.[key])&&raw[mode][key]>=0&&raw[mode][key]<4?raw[mode][key]:null;return [mode,stats];}));}
@@ -104,14 +108,25 @@ export function advanceModeStats(raw,event){
  if(event.type==='history'){if(event.mode==='endless')s.best=Math.max(s.best,integer(event.best));else {const stars=Array.isArray(event.stars)?event.stars:[];s.highest=Math.max(s.highest,stars.reduce((n,v,i)=>v>0?i+1:n,0));s.wins=Math.max(s.wins,stars.filter(n=>n>0).length);s.perfectWins=Math.max(s.perfectWins,stars.filter(n=>n===3).length);}}
  return all;
 }
+// Release complete batches at ten-level milestones. Legacy receipts can reveal
+// their whole batch early, never a single extra tile that makes an odd total.
+const retiredAdventure=new Set(['picks','points','colorChainBest','shapeChainBest','color0','color1','color2','color3','shape0','shape1','shape2','shape3']);
+const achievementBatches=Object.fromEntries(['endless','adventure','games'].map(mode=>{
+ const mechanic={memory:10,shapeLocks:10,colorLocks:10,colorChanges:20};
+ const required=a=>Math.max(a.tier*10,mode==='adventure'?(mechanic[a.stat]||0):0);
+ const awards=MODE_ACHIEVEMENTS.filter(a=>a.mode===mode&&!(mode==='adventure'&&retiredAdventure.has(a.stat))).sort((a,b)=>required(a)-required(b)||a.tier-b.tier);
+ // Adventure has fifty distinct awards; the other modes have one hundred.
+ const size=mode==='adventure'?5:10,batches=[];
+ for(let i=0;i<awards.length;i+=size){const group=awards.slice(i,i+size);batches.push({awards:group,level:Math.max(...group.map(required))});}
+ return [mode,batches];
+}));
 export function achievementVisible(stats,award,profile={}){
- if(profile.achievementClaims?.includes(award.id))return true;
- if(award.mode==='adventure'&&['picks','points','colorChainBest','shapeChainBest','color0','color1','color2','color3','shape0','shape1','shape2','shape3'].includes(award.stat))return false;
- const frontier=stats?.adventure?.highest||profile.adventureCompleted||0;
- const stage=award.mode==='adventure'?frontier:playerLevel(profile);
- const required=award.mode==='games'?[1,10,20,35,50][award.tier]:[0,10,20,40,60][award.tier];
- const mechanic={memory:10,shapeLocks:15,colorLocks:20,colorChanges:5}[award.stat]||0;
- return stage>=required&&frontier>=mechanic;
+ if(award.mode==='adventure'&&retiredAdventure.has(award.stat))return false;
+ const stage=award.mode==='adventure'?(stats?.adventure?.highest||profile.adventureCompleted||0):playerLevel(profile);
+ const batches=achievementBatches[award.mode]||[],index=batches.findIndex(b=>b.awards.some(a=>a.id===award.id));
+ if(index<0)return false;
+ const legacy=batches.reduce((max,b,i)=>b.awards.some(a=>profile.achievementClaims?.includes(a.id))?i:max,-1);
+ return index<=legacy||stage>=batches[index].level;
 }
 export function sortedAchievements(stats,mode,profile={}){
  const earned=a=>profile.achievementClaims?.includes(a.id)||achievementProgress(stats,a)>=a.target;

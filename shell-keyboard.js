@@ -6,3 +6,12 @@ for(const type of ['keydown','keyup'])document.addEventListener(type,event=>{
  event.preventDefault();frame.contentWindow.focus();
  (doc.activeElement||doc.body).dispatchEvent(new KeyboardEvent(type,{key:event.key,code:event.code,repeat:event.repeat,shiftKey:event.shiftKey,bubbles:true,cancelable:true}));
 });
+
+// Two-finger trackpad gestures over the surrounding page reach the active menu.
+document.addEventListener('wheel',event=>{
+ if(event.ctrlKey||event.metaKey||!event.deltaY||!frame?.contentWindow)return;
+ const doc=frame.contentDocument;if(!doc?.getElementById('startup-ready')?.hidden)return;
+ const delta=event.deltaY*(event.deltaMode===1?20:event.deltaMode===2?frame.clientHeight:1);
+ frame.contentWindow.dispatchEvent(new frame.contentWindow.CustomEvent('shape-shift-scroll',{detail:delta}));
+ event.preventDefault();
+},{passive:false});

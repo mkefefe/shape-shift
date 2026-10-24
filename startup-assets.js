@@ -113,5 +113,6 @@ export const STARTUP_ASSETS=[
  "browser-quests-hd1.png",
  "browser-shield-hd1.png",
  "browser-shop-hd1.png",
- "browser-time-hd1.png"
+ "browser-time-hd1.png",
+ "assets/achievements-v350.png"
 ];

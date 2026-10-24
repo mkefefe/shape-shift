@@ -1,5 +1,5 @@
 import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=49439-web12';
-import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=49439-web22';
+import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=49439-web24';
 import {onlineAllowed} from './audience.js?v=49439-web12';
 const key='shape-shift-achievements-v1';let saved;try{saved=JSON.parse(window.ShapeShiftPlatform.storage.getItem(key));}catch{}
 let state=achievementState(saved),notify=()=>{},noticeTimer,hooks={},tab='endless',selected=null,collecting=false;
@@ -51,7 +51,7 @@ function renderAchievements(){
  const collectAll=$('achievement-collect-all'),count=ready(tab).length;
  collectAll.hidden=!count;collectAll.disabled=collecting;collectAll.textContent=collecting?'Collecting…':'Collect all';
  collectAll.setAttribute('aria-label','Collect all '+count+' '+tab+' achievement rewards');
- const configured=onlineAllowed()&&window.ShapeShiftGames?.configured();$('google-achievements').hidden=!configured;$('achievement-status').textContent='More achievements appear as you progress.';
+ const configured=onlineAllowed()&&window.ShapeShiftGames?.configured();$('google-achievements').hidden=!configured;$('achievement-status').textContent='More achievements unlock at level milestones: 10, 20, 30, 40.';
 }
 export function initAchievements(onAward,options={}){
  notify=onAward;hooks=options;
@@ -63,7 +63,7 @@ export function initAchievements(onAward,options={}){
  const collectAll=document.createElement('button');collectAll.id='achievement-collect-all';collectAll.className='primary';collectAll.textContent='Collect all';collectAll.hidden=true;wrap.after(collectAll);
  collectAll.onclick=async()=>{
   if(collecting||!ready(tab).length)return;
-  const mode=tab;collecting=true;collectAll.disabled=true;collectAll.textContent='Collecting…';$('achievement-status').textContent='More achievements appear as you progress.';
+  const mode=tab;collecting=true;collectAll.disabled=true;collectAll.textContent='Collecting…';$('achievement-status').textContent='More achievements unlock at level milestones: 10, 20, 30, 40.';
   let failed=false;
   try{await hooks.collectAll(mode,state.modeStats,collectAll);}catch{failed=true;}
   finally{collecting=false;renderAchievements();if(failed)$('achievement-status').textContent='Could not save rewards. Please try again.';}

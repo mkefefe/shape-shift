@@ -1,5 +1,5 @@
-import {initLivingMenu} from './menu-polish.js?v=49439-web22';
-import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web22';
+import {initLivingMenu} from './menu-polish.js?v=49439-web24';
+import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
@@ -8,14 +8,14 @@ import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
-import {initStoryUI} from './story-ui.js?v=49439-web22';
+import {initStoryUI} from './story-ui.js?v=49439-web24';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
 import {initPianoFlow} from './piano-flow.js?v=49439-web12';
-import {claimPianoReward} from './piano-flow-engine.js?v=49439-web22';
+import {claimPianoReward} from './piano-flow-engine.js?v=49439-web24';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web12';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web12';
-import {initInputFeedback} from './input-feedback.js?v=49439-web22';
+import {initInputFeedback} from './input-feedback.js?v=49439-web24';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web12';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web12';
 import {enableHoldBuying} from './hold-buy.js?v=49439-web12';
@@ -24,29 +24,29 @@ import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web12';
 import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
 import {initSettingsExtras} from './settings-extras.js?v=49439-web12';
 import {initShapeSlice} from './shape-slice.js?v=49439-web12';
-import {claimSliceReward} from './shape-slice-engine.js?v=49439-web22';
+import {claimSliceReward} from './shape-slice-engine.js?v=49439-web24';
 import {initGamesHub} from './games-hub.js?v=49439-web12';
 import {initShapeDrop} from './shape-drop.js?v=49439-web12';
-import {claimDropReward} from './shape-drop-engine.js?v=49439-web22';
+import {claimDropReward} from './shape-drop-engine.js?v=49439-web24';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web12';
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web22';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web24';
 import {observeBoard} from './board-fit.js?v=49439-web12';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=49439-web12';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web12';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web12';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web22';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web24';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web12';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web12';
 
 import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web12';
 import {earnsMatchCoin} from './economy.js?v=49439-web12';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web22';
-import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web22';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web24';
+import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web24';
 
 
 
@@ -82,7 +82,7 @@ import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,a
 
 
 
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web22';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web24';
 
 
 
@@ -1938,7 +1938,7 @@ function applyPrefs(){
 
 
 
-$('home-level').onclick=()=>{const p=playerProgress(profile.xp);$('xp-help-level').textContent='Level '+p.level;$('xp-help-progress').max=p.required||1;$('xp-help-progress').value=p.capped?1:p.current;$('xp-help-count').textContent=p.capped?'MAX LEVEL':p.current+' / '+p.required+' XP';$('xp-help-progress').setAttribute('aria-label',$('xp-help-count').textContent);$('xp-help-next').textContent=p.capped?'Maximum level reached':(p.required-p.current)+' XP to level '+(p.level+1);$('xp-help-dialog').showModal();};
+$('home-level').onclick=()=>{const p=playerProgress(profile.xp);$('xp-help-level').textContent='Level '+p.level;$('xp-help-progress').max=p.required||1;$('xp-help-progress').value=p.capped?1:p.current;$('xp-help-count').textContent=p.capped?'MAX LEVEL':p.current+' / '+p.required+' XP';$('xp-help-progress').setAttribute('aria-label',$('xp-help-count').textContent);$('xp-help-dialog').showModal();};
 
 $('coin-help-open').onclick=()=>$('coin-help-dialog').showModal();
 
@@ -3575,11 +3575,11 @@ function showQuestCollectAll(){return questList(profile,questTab).length===3&&ca
 function updateQuestBadge(){
  const ready=[...profile.quests,...(profile.dailyQuests||[])].filter(q=>!q.claimed&&q.progress>=q.target).length;
  $('quest-badge').hidden=!ready;$('quest-badge').textContent=ready;
- $('quests-collect-all').hidden=questClaiming||!showQuestCollectAll();
- $('quests-collect-all').disabled=questClaiming;
+ $('quests-collect-all').hidden=false;
+ $('quests-collect-all').disabled=questClaiming||!questList(profile,questTab).some(q=>!q.claimed&&q.progress>=q.target);
  const allLabel=document.createElement('span');allLabel.textContent='Collect all';
  const allReward=questList(profile,questTab).filter(q=>!q.claimed&&q.progress>=q.target).reduce((sum,q)=>sum+q.reward,0);
- $('quests-collect-all').replaceChildren(allLabel,questRewardLabel(allReward));
+ $('quests-collect-all').replaceChildren(allLabel,...(allReward?[questRewardLabel(allReward)]:[]));
  $('quests-collect-all').setAttribute('aria-label','Collect all '+allReward+' coins');
  for(const tab of ['daily','normal']){
   const button=$('quests-'+tab+'-tab'),count=questList(profile,tab).filter(q=>!q.claimed&&q.progress>=q.target).length;
@@ -3677,7 +3677,7 @@ async function collectQuestRewards(quests,next,source,all){
   if(sameList&&$('quests-dialog').open)(list.querySelector('.quest-card')||$('quests-daily-tab')).focus({preventScroll:true});
  }
 }
-$('quests-collect-all').onclick=()=>collectQuestRewards(questList(profile,questTab),claimAllQuests(profile,Math.random,questTab),$('quests-collect-all'),true);
+$('quests-collect-all').onclick=()=>{const ready=questList(profile,questTab).filter(q=>!q.claimed&&q.progress>=q.target);collectQuestRewards(ready,ready.reduce((next,q)=>claimQuest(next,q.id),profile),$('quests-collect-all'),true);};
 
 $('quests-open').onclick=()=>{renderQuests();$('quests-dialog').showModal();};
 $('pause-quests').onclick=()=>{

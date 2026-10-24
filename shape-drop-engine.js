@@ -1,4 +1,4 @@
-import {frameRewardMultiplier} from './engine.js?v=49439-web22';
+import {frameRewardMultiplier} from './engine.js?v=49439-web24';
 import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
 import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=49439-web12';
 import {createDropSequence} from './drop-sequence.js?v=49439-web12';

@@ -1,4 +1,4 @@
-import {starTasks} from './adventure-star-tasks.js?v=49439-web22';
+import {starTasks} from './adventure-star-tasks.js?v=49439-web24';
 import {COSMETICS} from './economy.js?v=49439-web12';
 import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web12';
 import {rewardMarkup} from './adventure-rewards.js?v=49439-web12';
