@@ -234,11 +234,11 @@ html body #profile-dialog #profile-avatar-heading{display:block;font-size:15px;l
 html body #app dialog :is(.shop-tabs,.profile-tabs,#achievement-tabs,.quest-tabs){
  display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);
  position:relative;top:auto;flex:0 0 auto;box-sizing:border-box;width:100%;min-width:0;min-height:0;
- gap:8px;margin:0;padding:4px;border:1px solid #70cddd;border-radius:14px;background:#b8eaf4;
+ gap:8px;margin:0;padding:4px;border:1px solid transparent;border-radius:14px;background:transparent;
 }
 html body #app dialog :is(.shop-tabs,.profile-tabs,#achievement-tabs,.quest-tabs)>button{
  position:relative;box-sizing:border-box;min-width:0;min-height:44px;margin:0;padding:5px 2px;
- border:2px solid transparent;border-radius:10px;background:var(--ui-tab,#b4e6f3);
+ border:2px solid transparent;border-radius:10px;background:transparent;
  color:var(--ui-text,#12536c);font:900 clamp(10px,3.2vw,13px)/1.15 Nunito,sans-serif;
  text-align:center;white-space:nowrap;text-shadow:none;box-shadow:none;
 }
@@ -264,3 +264,6 @@ html body #app dialog :is(.shop-tabs,.profile-tabs,#achievement-tabs,.quest-tabs
  html body #app dialog :is(.shop-tabs,.profile-tabs,#achievement-tabs,.quest-tabs){padding:3px}
  html body #app dialog :is(.shop-tabs,.profile-tabs,#achievement-tabs,.quest-tabs)>button{min-height:32px;padding-block:4px}
 }
+
+/* Unselected choices remain text on the panel, without a tinted tile. */
+html body #app :is(#language-dialog .language-option,#difficulty-dialog .difficulty-option):not([aria-pressed=true]){background:transparent;border-color:transparent;box-shadow:none}

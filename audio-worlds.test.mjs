@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
-const path=world=>'assets/music/menu-'+world+'-v49454.ogg';
+const path=world=>'assets/music/menu-'+world+'-v49458.ogg';
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const response=()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
 function buffer(channels,length,rate=44100){
@@ -17,6 +17,7 @@ function harness(options={}){
  const node=()=>({connections:[],disconnects:0,connect(target){this.connections.push(target);return target;},disconnect(){this.disconnects++;},gain:parameter(),frequency:parameter(),Q:parameter(),playbackRate:parameter(),threshold:parameter(),ratio:parameter(),knee:parameter(),attack:parameter(),release:parameter()});
  class AudioContext{
   constructor(){state.contexts++;state.context=this;this.state='suspended';this.sampleRate=44100;this.currentTime=0;this.destination={};}
+  createOscillator(){const n=node();n.start=()=>{};n.stop=()=>{};return n;}
   createGain(){const n=node();state.gains.push(n);return n;}
   createBiquadFilter(){return node();}
   createDynamicsCompressor(){return node();}
@@ -150,4 +151,18 @@ test('piano room tails share a finite stereo impulse and respect independent mus
  audio.setMusic(false);assert.equal(backing.disconnects,1);
  audio.setSfx(true);audio.pianoNote(60);assert.equal(state.convolvers.length,3);
  assert.equal(state.convolvers[2].buffer,lead.buffer);audio.pause();assert.equal(state.convolvers[2].disconnects,1);
+});
+
+
+test('menu clicks do not dip or interrupt the world soundtrack',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();
+ const voice=tracks()[0],duck=state.gains[3],before=duck.gain.ramps.length;
+ for(let i=0;i<12;i++)audio.play('click');
+ assert.equal(voice.stops.length,0);assert.equal(duck.gain.ramps.length,before);
+});
+test('returning to menu keeps the current music until its theme has decoded',async()=>{
+ let resolveMenu;const {audio,state,tracks}=harness({fetch:url=>url===path('garden')?new Promise(resolve=>resolveMenu=resolve):response()});
+ audio.setScene('game');await audio.start();await flush();const game=tracks()[0];
+ audio.setScene('menu');await flush();assert.equal(game.stops.length,0);
+ resolveMenu(response());await flush();assert.equal(tracks().length,2);assert.equal(game.stops.length,1);
 });

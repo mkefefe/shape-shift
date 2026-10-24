@@ -55,10 +55,17 @@ const MOTES=[
  [445,1180],[47,1193],[359,240]
 ];
 export function paintSunsetAtmosphere(ctx,time,scale=1){
+ // Short translucent wisps drift across open sky and fade before wrapping.
+ for(let i=0;i<12;i++){
+  const phase=(time*.000045+i*.173)%1,x=-90+phase*800,y=160+(i*113)%590;
+  const a=Math.sin(phase*Math.PI)**2*.16;
+  ctx.strokeStyle=`rgba(255,249,228,${a})`;ctx.lineWidth=1.2/scale;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x,y);ctx.bezierCurveTo(x+24,y-8,x+49,y+7,x+80,y-2);ctx.stroke();
+ }
  glow(ctx,377,673,56,'255,244,176',.08+.04*Math.sin(time*.0007));
  for(let i=0;i<MOTES.length;i++){
   const [px,py]=MOTES[i],pulse=.5+.5*Math.sin(time*.0011+i*1.77);
-  const x=px+Math.sin(time*.00024+i*2.2)*10,y=py+Math.cos(time*.00032+i*1.7)*9;
+  const x=px+Math.sin(time*.00024+i*2.2)*22,y=py+Math.cos(time*.00032+i*1.7)*9;
   const radius=Math.max(.8,.7/scale)*(1+(i%3)*.09),alpha=.42+pulse*.5;
   glow(ctx,x,y,Math.max(6,3.7/scale),'255,243,180',.16+pulse*.25);
   ctx.fillStyle=`rgba(255,253,221,${alpha})`;ctx.beginPath();ctx.arc(x,y,radius,0,TAU);ctx.fill();

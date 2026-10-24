@@ -14,7 +14,7 @@ export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{}}){
   const next=game.notes.find(n=>['waiting','partial','holding'].includes(n.status));
   // Keep a physical hold through GO or the short lead-in, without relying on
   // OS key-repeat (touch pointers do not produce repeats at all).
-  if(game.fullSongs&&(!next||next.beat-game.beat>4.4))return;
+  if(game.fullSongs&&(!next||next.beat-game.beat>(game.inputWindow??4.4)))return;
   owner.pending=false;game.pressStrip(owner.lane);onChange();
  }
  function press(lane,id){

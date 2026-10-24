@@ -1,5 +1,5 @@
-import {createWaterSurface} from './water-surface.js?v=49454';
-import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=49454';
+import {createWaterSurface} from './water-surface.js?v=49458';
+import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=49458';
 export {createWaterSurface,createCloudDrift};
 // Water is lit in place. Never scroll strips of the landscape: they contain
 // plants and cliffs as well as water, and wrapping them makes the banks move.
@@ -88,7 +88,7 @@ export function paintLivingBackground(ctx,world,width,height,time,clouds,waterSu
  scene.falls.forEach((fall,i)=>waterfall(ctx,fall,time,i,world==='sunset',scale));
  scene.pools.forEach((points,i)=>pool(ctx,points,time,i,scale,world==='moon'));
  if(world==='moon'){
-  for(const [i,[px,py]] of [[73,659],[140,774],[200,913],[542,942],[284,1133],[69,1084],[565,704],[585,842],[82,1050],[201,1088],[544,1105],[36,365],[566,407],[81,500],[170,1155],[600,1008]].entries())firefly(ctx,px,py,time,i,'237,255,167',scale);
+  for(const [i,[px,py]] of [[73,659],[140,774],[200,913],[542,942],[284,1133],[69,1084],[565,704],[585,842],[82,1050],[201,1088],[544,1105],[36,365],[566,407],[81,500],[170,1155],[600,1008],[40,585],[110,615],[168,706],[229,866],[52,949],[123,1020],[248,1086],[310,1146],[539,1000],[590,921],[550,793],[479,720],[602,1168],[340,1068],[436,1160],[94,1170],[176,1210],[584,540],[70,428],[250,686],[457,882],[517,1195]].entries())firefly(ctx,px,py,time,i,'237,255,167',scale);
   for(const [i,[sx,sy]] of [[393,211],[532,39],[427,395],[187,251]].entries())glow(ctx,sx,sy,6,'216,242,255',.15+.35*(.5+.5*Math.sin(time*.0015+i*2)));
  }else if(world==='sunset')paintSunsetAtmosphere(ctx,time,scale);
  ctx.restore();
@@ -98,7 +98,7 @@ export function initLivingBackground(app,home){
  const canvas=document.createElement('canvas');canvas.id='living-water';canvas.setAttribute('aria-hidden','true');home.prepend(canvas);
  const ctx=canvas.getContext('2d'),motion=matchMedia('(prefers-reduced-motion: reduce)');let frame=0,last=-Infinity,clouds=null;const waterSurfaces={};
  const atlas=new Image();atlas.src=new URL('./assets/worlds-v12.webp',import.meta.url).href;
- atlas.decode().then(()=>{clouds=createCloudDrift(atlas);waterSurfaces.moon=createWaterSurface(atlas,'moon',scenes.moon);}).catch(()=>{});
+ atlas.decode().then(()=>{clouds=createCloudDrift(atlas);waterSurfaces.moon=createWaterSurface(atlas,'moon',scenes.moon);waterSurfaces.sunset=createWaterSurface(atlas,'sunset',scenes.sunset);}).catch(()=>{});
  const garden=new Image();garden.src=new URL('./assets/home-world-v101.webp',import.meta.url).href;
  garden.decode().then(()=>{waterSurfaces.garden=createWaterSurface(garden,'garden',scenes.garden);}).catch(()=>{});
  const running=()=>app.dataset.screen==='home'&&!document.hidden&&!document.body.classList.contains('reduce-motion')&&!motion.matches&&!document.querySelector('dialog[open]');

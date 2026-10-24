@@ -61,9 +61,8 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  function nextUnplayed(){return g.notes.find(n=>['waiting','partial','holding'].includes(n.status));}
  const deadline=note=>note.beat+(resumableHolds?note.hold:PIANO_WINDOW)+(fullSongs?.65:0);
  function wrongStrip(){if(g.time-lastWrong>.25){lastWrong=g.time;fail(null,'wrong');}return false;}
- // Respond to the player immediately; only musical playback waits for its beat.
+ // A successful physical strike owns both the animation and the sound.
  function soundNote(note){
-  if(fullSongs&&note.beat>g.beat+1e-8){note.soundPending=true;return;}
   note.soundPending=false;
   emit('note',{note,remaining:note.hold?(resumableHolds?Math.max(.01,note.hold-(note.heldBeats||0)):Math.max(.1,note.end-g.beat)):rhythm?note.duration*.9:0});
  }
@@ -85,10 +84,10 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(note.status==='holding'&&note.awaiting){g.pressed.add(note.lane);note.awaiting=false;emit('input',{note});soundNote(note);return true;}
   if(fullSongs&&note.status==='waiting'){
    const until=note.beat-g.beat;
-   if(until>4.4){emit('timing',{reason:'early'});return false;}
+   if(until>(g.inputWindow??4.4)){emit('timing',{reason:'early'});return false;}
   }
-  if(note.status!=='waiting'||note.beat-g.beat>5||g.beat>deadline(note))return false;
-  if(stripTap){const next=g.notes.find(n=>n.lane===note.lane&&(n.status==='waiting'||resumableHolds&&n.status==='partial'));if(next!==note||note.beat-g.beat>4.4)return false;}
+  if(note.status!=='waiting'||note.beat-g.beat>(g.inputWindow??5)||g.beat>deadline(note))return false;
+  if(stripTap){const next=g.notes.find(n=>n.lane===note.lane&&(n.status==='waiting'||resumableHolds&&n.status==='partial'));if(next!==note||note.beat-g.beat>(g.inputWindow??4.4))return false;}
   else if(rhythm){const next=g.notes.find(n=>n.status==='waiting');if(next!==note){emit('timing',{reason:'order'});return false;}if(Math.abs(note.beat-g.beat)>PIANO_WINDOW){emit('timing',{reason:'early'});return false;}}
   g.pressed.add(note.lane);note.perfect=stripTap||!rhythm||Math.abs(note.beat-g.beat)<.15;
   beginNote(note);return true;
@@ -100,8 +99,8 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   const awaiting=g.notes.find(n=>n.status==='holding'&&n.awaiting);
   if(awaiting){if(awaiting.lane!==lane)return false;return pressNote(awaiting.id);}
   const next=nextUnplayed();
-  if(fullSongs&&(!next||next.beat-g.beat>4.4))return false;
-  if(next&&next.lane===lane&&next.beat-g.beat<=4.4&&g.beat<=deadline(next))return pressNote(next.id);
+  if(fullSongs&&(!next||next.beat-g.beat>(g.inputWindow??4.4)))return false;
+  if(next&&next.lane===lane&&next.beat-g.beat<=(g.inputWindow??4.4)&&g.beat<=deadline(next))return pressNote(next.id);
   return wrongStrip();
  }
  function release(lane){g.pressed.delete(lane);if(g.paused||g.over)return;const n=g.notes.find(n=>n.lane===lane&&n.status==='holding'&&!n.awaiting);if(n){if(resumableHolds){n.status='partial';emit('release',{note:n});return;}if(g.beat<n.end-.16)fail(n,'released');else complete(n);}}
@@ -129,7 +128,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   const whole=Math.floor(g.beat);if(whole>lastBeat){lastBeat=whole;if(whole<0)emit('countdown',{count:-whole});else if(!melodicStrips){const roots=rhythm?[48,45,41,43]:bass;emit('beat',{pitch:roots[Math.floor(whole/(stripTap?8:4))%roots.length]+(whole%2?12:0),accent:whole%(stripTap?8:4)===0});}}
   for(const n of g.notes){
    if(g.over)break;
-   if(n.soundPending&&g.beat>=n.beat&&['holding','done'].includes(n.status))soundNote(n);
+
 
    if(resumableHolds){
     const expires=deadline(n);

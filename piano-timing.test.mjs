@@ -16,17 +16,17 @@ function until(g,beat){
  assert(g.beat>=beat,'the active musical clock reached the requested beat');
 }
 
-test('all four strips respond and score immediately while early melody keeps its written spacing',()=>{
+test('all four strips respond and score immediately and sound on the physical strike',()=>{
  const notes=[0,1,2,3].map(lane=>note(900+lane,4+lane*.5,lane)),{g,events}=fixture(notes);
  for(const n of notes){
-  assert(g.pressStrip(n.lane));assert.equal(n.status,'done');assert(n.soundPending);
+  assert(g.pressStrip(n.lane));assert.equal(n.status,'done');assert.equal(n.soundPending,false);
   assert.equal(g.hits,n.lane+1);assert.equal(g.coins,n.lane+1);g.release(n.lane);
  }
  assert.equal(events.filter(e=>e.type==='input').length,4);
- assert.equal(events.filter(e=>e.type==='note').length,0);
+ assert.equal(events.filter(e=>e.type==='note').length,4);
  until(g,5.51);
  const sounded=events.filter(e=>e.type==='note');assert.equal(sounded.length,4);
- sounded.forEach((e,i)=>{assert.equal(e.note,notes[i]);assert(e.beat>=e.note.beat&&e.beat-e.note.beat<.015);});
+ sounded.forEach((e,i)=>{assert.equal(e.note,notes[i]);assert.equal(e.beat,2);});
  assert.equal(g.hits,4);assert.equal(g.coins,4);assert.equal(g.lives,g.maxLives);
 });
 
@@ -37,32 +37,32 @@ test('all four early holds fill immediately and save finger-down progress across
   until(g,3.9);assert(a.heldBeats>.19);assert(a.heldBeats<.22);
   g.release(lane);const credited=a.heldBeats;assert.equal(a.status,'partial');
   until(g,4.1);assert.equal(a.heldBeats,credited);
-  assert.equal(events.filter(e=>e.type==='note').length,0,'a released partial hold is silent at onset');
+  assert.equal(events.filter(e=>e.type==='note').length,1,'release does not schedule a second sound at onset');
   assert(g.pressStrip(lane));assert.equal(a.heldBeats,credited);
-  assert.equal(events.filter(e=>e.type==='note').length,1,'resuming after onset sounds immediately');
+  assert.equal(events.filter(e=>e.type==='note').length,2,'resuming after onset sounds immediately');
   until(g,6.05);assert.equal(a.status,'done');assert.equal(g.hits,1);assert.equal(g.lives,g.maxLives);
  }
 });
 
-test('a hold completed before onset plays once at its beat without awarding points twice',()=>{
+test('a hold sounds on press and does not replay at its written beat',()=>{
  const a=note(900,4,0,1),{g,events}=fixture([a]);assert(g.pressStrip(0));
- until(g,3.1);assert.equal(a.status,'done');assert.equal(g.hits,1);assert(a.soundPending);
- g.release(0);assert.equal(events.filter(e=>e.type==='note').length,0);
+ until(g,3.1);assert.equal(a.status,'done');assert.equal(g.hits,1);assert.equal(a.soundPending,false);
+ g.release(0);assert.equal(events.filter(e=>e.type==='note').length,1);
  until(g,4.1);assert.equal(events.filter(e=>e.type==='note').length,1);
  assert.equal(g.hits,1);assert.equal(g.coins,1);assert.equal(a.soundPending,false);
 });
 
-test('pausing preserves earned taps, early hold progress and scheduled melody without playing while paused',()=>{
+test('pausing preserves earned taps, early hold progress without extra sounds while paused',()=>{
  const a=note(900,4,0),b=note(901,5,1,1),{g,events}=fixture([a,b]);
  assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(1));until(g,2.2);
  const credited=b.heldBeats;g.pause();assert.equal(a.status,'done');assert.equal(b.status,'holding');assert(b.awaiting);
  const beat=g.beat;for(let i=0;i<100;i++)g.step(.05);assert.equal(g.beat,beat);
- assert.equal(events.filter(e=>e.type==='note').length,0);
+ assert.equal(events.filter(e=>e.type==='note').length,2);
  g.resume();g.step(.05);assert.equal(g.beat,beat);assert.equal(b.heldBeats,credited);
  assert(g.pressStrip(1));assert.equal(b.heldBeats,credited);until(g,5.1);
  assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
  assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,1);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===b).length,1);
+ assert.equal(events.filter(e=>e.type==='note'&&e.note===b).length,2);
 });
 
 test('resuming an active hold after pause restarts sound without losing progress',()=>{
@@ -83,10 +83,10 @@ test('partial holds remain resumable throughout their visible grace period but n
  assert(!expired.pressNote(b.id));expired.step(.01);assert.equal(b.status,'missed');
 });
 
-test('an abandoned partial hold stays silent and clears its pending sound when missed',()=>{
+test('an abandoned partial hold plays only its initial strike and stays silent when missed',()=>{
  const a=note(900,4,0,1),{g,events}=fixture([a],3.7);assert(g.pressStrip(0));until(g,3.9);g.release(0);
  until(g,5.7);assert.equal(a.status,'missed');assert.equal(a.soundPending,false);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,0);assert.equal(g.hits,0);
+ assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,1);assert.equal(g.hits,0);
 });
 
 test('late taps remain forgiving and a held key cannot collect the next short note',()=>{
@@ -121,20 +121,26 @@ test('the backing starts on the first written downbeat and follows each bar chor
 });
 
 
-test('revive retains already earned points and pending sound while resetting incomplete holds safely',()=>{
+test('revive retains already earned points without replaying completed notes on revive',()=>{
  const a=note(900,4,0),b=note(901,5,1,1),{g,events}=fixture([a,b]);
  assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(1));until(g,2.2);g.release(1);
- g.lives=0;g.end();assert(g.revive());assert.equal(g.beat,-1);
- assert.equal(a.status,'done');assert(a.soundPending);assert.equal(b.status,'waiting');assert.equal(b.heldBeats,0);
+ g.lives=0;g.end();assert(g.revive());assert.equal(g.beat,0);
+ assert.equal(a.status,'done');assert.equal(a.soundPending,false);assert.equal(b.status,'waiting');assert.equal(b.heldBeats,0);
  assert.equal(g.hits,1);assert.equal(g.score,1);assert.equal(g.countdown,3);
  events.length=0;for(let i=0;i<360;i++)g.step(1/120);
  assert.equal(events.filter(e=>e.type==='note'||e.type==='accompaniment').length,0);
  g.step(.01);assert.equal(events.filter(e=>e.type==='accompaniment').length,0);
  until(g,3.5);assert(g.pressStrip(1));until(g,5.1);
  assert.equal(g.hits,2);assert.equal(g.coins,2);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,1);
+ assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,0);
  assert.equal(events.filter(e=>e.type==='note'&&e.note===b).length,1);
  const pulses=events.filter(e=>e.type==='accompaniment');
  assert(pulses.every((e,i)=>i===0||e.pulse===pulses[i-1].pulse+1));
  assert.equal(g.lives,g.maxLives);
+});
+
+
+test('short screens allow striking the visible edge of a note immediately',()=>{
+ const a=note(900,7,0),{g,events}=fixture([a]);g.inputWindow=5.2;
+ assert(g.pressStrip(0));assert.equal(a.status,'done');assert.equal(events.filter(e=>e.type==='note').length,1);
 });

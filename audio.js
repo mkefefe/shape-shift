@@ -221,7 +221,7 @@
     }
   }
 
-  const musicTracks={'menu-garden':'assets/music/menu-garden-v49454.ogg','menu-moon':'assets/music/menu-moon-v49454.ogg','menu-sunset':'assets/music/menu-sunset-v49454.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
+  const musicTracks={'menu-garden':'assets/music/menu-garden-v49458.ogg','menu-moon':'assets/music/menu-moon-v49458.ogg','menu-sunset':'assets/music/menu-sunset-v49458.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
   const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
   const musicBuffers=new Map(),musicRetry=new Map(),musicPositions=Object.fromEntries(Object.keys(musicTracks).map(key=>[key,0]));
   let musicVoice=null,musicEpoch=0,musicPending=null;
@@ -284,7 +284,7 @@
   function setScene(value,{preservePraise=false}={}) {
     const target=['menu','game','slice','drop','piano'].includes(value)?value:'menu';
     if(target===scene)return;if(!preservePraise)stopVoice();stopSlice();stopPiano();
-    stopMusicTrack(.2);scene=target;if(context){
+    if(target==='piano')stopMusicTrack(.2);scene=target;if(context){
       musicBus.gain.setTargetAtTime(music?musicLevel()*musicVolume/100:0,context.currentTime,.08);
       duckEnvelope=null;musicDuck.gain.cancelScheduledValues(context.currentTime);musicDuck.gain.setTargetAtTime(1,context.currentTime,.08);schedule();
     }
@@ -330,7 +330,7 @@
     const now = context.currentTime;
     const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
     // Continuous Piano Flow tapping must not keep its song permanently ducked.
-    if(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name))duckMusic(duckLengths[name]??.22);
+    if(scene!=='menu'&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
     const notes = (list, spacing, length, volume = 0.2) => list.forEach((n, i) => tone(midi(n), now + i * spacing, length, volume, 'sine', effectsBus));
     switch (name) {
       case 'victory-transform': victoryCue('transform',now);break;

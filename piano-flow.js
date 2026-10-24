@@ -1,10 +1,10 @@
-import {createPianoInput,bindPianoKeyboard} from './piano-input.js?v=49457';
+import {createPianoInput,bindPianoKeyboard} from './piano-input.js?v=49458';
 import {createMiniTutorial} from './mini-tutorial.js?v=49439-web12';
 import {createMiniResults} from './mini-results.js?v=49439-web12';
 import {createMiniContinue} from './mini-continue.js?v=49439-web12';
 import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
 import {drawPianoHoldGlow} from './piano-hold-glow.js?v=49439-web12';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49457';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49458';
 
 import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49439-web12';
 
@@ -78,7 +78,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
   if(e.type==='input'||e.type==='queued'){glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;hint.textContent=e.note.hold?'Keep holding this strip':'Nice';}
 
-  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,Math.max(.12,Math.min(e.note.duration,e.note.beat+e.note.duration-e.beat)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold&&e.note.status==='holding')voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
+  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,Math.max(.12,(e.note.hold?e.remaining+.18:e.note.duration)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold&&e.note.status==='holding')voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
 
   else if(e.type==='complete'){voices.delete(e.note.id);glows[e.note.lane]=STRIP_LINGER;hint.textContent=e.note.hold?'Lovely hold':e.perfect?'Perfect':'Nice';if(layout){const p=pianoTarget(e.note,game.beat,layout);p.y=Math.min(p.y,layout.h-54);reveals.push({note:e.note,x:p.x/layout.w,y:p.y/layout.h,age:0});reveals=reveals.slice(-12);const count=quiet?5:8,phase=Math.random()*Math.PI*2;
 
@@ -131,7 +131,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  function draw(){if(!game||!ctx)return;const r=canvas.getBoundingClientRect(),w=r.width,h=r.height;if(!w||!h)return;const dpr=Math.min(2,devicePixelRatio||1);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
 
-  layout=pianoLayout(w,h,true,true,true);const {top,hit,lane,x,size}=layout;ctx.imageSmoothingQuality='high';
+  layout=pianoLayout(w,h,true,true,true);game.inputWindow=4+(layout.size/2+12)/layout.unit;const {top,hit,lane,x,size}=layout;ctx.imageSmoothingQuality='high';
 
   for(let i=0;i<4;i++){
 

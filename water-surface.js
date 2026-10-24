@@ -100,7 +100,7 @@ function canvasSurface(source,region){
 }
 export function createWaterSurface(image,world,scene){
  const source=document.createElement('canvas');source.width=scene.width;source.height=scene.height;const ctx=source.getContext('2d');
- if(world==='garden')ctx.drawImage(image,0,0);else ctx.drawImage(image,0,0,627,1254,0,0,627,1254);
+ if(world==='garden')ctx.drawImage(image,0,0);else ctx.drawImage(image,world==='sunset'?627:0,0,627,1254,0,0,627,1254);
  const region=makeMask(scene);let surface;
  try{surface=gpuSurface(source,scene,region);}catch{surface=null;}
  surface||=canvasSurface(source,region);
