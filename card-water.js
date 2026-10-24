@@ -25,6 +25,23 @@ export const CARD_WATER={
  [[418,502],[492,496],[509,510],[505,531],[454,535],[429,520]]]}
 };
 
+
+// Moving foam stays inset from the painted banks; no landscape pixels shift.
+export function paintCardFalls(ctx,scene,time){
+ for(const [index,[x0,y0,x1,y1,w0,w1]] of scene.falls.entries()){
+  const h=y1-y0;ctx.save();ctx.beginPath();
+  ctx.moveTo(x0-w0/2+3,y0+3);ctx.lineTo(x0+w0/2-3,y0+3);
+  ctx.lineTo(x1+w1/2-3,y1-3);ctx.lineTo(x1-w1/2+3,y1-3);ctx.closePath();ctx.clip();
+  for(let i=0;i<3;i++){
+   const phase=(time*.0008+i/3+index*.173)%1,length=Math.min(32,h*.38),y=y0+phase*(h+length)-length;
+   const p=Math.max(0,Math.min(1,(y-y0)/h)),x=x0+(x1-x0)*p+(i-1)*Math.min(w0,w1)*.18;
+   const fade=Math.sin(phase*Math.PI),fill=ctx.createLinearGradient(0,y,0,y+length);
+   fill.addColorStop(0,'rgba(235,255,255,0)');fill.addColorStop(.45,`rgba(242,255,255,${.55*fade})`);fill.addColorStop(1,'rgba(235,255,255,0)');
+   ctx.strokeStyle=fill;ctx.lineWidth=Math.max(1.8,Math.min(w0,w1)*.13);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(x1-x0)*length/h,y+length);ctx.stroke();
+  }ctx.restore();
+ }
+}
+
 export function createCardWater(atlas,home){
  const layers=new Map();
  for(const [mode,scene] of Object.entries(CARD_WATER)){
@@ -44,7 +61,8 @@ export function createCardWater(atlas,home){
     if(!w||!h)continue;
     if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
     const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-    const {surface}=layer,water=surface.paint(time);ctx.drawImage(water,surface.left*scale,(h-1024*scale)/2+surface.top*scale,water.width*scale,water.height*scale);
+    const {surface}=layer,water=surface.paint(time*1.25);ctx.drawImage(water,surface.left*scale,(h-1024*scale)/2+surface.top*scale,water.width*scale,water.height*scale);
+    ctx.save();ctx.translate(0,(h-1024*scale)/2);ctx.scale(scale,scale);paintCardFalls(ctx,CARD_WATER[mode],time);ctx.restore();
    }
   }
  };
