@@ -1,4 +1,4 @@
-import {animateQuestRedemption} from './quest-redemption.js?v=49466';
+import {animateQuestRedemption} from './quest-redemption.js?v=49467';
 import {initLivingMenu} from './menu-polish.js?v=49461';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
@@ -71,7 +71,7 @@ import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=49439-we
 
 
 
-import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49439-web12';
+import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49467';
 
 
 
@@ -3588,7 +3588,7 @@ function updateQuestBadge(){
  for(const tab of ['daily','normal']){
   const button=$('quests-'+tab+'-tab'),count=questList(profile,tab).filter(q=>!q.claimed&&q.progress>=q.target).length;
   let dot=button.querySelector('.quest-tab-dot');if(!dot){dot=document.createElement('span');dot.className='quest-tab-dot';dot.setAttribute('aria-hidden','true');button.append(dot);}
-  dot.hidden=!count;button.setAttribute('aria-label',(tab==='daily'?'Daily':'Quests')+(count?', '+count+' rewards ready':''));
+  dot.hidden=!count;button.setAttribute('aria-label',(tab==='daily'?'Daily':'Task')+(count?', '+count+' rewards ready':''));
  }
 }
 function renderQuests(){
@@ -3613,6 +3613,7 @@ function renderQuests(){
  updateQuestClock();
 }
 function updateQuestClock(){
+ if(questClaiming)return;
  const left=Math.max(0,Math.ceil((profile.dailyResetAt-Date.now())/1000));
  const time=String(Math.floor(left/3600)).padStart(2,'0')+':'+String(Math.floor(left/60)%60).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
  $('quest-cycle-status').hidden=questTab==='daily'&&!questList(profile,'daily').length;
@@ -3634,11 +3635,9 @@ function createQuestCard(q,batch=false){
  const fill=document.createElement('span');fill.className='quest-progress-fill';fill.style.width=(q.progress/q.target*100)+'%';
  const count=document.createElement('strong');count.textContent=q.progress+' / '+q.target;progress.append(fill,count);
  const reward=questRewardLabel(q.reward);
- const collect=document.createElement('button');collect.className='quest-collect';collect.textContent='Collect';collect.hidden=!complete||batch;collect.disabled=questClaiming||!complete||batch;collect.setAttribute('aria-label','Collect '+q.reward+' coins');
- collect.onclick=()=>collectQuestRewards([q],claimQuest(profile,q.id),collect,false);
  const footer=document.createElement('div');footer.className='quest-footer';
- if(complete&&!batch){const label=document.createElement('span');label.textContent='Collect';collect.replaceChildren(label,reward);footer.append(collect);}
- else footer.append(reward,collect);
+ footer.append(reward);
+ if(complete){const status=document.createElement('span');status.className='quest-completed-label';status.textContent='Completed';footer.append(status);}
  card.append(title);
  if(q.type==='journey'){const description=document.createElement('p');description.className='quest-objectives';description.textContent=q.description;card.append(description);}
  if(q.type==='challenge'){
@@ -3659,8 +3658,7 @@ async function collectQuestRewards(quests,next,source,all){
  catch{let message=$('quest-save-error');if(!message){message=document.createElement('p');message.id='quest-save-error';message.setAttribute('role','alert');$('quest-cycle-status').after(message);}message.textContent='Could not save rewards. Please try again.';return;}
  $('quest-save-error')?.remove();questClaiming=true;pendingWalletCoins+=reward;profile=next;saveProfile();flushProfile();updateQuestBadge();
  analytics.count('claims',all?'all':'single',quests.length);analytics.count('coins_earned','quest',reward);
- for(const card of list.querySelectorAll('.quest-card')){const button=card.querySelector('.quest-collect');button.disabled=true;}
- for(const card of cards){card.querySelector('.quest-collect').textContent='Collected!';trackAchievements({type:'quest'});}
+ for(const card of cards){const status=card.querySelector('.quest-completed-label');if(status)status.textContent='Collected!';trackAchievements({type:'quest'});}
  const reduced=prefs.motion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  let delivered=0;
  showQuestReward({getBoundingClientRect:()=>origin},$('coin-help-open'),reward,oldBalance,reduced,{rewards,onCollect:()=>uiSound('quest-collect'),onArrive:amount=>{delivered+=amount;pendingWalletCoins=Math.max(0,pendingWalletCoins-amount);saveProfile();uiSound('quest-wallet');}}).catch(()=>{}).finally(()=>{pendingWalletCoins=Math.max(0,pendingWalletCoins-(reward-delivered));saveProfile();});

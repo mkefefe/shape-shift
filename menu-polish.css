@@ -323,3 +323,70 @@ html body #profile-dialog #profile-preview>.avatar{width:100px;height:100px}
 .quest-finish-shine{position:absolute;inset:-20% auto -20% 0;width:32%;background:linear-gradient(105deg,transparent,#fffbea80,transparent);filter:blur(3px)}
 .quest-finish-spark{position:absolute;border-radius:50%;background:#fffbe3;box-shadow:0 0 4px 1px #fff3a8,0 0 8px #a1f8cb;pointer-events:none}
 #quests-dialog .quest-card.quest-redeeming-reduced{box-shadow:inset 0 0 10px #a4f7d222}
+
+/* Local preview v2: trace, pulse and embers survive the card's final dissolve. */
+.quest-ending-layer{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:transparent;overflow:visible;pointer-events:none;z-index:210}
+.quest-ending-layer::backdrop{background:transparent;pointer-events:none}
+.quest-ending-rim{position:absolute;overflow:visible;filter:drop-shadow(0 0 3px #ffe784) drop-shadow(0 0 7px #7fe6ba);transform-origin:center}
+.quest-ending-ember{position:absolute;width:4px;height:4px;border-radius:50%;background:#ffd65a;box-shadow:0 0 2px #fffde7,0 0 6px 1px #ffd65a,0 0 10px #85eec4;pointer-events:none}
+
+/* Preview v3: concise general quests, compact cards and clear separation. */
+html body #quests-dialog #quest-list{gap:24px!important;padding:7px 4px 12px}
+html body #quests-dialog #quest-list .quest-card{flex:0 0 auto;min-height:112px;padding:12px 14px;gap:8px}
+html body #quests-dialog .quest-card h3{font-size:16px;line-height:1.25;margin:0;min-height:0}
+html body #quests-dialog .quest-objectives{display:none}
+html body #quests-dialog .quest-progress{height:24px;min-height:24px}
+html body #quests-dialog .quest-progress strong{font-size:13px;line-height:18px}
+#app #quests-dialog .quest-progress-fill{background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat}
+html body #quests-dialog .quest-footer{flex-direction:row;justify-content:center;align-items:center;gap:12px}
+html body #quests-dialog .quest-reward{font-size:15px;line-height:22px}
+html body #quests-dialog .quest-reward img{width:22px;height:22px}
+html body #quests-dialog .quest-collect{min-height:40px;height:40px;padding:4px 10px}
+.quest-finish-fill{position:absolute;inset:-8% auto -8% 0;width:52%;background:linear-gradient(90deg,transparent 0%,#f7b50055 20%,#ffd21be6 55%,#fff9b8ff 75%,#ffda3799 88%,transparent 100%);filter:blur(3px) drop-shadow(0 0 9px #ffd32a);pointer-events:none}
+@media(max-height:650px){
+ html body #quests-dialog #quest-list{gap:18px!important}
+ html body #quests-dialog #quest-list .quest-card{min-height:96px;padding:8px 10px;gap:6px}
+ html body #quests-dialog .quest-card h3{font-size:14px}
+ html body #quests-dialog .quest-collect{min-height:36px;height:36px}
+}
+
+/* Local preview: one claim action, compact cards, safe bottom spacing. */
+html body #quests-dialog .dialog-content{padding-bottom:38px!important;overflow:hidden}
+html body #quests-dialog #quest-list{gap:16px!important;padding:5px 4px 8px}
+html body #quests-dialog #quest-list .quest-card{min-height:96px;padding:9px 12px;gap:6px}
+html body #quests-dialog .quest-footer{margin-top:2px;min-height:22px}
+.quest-completed-label{font-size:13px;font-weight:900;color:#126251}
+html body #quests-dialog #quests-collect-all{margin:12px auto 0;min-height:44px;height:44px}
+@media(max-height:720px){
+ html body #quests-dialog .dialog-content{padding-bottom:30px!important}
+ html body #quests-dialog #quest-list{gap:10px!important}
+ html body #quests-dialog #quest-list .quest-card{min-height:80px;padding:6px 10px;gap:4px}
+ html body #quests-dialog .quest-card h3{font-size:14px}
+ html body #quests-dialog .quest-progress{height:22px;min-height:22px}
+ html body #quests-dialog #quests-collect-all{margin-top:8px;min-height:40px;height:40px}
+}
+html body #quests-dialog #quests-collect-all{margin-bottom:18px}
+@media(max-height:650px){
+ html body #quests-dialog #quest-list{gap:8px!important;padding-top:2px;padding-bottom:2px}
+ html body #quests-dialog #quest-list .quest-card{min-height:66px;padding:5px 9px;gap:3px}
+ html body #quests-dialog .quest-card h3{font-size:13px;line-height:16px}
+ html body #quests-dialog .quest-progress{height:20px;min-height:20px}
+ html body #quests-dialog .quest-footer{min-height:18px;margin:0}
+ html body #quests-dialog .quest-reward{font-size:13px;line-height:18px}
+ html body #quests-dialog .quest-reward img{width:18px;height:18px}
+ html body #quests-dialog #quest-cycle-status{margin:5px 0;font-size:11px}
+ html body #quests-dialog .dialog-content{padding-top:20px!important;padding-bottom:26px!important}
+ html body #quests-dialog #quests-collect-all{margin-bottom:14px;min-height:36px;height:36px}
+}
+
+/* Center the sole claim action in the remaining panel space. */
+html body #quests-dialog .dialog-content{padding-bottom:20px!important}
+html body #quests-dialog #quest-list{flex:0 1 auto;padding-bottom:0}
+html body #quests-dialog .quest-claim-area{flex:1 0 76px;display:flex;align-items:center;justify-content:center;min-height:76px}
+html body #quests-dialog #quests-collect-all{margin:0;width:82%;max-width:320px;height:54px;min-height:54px;font-size:18px}
+.quest-finish-fill{inset:0;width:100%;filter:none;background:linear-gradient(90deg,#ffd02a99,#ffe44dbb 65%,#fff3a4dd);border-radius:inherit}
+@media(max-height:650px){html body #quests-dialog .quest-claim-area{flex-basis:64px;min-height:64px}html body #quests-dialog #quests-collect-all{height:46px;min-height:46px;font-size:16px}}
+html body #quests-dialog .quest-claim-area{position:relative;top:4px}
+
+/* A brief star shimmer marks the moment the light fills the card. */
+.quest-finish-twinkle{position:absolute;width:10px;height:10px;background:#fffbe2;clip-path:polygon(50% 0,60% 38%,100% 50%,60% 62%,50% 100%,40% 62%,0 50%,40% 38%);filter:drop-shadow(0 0 3px #ffd45a);pointer-events:none}
