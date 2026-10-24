@@ -1,79 +1,120 @@
-import {pianoIcon,PIANO_PITCHES} from './piano-music.js?v=49439-web12';
-// Original, fixed scores: random selection changes the starting tune, never its notes.
-const C=[48,52,55],F=[53,57,60],G=[55,59,62],Am=[45,48,52],Dm=[50,53,57],Em=[52,55,59];
-const form=[['Intro',4],['Verse',8],['Build',4],['Chorus',8],['Verse',8],['Chorus',8],['Outro',4]];
-const scale=[0,2,4,5,7,9,11];
-function higher(pitch){const octave=Math.floor(pitch/12),index=scale.indexOf(pitch%12)+2;return (octave+Math.floor(index/7))*12+scale[index%7];}
-function compose(id,title,bpm,a,b){
- const notes=[];let beat=0;
- for(const [section,bars] of form)for(let bar=0;bar<bars;bar++){
-  // Repeat each motif four times before changing it. A -> higher A -> B -> A.
-  const raised=(section==='Verse'||section==='Chorus')&&bar<4;
-  const motif=section==='Build'||section==='Chorus'?b:a;
-  const chord=raised?motif.chord.map(higher):motif.chord;
-  let local=0;
-  motif.pitches.forEach((original,i)=>{
-   const pitch=raised?higher(original):original,duration=motif.rhythm[i];
-   notes.push({pitch,duration,chord:[...chord],harmony:i===0?[chord[0],chord[2]]:[],section,
-    energy:section==='Intro'||section==='Outro'?.5:section==='Chorus'?1:.75,
-    song:id,title,bpm,songBeat:beat+local,rapid:duration<2,...pianoIcon(pitch)});local+=duration;
-  });
-  if(local!==4)throw new Error('Each motif must fill one measure');beat+=4;
- }
- return {id,title,bpm,beats:beat,notes};
+import {pianoIcon} from './piano-music.js?v=49439-web12';
+
+// Original scores, written in four-bar questions and answers. Only the starting
+// song is random: the melody, harmony, and rhythm always belong together.
+const chords={C:[48,52,55],F:[53,57,60],G:[55,59,62],Am:[45,48,52],Dm:[50,53,57],Em:[52,55,59]};
+const bar=(chord,pitches,rhythm=[1,1,2])=>({chord:chords[chord],pitches,rhythm});
+const answer=(phrase,cadence)=>[...phrase,...phrase.slice(0,3),cadence];
+function quiet(phrase){
+ return phrase.map(measure=>{
+  // Retain the two strong-beat tones; passing notes need not become long holds.
+  let beat=0,second=measure.pitches[0];
+  measure.pitches.forEach((pitch,i)=>{if(beat<=2)second=pitch;beat+=measure.rhythm[i];});
+  return {...measure,pitches:[measure.pitches[0],second],rhythm:[2,2]};
+ });
 }
-const motif=(chord,pitches,rhythm)=>({chord,pitches,rhythm});
+function compose(id,title,bpm,tonic,a,aCadence,b,bCadence){
+ const verse=answer(a,aCadence),chorus=answer(b,bCadence);
+ const intro=quiet(a),outro=quiet([...a.slice(0,3),aCadence]);
+ outro[3]={...aCadence,pitches:[tonic],rhythm:[4]};
+ const form=[['Intro',intro],['Verse',verse],['Build',b],['Chorus',chorus],['Verse',verse],['Chorus',chorus],['Outro',outro]];
+ const notes=[];let beat=0,measureIndex=0;
+ for(const [section,measures] of form)for(let sectionBar=0;sectionBar<measures.length;sectionBar++){
+  const {chord,pitches,rhythm}=measures[sectionBar];let local=0;
+  pitches.forEach((pitch,i)=>{
+   const duration=rhythm[i],cadence=sectionBar%4===3&&i===pitches.length-1;
+   notes.push({pitch,duration,chord:[...chord],harmony:i===0?[chord[0],chord[2]]:[],section,
+    energy:section==='Intro'?.46:section==='Outro'?.4:section==='Chorus'?.94:section==='Build'?.8:.67,
+    accent:local===0?1:local===2?.9:.78,gate:cadence?.82:.94,
+    song:id,title,bpm,songBeat:beat+local,bar:measureIndex,phraseBar:sectionBar%4,
+    rapid:duration<2,...pianoIcon(pitch)});local+=duration;
+  });
+  if(local!==4||pitches.length!==rhythm.length)throw new Error('Each written measure must fill four beats');
+  beat+=4;measureIndex++;
+ }
+ return {id,title,bpm,tonic,beats:beat,notes};
+}
+
+// Eighth notes connect nearby tones; longer endings give each phrase somewhere
+// to breathe. Answer phrases resolve to the tonic instead of looping a bar.
 export const ORIGINAL_SONGS=[
- compose('sunlit-steps','Sunlit Steps',88,
-  motif(C,[60,62,64,67],[1,1,1,1]),motif(G,[62,67,62,67,67,62],[.5,.5,.5,.5,1,1])),
- compose('neon-horizon','Neon Horizon',100,
-  motif(Am,[57,60,64,60,57],[.5,.5,1,1,1]),motif(Dm,[62,65,69,69,65,62],[.5,.5,.5,.5,1,1])),
- compose('ripple-road','Ripple Road',92,
-  motif(C,[60,64,60,64,64,60],[.5,.5,.5,.5,1,1]),motif(F,[60,65,69,65],[1,1,1,1])),
- compose('moonlight-echo','Moonlight Echo',88,
-  motif(Em,[59,64,67],[1,1,2]),motif(Am,[60,60,64,60,57],[.5,.5,1,1,1])),
- compose('copper-strings','Copper Strings',96,
-  motif(Dm,[62,65,65,62,62,65],[.5,.5,.5,.5,1,1]),motif(Am,[57,60,64],[1,1,2])),
- compose('homeward-sparks','Homeward Sparks',94,
-  motif(F,[60,65,69,69],[1,1,1,1]),motif(C,[64,60,64,60,60,60,64],[.5,.5,.5,.5,.5,.5,1])),
- compose('rainy-window','Rainy Window',90,
-  motif(Am,[64,60,57,60],[1.5,.5,1,1]),motif(Em,[59,64,67,64,59],[.5,.5,1,1,1])),
- compose('golden-hour','Golden Hour',94,
-  motif(C,[67,64,60],[1,1,2]),motif(F,[65,65,69,65,60,65],[.5,.5,.5,.5,1,1])),
- compose('little-comet','Little Comet',98,
-  motif(G,[62,67,69,67,62,62],[.5,.5,.5,.5,1,1]),motif(C,[60,64,67,64],[1,1,1,1])),
- compose('velvet-stairs','Velvet Stairs',92,
-  motif(Dm,[65,62,65,69,65],[1,.5,.5,1,1]),motif(Am,[57,60,57,60,64,60],[.5,.5,.5,.5,1,1]))
+ compose('sunlit-steps','Sunlit Steps',88,60,
+  [bar('C',[64,65,67]),bar('Am',[69,67,64]),
+   bar('F',[65,64,60,62],[1,1,1,1]),bar('G',[62,64,67])],
+  bar('C',[64,62,60]),
+  [bar('F',[65,67,69,65],[1,.5,.5,2]),bar('C',[67,64,64,67],[1,.5,.5,2]),
+   bar('Dm',[65,64,62,65],[1,1,1,1]),bar('G',[67,69,71])],
+  bar('C',[67,64,60])),
+ compose('neon-horizon','Neon Horizon',100,57,
+  [bar('Am',[60,62,64,60],[1,.5,.5,2]),bar('F',[60,62,65]),
+   bar('C',[64,62,60,64],[1,1,1,1]),bar('Em',[64,62,59])],
+  bar('Am',[60,59,57]),
+  [bar('Am',[64,65,67,69],[1,.5,.5,2]),bar('F',[69,67,65]),
+   bar('Dm',[65,67,69,65],[1,.5,.5,2]),bar('Em',[67,65,64])],
+  bar('Am',[64,60,57])),
+ compose('ripple-road','Ripple Road',92,60,
+  [bar('C',[60,62,64],[1.5,.5,2]),bar('F',[65,64,60],[1.5,.5,2]),
+   bar('Dm',[62,64,65,64],[1,1,1,1]),bar('G',[62,64,67])],
+  bar('C',[64,62,60]),
+  [bar('C',[67,69,67,64],[.5,.5,1,2]),bar('Am',[64,65,64,60],[.5,.5,1,2]),
+   bar('F',[60,62,65,69],[1,1,1,1]),bar('G',[67,65,62])],
+  bar('C',[64,62,60])),
+ compose('moonlight-echo','Moonlight Echo',88,57,
+  [bar('Am',[64,62,60]),bar('Em',[59,60,64]),
+   bar('F',[65,64,60],[1.5,.5,2]),bar('Em',[59,62,64])],
+  bar('Am',[60,59,57]),
+  [bar('F',[65,67,69]),bar('C',[67,65,64,62],[1,1,1,1]),
+   bar('Dm',[62,64,65,69],[1,.5,.5,2]),bar('Em',[67,65,64])],
+  bar('Am',[64,60,57])),
+ compose('copper-strings','Copper Strings',96,62,
+  [bar('Dm',[62,64,65,69],[1,.5,.5,2]),bar('F',[69,67,65]),
+   bar('C',[64,65,67,64],[1,1,1,1]),bar('Am',[64,62,60])],
+  bar('Dm',[65,64,62]),
+  [bar('F',[69,67,65,69],[1,.5,.5,2]),bar('C',[67,69,67,64],[.5,.5,1,2]),
+   bar('Dm',[65,64,62,65],[1,.5,.5,2]),bar('Am',[64,62,60])],
+  bar('Dm',[65,64,62])),
+ compose('homeward-sparks','Homeward Sparks',94,65,
+  [bar('F',[60,62,65]),bar('C',[64,65,67]),
+   bar('Dm',[65,64,62,65],[1,1,1,1]),bar('C',[64,62,60])],
+  bar('F',[60,62,65]),
+  [bar('F',[69,67,65,69],[.5,.5,1,2]),bar('Am',[69,67,64]),
+   bar('Dm',[65,67,69,65],[1,.5,.5,2]),bar('C',[67,65,64])],
+  bar('F',[69,67,65])),
+ compose('rainy-window','Rainy Window',90,57,
+  [bar('Am',[60,59,57],[1.5,.5,2]),bar('Dm',[57,59,62],[1.5,.5,2]),
+   bar('F',[60,62,65,64],[1,1,1,1]),bar('Em',[64,62,59])],
+  bar('Am',[60,59,57]),
+  [bar('F',[65,64,60,65],[1,.5,.5,2]),bar('C',[64,62,60]),
+   bar('Dm',[62,64,65,62],[1,.5,.5,2]),bar('Em',[59,62,64])],
+  bar('Am',[64,60,57])),
+ compose('golden-hour','Golden Hour',94,60,
+  [bar('C',[67,65,64],[1.5,.5,2]),bar('Am',[64,62,60],[1.5,.5,2]),
+   bar('F',[60,62,65,64],[1,1,1,1]),bar('G',[62,64,67])],
+  bar('C',[64,62,60]),
+  [bar('F',[69,67,65,69],[1,.5,.5,2]),bar('C',[67,65,64]),
+   bar('Am',[64,65,67,69],[.5,.5,1,2]),bar('G',[71,69,67])],
+  bar('C',[67,64,60])),
+ compose('little-comet','Little Comet',98,67,
+  [bar('G',[67,69,71]),bar('Em',[71,69,67]),
+   bar('C',[64,65,67,69],[1,1,1,1]),bar('Dm',[69,67,65])],
+  bar('G',[71,69,67]),
+  [bar('C',[67,69,72,72],[1,.5,.5,2]),bar('G',[71,72,71,67],[.5,.5,1,2]),
+   bar('Am',[69,67,64,69],[1,.5,.5,2]),bar('Dm',[69,67,65])],
+  bar('G',[71,69,67])),
+ compose('velvet-stairs','Velvet Stairs',92,62,
+  [bar('Dm',[65,64,62],[1.5,.5,2]),bar('Am',[60,62,64],[1.5,.5,2]),
+   bar('F',[65,67,69,67],[1,1,1,1]),bar('C',[67,65,64])],
+  bar('Dm',[65,64,62]),
+  [bar('Dm',[69,67,65,62],[1,.5,.5,2]),bar('F',[65,67,69]),
+   bar('C',[67,69,67,64],[.5,.5,1,2]),bar('Am',[64,62,60])],
+  bar('Dm',[65,64,62]))
 ];
 
-function arrangeSong(song,rng){
- const patterns=[[1,1,2],[2,1,1],[3,1],[1,3],[4],[.5,.5,3]];
- let bag=[],last=-1;const motifPatterns=new Map();
- const notes=[];
- for(let bar=0;bar<song.beats/4;bar++){
-  const original=song.notes.filter(n=>Math.floor(n.songBeat/4)===bar);
-  const signature=original.map(n=>[n.pitch-original[0].pitch,n.duration].join(":")).join(",");
-  if(!motifPatterns.has(signature)){
-  if(!bag.length){
-   bag=patterns.map((_,i)=>i);
-   for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.max(0,Math.min(.999999,Number(rng())||0))*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];}
-   if(bag.at(-1)===last)[bag[0],bag[bag.length-1]]=[bag.at(-1),bag[0]];
-  }
-  last=bag.pop();motifPatterns.set(signature,last);
-  }
-  last=motifPatterns.get(signature);
-  let offset=0;
-  patterns[last].forEach((duration,i)=>{
-   const n=original[Math.min(i,original.length-1)];
-   notes.push({...n,duration,songBeat:bar*4+offset,chord:[...n.chord],harmony:i===0?[n.chord[0],n.chord[2]]:[]});
-   offset+=duration;
-  });
- }
- return {...song,notes};
-}
-
 export function createSongSequence(rng=Math.random){
- let songIndex=Math.floor(Math.max(0,Math.min(.9999,rng()))*ORIGINAL_SONGS.length),index=0,round=0;let arranged=arrangeSong(ORIGINAL_SONGS[songIndex],rng);
- return ()=>{if(index===arranged.notes.length){index=0;songIndex=(songIndex+1)%ORIGINAL_SONGS.length;round++;arranged=arrangeSong(ORIGINAL_SONGS[songIndex],rng);}
- const song=arranged,n=song.notes[index++];return {...n,chord:[...n.chord],harmony:[...n.harmony],phrase:song.id+'-'+round,round,bpm:Math.min(132,song.bpm+Math.floor(round/2)*8)};};
+ let songIndex=Math.floor(Math.max(0,Math.min(.9999,Number(rng())||0))*ORIGINAL_SONGS.length),index=0,round=0;
+ return ()=>{
+  let song=ORIGINAL_SONGS[songIndex];
+  if(index===song.notes.length){index=0;songIndex=(songIndex+1)%ORIGINAL_SONGS.length;round++;song=ORIGINAL_SONGS[songIndex];}
+  const n=song.notes[index++];return {...n,chord:[...n.chord],harmony:[...n.harmony],phrase:song.id+'-'+round,round};
+ };
 }

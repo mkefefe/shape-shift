@@ -3,7 +3,7 @@ import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
-import {loadStartupAssets} from './startup-loader.js?v=49451';
+import {loadStartupAssets} from './startup-loader.js?v=49452';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
@@ -11,8 +11,8 @@ import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
 import {initStoryUI} from './story-ui.js?v=49439-web24';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
-import {initPianoFlow} from './piano-flow.js?v=49439-web12';
-import {claimPianoReward} from './piano-flow-engine.js?v=49439-web24';
+import {initPianoFlow} from './piano-flow.js?v=49452';
+import {claimPianoReward} from './piano-flow-engine.js?v=49452';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web12';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web12';
 import {initInputFeedback} from './input-feedback.js?v=49439-web24';
@@ -120,6 +120,7 @@ const welcomeAudio=window.gameAudio;
 let welcomePrefs={};try{welcomePrefs=JSON.parse(window.ShapeShiftPlatform.storage.getItem('shape-shift-settings'))||{};}catch{}
 welcomeAudio?.setMusic(welcomePrefs.music!==false);welcomeAudio?.setSfx(welcomePrefs.sfx!==false);
 welcomeAudio?.setMusicVolume(welcomePrefs.musicVolume??40);welcomeAudio?.setSfxVolume(welcomePrefs.sfxVolume??65);
+try{welcomeAudio?.setMenuWorld(JSON.parse(localStorage.getItem('shape-shift-profile-v1'))?.equipped?.background);}catch{}
 welcomeAudio?.setScene('menu');
 const startWelcomeAudio=()=>{if(!window.ShapeShiftPlatform.paused)welcomeAudio?.start().catch(()=>{});};
 const tapWelcomeAudio=e=>{if(e.target.closest?.('#terms-dialog'))welcomeAudio?.ui('click').catch(()=>{});};
@@ -2519,6 +2520,7 @@ function applyCosmetics(){
 
 
  $('app').dataset.background=profile.equipped.background;
+ window.gameAudio?.setMenuWorld(profile.equipped.background);
 
 
 

@@ -3,7 +3,7 @@
   'use strict';
   let context, master, musicBus, musicDuck, effectsBus, timer;
   let music = true, sfx = true, active = false;
-  let scene = 'menu';
+  let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
   // Slider percentages scale the mix: effects sit in front of the recorded bed.
   const MUSIC_LEVEL=.55,PIANO_MUSIC_LEVEL=1.1,SFX_LEVEL=2;
@@ -153,38 +153,66 @@
   }
 
   const pianoKeys=[36,42,48,57,60,66,69,72,78,81],pianoBuffers=new Map(),pianoLoads=new Map(),pianoVoices=new Set();
+  // Some recorded keys have opposite stereo phases. Folding those to mono
+  // cancels their body on phone speakers, so keep the stronger original channel.
+  function pianoMono(buffer){
+    if(!buffer.getChannelData||buffer.numberOfChannels<2)return buffer;
+    const left=buffer.getChannelData(0),right=buffer.getChannelData(1);let ll=0,rr=0,lr=0;
+    for(let i=0;i<left.length;i++){ll+=left[i]*left[i];rr+=right[i]*right[i];lr+=left[i]*right[i];}
+    const out=context.createBuffer(1,buffer.length,buffer.sampleRate),data=out.getChannelData(0);
+    if(lr<0)data.set(ll>=rr?left:right);else for(let i=0;i<data.length;i++)data[i]=(left[i]+right[i])*.5;
+    return out;
+  }
+  const pianoRooms=new Map();let pianoImpulse;
+  function pianoRoom(accompaniment){
+    if(!context.createConvolver)return null;
+    if(pianoRooms.has(accompaniment))return pianoRooms.get(accompaniment).convolver;
+    if(!pianoImpulse){
+      const rate=context.sampleRate,length=Math.floor(rate*1.25);pianoImpulse=context.createBuffer(2,length,rate);
+      for(let channel=0;channel<2;channel++){
+        const data=pianoImpulse.getChannelData(channel);let seed=7319+channel*1237;
+        for(let i=Math.floor(rate*.018);i<length;i++){seed=(seed*16807)%2147483647;const t=i/rate;data[i]=(seed/1073741824-1)*.018*Math.exp(-t*6)*Math.min(1,t/.06);}
+        for(const [delay,level] of [[.027,.18],[.047,.12],[.081,.07]])data[Math.floor((delay+channel*.004)*rate)]+=level;
+      }
+    }
+    const convolver=context.createConvolver(),wet=context.createGain();convolver.normalize=false;convolver.buffer=pianoImpulse;wet.gain.value=accompaniment?.16:.22;
+    convolver.connect(wet);wet.connect(accompaniment?musicBus:effectsBus);pianoRooms.set(accompaniment,{convolver,wet});return convolver;
+  }
   async function preparePiano(){
     if(!setup())return false;
     const ready=await Promise.all([...pianoKeys,'kick','clap','shaker'].map(key=>{
       if(pianoBuffers.has(key))return true;
       const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':'assets/music/pop-'+key+'-v322.ogg';
-      if(!pianoLoads.has(key))pianoLoads.set(key,fetch(url).then(r=>{if(!r.ok)throw Error('Piano unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,buffer);return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
+      if(!pianoLoads.has(key))pianoLoads.set(key,fetch(url).then(r=>{if(!r.ok)throw Error('Piano unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
       return pianoLoads.get(key);
     }));return ready.every(Boolean);
   }
-  function stopPiano(accompaniment){for(const voice of [...pianoVoices])if(accompaniment===undefined||voice.accompaniment===accompaniment)voice.release();}
+  function stopPiano(accompaniment){
+    for(const voice of [...pianoVoices])if(accompaniment===undefined||voice.accompaniment===accompaniment)voice.release();
+    for(const [kind,room] of pianoRooms)if(accompaniment===undefined||kind===accompaniment){room.convolver.disconnect();room.wet.disconnect();pianoRooms.delete(kind);}
+  }
   function pianoNote(note,duration=.35,accompaniment=false,velocity=1){
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!Number.isFinite(note)||note<36||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
     const key=pianoKeys.reduce((a,b)=>Math.abs(a-note)<=Math.abs(b-note)?a:b),buffer=pianoBuffers.get(key);if(!buffer)return ()=>{};
-    if(pianoVoices.size>=16)pianoVoices.values().next().value.release();
-    const source=context.createBufferSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime,hold=Math.max(.08,Math.min(4,Number(duration)||.35)),volume=(accompaniment?1.05:.95)*volumeValue(velocity*100,100)/100;
-    source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(volume,now+.008);gain.gain.setValueAtTime(volume,now+hold);gain.gain.exponentialRampToValueAtTime(.0001,now+hold+.3);
-    warmth.type='lowpass';warmth.frequency.value=accompaniment?3200:3400;warmth.Q.value=.55;
-    source.connect(warmth);warmth.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);
-    let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const t=context.currentTime;gain.gain.cancelScheduledValues(t);gain.gain.setTargetAtTime(0,t,.025);try{source.stop(t+.12);}catch{}}};
-    pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();warmth.disconnect();gain.disconnect();};source.start(now);source.stop(now+hold+.32);return voice.release;
+    if(pianoVoices.size>=32)pianoVoices.values().next().value.release();
+    const source=context.createBufferSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime,hold=Math.max(.08,Math.min(5,Number(duration)||.35)),volume=(accompaniment?.72:.9)*volumeValue(velocity*100,100)/100;
+    source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(volume,now+.008);gain.gain.setValueAtTime(volume,now+hold);gain.gain.exponentialRampToValueAtTime(.0001,now+hold+.48);
+    warmth.type='lowpass';warmth.frequency.value=accompaniment?2900:4200;warmth.Q.value=.55;
+    source.connect(warmth);warmth.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
+    let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const t=context.currentTime;gain.gain.cancelScheduledValues(t);gain.gain.setTargetAtTime(0,t,.09);try{source.stop(t+.36);}catch{}}};
+    pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();warmth.disconnect();gain.disconnect();};source.start(now);source.stop(now+hold+.5);return voice.release;
   }
 
   function pianoBeat(pulse,energy=1){
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!music||musicVolume<=0||!Number.isInteger(pulse)||pulse<0)return;
-    const step=pulse%8,bar=Math.floor(pulse/8),pattern=Math.floor(bar/2)%4;
-    const kicks=[[0,4],[0,3,4],[0,4,7],[0,3,5]];
-    const hits=[['shaker',step%2?.23:.32]];
-    if(kicks[pattern].includes(step))hits.push(['kick',step===0?.9:.78]);
-    if(step===2||step===6)hits.push(['clap',.54]);
-    // Small fills at phrase endings; quiet sections keep their softer dynamics.
-    if(bar%4===3&&step===7&&energy>.5)hits.push(['clap',.28]);
-    if(pattern===2&&step===5)hits.push(['shaker',.08]);
+    const step=pulse%8,bar=Math.floor(pulse/8);
+    const hits=[];
+    // A restrained pulse leaves the player's melody in front. Sparse intros
+    // gain a little percussion in the chorus rather than sounding equally loud.
+    if(energy>.6||step%2===0)hits.push(['shaker',step%2?.065:.095]);
+    if(step===0||step===4&&energy>.6)hits.push(['kick',step===0?.46:.34]);
+    if((step===2||step===6)&&energy>.6)hits.push(['clap',.19]);
+    if(bar%8===7&&step===7&&energy>.85)hits.push(['shaker',.045]);
     for(const [key,volume] of hits){
       const buffer=pianoBuffers.get(key);if(!buffer)continue;
       const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=volume*Math.max(0,Math.min(1,energy));source.connect(gain);gain.connect(musicBus);
@@ -193,8 +221,9 @@
     }
   }
 
-  const musicTracks={menu:'assets/music/groove-menu-v49431.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
-  const musicBuffers=new Map(),musicRetry=new Map(),musicPositions={menu:0,game:0,slice:0,drop:0};
+  const musicTracks={'menu-garden':'assets/music/menu-garden-v49452.ogg','menu-moon':'assets/music/menu-moon-v49452.ogg','menu-sunset':'assets/music/menu-sunset-v49452.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
+  const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
+  const musicBuffers=new Map(),musicRetry=new Map(),musicPositions=Object.fromEntries(Object.keys(musicTracks).map(key=>[key,0]));
   let musicVoice=null,musicEpoch=0,musicPending=null;
   function musicBuffer(name){
     if(!musicBuffers.has(name)){
@@ -210,7 +239,7 @@
     const voice=musicVoice;musicVoice=null;const now=context.currentTime;
     musicPositions[voice.name]=(voice.offset+Math.max(0,now-voice.startedAt))%voice.source.buffer.duration;
     voice.gain.gain.cancelScheduledValues(now);
-    voice.gain.gain.setValueAtTime(Math.min(1,Math.max(0,(now-voice.startedAt)/.3)),now);
+    voice.gain.gain.setValueAtTime(Math.min(1,Math.max(0,(now-voice.startedAt)/voice.fadeIn)),now);
     if(fade){voice.gain.gain.setTargetAtTime(0,now,fade/4);voice.source.stop(now+fade);}
     else voice.source.stop(now);
   }
@@ -219,18 +248,21 @@
       if(musicVoice||musicPending)stopMusicTrack();return;
     }
     if(scene==='piano')return;
-    const name=scene;
+    const name=musicTrack();
     if(musicVoice?.name===name||musicPending===name||context.currentTime<(musicRetry.get(name)||0))return;
     const epoch=musicEpoch;musicPending=name;
     musicBuffer(name).then(buffer=>{
       if(epoch!==musicEpoch)return;musicPending=null;
-      if(!buffer||!active||!music||musicVolume<=0||window.ShapeShiftPlatform.paused||context.state!=='running'||scene!==name)return;
-      const source=context.createBufferSource(),gain=context.createGain(),now=context.currentTime;
+      if(!buffer||!active||!music||musicVolume<=0||window.ShapeShiftPlatform.paused||context.state!=='running'||musicTrack()!==name)return;
+      // Keep the current world's music alive while the next one decodes,
+      // then blend between themes. Stale pending loads cannot start a wrong song.
+      if(musicVoice)stopMusicTrack(.85);
+      const source=context.createBufferSource(),gain=context.createGain(),now=context.currentTime,fadeIn=scene==='menu'?.85:.3;
       const offset=musicPositions[name]%buffer.duration;
       source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
-      gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(1,now+.3);
+      gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(1,now+fadeIn);
       source.connect(gain);gain.connect(musicBus);
-      const voice={name,source,gain,offset,startedAt:now};musicVoice=voice;
+      const voice={name,source,gain,offset,startedAt:now,fadeIn};musicVoice=voice;
       source.onended=()=>{source.disconnect();gain.disconnect();if(musicVoice===voice)musicVoice=null;};
       source.start(now,offset);
     });
@@ -245,8 +277,12 @@
     schedule(); timer = window.ShapeShiftPlatform.setInterval(schedule, 100);
   }
 
+  function setMenuWorld(value){
+    const next=['garden','moon','sunset'].includes(value)?value:'garden';if(menuWorld===next)return;menuWorld=next;
+    if(scene==='menu'&&context){musicEpoch++;musicPending=null;schedule();}
+  }
   function setScene(value,{preservePraise=false}={}) {
-    const target=value==='piano'||Object.hasOwn(musicTracks,value)?value:'menu';
+    const target=['menu','game','slice','drop','piano'].includes(value)?value:'menu';
     if(target===scene)return;if(!preservePraise)stopVoice();stopSlice();stopPiano();
     stopMusicTrack(.2);scene=target;if(context){
       musicBus.gain.setTargetAtTime(music?musicLevel()*musicVolume/100:0,context.currentTime,.08);
@@ -463,5 +499,5 @@
     return true;
   }
   async function prepareCommon(){if(!setup())return false;const results=await Promise.all([...Object.keys(musicTracks).map(musicBuffer),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
-  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

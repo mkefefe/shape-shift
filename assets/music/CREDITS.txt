@@ -29,3 +29,7 @@ Front Porch (menu, 96 BPM), Bright Momentum (main game, 110 BPM), Ribbon Rush (S
 Original repeated piano motifs with octave answers, broken chords, synthesized harmonic bass, and the existing original kick/clap/shaker samples. Piano notes use the Salamander recordings credited above. Mixed as 32-bar stereo loops with wrapped release tails and encoded as Ogg Vorbis. No commercial melodies or recordings were imported.
 
 Victory arrangement 4.94.34: original C-major piano fanfare using the credited Salamander samples, pitch-shifted, enveloped and mixed with synchronized firework impacts.
+
+4.94.52 original world menu arrangements:
+Waterlight Walk (Sunny Garden, 88 BPM, C major, 32 bars), Lanterns on Still Water (Moonlit Forest, 80 BPM, A minor, 32 bars), Golden Hour Drift (Sunset Islands, 84 BPM, D major, 32 bars).
+Original chord-following piano melodies with A/A-variation/B/A phrasing, rolled seventh/ninth voicings, warm synthesized bass and pads, restrained original synthesized percussion, and circular room reflections. Piano notes use the Salamander recordings credited above, pitch shifted, filtered, enveloped, sequenced, and mixed into stereo Ogg Vorbis loops. Release tails wrap across each loop boundary. No commercial melody or recording was imported.

@@ -1,4 +1,4 @@
-import {createSongSequence} from './piano-songs.js?v=49439-web12';
+import {createSongSequence} from './piano-songs.js?v=49452';
 import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=49439-web12';
 import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=49439-web24';
 export const PIANO_LANES=3,PIANO_WINDOW=.38;
@@ -22,7 +22,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  const maxLives=maxLivesForFrame(frame,upgrade),g={frame,time:0,beat:fullSongs?-3:stripTap?0:-4,countdown:stripTap?3:0,started:false,paused:false,over:false,notes:[],score:0,coins:0,hits:0,combo:0,bestCombo:0,maxLives,lives:maxLives,bpm:fullSongs?88:stripTap?72:90,lanes:rhythm?4:3,fullSongs,songTitle:'',section:'',songsCompleted:0,rhythm,stripTap,melodicStrips,pressed:new Set()};
  let cursor=stripTap?2:directTouch&&!rhythm?2.5:0,serial=0,lastLane=-1,lastWrong=-10,lastBeat=stripTap?-1:-5;
  const nextMusic=fullSongs?createSongSequence(rng):createPianoSequence(rng,{difficulty:()=>pianoDifficulty(g.time)});
- const measures=[];let backingPulse=0,damageUntil=-1;
+ const measures=[],backingOrigin=fullSongs?2:0;let backingPulse=0,damageUntil=-1;
  const emit=(type,extra={})=>onEvent({type,...extra,time:g.time,beat:g.beat});
  function fill(){while(cursor<g.beat+9){
   if(melodicStrips){const music=nextMusic(),hold=music.duration>=2?Math.min(PIANO_MAX_HOLD,music.duration-PIANO_HOLD_GAP):0;
@@ -60,6 +60,14 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  }
  function nextUnplayed(){return g.notes.find(n=>['waiting','partial','holding'].includes(n.status)||n.status==='queued'&&n.hold);}
  function wrongStrip(){if(g.time-lastWrong>.25){lastWrong=g.time;fail(null,'wrong');}return false;}
+ // Accepted input and musical onset are separate: early taps keep their place
+ // in the song without pulling the melody ahead of its chord accompaniment.
+ function beginNote(note){
+  if(note.hold&&resumableHolds){note.heldBeats=0;note.holdLength=note.hold;note.status='holding';}
+  else if(note.hold){note.holdStarted=g.beat;note.end=rhythm&&!stripTap?note.beat+note.hold:g.beat+note.hold;note.holdLength=note.end-g.beat;note.status='holding';}
+  emit('note',{note,remaining:note.hold?(resumableHolds?note.hold:Math.max(.1,note.end-g.beat)):rhythm?note.duration*.9:0});
+  if(note.hold)emit('hold',{note});else complete(note);
+ }
  function pressNote(id){
   if(!g.started||g.countdown>0||!fullSongs&&g.beat<(rhythm?-PIANO_WINDOW:0)||g.paused||g.over)return false;
   const note=g.notes.find(n=>n.id===id);if(!note||g.pressed.has(note.lane)||melodicStrips&&g.pressed.size)return false;
@@ -78,9 +86,8 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(stripTap){const next=g.notes.find(n=>n.lane===note.lane&&(n.status==='waiting'||resumableHolds&&n.status==='partial'));if(next!==note||note.beat-g.beat>4.4)return false;}
   else if(rhythm){const next=g.notes.find(n=>n.status==='waiting');if(next!==note){emit('timing',{reason:'order'});return false;}if(Math.abs(note.beat-g.beat)>PIANO_WINDOW){emit('timing',{reason:'early'});return false;}}
   g.pressed.add(note.lane);note.perfect=stripTap||!rhythm||Math.abs(note.beat-g.beat)<.15;
-  if(note.hold&&resumableHolds){note.heldBeats=0;note.holdLength=note.hold;note.status='holding';}
-  else if(note.hold){note.holdStarted=g.beat;note.end=rhythm&&!stripTap?note.beat+note.hold:g.beat+note.hold;note.holdLength=note.end-g.beat;note.status='holding';}
-  emit('note',{note,remaining:note.hold?(resumableHolds?note.hold:Math.max(.1,note.end-g.beat)):rhythm?note.duration*.9:0});if(note.hold)emit('hold',{note});else complete(note);return true;
+  if(fullSongs&&note.beat>g.beat+1e-8){note.status='queued';emit('queued',{note});return true;}
+  beginNote(note);return true;
  }
  // A finger owns exactly one strip. Subsequent notes sound on the same beat position,
  // rather than all visible shapes being collected at once.
@@ -98,15 +105,19 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   const seconds=Math.min(.05,dt);if(g.countdown>0){const before=Math.ceil(g.countdown);g.countdown=Math.max(0,g.countdown-seconds);if(g.countdown<1e-8)g.countdown=0;const after=Math.ceil(g.countdown);if(after!==before)emit(after?'countdown':'ready',{count:after});return;}
   const previousBeat=g.beat;g.time+=seconds;g.bpm=fullSongs?pianoSongTempo(g.time):stripTap?pianoStripTempo(g.time):pianoTempo(g.time);g.beat+=seconds*g.bpm/60;
   if(melodicStrips){
-   // Bass + broken chords supply an audible pulse even between player taps.
-   // The two-beat offset matches the normal strip collection position.
-   while(backingPulse*.5<=g.beat){
-    const at=backingPulse*.5;while(measures.length>1&&measures[1].beat<=at)measures.shift();
-    const measure=measures[0],chord=measure?.chord;
+   // The first written note is the downbeat. Keep a little harmonic history
+   // so a rewarded continuation can rewind its lead-in without a wrong chord.
+   while(backingOrigin+backingPulse*.5<=g.beat){
+    const at=backingOrigin+backingPulse*.5;
+    while(measures.length>1&&measures[1].beat<=at-8)measures.shift();
+    let measure=measures[0];for(const candidate of measures){if(candidate.beat>at)break;measure=candidate;}
+    const chord=measure?.chord;
     if(fullSongs&&measure){g.songTitle=measure.title;g.section=measure.section;g.songsCompleted=measure.round;}
     if(chord){const step=backingPulse%8;
-     const pitch=step===0?(chord[0]>=48?chord[0]-12:chord[0]):step===4?chord[2]-12:chord[[0,1,2,1][step%4]];
-     emit('accompaniment',{energy:measure?.energy??1,pitch,pitches:step===2||step===6?[...chord]:[pitch],pulse:backingPulse,duration:(step%4===0?1.35:.7)*60/g.bpm,musicalBeat:at});
+     const root=Number.isFinite(measure?.bass)?measure.bass:chord[0];
+     const pitch=step===0?(root>=48?root-12:root):step===4?chord[2]-12:chord[step%2?1:2];
+     const velocity=step===0?.64:step===4?.52:step%2?.28:.34;
+     emit('accompaniment',{energy:measure?.energy??1,pitch,pitches:!fullSongs&&(step===2||step===6)?[...chord]:[pitch],velocity:fullSongs?velocity:1,pulse:backingPulse,duration:(fullSongs?(step%4===0?1.6:.72):(step%4===0?1.35:.7))*60/g.bpm,musicalBeat:at});
     }
     backingPulse++;
    }
@@ -114,13 +125,13 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   const whole=Math.floor(g.beat);if(whole>lastBeat){lastBeat=whole;if(whole<0)emit('countdown',{count:-whole});else if(!melodicStrips){const roots=rhythm?[48,45,41,43]:bass;emit('beat',{pitch:roots[Math.floor(whole/(stripTap?8:4))%roots.length]+(whole%2?12:0),accent:whole%(stripTap?8:4)===0});}}
   for(const n of g.notes){
    if(g.over)break;
-   if(fullSongs&&n.status==='queued'&&g.beat>=n.beat){const down=g.pressed.has(n.lane);g.pressed.delete(n.lane);n.status='waiting';pressNote(n.id);if(!down)g.pressed.delete(n.lane);}
+   if(fullSongs&&n.status==='queued'&&g.beat>=n.beat)beginNote(n);
 
    if(resumableHolds){
     const deadline=n.beat+n.hold+(fullSongs?.65:0);
     // Only finger-down time fills a long note. Its travel deadline never moves.
     if(n.status==='holding'&&!n.awaiting){
-     n.heldBeats=Math.min(n.hold,(n.heldBeats||0)+Math.max(0,Math.min(g.beat,deadline)-previousBeat));
+     n.heldBeats=Math.min(n.hold,(n.heldBeats||0)+Math.max(0,Math.min(g.beat,deadline)-Math.max(previousBeat,fullSongs?n.beat:previousBeat)));
      if(n.heldBeats>=n.hold-1e-8)complete(n);
     }
     if(!['done','missed'].includes(n.status)&&g.beat>deadline)fail(n,'missed');
@@ -129,11 +140,11 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   }
   if(melodicStrips&&!g.over&&g.pressed.size&&!g.notes.some(n=>n.status==='holding')){
    const lane=[...g.pressed][0],next=nextUnplayed();
-   if(next&&!next.rapid&&next.lane===lane&&next.beat-g.beat<=(fullSongs?0:2)){g.pressed.delete(lane);if(!pressNote(next.id))g.pressed.add(lane);}
+   if(next&&!next.rapid&&(!fullSongs||next.hold)&&next.lane===lane&&next.beat-g.beat<=(fullSongs?0:2)){g.pressed.delete(lane);if(!pressNote(next.id))g.pressed.add(lane);}
   }
   g.notes=g.notes.filter(n=>n.end>g.beat-2||n.status==='holding');fill();
  }
- return Object.assign(g,{revive(){if(!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();if(fullSongs){const next=g.notes.find(n=>n.status==='waiting'||n.status==='partial');if(next){g.beat=next.beat-5;for(const n of g.notes)if(!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.ceil(g.beat*2);g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding')n.awaiting=true;if(fullSongs&&n.status==='queued'&&n.hold)n.status='waiting';}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
+ return Object.assign(g,{revive(){if(!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();if(fullSongs){const next=g.notes.find(n=>['waiting','partial','queued','holding'].includes(n.status));if(next){g.beat=next.beat-5;for(const n of g.notes)if(!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding')n.awaiting=true;if(fullSongs&&n.status==='queued'&&n.hold)n.status='waiting';}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const receipt=e=>e&&/^piano-flow-[a-f0-9-]{36}$/.test(e.id)&&Number.isSafeInteger(e.coins)&&e.coins>=0&&e.coins<=100000;

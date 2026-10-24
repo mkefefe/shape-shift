@@ -25,7 +25,7 @@ import {createMiniResults} from './mini-results.js?v=49439-web12';
 import {createMiniContinue} from './mini-continue.js?v=49439-web12';
 import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
 import {drawPianoHoldGlow} from './piano-hold-glow.js?v=49439-web12';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49439-web12';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49452';
 
 import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49439-web12';
 
@@ -96,11 +96,11 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   if(e.type==='release'&&e.note)e.note.questResumed=true;
   if(['start','complete','miss'].includes(e.type))onQuestEvent({type:e.type==='complete'?'success':e.type==='miss'?'failure':e.type==='end'?'finish':'start',mode:'piano',time:e.time,failure:e.type==='miss',holdSeconds:e.note?.hold?e.note.hold*60/game.bpm:0,tile:e.note?{shape:e.note.shape,color:e.note.color,lane:e.note.lane,pitch:e.note.pitch,hold:e.note.hold,resumed:!!e.note.questResumed}:null});
 
-  if(e.type==='queued'){glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;hint.textContent=e.note.hold?'Keep holding this strip':'Note ready';}
+  if(e.type==='queued'){glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;hint.textContent=e.note.hold?'Keep holding this strip':'Note ready — follows the beat';}
 
-  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,e.remaining?e.remaining*60/game.bpm:.55);if(e.note.hold)voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
+  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,Math.max(.12,Math.min(e.note.duration,e.note.beat+e.note.duration-e.beat)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold)voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
 
-  else if(e.type==='complete'){voices.get(e.note.id)?.();voices.delete(e.note.id);glows[e.note.lane]=STRIP_LINGER;hint.textContent=e.note.hold?'Lovely hold':e.perfect?'Perfect':'Nice';if(layout){const p=pianoTarget(e.note,game.beat,layout);p.y=Math.min(p.y,layout.h-54);reveals.push({note:e.note,x:p.x/layout.w,y:p.y/layout.h,age:0});reveals=reveals.slice(-12);const count=quiet?5:8,phase=Math.random()*Math.PI*2;
+  else if(e.type==='complete'){voices.delete(e.note.id);glows[e.note.lane]=STRIP_LINGER;hint.textContent=e.note.hold?'Lovely hold':e.perfect?'Perfect':'Nice';if(layout){const p=pianoTarget(e.note,game.beat,layout);p.y=Math.min(p.y,layout.h-54);reveals.push({note:e.note,x:p.x/layout.w,y:p.y/layout.h,age:0});reveals=reveals.slice(-12);const count=quiet?5:8,phase=Math.random()*Math.PI*2;
 
     for(let i=0;i<count;i++){const angle=phase+(i+(Math.random()-.5)*.5)*Math.PI*2/count,speed=quiet?35+Math.random()*15:85+Math.random()*40;
 
@@ -114,8 +114,8 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
   else if(e.type==='beat')window.gameAudio?.pianoNote(e.pitch,.7,true);
   else if(e.type==='accompaniment'){
-   const backingEnergy=.65+.35*Math.max(0,Math.min(1,e.energy??1));
-   for(const pitch of e.pitches)window.gameAudio?.pianoNote(pitch,e.duration,true,(e.pitches.length>1?.7:1)*backingEnergy);
+   const backingEnergy=Math.max(0,Math.min(1,e.energy??1));
+   for(const pitch of e.pitches)window.gameAudio?.pianoNote(pitch,e.duration,true,(e.velocity??.65)*backingEnergy);
    window.gameAudio?.pianoBeat(e.pulse,backingEnergy);
   }
 
@@ -230,7 +230,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  }
 
- function tick(now){if(!game||!dialog.open)return;const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;if(!window.ShapeShiftPlatform.paused&&!game.paused){game.step(hitFeedback.step(dt));for(let i=0;i<4;i++){glows[i]=Math.max(0,glows[i]-dt);holdGlows[i]=Math.max(0,holdGlows[i]-dt);}for(const r of reveals)r.age+=dt;reveals=reveals.filter(r=>r.age<.16);for(const p of particles){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const drag=Math.exp(-2.4*dt);p.vx*=drag;p.vy*=drag;p.rotation+=p.spin*dt;}particles=particles.filter(p=>p.age<p.life);damage=Math.max(0,damage-dt);if(!damage)delete dialog.dataset.pianoError;update();draw();if(game.over&&!hitFeedback.active){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
+ function tick(now){if(!game||!dialog.open)return;const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;if(!window.ShapeShiftPlatform.paused&&!game.paused){hitFeedback.step(dt);game.step(dt);for(let i=0;i<4;i++){glows[i]=Math.max(0,glows[i]-dt);holdGlows[i]=Math.max(0,holdGlows[i]-dt);}for(const r of reveals)r.age+=dt;reveals=reveals.filter(r=>r.age<.16);for(const p of particles){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const drag=Math.exp(-2.4*dt);p.vx*=drag;p.vy*=drag;p.rotation+=p.spin*dt;}particles=particles.filter(p=>p.age<p.life);damage=Math.max(0,damage-dt);if(!damage)delete dialog.dataset.pianoError;update();draw();if(game.over&&!hitFeedback.active){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
 
  async function start(){if(game&&!save())return;stop();const version=epoch;dialog.replaceChildren();dialog.dataset.view='play';dialog.dataset.paused='true';overlay=null;saved=false;pendingSave=null;runId='piano-flow-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;window.gameAudio?.setScene('piano');window.gameAudio?.start()?.catch(()=>{});
 
