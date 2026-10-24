@@ -106,7 +106,7 @@ async function start() {
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=49459');
     await loadScript('assets/vendor/matter-0.20.0.min.js?v=49439-web12');
-    await import('./game.js?v=49462');
+    await import('./game.js?v=49463');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

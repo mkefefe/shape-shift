@@ -45,7 +45,7 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web12';
 import {earnsMatchCoin} from './economy.js?v=49439-web12';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49451';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=49463';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web24';
 
 
@@ -3157,7 +3157,8 @@ async function rankings(silent=false){
 
 
 enableHoldBuying($('shop-dialog'));
-$('shop-open').onclick=()=>{analytics.count('shop',({ 'shop-items':'boosts','skin-items':'skins','frame-items':'frames','background-items':'worlds'})[document.querySelector('[data-shop-tab][aria-selected="true"]')?.dataset.shopTab]||'boosts');shop();$('shop-dialog').showModal();};
+function resetShopView(){for(const tab of document.querySelectorAll('[data-shop-tab]')){const first=tab.dataset.shopTab==='shop-items';tab.setAttribute('aria-selected',String(first));$(tab.dataset.shopTab).hidden=!first;$(tab.dataset.shopTab).scrollTop=0;}$('shop-dialog').querySelector('.dialog-content').scrollTop=0;}
+$('shop-open').onclick=()=>{resetShopView();analytics.count('shop',({ 'shop-items':'boosts','skin-items':'skins','frame-items':'frames','background-items':'worlds'})[document.querySelector('[data-shop-tab][aria-selected="true"]')?.dataset.shopTab]||'boosts');shop();$('shop-dialog').showModal();};
 
 
 
@@ -3337,7 +3338,7 @@ function renderProfileSkins(){
  }
 }
 
-$('profile-shop').onclick=()=>{clearProfileNotice();shop();$('shop-dialog').showModal();};
+$('profile-shop').onclick=()=>{clearProfileNotice();resetShopView();shop();$('shop-dialog').showModal();};
 
 
 
@@ -3681,7 +3682,7 @@ async function collectQuestRewards(quests,next,source,all){
 }
 $('quests-collect-all').onclick=()=>{const ready=questList(profile,questTab).filter(q=>!q.claimed&&q.progress>=q.target);collectQuestRewards(ready,ready.reduce((next,q)=>claimQuest(next,q.id),profile),$('quests-collect-all'),true);};
 
-$('quests-open').onclick=()=>{renderQuests();$('quests-dialog').showModal();};
+$('quests-open').onclick=()=>{questTab='daily';$('quest-list').scrollTop=0;renderQuests();$('quests-dialog').showModal();};
 $('pause-quests').onclick=()=>{
  if(runMode!=='adventure'){renderQuests();$('quests-dialog').showModal();return;}
  const stats=currentLevelStats();$('level-tasks-title').textContent='Level '+adventureLevel;

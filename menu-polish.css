@@ -297,3 +297,20 @@ html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade){justify-c
 html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade) .cosmetic-preview{width:36px;height:36px;min-width:36px;min-height:36px;max-height:36px;flex:0 0 36px}
 html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade)>strong{min-height:24px;font-size:11px;flex-shrink:0}
 html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade) .shop-buy{height:44px;min-height:44px;max-height:44px;flex:0 0 44px;font-size:12px;padding:2px}
+
+/* Make the Player portrait a focal point without growing the dialog. */
+html body #profile-dialog #profile-preview{flex:none}
+html body #profile-dialog #profile-preview .avatar-shell{width:112px;height:112px}
+html body #profile-dialog #profile-preview>.avatar{width:100px;height:100px}
+@media(max-height:699px){
+ html body #profile-dialog #profile-preview .avatar-shell{width:80px;height:80px}
+ html body #profile-dialog #profile-preview>.avatar{width:72px;height:72px}
+}
+@media(max-height:599px){
+ html body #profile-dialog #profile-preview .avatar-shell{width:72px;height:72px}
+ html body #profile-dialog #profile-preview>.avatar{width:64px;height:64px}
+}
+@media(orientation:landscape) and (min-width:600px) and (max-height:500px){
+ html body #profile-dialog #profile-preview .avatar-shell{width:96px;height:96px}
+ html body #profile-dialog #profile-preview>.avatar{width:86px;height:86px}
+}
