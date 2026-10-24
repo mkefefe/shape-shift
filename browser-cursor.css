@@ -1,8 +1,10 @@
 /* Native cursors keep precise hotspots and never trail behind mouse movement. */
-@media (hover:hover) and (pointer:fine){
- html,body,dialog,canvas,#adventure-map{cursor:url('assets/cursor-gold.svg') 4 3,auto!important}
+@media (any-hover:hover) and (any-pointer:fine){
+ html,body,dialog,dialog::backdrop,[popover]::backdrop,canvas,#adventure-map{cursor:url('assets/cursor-gold.svg') 4 3,auto!important}
+ /* Children retain their parent cursor instead of reviving a system cursor. */
+ html body *{cursor:inherit!important}
  html body :is(button,a,[role="button"],summary,input[type="checkbox"],input[type="radio"],input[type="range"]):not(:disabled){cursor:url('assets/cursor-gold-pointer.svg') 13 4,pointer!important}
  html body :is(button,input):disabled{cursor:url('assets/cursor-gold.svg') 4 3,default!important}
- html body :is(textarea,input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="password"],[contenteditable="true"]){cursor:text}
+ html body :is(textarea,input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="password"],[contenteditable="true"]){cursor:text!important}
  html body .desktop-dragging,html body .desktop-dragging *{cursor:url('assets/cursor-gold-pointer.svg') 13 4,grabbing!important}
 }
