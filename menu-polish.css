@@ -291,3 +291,9 @@ html body .avatar-shell:has(>.frame-blossom),html body #shop-dialog .frame-previ
 html body .frame-blossom{background-image:url("assets/avatar-frame-blossom-2x-v49462.webp");background-image:image-set(url("assets/avatar-frame-blossom-1x-v49462.webp") 1x,url("assets/avatar-frame-blossom-2x-v49462.webp") 2x,url("assets/avatar-frame-blossom-3x-v49462.webp") 3x,url("assets/avatar-frame-blossom-4x-v49462.webp") 4x);}
 html body .avatar-shell:has(>.frame-cosmic),html body #shop-dialog .frame-preview[data-cosmetic="cosmic"]{--portrait-x:48.5%;--portrait-y:47%}
 html body .frame-cosmic{background-image:url("assets/avatar-frame-cosmic-2x-v49462.webp");background-image:image-set(url("assets/avatar-frame-cosmic-1x-v49462.webp") 1x,url("assets/avatar-frame-cosmic-2x-v49462.webp") 2x,url("assets/avatar-frame-cosmic-3x-v49462.webp") 3x,url("assets/avatar-frame-cosmic-4x-v49462.webp") 4x);}
+
+/* Reserve room for the complete ring when a frame has two purchase actions. */
+html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade){justify-content:flex-start;gap:3px;padding:7px 4px}
+html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade) .cosmetic-preview{width:36px;height:36px;min-width:36px;min-height:36px;max-height:36px;flex:0 0 36px}
+html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade)>strong{min-height:24px;font-size:11px;flex-shrink:0}
+html body #shop-dialog #frame-items .cosmetic-card:has(.frame-upgrade) .shop-buy{height:44px;min-height:44px;max-height:44px;flex:0 0 44px;font-size:12px;padding:2px}
