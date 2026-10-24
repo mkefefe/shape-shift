@@ -1,31 +1,10 @@
-function bindPianoKeyboard({host,dialog,active,press,release,pause}){
- const media=host.matchMedia('(hover: hover) and (pointer: fine)');
- const keys=['a','s','d','f'],held=new Set();let row;
- const reset=()=>{for(const key of held)release('key-'+key);held.clear();row?.querySelectorAll('kbd').forEach(el=>el.classList.remove('pressed'));};
- function sync(){dialog.classList.toggle('piano-desktop-keys',media.matches);if(row)row.hidden=!media.matches;if(!media.matches)reset();}
- host.addEventListener('keydown',event=>{
-  const key=event.key.toLowerCase(),lane=keys.indexOf(key);
-  if(lane<0||!media.matches||!dialog.open||!active()||event.ctrlKey||event.metaKey||event.altKey||event.target?.closest?.('input,textarea,select,button,[contenteditable="true"]'))return;
-  event.preventDefault();if(event.repeat||held.has(key))return;
-  // Change strips smoothly even if the previous key has not quite been lifted.
-  reset();held.add(key);
-  if(press(lane,'key-'+key))row?.querySelectorAll('kbd')[lane]?.classList.add('pressed');
- });
- host.addEventListener('keyup',event=>{const key=event.key.toLowerCase();if(!held.has(key))return;event.preventDefault();release('key-'+key);held.delete(key);row?.querySelectorAll('kbd')[keys.indexOf(key)]?.classList.remove('pressed');});
- host.addEventListener('blur',()=>{reset();if(dialog.open)pause();});
- media.addEventListener('change',sync);
- return {reset,mount(){
-  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold the key for long notes.');
-  for(const key of keys){const label=dialog.ownerDocument.createElement('kbd');label.textContent=key.toUpperCase();row.append(label);}
-  dialog.append(row);sync();return media.matches;
- }};
-}
+import {createPianoInput,bindPianoKeyboard} from './piano-input.js?v=49457';
 import {createMiniTutorial} from './mini-tutorial.js?v=49439-web12';
 import {createMiniResults} from './mini-results.js?v=49439-web12';
 import {createMiniContinue} from './mini-continue.js?v=49439-web12';
 import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
 import {drawPianoHoldGlow} from './piano-hold-glow.js?v=49439-web12';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49452';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49457';
 
 import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49439-web12';
 
@@ -46,9 +25,10 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
 
 
- const inputs=new Map(),voices=new Map(),holdGlows=[0,0,0,0],particleArt=new Map();
+ const voices=new Map(),holdGlows=[0,0,0,0],particleArt=new Map();
 
- const keyboard=bindPianoKeyboard({host:window,dialog,active:()=>Boolean(game?.started&&!game.paused&&!game.over&&game.countdown<=0&&!overlay),press,release,pause});
+ const input=createPianoInput({getGame:()=>game,enabled:()=>dialog.open&&!overlay,onChange:()=>{update();draw();}});
+ const keyboard=bindPianoKeyboard({host:window,dialog,active:()=>Boolean(game?.started&&!game.paused&&!game.over&&!overlay),press,release,pause});
  const glowFade=remaining=>{const t=Math.min(1,Math.max(0,remaining/STRIP_FADE));return t*t*(3-2*t);};
 
  try{progress=pianoProgress(JSON.parse(window.ShapeShiftPlatform.storage.getItem(KEY)));}catch{progress=pianoProgress(null);}
@@ -68,7 +48,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  function save(){if(!game||saved||!game.started)return true;pendingSave??=finishPianoProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;onQuestEvent({type:'finish',mode:'piano',time:game.time});pendingSave=null;settle();return true;}
 
- function clearInput(){keyboard.reset();damage=0;delete dialog.dataset.pianoError;inputs.clear();window.gameAudio?.stopPiano();voices.clear();}
+ function clearInput(){keyboard.reset();input.reset();damage=0;delete dialog.dataset.pianoError;window.gameAudio?.stopPiano();voices.clear();}
 
  function stop(){teaching.clear();resultsScreen.reset();continueOffer.reset();window.gameAudio?.stopPraise();hitFeedback.reset();epoch++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);clearInput();game?.dispose();game=null;particles=[];reveals=[];glows.fill(0);holdGlows.fill(0);}
 
@@ -82,7 +62,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  function resume(){if(!game||game.over)return;removePanel();game.resume();last=window.ShapeShiftPlatform.now();canvas.focus();dialog.dataset.paused='false';hint.textContent=game.notes.some(n=>n.awaiting)?'Hold anywhere on the glowing strip to continue':'Tap anywhere on the next shape’s strip';}
 
- function help(){const card=panel('How to play');card.append(el('p','','Play the lowest shape first by tapping anywhere on its strip. Tapping a different strip costs a heart. Tap near the beat as the shape reaches the glowing line; slightly early taps are buffered.'),el('p','','Tap each short note separately, even when it repeats on the same strip. Long notes save their glow progress when you lift your finger. Hold again to continue. Finish before the end of the trail crosses the bottom line to keep your heart.'),button('Got it',resume));card.querySelector('button').focus();}
+ function help(){const card=panel('How to play');card.append(el('p','','Play the lowest shape first by tapping anywhere on its strip. Tapping a different strip costs a heart. Taps respond immediately and the piano follows the song’s beat.'),el('p','','Tap each short note separately, even when it repeats on the same strip. Long notes save their glow progress when you lift your finger. Hold again to continue. Finish before the end of the trail crosses the bottom line to keep your heart.'),button('Got it',resume));card.querySelector('button').focus();}
 
  function pause(){if(!game||!game.started||game.over||game.paused)return;game.pause();window.gameAudio?.stopPraise();clearInput();dialog.dataset.paused='true';const card=panel('Paused');card.classList.add('piano-pause','drop-pause-panel');card.append(button('Resume',resume),button('End',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
 
@@ -96,9 +76,9 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   if(e.type==='release'&&e.note)e.note.questResumed=true;
   if(['start','complete','miss'].includes(e.type))onQuestEvent({type:e.type==='complete'?'success':e.type==='miss'?'failure':e.type==='end'?'finish':'start',mode:'piano',time:e.time,failure:e.type==='miss',holdSeconds:e.note?.hold?e.note.hold*60/game.bpm:0,tile:e.note?{shape:e.note.shape,color:e.note.color,lane:e.note.lane,pitch:e.note.pitch,hold:e.note.hold,resumed:!!e.note.questResumed}:null});
 
-  if(e.type==='queued'){glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;hint.textContent=e.note.hold?'Keep holding this strip':'Note ready — follows the beat';}
+  if(e.type==='input'||e.type==='queued'){glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;hint.textContent=e.note.hold?'Keep holding this strip':'Nice';}
 
-  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,Math.max(.12,Math.min(e.note.duration,e.note.beat+e.note.duration-e.beat)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold)voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
+  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,Math.max(.12,Math.min(e.note.duration,e.note.beat+e.note.duration-e.beat)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold&&e.note.status==='holding')voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
 
   else if(e.type==='complete'){voices.delete(e.note.id);glows[e.note.lane]=STRIP_LINGER;hint.textContent=e.note.hold?'Lovely hold':e.perfect?'Perfect':'Nice';if(layout){const p=pianoTarget(e.note,game.beat,layout);p.y=Math.min(p.y,layout.h-54);reveals.push({note:e.note,x:p.x/layout.w,y:p.y/layout.h,age:0});reveals=reveals.slice(-12);const count=quiet?5:8,phase=Math.random()*Math.PI*2;
 
@@ -230,11 +210,11 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  }
 
- function tick(now){if(!game||!dialog.open)return;const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;if(!window.ShapeShiftPlatform.paused&&!game.paused){hitFeedback.step(dt);game.step(dt);for(let i=0;i<4;i++){glows[i]=Math.max(0,glows[i]-dt);holdGlows[i]=Math.max(0,holdGlows[i]-dt);}for(const r of reveals)r.age+=dt;reveals=reveals.filter(r=>r.age<.16);for(const p of particles){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const drag=Math.exp(-2.4*dt);p.vx*=drag;p.vy*=drag;p.rotation+=p.spin*dt;}particles=particles.filter(p=>p.age<p.life);damage=Math.max(0,damage-dt);if(!damage)delete dialog.dataset.pianoError;update();draw();if(game.over&&!hitFeedback.active){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
+ function tick(now){if(!game||!dialog.open)return;const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;if(!window.ShapeShiftPlatform.paused&&!game.paused){hitFeedback.step(dt);input.flush();game.step(dt);input.flush();for(let i=0;i<4;i++){glows[i]=Math.max(0,glows[i]-dt);holdGlows[i]=Math.max(0,holdGlows[i]-dt);}for(const r of reveals)r.age+=dt;reveals=reveals.filter(r=>r.age<.16);for(const p of particles){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const drag=Math.exp(-2.4*dt);p.vx*=drag;p.vy*=drag;p.rotation+=p.spin*dt;}particles=particles.filter(p=>p.age<p.life);damage=Math.max(0,damage-dt);if(!damage)delete dialog.dataset.pianoError;update();draw();if(game.over&&!hitFeedback.active){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
 
  async function start(){if(game&&!save())return;stop();const version=epoch;dialog.replaceChildren();dialog.dataset.view='play';dialog.dataset.paused='true';overlay=null;saved=false;pendingSave=null;runId='piano-flow-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;window.gameAudio?.setScene('piano');window.gameAudio?.start()?.catch(()=>{});
 
-  const scenery=el('div','piano-scenery');scenery.append(el('div','piano-mist'));dialog.append(scenery);canvas=el('canvas','piano-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');dialog.append(canvas);ctx=canvas.getContext('2d');canvas.onpointerdown=e=>{if(e.button!==0||!layout||!game||game.countdown>0||overlay||inputs.size)return;const r=canvas.getBoundingClientRect(),lane=pianoStripAt(layout,e.clientX-r.left,e.clientY-r.top);if(lane===null)return;e.preventDefault();if(press(lane,'p'+e.pointerId))canvas.setPointerCapture(e.pointerId);};canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>release('p'+e.pointerId);
+  const scenery=el('div','piano-scenery');scenery.append(el('div','piano-mist'));dialog.append(scenery);canvas=el('canvas','piano-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');dialog.append(canvas);ctx=canvas.getContext('2d');canvas.onpointerdown=e=>{if(e.button!==0||!layout||!game||overlay)return;const r=canvas.getBoundingClientRect(),lane=pianoStripAt(layout,e.clientX-r.left,e.clientY-r.top);if(lane===null)return;e.preventDefault();canvas.focus({preventScroll:true});if(press(lane,'p'+e.pointerId))canvas.setPointerCapture(e.pointerId);};canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>release('p'+e.pointerId);
 
   const hud=el('header','piano-hud'),pauseButton=button('',pause,'piano-pause-button');pauseButton.setAttribute('aria-label','Pause Piano Flow');score=el('strong','piano-score','0');score.setAttribute('aria-label','Score');best=el('small','piano-best');hearts=el('div','piano-lives');hearts.setAttribute('role','img');const wallet=el('div','piano-coins'),coin=el('img');coin.src='assets/coin-v10.webp';coin.alt='Coins';coins=el('strong','','0');wallet.append(coin,coins);hud.append(pauseButton,score,hearts,best,wallet);dialog.append(hud);songLabel=el('p','piano-song');dialog.append(songLabel);
 
@@ -251,9 +231,9 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  }
 
- function press(lane,id){if(!game||game.paused||game.over||overlay||inputs.size)return false;if(!game.pressStrip(lane))return false;inputs.set(id,lane);update();draw();return true;}
+ function press(lane,id){return input.press(lane,id);}
 
- function release(id){const lane=inputs.get(id);if(lane===undefined)return;inputs.delete(id);game?.release(lane);}
+ function release(id){input.release(id);}
 
  dialog.addEventListener('cancel',e=>{e.preventDefault();if(game?.over||!game?.started)close();else if(game.paused)resume();else pause();});
 

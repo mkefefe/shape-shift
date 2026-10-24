@@ -11,12 +11,12 @@ test('full songs are playable one-handed through song boundaries without life lo
 test('rewarded continuation retains the song chart and score with no backing burst',()=>{const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,3);g.beat=8;g.step(.001);g.hits=12;g.score=12;for(const n of g.notes)if(n.beat<8)n.status='missed';g.lives=0;g.end();const next=g.notes.find(n=>n.status==='waiting');assert(g.revive());assert.equal(g.hits,12);assert.equal(g.countdown,3);assert(g.notes.includes(next));advance(g,3);events.length=0;g.step(.01);assert(events.filter(e=>e.type==='accompaniment').length<=1);});
 
 test('song starts above the strips and stays still during countdown',()=>{const g=createPianoGame(config);const start=g.beat;assert(g.notes.every(n=>n.beat-start>=5));g.start();advance(g,2.5);assert.equal(g.beat,start);assert.equal(g.hits,0);assert(!g.pressStrip(g.notes[0].lane));});
-test('early taps retain the written rhythm when queued and released',()=>{
+test('early taps score immediately while their audio retains the written rhythm',()=>{
  const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,3);
  const taps=g.notes.slice(0,2).map((n,i)=>({...n,hold:0,beat:4+i,end:4+i}));
  g.notes=taps;g.beat=2;const [a,b]=taps;events.length=0;
  assert(g.pressStrip(a.lane));g.release(a.lane);assert(g.pressStrip(b.lane));g.release(b.lane);
- assert.equal(a.status,'queued');assert.equal(b.status,'queued');assert.equal(g.hits,0);
+ assert.equal(a.status,'done');assert.equal(b.status,'done');assert.equal(g.hits,2);assert(a.soundPending&&b.soundPending);
  assert.equal(events.filter(e=>e.type==='note').length,0);
  advance(g,2.2);
  assert.equal(a.status,'done');assert.equal(b.status,'done');assert.equal(g.lives,g.maxLives);
@@ -24,16 +24,20 @@ test('early taps retain the written rhythm when queued and released',()=>{
  played.forEach((e,i)=>assert(Math.abs(e.beat-taps[i].beat)<.025));
 });
 test('empty strips before the first shape arrives do not cost lives',()=>{const g=createPianoGame(config);g.start();advance(g,3);for(let lane=0;lane<4;lane++)assert(!g.pressStrip(lane));assert.equal(g.lives,g.maxLives);});
-test('early holds wait for the melody and retain earned progress on release',()=>{
+test('early holds immediately retain earned progress while melody keeps its onset',()=>{
  const events=[],g=createPianoGame({...config,rng:()=>.31,onEvent:e=>events.push(e)});g.start();advance(g,3);
  const n=g.notes.find(n=>n.hold);for(const earlier of g.notes){if(earlier===n)break;earlier.status='done';}
- g.beat=n.beat-2;events.length=0;assert(g.pressStrip(n.lane));assert.equal(n.status,'queued');
- assert(!events.some(e=>e.type==='note'));g.release(n.lane);assert.equal(n.status,'waiting');
- assert(g.pressStrip(n.lane));advance(g,1.4);assert.equal(n.status,'holding');
- assert(events.some(e=>e.type==='note'&&e.note===n));
- g.release(n.lane);const progress=n.heldBeats;assert(progress>0);assert.equal(n.status,'partial');
- assert.equal(g.lives,g.maxLives);assert(g.pressStrip(n.lane));assert.equal(n.heldBeats,progress);
+ g.beat=n.beat-2;events.length=0;assert(g.pressStrip(n.lane));assert.equal(n.status,'holding');
+ assert(events.some(e=>e.type==='input'));assert(!events.some(e=>e.type==='note'));
+ advance(g,.1);g.release(n.lane);const progress=n.heldBeats;assert(progress>0);assert.equal(n.status,'partial');
+ advance(g,.1);assert.equal(n.heldBeats,progress);assert.equal(g.lives,g.maxLives);
+ assert(g.pressStrip(n.lane));assert.equal(n.heldBeats,progress);
  g.pause();const beat=g.beat;advance(g,2);assert.equal(g.beat,beat);g.resume();assert.equal(g.pressed.size,0);
+ assert(g.pressStrip(n.lane));assert.equal(n.heldBeats,progress);
+ for(let i=0;g.beat<n.beat+.02&&i<1000;i++)g.step(1/120);
+ const sounded=events.filter(e=>e.type==='note'&&e.note===n);assert.equal(sounded.length,1);
+ assert(sounded[0].beat>=n.beat&&sounded[0].beat-n.beat<.025);
+ assert.equal(g.lives,g.maxLives);
 });
 
 

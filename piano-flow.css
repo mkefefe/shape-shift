@@ -50,3 +50,9 @@
 /* Piano mistakes remain visible above the canvas, including with reduced motion. */
 #piano-flow[data-piano-error]::after{content:'';position:absolute;inset:0;z-index:9;pointer-events:none;border:5px solid #ff526c;box-shadow:inset 0 0 70px 14px #fa315c70;background:#f3264318}
 #piano-flow[data-piano-error]::before{content:'× ' attr(data-piano-error);position:absolute;top:24%;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;white-space:nowrap;padding:9px 18px;border:2px solid #ffd0d7;border-radius:14px;background:#9b1739;color:white;font:900 20px/1.2 Nunito,sans-serif;box-shadow:0 3px 14px #18081266}
+
+/* Physical keyboards remain available on touch devices. */
+#piano-flow .piano-key-labels{position:absolute;bottom:23px;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:580px;display:grid;grid-template-columns:repeat(4,1fr);z-index:3;pointer-events:none;text-align:center;color:white;font:900 14px Nunito,sans-serif}
+#piano-flow .piano-key-labels[hidden]{display:none}
+#piano-flow .piano-key-labels kbd{font:inherit;justify-self:center;min-width:26px;padding:2px 6px;border:1px solid #ffffff99;border-radius:5px;background:#102746cc}
+#piano-flow .piano-key-labels kbd.pressed{color:#102746;background:#fff3b5}
