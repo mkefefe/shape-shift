@@ -273,3 +273,21 @@ html body #app :is(#language-dialog .language-option,#difficulty-dialog .difficu
 .mode-card>.card-water[hidden]{display:none}
 .mode-card>strong,.mode-card>span{position:relative;z-index:1}
 .mode-card>em,.mode-card>small{z-index:1}
+
+/* Pre-filtered, density-aware frame art avoids aliasing when a detailed atlas is
+   reduced to a small badge. Use the same opening alignment in every context. */
+html body .frame-art{background-size:100% 100%;background-repeat:no-repeat;background-position:center;image-rendering:auto}
+html body .avatar-shell{--portrait-x:50%;--portrait-y:48%}
+html body .avatar-shell>.avatar,
+html body #shop-dialog .frame-preview:not([data-cosmetic="none"])>.avatar{
+ position:absolute;width:70%!important;height:70%!important;left:var(--portrait-x,50%);top:var(--portrait-y,48%);
+ transform:translate(-50%,-50%);border:0;box-shadow:none;
+}
+html body .avatar-shell:has(>.frame-gold),html body #shop-dialog .frame-preview[data-cosmetic="gold"]{--portrait-x:52%;--portrait-y:47%}
+html body .frame-gold{background-image:url("assets/avatar-frame-gold-2x-v49462.webp");background-image:image-set(url("assets/avatar-frame-gold-1x-v49462.webp") 1x,url("assets/avatar-frame-gold-2x-v49462.webp") 2x,url("assets/avatar-frame-gold-3x-v49462.webp") 3x,url("assets/avatar-frame-gold-4x-v49462.webp") 4x);}
+html body .avatar-shell:has(>.frame-ice),html body #shop-dialog .frame-preview[data-cosmetic="ice"]{--portrait-x:48.5%;--portrait-y:48%}
+html body .frame-ice{background-image:url("assets/avatar-frame-ice-2x-v49462.webp");background-image:image-set(url("assets/avatar-frame-ice-1x-v49462.webp") 1x,url("assets/avatar-frame-ice-2x-v49462.webp") 2x,url("assets/avatar-frame-ice-3x-v49462.webp") 3x,url("assets/avatar-frame-ice-4x-v49462.webp") 4x);}
+html body .avatar-shell:has(>.frame-blossom),html body #shop-dialog .frame-preview[data-cosmetic="blossom"]{--portrait-x:52%;--portrait-y:48.5%}
+html body .frame-blossom{background-image:url("assets/avatar-frame-blossom-2x-v49462.webp");background-image:image-set(url("assets/avatar-frame-blossom-1x-v49462.webp") 1x,url("assets/avatar-frame-blossom-2x-v49462.webp") 2x,url("assets/avatar-frame-blossom-3x-v49462.webp") 3x,url("assets/avatar-frame-blossom-4x-v49462.webp") 4x);}
+html body .avatar-shell:has(>.frame-cosmic),html body #shop-dialog .frame-preview[data-cosmetic="cosmic"]{--portrait-x:48.5%;--portrait-y:47%}
+html body .frame-cosmic{background-image:url("assets/avatar-frame-cosmic-2x-v49462.webp");background-image:image-set(url("assets/avatar-frame-cosmic-1x-v49462.webp") 1x,url("assets/avatar-frame-cosmic-2x-v49462.webp") 2x,url("assets/avatar-frame-cosmic-3x-v49462.webp") 3x,url("assets/avatar-frame-cosmic-4x-v49462.webp") 4x);}
