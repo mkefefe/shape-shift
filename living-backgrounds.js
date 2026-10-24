@@ -33,75 +33,119 @@ function polygon(ctx,points){ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lin
 function glow(ctx,x,y,r,color,alpha){
  const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(${color},${alpha})`);g.addColorStop(.25,`rgba(${color},${alpha*.45})`);g.addColorStop(1,`rgba(${color},0)`);ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
 }
-function waterfall(ctx,fall,time,index,warm){
+// Contrast as well as light makes white water read as moving on a small screen.
+function waterfall(ctx,fall,time,index,warm,scale){
  const [x0,y0,x1,y1,w0,w1]=fall,h=y1-y0;
  ctx.save();polygon(ctx,[[x0-w0/2,y0],[x0+w0/2,y0],[x1+w1/2,y1],[x1-w1/2,y1]]);ctx.clip();
- // Separate, tapered threads travel downstream. Both ends fade before they
- // wrap so the animation has no seams or moving rectangular edges.
- for(let i=0;i<11;i++){
-  const phase=(time*(.00038+i%3*.000035)+i*.193+index*.27)%1;
-  const length=Math.min(42,h*.28),y=y0+phase*(h+length)-length;
-  const v=Math.max(0,Math.min(1,(y-y0)/h)),spread=(i+.5)/11-.5;
-  const x=x0+(x1-x0)*v+spread*(w0+(w1-w0)*v)*.84;
-  const dx=(x1-x0)*length/h,alpha=.12+.13*(.5+.5*Math.sin(time*.0013+i));
-  const g=ctx.createLinearGradient(x,y,x+dx,y+length);
-  const rgb=warm?'255,239,209':'223,253,255';
-  g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.55,`rgba(${rgb},${alpha})`);g.addColorStop(1,`rgba(${rgb},0)`);
-  ctx.strokeStyle=g;ctx.lineWidth=1.1+i%3*.55;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+dx*.35+Math.sin(i+time*.001)*.7,y+length*.55,x+dx,y+length);ctx.stroke();
+ for(let i=0;i<12;i++){
+  const phase=(time*(.00046+i%3*.00004)+i*.193+index*.27)%1;
+  const length=Math.min(54,h*.42),y=y0+phase*(h+length)-length;
+  const v=Math.max(0,Math.min(1,(y-y0)/h)),spread=(i+.5)/12-.5;
+  const x=x0+(x1-x0)*v+spread*(w0+(w1-w0)*v)*.78,dx=(x1-x0)*length/h;
+  const taper=Math.min(1,phase*8,(1-phase)*8);
+  for(const shade of [true,false]){
+   const rgb=shade?(warm?'142,101,146':'0,130,180'):(warm?'255,250,226':'243,255,255');
+   const alpha=(shade?.25:.72)*taper,g=ctx.createLinearGradient(x,y,x+dx,y+length);
+   g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.42,`rgba(${rgb},${alpha})`);g.addColorStop(1,`rgba(${rgb},0)`);
+   ctx.strokeStyle=g;ctx.lineWidth=shade?Math.max(3.4,1.7/scale):Math.max(1.6,.95/scale);ctx.lineCap='round';
+   const offset=shade?1.5:0;ctx.beginPath();ctx.moveTo(x+offset,y);ctx.quadraticCurveTo(x+dx*.35+offset+Math.sin(i+time*.001)*.9,y+length*.55,x+dx+offset,y+length);ctx.stroke();
+  }
  }
  ctx.restore();
- // Mist brightens the existing splash without expanding onto the rocks.
- glow(ctx,x1,y1+2,w1*.65,warm?'255,241,221':'220,251,255',.055+.025*Math.sin(time*.0018+index));
+ // Droplets stay close to the painted splash, rather than lifting the banks.
+ for(let i=0;i<5;i++){
+  const phase=(time*.0006+i*.2+index*.13)%1;
+  const sx=x1+Math.sin(i*4.7)*w1*.38*phase,sy=y1+2-Math.sin(phase*Math.PI)*w1*.2;
+  glow(ctx,sx,sy,w1*.24,'227,253,255',Math.sin(phase*Math.PI)*.23);
+ }
 }
-function pool(ctx,points,time,index){
+function pool(ctx,points,time,index,scale,moon){
  ctx.save();polygon(ctx,points);ctx.clip();
  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
  const left=Math.min(...xs),top=Math.min(...ys),width=Math.max(...xs)-left,height=Math.max(...ys)-top;
- for(let i=0;i<42;i++){
-  const phase=(time*.00009+i*.137+index*.19)%1;
-  const x=left+((i*.618)%1)*width+Math.sin(time*.0007+i)*3,y=top+phase*height;
-  const alpha=Math.sin(phase*Math.PI)*(.09+.12*(.5+.5*Math.sin(time*.0015+i)));
-  ctx.strokeStyle=`rgba(224,253,255,${alpha})`;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(x,y,3+i%8,1.1,0,0,Math.PI);ctx.stroke();
- }ctx.restore();
+ // Long, low ripples travel with the current, with soft blue troughs below.
+ for(let i=0;i<34;i++){
+  const phase=(time*.00015+i*.137+index*.19)%1;
+  const x=left+((i*.618)%1)*width+Math.sin(phase*Math.PI)*(-18),y=top+phase*height;
+  const alpha=Math.sin(phase*Math.PI)*(.3+.22*(.5+.5*Math.sin(time*.0015+i)));
+  const radius=7+i%8*2.1;
+  ctx.strokeStyle=`rgba(${moon?'22,82,158':'0,116,153'},${alpha*.58})`;ctx.lineWidth=Math.max(3,1.5/scale);
+  ctx.beginPath();ctx.ellipse(x,y+2,radius,1.8,0,.05,Math.PI-.05);ctx.stroke();
+  ctx.strokeStyle=`rgba(230,255,255,${alpha})`;ctx.lineWidth=Math.max(1.6,.95/scale);
+  ctx.beginPath();ctx.ellipse(x,y,radius,1.8,0,.05,Math.PI-.05);ctx.stroke();
+ }
+ // Expanding foam rings at the real entry points keep the flow legible.
+ const centers=moon?[[385,1056],[555,1081]]:index===0?[[266,1285],[494,1267]]:[[233,1369],[345,1424]];
+ for(const [j,[cx,cy]] of centers.entries())for(let i=0;i<3;i++){
+  const phase=(time*.00027+i/3+j*.21)%1,radius=8+phase*50;
+  ctx.strokeStyle=`rgba(235,255,255,${Math.sin(phase*Math.PI)*(moon?.4:.5)})`;ctx.lineWidth=Math.max(1.6,1/scale);
+  ctx.beginPath();ctx.ellipse(cx,cy+phase*9,radius,radius*.17,0,.12,Math.PI*.87);ctx.stroke();
+  ctx.globalAlpha=.55;ctx.beginPath();ctx.ellipse(cx+2,cy+phase*9,radius*.92,radius*.15,0,Math.PI*1.13,Math.PI*1.78);ctx.stroke();ctx.globalAlpha=1;
+ }
+ ctx.restore();
 }
-export function paintLivingBackground(ctx,world,width,height,time){
+
+// Sample only the open Sunset sky. A stationary feathered mask excludes every
+// island, plant and ledge; no scenery is translated with the moving clouds.
+export function createCloudDrift(atlas){
+ const width=264,height=250,top=940,canvas=document.createElement('canvas'),mask=document.createElement('canvas');
+ canvas.width=mask.width=width;canvas.height=mask.height=height;
+ const ctx=canvas.getContext('2d'),m=mask.getContext('2d'),pixels=m.createImageData(width,height);
+ const points=[[0,0],[207,0],[240,80],[218,137],[156,173],[65,208],[0,238]];
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+  let inside=false,distance=Infinity;
+  for(let i=0,j=points.length-1;i<points.length;j=i++){
+   const [ax,ay]=points[j],[bx,by]=points[i],dx=bx-ax,dy=by-ay;
+   if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside;
+   const t=Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy)));
+   distance=Math.min(distance,Math.hypot(x-ax-t*dx,y-ay-t*dy));
+  }
+  const fade=Math.min(1,distance/24),a=inside?fade*fade*(3-2*fade)*255:0;
+  const k=(y*width+x)*4;pixels.data[k]=pixels.data[k+1]=pixels.data[k+2]=255;pixels.data[k+3]=a;
+ }
+ m.putImageData(pixels,0,0);
+ return {canvas,paint(time){
+  ctx.clearRect(0,0,width,height);ctx.globalCompositeOperation='source-over';
+  for(let i=0;i<2;i++){
+   const phase=(time/11000+i*.5)%1;
+   ctx.globalAlpha=Math.sin(phase*Math.PI)**2*.92;
+   ctx.drawImage(atlas,627,0,627,1254,phase*64,-top+Math.sin(time*.00035+i)*3,627,1254);
+  }
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);ctx.globalCompositeOperation='source-over';
+  return canvas;
+ },top};
+}
+function firefly(ctx,px,py,time,i,color,scale){
+ const pulse=.5+.5*Math.sin(time*.0015+i*1.7),x=px+Math.sin(time*.00065+i)*11,y=py+Math.cos(time*.00085+i)*8;
+ glow(ctx,x,y,11,color,.25+pulse*.3);ctx.fillStyle=`rgba(${color},${.4+pulse*.5})`;ctx.beginPath();ctx.arc(x,y,Math.max(1.25,1.05/scale),0,TAU);ctx.fill();
+}
+export function paintLivingBackground(ctx,world,width,height,time,clouds){
  const scene=scenes[world]||scenes.garden,{scale,x,y}=backgroundTransform(world,width,height);
  ctx.clearRect(0,0,width,height);ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
- scene.falls.forEach((fall,i)=>waterfall(ctx,fall,time,i,world==='sunset'));
- scene.pools.forEach((points,i)=>pool(ctx,points,time,i));
+ if(world==='sunset'&&clouds)ctx.drawImage(clouds.paint(time),0,clouds.top);
+ scene.falls.forEach((fall,i)=>waterfall(ctx,fall,time,i,world==='sunset',scale));
+ scene.pools.forEach((points,i)=>pool(ctx,points,time,i,scale,world==='moon'));
  if(world==='moon'){
-  // Fireflies follow the forest edges, away from the menu text.
-  for(const [i,[px,py]] of [[73,659],[140,774],[200,913],[542,942],[284,1133],[69,1084],[565,704],[585,842]].entries()){
-   const pulse=.5+.5*Math.sin(time*.0012+i*1.7),fx=px+Math.sin(time*.0005+i)*6,fy=py+Math.cos(time*.0007+i)*5;
-   glow(ctx,fx,fy,7,'227,255,129',.12+pulse*.25);ctx.fillStyle=`rgba(245,255,197,${.25+pulse*.55})`;ctx.beginPath();ctx.arc(fx,fy,.8+pulse*.4,0,TAU);ctx.fill();
-  }
-  for(const [i,[sx,sy]] of [[393,211],[532,39],[427,395],[187,251]].entries())glow(ctx,sx,sy,4,'216,242,255',.08+.14*(.5+.5*Math.sin(time*.0009+i*2)));
+  for(const [i,[px,py]] of [[73,659],[140,774],[200,913],[542,942],[284,1133],[69,1084],[565,704],[585,842],[82,1050],[201,1088],[544,1105]].entries())firefly(ctx,px,py,time,i,'237,255,167',scale);
+  for(const [i,[sx,sy]] of [[393,211],[532,39],[427,395],[187,251]].entries())glow(ctx,sx,sy,6,'216,242,255',.15+.35*(.5+.5*Math.sin(time*.0015+i*2)));
  }else if(world==='sunset'){
-  // A restrained warm shimmer around the painted sun; clouds stay still.
-  glow(ctx,377,673,56,'255,244,176',.045+.018*Math.sin(time*.0007));
-  // The lower-left sky remains visible beside the cards and Play button.
-  // Feathered light drifts over those clouds without displacing their edges.
-  for(const [i,[cx,cy]] of [[69,1020],[145,1084],[49,1174]].entries()){
-   ctx.save();ctx.translate(cx+Math.sin(time*.00023+i)*12,cy+Math.cos(time*.00031+i)*3);ctx.scale(2.2,.65);
-   glow(ctx,0,0,30,'255,236,194',.08+.035*Math.sin(time*.0008+i));ctx.restore();
-  }
-  for(const [i,[px,py]] of [[42,1029],[97,1106],[162,1053],[43,1162],[126,999]].entries()){
-   const pulse=.5+.5*Math.sin(time*.0013+i*1.9),fx=px+Math.sin(time*.00038+i)*9,fy=py+Math.cos(time*.0005+i)*7;
-   glow(ctx,fx,fy,5,'255,237,155',.12+pulse*.2);ctx.fillStyle=`rgba(255,250,211,${.2+pulse*.5})`;ctx.beginPath();ctx.arc(fx,fy,.7+pulse*.45,0,TAU);ctx.fill();
-  }
+  glow(ctx,377,673,56,'255,244,176',.08+.04*Math.sin(time*.0007));
+  for(const [i,[px,py]] of [[72,1029],[137,1086],[192,1053],[73,1142],[166,999]].entries())firefly(ctx,px,py,time,i,'255,248,193',scale);
  }
  ctx.restore();
 }
 
 export function initLivingBackground(app,home){
  const canvas=document.createElement('canvas');canvas.id='living-water';canvas.setAttribute('aria-hidden','true');home.prepend(canvas);
- const ctx=canvas.getContext('2d'),motion=matchMedia('(prefers-reduced-motion: reduce)');let frame=0,last=-Infinity;
+ const ctx=canvas.getContext('2d'),motion=matchMedia('(prefers-reduced-motion: reduce)');let frame=0,last=-Infinity,clouds=null;
+ const atlas=new Image();atlas.src=new URL('./assets/worlds-v12.webp',import.meta.url).href;
+ atlas.decode().then(()=>{clouds=createCloudDrift(atlas);}).catch(()=>{});
  const running=()=>app.dataset.screen==='home'&&!document.hidden&&!document.body.classList.contains('reduce-motion')&&!motion.matches&&!document.querySelector('dialog[open]');
  function paint(time){
-  frame=0;if(!running())return;frame=requestAnimationFrame(paint);if(time-last<50)return;last=time;
+  frame=0;if(!running())return;frame=requestAnimationFrame(paint);if(time-last<33)return;last=time;
   const w=home.clientWidth,h=home.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
   if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
-  ctx.setTransform(dpr,0,0,dpr,0,0);paintLivingBackground(ctx,app.dataset.background,w,h,time);
+  ctx.setTransform(dpr,0,0,dpr,0,0);paintLivingBackground(ctx,app.dataset.background,w,h,time,clouds);
  }
  function refresh(){if(frame)cancelAnimationFrame(frame);frame=0;last=-Infinity;canvas.hidden=!running();ctx.clearRect(0,0,canvas.width,canvas.height);if(running())frame=requestAnimationFrame(paint);}
  new MutationObserver(refresh).observe(app,{attributes:true,attributeFilter:['data-screen','data-background']});
