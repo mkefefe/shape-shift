@@ -8,7 +8,7 @@ export const STORY_SCENES = Object.freeze({
  river:{duration:5,title:'Let It Flow',audio:'story-20.ogg'},
  village:{duration:5,title:'Welcome Home',audio:'story-50.ogg'},
  sky:{duration:5,title:'A Sky Full of Color',audio:'story-75.ogg'},
- ending:{duration:25,title:'Color Comes Home',audio:'story-ending.ogg'},
+ ending:{duration:25,title:'Color Comes Home',audio:'story-ending.ogg',description:'After all 100 Adventure levels, one spark fills the Color Beacon, restores the whole island, and celebrates your adventure with the credits.'},
  credits:{duration:12,title:'Made by MK',audio:'story-ending.ogg',audioOffset:13}
 });
 const COLORS=['#ff7775','#68d7ff','#9fe97a','#ffe388'];
@@ -107,9 +107,10 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
  const finale=sceneId==='ending',intro=sceneId==='intro';
  const chapter={garden:1,river:2,village:3,sky:4}[sceneId]||0;
  const level={garden:10,river:25,village:50,sky:75}[sceneId]||0;
- const rise=finale?ease(t,3,6):ease(t,1,3.2);
- // The sky restored at level 75 stays restored at the start of level 100.
- const skyPower=finale?mix(.65,1,ease(t,3,7)):sceneId==='sky'?mix(.035,.65,rise):.035;
+ const rise=finale?ease(t,2.7,7.2):ease(t,1,3.2);
+ // The one finale begins with the whole island uncolored. The sky brightens
+ // with the outward color wave, rather than inheriting a previous chapter.
+ const skyPower=finale?mix(.035,1,ease(t,4.5,8)):sceneId==='sky'?mix(.035,.65,rise):.035;
  const credit=finale?ease(t,11.5,13):0;
  ctx.save();ctx.scale(ctx.canvas.width/720,ctx.canvas.height/1280);ctx.imageSmoothingQuality='high';
  ctx.fillStyle='#102d43';ctx.fillRect(0,0,720,1280);
@@ -127,11 +128,11 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
  // The island gently settles lower for the credits. Reduced motion keeps the
  // painting stationary throughout the ending, including its credit cards.
  const islandDock=reduced&&finale?1:credit;
- const iw=mix(700,520,islandDock),ix=(720-iw)/2,iy=mix(410,838,islandDock),u=iw/a.island.width;
+ const iw=mix(700,500,islandDock),ix=(720-iw)/2,iy=mix(410,750,islandDock),u=iw/a.island.width;
  const lamp={x:ix+620*u,y:iy+294*u,rx:104*u,ry:108*u};
  const focus=chapter&&!reduced?Math.sin(ease(t,0,4.4)*Math.PI)*.035:0;
  ctx.save();ctx.translate(360,800);ctx.scale(1+focus,1+focus);ctx.translate(-360,-800);
- const before=intro?0:finale?90:{garden:0,river:10,village:40,sky:70}[sceneId];
+ const before=intro||finale?0:{garden:0,river:10,village:40,sky:70}[sceneId];
  const after=a.restorationStage(finale?100:level);
  ctx.drawImage(a.restorationStage(before),ix,iy,iw,iw);
  if(!intro&&rise>=1){
@@ -140,10 +141,11 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
   ctx.drawImage(after,ix,iy,iw,iw);
  }else if(!intro&&rise>0){
   const q=a.reveal.getContext('2d');q.clearRect(0,0,720,1280);q.globalCompositeOperation='source-over';q.drawImage(after,ix,iy,iw,iw);
-  if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(lamp.x,lamp.y,Math.max(0,radius-140),lamp.x,lamp.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
+  if(finale&&reduced){q.globalCompositeOperation='destination-in';q.globalAlpha=rise;q.fillStyle='#fff';q.fillRect(0,0,720,1280);q.globalAlpha=1;q.globalCompositeOperation='source-over';}
+  else if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(lamp.x,lamp.y,Math.max(0,radius-140),lamp.x,lamp.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
   ctx.drawImage(a.reveal,0,0);
  }
- const fill=intro?ease(t,3.5,4.7)*.01:finale?mix(.99,1,ease(t,1.6,2.5)):mix((level-1)/100,level/100,ease(t,.8,1.4));
+ const fill=intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
  ctx.save();ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();
  const glass=ctx.createRadialGradient(lamp.x-20,lamp.y-20,0,lamp.x,lamp.y,100*u*2);glass.addColorStop(0,'#254e67');glass.addColorStop(1,'#102e43');ctx.fillStyle=glass;ctx.fillRect(lamp.x-80,lamp.y-80,160,160);
  const waterTop=lamp.y+lamp.ry-2-lamp.ry*1.9*fill;
@@ -151,22 +153,22 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
  const liquid=ctx.createLinearGradient(0,lamp.y-lamp.ry,0,lamp.y+lamp.ry);liquid.addColorStop(0,'#ffe69e');liquid.addColorStop(.3,'#b8edb4');liquid.addColorStop(.65,'#86dcee');liquid.addColorStop(1,'#e3a2c0');ctx.fillStyle=liquid;ctx.fill();
  ctx.fillStyle='#ffffff4a';ctx.beginPath();ctx.ellipse(lamp.x-23*u*1.8,lamp.y-24*u*1.8,7*u*1.8,21*u*1.8,.55,0,Math.PI*2);ctx.fill();ctx.restore();
  glow(lamp.x,lamp.y,150+rise*80,4,.14+fill*.3);
- const active=finale||chapter>1?1:0;
+ // Water and cottage lights wake only after the complete island is colored.
+ const active=finale?ease(t,7.2,8):chapter>1?1:0;
  if(active){
   if(chapter>=2||finale){ctx.save();ctx.lineCap='round';for(let i=0;i<8;i++){const p=(ambientTime*.62+i*.137)%1;ctx.globalAlpha=active*Math.sin(p*Math.PI)*.28;ctx.strokeStyle='#e4ffff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(ix+(604+i%3*28)*u,iy+(883+p*166)*u);ctx.lineTo(ix+(604+i%3*28)*u,iy+(910+p*166)*u);ctx.stroke();}ctx.restore();}
   if(chapter>=3||finale)for(const [x,y]of[[402,500],[855,474],[923,623],[300,567]])glow(ix+x*u,iy+y*u,45*u*1.8,4,active*.47);
  }
- if(chapter===1||finale){for(let i=0;i<3;i++){const born=finale?4.5:1.3,age=t-born-i*.18;if(age<0)continue;const xx=ix+(250+i*330)*u+Math.sin(ambientTime*1.4+i)*12,yy=iy+(760-i%2*90)*u-(reduced?0:Math.min(90,age*18));ctx.save();ctx.translate(xx,yy);ctx.scale(reduced?1:.3+.7*Math.abs(Math.sin(t*7+i)),1);shape(i,-5,0,18,ease(age,0,.4));shape(i,5,0,18,ease(age,0,.4));ctx.restore();}}
+ if(chapter===1||finale){for(let i=0;i<3;i++){const born=finale?7.5:1.3,age=t-born-i*.18;if(age<0)continue;const xx=ix+(250+i*330)*u+Math.sin(ambientTime*1.4+i)*12,yy=iy+(760-i%2*90)*u-(reduced?0:Math.min(90,age*18));ctx.save();ctx.translate(xx,yy);ctx.scale(reduced?1:.3+.7*Math.abs(Math.sin(t*7+i)),1);shape(i,-5,0,18,ease(age,0,.4));shape(i,5,0,18,ease(age,0,.4));ctx.restore();}}
  ctx.restore();
  // A readable match-to-beacon action links the story directly to the game.
  const hit=intro?3.2:finale?1.3:.7,age=t-hit;
  if(t<hit){const p=ease(t,Math.max(0,hit-1.1),hit),gap=mix(160,23,p),index=intro?0:finale?3:(chapter-1);shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
  if(age>=0&&age<.9){const p=ease(age,0,.9),x=360+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(360+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));}
  if(!reduced)particles(lamp.x,lamp.y,age-.7,4,14,100);
- // Lanterns celebrate the completed world only. Level 75 instead restores the
- // permanent aurora/starlight, which remains visible in the finale opening.
- if(finale&&t>6.8){
-  const start=6.8,count=reduced?8:22;
+ // Lanterns celebrate only after the whole island and sky are restored.
+ if(finale&&t>8){
+  const start=8,count=reduced?8:22;
   for(let i=0;i<count;i++){const born=start+i*.61,age=t-born;if(age<0)continue;const side=i%2?-1:1,x=reduced?360+side*250:360+side*(215+(i%3)*26)+Math.sin(age*.55+i)*16,y=reduced?1115-Math.floor(i/2)*210:1230-age*94;if(y< -130)continue;const size=92+(i%3)*17;glow(x,y-4,size*1.2,i%4,.2*(reduced?ease(age,0,.5):1));lantern(i%4,x,y,size,ease(age,0,.5),reduced?0:Math.sin(age*.7+i)*.065);}
  }
  if(intro){
@@ -180,9 +182,9 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
   const line={garden:'The garden wakes.',river:'The river runs again.',village:'Every window finds its light.',sky:'Even the sky remembers.'}[sceneId];
   text(line,360,1155,30,ease(t,2.4,3.2),'#ffe3a0');text(`${level}% of the beacon restored`,360,1200,24,ease(t,2.7,3.3),'#c9e5e5');
  }else{
-  const headline=ease(t,0,.55)*(1-ease(t,10.3,11.3));text('The last spark.',360,160,42,headline*(1-ease(t,2.4,3.2)));text('Color comes home.',360,160,44,headline*ease(t,3.1,4));
+  const headline=ease(t,0,.55)*(1-ease(t,10.3,11.3));text('One spark.',360,160,42,headline*(1-ease(t,2.4,3.2)));text('Color comes home.',360,160,44,headline*ease(t,3.1,4));
   text('100 / 100',360,219,25,headline,'#ffe3a0');
-  text('You brought this world to life.',360,1195,29,ease(t,6,7)*(1-ease(t,10.2,11.2)),'#fff2ca');
+  text('You brought this world to life.',360,1195,29,ease(t,7.5,8.3)*(1-ease(t,10.2,11.2)),'#fff2ca');
   if(t>=12.5){
    const p=clamp((t-13)/9),y=reduced?300:mix(580,-150,p),alpha=ease(t,12.5,13.5)*(1-ease(t,21.4,22.2));
    image(a.logo,360,y,380,380*a.logo.height/a.logo.width,alpha);

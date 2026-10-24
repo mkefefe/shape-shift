@@ -8,7 +8,7 @@ import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
-import {initStoryUI} from './story-ui.js?v=49439-web24';
+import {initStoryUI} from './story-ui.js?v=49456';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
 import {initPianoFlow} from './piano-flow.js?v=49452';
@@ -22,7 +22,7 @@ import {enableHoldBuying} from './hold-buy.js?v=49439-web12';
 import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49439-web12';
 import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web12';
 import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
-import {initSettingsExtras} from './settings-extras.js?v=49439-web12';
+import {initSettingsExtras} from './settings-extras.js?v=49456';
 import {initShapeSlice} from './shape-slice.js?v=49439-web12';
 import {claimSliceReward} from './shape-slice-engine.js?v=49439-web24';
 import {initGamesHub} from './games-hub.js?v=49439-web12';
@@ -3700,11 +3700,23 @@ updateQuestBadge();
 
 
 
-let lessonIndex=0,tutorialStartsRun=false,tutorialReturnPaused=false,tutorialCompletion=null;
+let lessonIndex=0,tutorialStartsRun=false,tutorialReturnPaused=false,tutorialCompletion=null,tutorialFromSettings=false;
+const tutorialClose=document.createElement('button');tutorialClose.id='tutorial-close';tutorialClose.className='close';tutorialClose.setAttribute('aria-label','Close how to play');tutorialClose.innerHTML='<img src="assets/close-v45.webp" alt="" aria-hidden="true">';tutorialClose.onclick=()=>{uiSound('close');closeTutorialReplay();};
 
 
 
-function openTutorial(startRun=false){lessonIndex=0;tutorialStartsRun=startRun;tutorialReturnPaused=paused;closeDialogs();renderLesson();$('tutorial-dialog').showModal();audio()?.start();}
+function openTutorial(startRun=false,fromSettings=false){
+ lessonIndex=0;tutorialStartsRun=startRun;tutorialReturnPaused=paused;tutorialFromSettings=fromSettings;
+ const dialog=$('tutorial-dialog');dialog.dataset.replay=String(fromSettings);dialog.setAttribute('aria-labelledby','tutorial-title');
+ if(fromSettings)dialog.prepend(tutorialClose);else tutorialClose.remove();
+ closeDialogs();renderLesson();dialog.showModal();audio()?.start();
+}
+function closeTutorialReplay(){
+ if(!tutorialFromSettings)return;
+ tutorialFromSettings=false;$('tutorial-dialog').close();tutorialClose.remove();
+ if(tutorialReturnPaused&&!$('pause-dialog').open)$('pause-dialog').showModal();
+ openSettings();$('how-to-play-open').focus({preventScroll:true});
+}
 
 
 
@@ -3740,11 +3752,15 @@ function renderLesson(){
 
 
 
-$('tutorial-next').onclick=()=>{if(lessonIndex<LESSONS.length){lessonIndex++;renderLesson();return;}store.set(TUTORIAL_KEY,true);firstEndless.complete();$('tutorial-dialog').close();if(tutorialStartsRun){const complete=tutorialCompletion;tutorialCompletion=null;complete?.(true);}else if(tutorialReturnPaused)$('pause-dialog').showModal();};
+$('tutorial-next').onclick=()=>{if(lessonIndex<LESSONS.length){lessonIndex++;renderLesson();return;}if(tutorialFromSettings){closeTutorialReplay();return;}store.set(TUTORIAL_KEY,true);firstEndless.complete();$('tutorial-dialog').close();if(tutorialStartsRun){const complete=tutorialCompletion;tutorialCompletion=null;complete?.(true);}else if(tutorialReturnPaused)$('pause-dialog').showModal();};
 
 
 
-$('tutorial-dialog').addEventListener('cancel',e=>e.preventDefault());
+$('tutorial-dialog').addEventListener('cancel',e=>{e.preventDefault();closeTutorialReplay();});
+$('tutorial-dialog').addEventListener('keydown',event=>{
+ if(!tutorialFromSettings||!['KeyZ','Escape'].includes(event.code)||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
+ event.preventDefault();event.stopPropagation();closeTutorialReplay();
+});
 
 $('privacy-policy-open').onclick=()=>{$('privacy-policy-dialog').showModal();loadPrivacyContent($('privacy-policy-content'));};
 
@@ -3920,7 +3936,7 @@ function maybeAbilityGuide(){
 for(const name of ['shield','freeze','boost'])document.querySelector('.abilities').append($(name));
 syncAdventureBoosts();
 
-initSettingsExtras(uiSound);
+initSettingsExtras(uiSound,()=>openTutorial(false,true));
 initTouchUI(document);
 initInputFeedback();
 

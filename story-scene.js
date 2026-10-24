@@ -1,4 +1,4 @@
-import {loadStoryAssets, drawStory, STORY_SCENES} from './story-renderer.js?v=49439-web12';
+import {loadStoryAssets, drawStory, STORY_SCENES} from './story-renderer.js?v=49456';
 
 const ASSET_BASE = new URL('./assets/story-beacon/', import.meta.url);
 const MAX_LOAD_MS = 5000;
@@ -11,8 +11,8 @@ let activeScene = null;
  * canvas, soundtrack and controls. A failed load never claims a chapter seen.
  * @returns {Promise<{completed:boolean, skipped:boolean, failed?:boolean}> & {cancel:Function}}
  */
-export function showStoryScene({scene, document = globalThis.document, reduced = false, volume = 1, effectsVolume = volume, done} = {}, renderer = {}) {
-  if(Array.isArray(scene))return showStorySequence({scenes:scene,document,reduced,volume,effectsVolume,done},renderer);
+export function showStoryScene({scene, document = globalThis.document, reduced = false, volume = 1, effectsVolume = volume, autoplay = false, done} = {}, renderer = {}) {
+  if(Array.isArray(scene))return showStorySequence({scenes:scene,document,reduced,volume,effectsVolume,autoplay,done},renderer);
   let resolve;
   const result = new Promise(finish => { resolve = finish; });
   let settled = false, dialog, audio, frame, loadTimer, assets, context, soundButton, soundURL, soundRequest;
@@ -30,11 +30,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
   }
   const config = (renderer.scenes || STORY_SCENES)[scene];
   const loadAssets = renderer.load || loadStoryAssets;
-  const draw = renderer.draw || ((ctx,art,id,time,options)=>{
-    // Only earned milestone charges restore districts in this edition.
-    const previous={40:25,70:50,90:75};
-    drawStory(ctx,{...art,restorationStage:level=>art.restorationStage(previous[level]??level)},id,time,options);
-  });
+  const draw = renderer.draw || drawStory;
   const view = document?.defaultView || globalThis;
   const previousFocus = document?.activeElement;
   const requestFrame = window.ShapeShiftPlatform.requestAnimationFrame?.bind(view);
@@ -99,6 +95,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
         if (settled) return;
         audioBlocked = true;
         pauseSound();
+        soundButton.textContent = 'Tap to play';
         soundButton.hidden = false;
         soundButton.focus({preventScroll: true});
       }).finally(() => {
@@ -106,7 +103,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
         // A play promise can resolve after the user has skipped or hidden the app.
         if (settled || !isVisible()) { try { audio.pause(); } catch {} }
       });
-    } catch { audioPending = false; audioBlocked = true; soundButton.hidden = false; }
+    } catch { audioPending = false; audioBlocked = true; soundButton.textContent = 'Tap to play'; soundButton.hidden = false; }
   }
   function pauseSound() { try { audio?.pause(); for(const cue of cues)cue.media.pause(); } catch {} }
   function syncVisibility() {
@@ -259,11 +256,14 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
       window.ShapeShiftPlatform.clearTimeout(loadTimer);
       loadTimer = null;
       assets = loaded;
-      try { draw(context, assets, scene, .6, {reduced}); }
+      try { draw(context, assets, scene, 0, {reduced}); }
       catch { finish({completed: false, skipped: false, failed: true}); return; }
       ready = true;
       dialog.dataset.ready = 'true';
-      dialog.dataset.stage='waiting'; soundButton.textContent='Tap to charge'; soundButton.disabled=false; soundButton.hidden=false;
+      started=Boolean(autoplay);
+      dialog.dataset.stage=started?'revealing':'waiting';
+      soundButton.textContent=scene==='ending'?'Restore island':scene==='credits'?'Play credits':'Tap to play';
+      soundButton.disabled=false; soundButton.hidden=started;
       lastTime = isVisible() ? now() : null;
       lastDrawTime = lastTime;
       playSound();
@@ -277,7 +277,7 @@ export function showStoryScene({scene, document = globalThis.document, reduced =
 
 // Keep one full-screen presentation and one game-audio pause across all unlocked
 // chapters. Each chapter retains its authored soundtrack and fade transitions.
-function showStorySequence({scenes,document,reduced,volume,effectsVolume,done},renderer){
+function showStorySequence({scenes,document,reduced,volume,effectsVolume,autoplay,done},renderer){
  let current,cancelled=false;
  const curtain=document.createElement('div');curtain.className='story-sequence-curtain';
  curtain.setAttribute('aria-hidden','true');document.body.append(curtain);
@@ -286,7 +286,7 @@ function showStorySequence({scenes,document,reduced,volume,effectsVolume,done},r
   try{
    for(const scene of scenes){
     if(cancelled)return {completed:false,skipped:true};
-    current=showStoryScene({scene,document,reduced,volume,effectsVolume},renderer);
+    current=showStoryScene({scene,document,reduced,volume,effectsVolume,autoplay},renderer);
     outcome=await current;
     if(!outcome.completed||outcome.returnToMap)return outcome;
    }
