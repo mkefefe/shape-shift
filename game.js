@@ -1,4 +1,4 @@
-import {initLivingMenu} from './menu-polish.js?v=49458';
+import {initLivingMenu} from './menu-polish.js?v=49460';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';

@@ -267,3 +267,9 @@ html body #app dialog :is(.shop-tabs,.profile-tabs,#achievement-tabs,.quest-tabs
 
 /* Unselected choices remain text on the panel, without a tinted tile. */
 html body #app :is(#language-dialog .language-option,#difficulty-dialog .difficulty-option):not([aria-pressed=true]){background:transparent;border-color:transparent;box-shadow:none}
+
+/* Water follows the card artwork, beneath its text and inside its rounded edge. */
+.mode-card>.card-water{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;border-radius:inherit}
+.mode-card>.card-water[hidden]{display:none}
+.mode-card>strong,.mode-card>span{position:relative;z-index:1}
+.mode-card>em,.mode-card>small{z-index:1}
