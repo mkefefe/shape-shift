@@ -1,16 +1,16 @@
 import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=49439-web12';
-import {MODE_ACHIEVEMENTS,achievementProgress} from './achievement-catalog.js?v=49439-web12';
+import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=49439-web22';
 import {onlineAllowed} from './audience.js?v=49439-web12';
 const key='shape-shift-achievements-v1';let saved;try{saved=JSON.parse(window.ShapeShiftPlatform.storage.getItem(key));}catch{}
 let state=achievementState(saved),notify=()=>{},noticeTimer,hooks={},tab='endless',selected=null,collecting=false;
 const $=id=>document.getElementById(id),claimed=id=>(hooks.getProfile?.().achievementClaims||[]).includes(id);
-const ready=mode=>MODE_ACHIEVEMENTS.filter(a=>(!mode||a.mode===mode)&&complete(state,a)&&!claimed(a.id));
+const ready=mode=>MODE_ACHIEVEMENTS.filter(a=>(!mode||a.mode===mode)&&achievementVisible(state.modeStats,a,hooks.getProfile?.())&&complete(state,a)&&!claimed(a.id));
 function updateBadge(){const badge=$('achievement-badge');if(!badge)return;const count=ready().length;badge.textContent=count;badge.hidden=!count;badge.parentElement.setAttribute('aria-label','Achievements'+(count?', '+count+' rewards ready':''));}
 
 const complete=(s,a)=>claimed(a.id)||achievementProgress(s.modeStats,a)>=a.target;
 export function syncAchievements(){if(onlineAllowed()&&window.ShapeShiftGames?.configured())window.ShapeShiftGames.sync(JSON.stringify(state.unlocked));}
 export function trackAchievements(event){
- const next=advanceAchievements(state,event),fresh=MODE_ACHIEVEMENTS.filter(a=>complete(next,a)&&!complete(state,a));
+ const next=advanceAchievements(state,event),fresh=MODE_ACHIEVEMENTS.filter(a=>achievementVisible(next.modeStats,a,hooks.getProfile?.())&&complete(next,a)&&!complete(state,a));
  try{window.ShapeShiftPlatform.storage.setItem(key,JSON.stringify(next));}catch{return;}state=next;
  if(fresh.length&&event.type!=='history'){notify();syncAchievements();const notice=$('achievement-notice');notice.textContent=fresh[0].name+(fresh.length>1?' +'+(fresh.length-1):'');notice.hidden=false;window.ShapeShiftPlatform.clearTimeout(noticeTimer);noticeTimer=window.ShapeShiftPlatform.setTimeout(()=>notice.hidden=true,2600);}
  updateBadge();if($('achievements-dialog')?.open)renderAchievements();
@@ -45,13 +45,13 @@ function details(award){
 function renderAchievements(){
  const list=$('achievement-list'),scroll=list.scrollTop;list.hidden=false;$('achievement-tabs').hidden=false;$('achievement-count').hidden=false;list.replaceChildren();
  for(const button of $('achievement-tabs').children){button.setAttribute('aria-selected',String(button.dataset.mode===tab));button.classList.toggle('selected',button.dataset.mode===tab);const count=ready(button.dataset.mode).length;button.querySelector('.achievement-tab-dot').hidden=!count;button.setAttribute('aria-label',button.dataset.mode[0].toUpperCase()+button.dataset.mode.slice(1)+(count?', '+count+' rewards ready':''));}
- const awards=MODE_ACHIEVEMENTS.filter(a=>a.mode===tab).sort((a,b)=>a.tier-b.tier);$('achievement-count').textContent=awards.filter(a=>complete(state,a)).length+' / '+awards.length+' earned';
+ const awards=sortedAchievements(state.modeStats,tab,hooks.getProfile?.());$('achievement-count').textContent=awards.filter(a=>complete(state,a)).length+' / '+awards.length+' earned';
  for(const award of awards){const earned=complete(state,award),card=document.createElement('button');card.className='achievement-tile'+(earned?' earned':'')+(claimed(award.id)?' claimed':'');card.dataset.award=award.id;card.setAttribute('aria-label',award.name+', '+achievementProgress(state.modeStats,award)+' of '+award.target+(claimed(award.id)?', collected':earned?', reward ready':''));const title=document.createElement('span');title.className='achievement-mini-title';title.textContent=award.shortName;const tier=document.createElement('span');tier.className='achievement-tier';tier.textContent=['I','II','III','IV','V'][award.tier];const label=document.createElement('span');label.className='achievement-mini-progress';label.textContent=claimed(award.id)?'Collected':earned?'Collect':achievementProgress(state.modeStats,award)+' / '+award.target;card.append(art(award),tier,title,meter(award),label);if(earned&&!claimed(award.id)){const dot=document.createElement('span');dot.className='achievement-ready-dot';dot.setAttribute('aria-hidden','true');card.append(dot);}card.onclick=()=>{hooks.sound?.('click');details(award);};list.append(card);}
  list.scrollTop=scroll;updateBadge();
  const collectAll=$('achievement-collect-all'),count=ready(tab).length;
  collectAll.hidden=!count;collectAll.disabled=collecting;collectAll.textContent=collecting?'Collecting…':'Collect all';
  collectAll.setAttribute('aria-label','Collect all '+count+' '+tab+' achievement rewards');
- const configured=onlineAllowed()&&window.ShapeShiftGames?.configured();$('google-achievements').hidden=!configured;$('achievement-status').textContent='';
+ const configured=onlineAllowed()&&window.ShapeShiftGames?.configured();$('google-achievements').hidden=!configured;$('achievement-status').textContent='More achievements appear as you progress.';
 }
 export function initAchievements(onAward,options={}){
  notify=onAward;hooks=options;
@@ -63,7 +63,7 @@ export function initAchievements(onAward,options={}){
  const collectAll=document.createElement('button');collectAll.id='achievement-collect-all';collectAll.className='primary';collectAll.textContent='Collect all';collectAll.hidden=true;wrap.after(collectAll);
  collectAll.onclick=async()=>{
   if(collecting||!ready(tab).length)return;
-  const mode=tab;collecting=true;collectAll.disabled=true;collectAll.textContent='Collecting…';$('achievement-status').textContent='';
+  const mode=tab;collecting=true;collectAll.disabled=true;collectAll.textContent='Collecting…';$('achievement-status').textContent='More achievements appear as you progress.';
   let failed=false;
   try{await hooks.collectAll(mode,state.modeStats,collectAll);}catch{failed=true;}
   finally{collecting=false;renderAchievements();if(failed)$('achievement-status').textContent='Could not save rewards. Please try again.';}

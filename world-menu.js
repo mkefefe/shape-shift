@@ -1,18 +1,18 @@
-import {starTasks} from './adventure-star-tasks.js?v=49439-web12';
+import {starTasks} from './adventure-star-tasks.js?v=49439-web22';
 import {COSMETICS} from './economy.js?v=49439-web12';
 import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web12';
 import {rewardMarkup} from './adventure-rewards.js?v=49439-web12';
 export const GAMES_UNLOCK_LEVEL=1;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
-export function adventureFrameRequirement(level){return COSMETICS.find(c=>c.id===({20:'gold',40:'ice',60:'blossom',80:'cosmic'})[level])||null;}
+export function adventureFrameRequirement(level){return COSMETICS.find(c=>c.id===({40:'ice',60:'blossom',80:'cosmic'})[level])||null;}
 export function adventureFrameAllowed(){return true;}
 export const WORLD_NAMES=['Sunny Beginnings','Waterfall Way','Crystal Crossing','Blossom Heights','Golden Bridges','Cloud Gardens','Moonlit Trails','Sunset Shores','Starlight Summit','Castle in the Sky'];
 export function levelSpec(level){const n=Math.max(1,Math.min(100,Math.floor(Number(level)||1)));return {level:n,world:Math.floor((n-1)/10),target:8+Math.floor((n-1)*.55),maxChoices:n<4?4:n<11?6:n<26?9:n<51?12:16,timeBonus:Math.max(0,650-(n-1)*8)};}
 export function normalizeAdventure(value={}){return {cleared:Array.from({length:100},(_,i)=>value?.cleared?.[i]===true||Number(value?.stars?.[i])>0),lightning:Array.from({length:100},(_,i)=>value?.lightning?.[i]===true&&Number(value?.stars?.[i])>=3),stars:Array.from({length:100},(_,i)=>Math.max(0,Math.min(3,Math.floor(Number(value?.stars?.[i])||0)))),rushBest:Math.max(0,Math.floor(Number(value?.rushBest)||0))};}
 export function unlockedLevel(progress){const i=progress.cleared.findIndex(n=>!n);return i<0?100:i+1;}
 export function completeLevel(progress,level,strikes){if(level>unlockedLevel(progress)||level<1||level>100)return progress;const next=normalizeAdventure(progress);next.cleared[level-1]=true;next.stars[level-1]=Math.max(next.stars[level-1],Math.max(1,3-Math.min(2,strikes)));return next;}
-export function carouselPosition(index,selected){return ((index-selected+4)%3)-1;}
+export function carouselPosition(index,selected){return index-selected;}
 export function memoryLevelGoals(level){
  const n=levelSpec(level).level;if(!adventureMechanics(n).memory)return [];
  const count=n<15?2+Math.floor((n-10)/2):Math.min(10,3+Math.floor((n-20)/15));
@@ -84,7 +84,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   $('map-star-total').textContent=starTotal(progress)+' / '+(progress.stars.length*3);$('map-stars').setAttribute('aria-label',starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned');
   const locked=selected===2&&!gamesUnlocked(getPlayerLevel());$('play').textContent=locked?'Level '+GAMES_UNLOCK_LEVEL:'Play';$('play').disabled=locked||launching;$('play').setAttribute('aria-label',locked?'Games unlocks at player level '+GAMES_UNLOCK_LEVEL:'Play '+names[selected]);$('view-map').hidden=selected!==0;$('view-map').textContent='View Map';
  }
- function select(i){cardTaps.reset();lastTapPoint=null;selected=(i+3)%3;sound('click');refresh();}
+ function select(i){cardTaps.reset();lastTapPoint=null;selected=Math.max(0,Math.min(2,i));sound('click');refresh();}
  $('mode-prev').onclick=()=>select(selected-1);$('mode-next').onclick=()=>select(selected+1);
  let lastPointerTap=-Infinity,lastTapPoint=null;const carousel=$('mode-cards');
  const resetTaps=()=>{cardTaps.reset();lastTapPoint=null;lastPointerTap=-Infinity;};
@@ -106,7 +106,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  new MutationObserver(()=>menuSwipe.reset()).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open','data-screen']});
  const keyboardHint=document.createElement('p');keyboardHint.className='menu-keyboard-hint';keyboardHint.textContent='A / D switch modes | Space play';$('mode-dots').after(keyboardHint);
  document.addEventListener('keydown',event=>{
-  if(!['KeyA','KeyD','Space','Enter','NumpadEnter'].includes(event.code)||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+  if(!['KeyA','KeyD','Space','Enter','NumpadEnter'].includes(event.code)||event.altKey||event.ctrlKey||event.metaKey||event.isComposing||launching||window.ShapeShiftPlatform.paused||$('app').dataset.screen!=='home'||document.querySelector('dialog[open]')||event.target.closest?.('input,textarea,select,[contenteditable],#home h1'))return;
   // Preserve Space activation for other home controls, such as Settings and Profile.
   if(['Space','Enter','NumpadEnter'].includes(event.code)&&event.target.closest?.('button,a,[role="button"]')&&!event.target.closest?.('#mode-cards,#mode-dots,#play,#mode-prev,#mode-next'))return;
   event.preventDefault();
@@ -165,7 +165,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   paintMap();markMapSelection(true);
  }
  document.addEventListener('keydown',event=>{
-  if($('app').dataset.screen!=='map'||document.querySelector('dialog[open]')||window.ShapeShiftPlatform.paused||launching||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+  if($('app').dataset.screen!=='map'||document.querySelector('dialog[open]')||window.ShapeShiftPlatform.paused||launching||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable],#home h1'))return;
   if(!['KeyW','KeyS','Space','Enter','NumpadEnter'].includes(event.code))return;
   const confirm=['Space','Enter','NumpadEnter'].includes(event.code);
   if(confirm&&event.target.closest?.('button,a')&&!event.target.closest('.level-node'))return;
@@ -285,7 +285,7 @@ export function rockFillPlan(layout){
  });
 }
 // Optional timed stars do not end the level when their target is missed.
-export const adventureTimeTarget=level=>{const goals=levelRequirements(level),total=goals.reduce((sum,g)=>sum+g.target,0),memory=goals.find(g=>g.type==='memoryCollected')?.target||0;return Math.min(140,Math.max(level<20?60:40,total*5+memory*5));};
+export const adventureTimeTarget=level=>{const goals=levelRequirements(level),total=goals.reduce((sum,g)=>sum+g.target,0),memory=goals.find(g=>g.type==='memoryCollected')?.target||0;return Math.min(140,Math.max(level<=20?90:40,total*5+memory*5));};
 export const lightningFinish=(won,elapsed,earnedStars)=>won===true&&earnedStars===3&&Number.isFinite(elapsed)&&elapsed>=0&&elapsed<60000;
 
 export function createModeCardTap(interval=350){
@@ -416,4 +416,17 @@ export function ensureStarPickup(level,stats,state,board){
  const slots=board.flatMap((tile,i)=>!tile.special&&!tile.memory&&!tile.collected&&!tile.bonusTile?[i]:[]);
  if(slots.length<3)return board;
  const result=board.slice();result[slots.at(-1)]={special:task.special};return result;
+}
+
+export function ensureStarChoice(level,stats,state,board){
+ if(state.heldBoard||state.sweepBoard||state.sweepPending)return board;
+ const tasks=levelTasks(level).filter(t=>['colorChanges','shapeChanges'].includes(t.type)&&!objectiveMet(t,stats));
+ const task=tasks.find(t=>state.matchRule!==(t.type==='colorChanges'?'color':'shape'));if(!task)return board;
+ const key=task.type==='colorChanges'?'color':'shape',other=key==='color'?'shape':'color';
+ const previous=stats.previous||state.current;
+ const value=Array.from({length:4},(_,i)=>i).find(v=>v!==previous[key]&&(key!=='shape'||v!==state.excludedShape));
+ const tile={[key]:value,[other]:state.current[other]};
+ if(board.some(t=>!t.special&&!t.memory&&!t.collected&&t[key]!==previous[key]&&t[other]===state.current[other]))return board;
+ const slots=board.flatMap((t,i)=>!t.special&&!t.memory&&!t.collected?[i]:[]);if(slots.length<3)return board;
+ const out=board.slice();out[slots.at(-1)]=tile;return out;
 }

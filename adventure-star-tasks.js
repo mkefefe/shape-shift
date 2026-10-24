@@ -13,13 +13,15 @@ export const STAR_PLAN=[
  ['w0 s10 ushield','c10 h10 pcrystal','t c11 pbomb','w1 s10 ufreeze','s10 h10 uboost','w0 c11 pstarburst','c11 h10 ushield','t s11 uall','w1 h11 pbomb','w0 s12 uall']
 ].flatMap(world=>world.map(row=>row.split(' ')));
 export function starTasks(level,{seconds,frameName}){
- return STAR_PLAN[level-1].map(code=>{
+ // Early stages teach matching without inventory, equipment or color-change dependencies.
+ const plan=level<=20?['w'+(level<=10?2:1),'t','s'+(level<=3?2:level<=10?3:4)]:STAR_PLAN[level-1];
+ return plan.map(code=>{
   const kind=code[0],value=code.slice(1),target=Number(value);
   if(kind==='t')return {type:'time',target:seconds,label:'Finish within '+Math.floor(seconds/60)+'m '+String(seconds%60).padStart(2,'0')+'s'};
   if(kind==='w')return {type:'wrong',target,label:target?'Finish with at most '+target+' wrong '+(target===1?'pick':'picks'):'Finish without a wrong pick'};
   if(kind==='s')return {type:'streak',target,label:'Make '+target+' correct picks in a row'};
   if(kind==='c'||kind==='h')return {type:kind==='c'?'colorChanges':'shapeChanges',target,label:'Change '+(kind==='c'?'color':'shape')+' on '+target+' correct picks'};
-  if(kind==='u')return {type:'ability',ability:value,target:value==='all'?3:1,label:value==='all'?'Use Shield, Slow Time and ×5 in this run':'Use '+({shield:'Shield',freeze:'Slow Time',boost:'×5 points'})[value]+' in this run'};
+  if(kind==='u')return {type:'ability',ability:value,target:value==='all'?3:1,label:value==='all'?'Use Shield, Slow Time and ×5 in this run':'Use '+({shield:'Shield',freeze:'Slow Time',boost:'×5 points'})[value]+' (1 free charge)'};
   if(kind==='p')return {type:'pickup',special:value,target:1,label:'Pick up '+({crystal:'a Shield Crystal',starburst:'a Starburst',bomb:'a Bomb'})[value]};
   return {type:'frame',frame:value,target:1,label:'Finish with '+frameName(value)+' equipped'};
  });

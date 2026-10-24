@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {adventureDesign,createRockLayout,damageAdjacentRocks,collectionBoard,levelSpec} from './world-menu.js';
+import {adventureDesign,createRockLayout,damageAdjacentRocks,collectionBoard,levelSpec} from './world-menu.js?v=49439-web22';
 import {matches,seededRandom} from './engine.js';
 test('obstacle lessons preserve a reachable board and every block clears without powers',()=>{
  for(let level=1;level<=100;level++){

@@ -1,3 +1,4 @@
+import {playerLevel} from './economy.js';
 // Five milestones per family, paced across short, medium and long-term play.
 const colors=['Red','Blue','Green','Yellow'],shapes=['Circles','Triangles','Squares','Stars'];
 const family=(stat,name,targets,description,art='trophy',weight=1)=>({stat,name,targets,description,art,weight});
@@ -103,8 +104,21 @@ export function advanceModeStats(raw,event){
  if(event.type==='history'){if(event.mode==='endless')s.best=Math.max(s.best,integer(event.best));else {const stars=Array.isArray(event.stars)?event.stars:[];s.highest=Math.max(s.highest,stars.reduce((n,v,i)=>v>0?i+1:n,0));s.wins=Math.max(s.wins,stars.filter(n=>n>0).length);s.perfectWins=Math.max(s.perfectWins,stars.filter(n=>n===3).length);}}
  return all;
 }
+export function achievementVisible(stats,award,profile={}){
+ if(profile.achievementClaims?.includes(award.id))return true;
+ if(award.mode==='adventure'&&['picks','points','colorChainBest','shapeChainBest','color0','color1','color2','color3','shape0','shape1','shape2','shape3'].includes(award.stat))return false;
+ const frontier=stats?.adventure?.highest||profile.adventureCompleted||0;
+ const stage=award.mode==='adventure'?frontier:playerLevel(profile);
+ const required=award.mode==='games'?[1,10,20,35,50][award.tier]:[0,10,20,40,60][award.tier];
+ const mechanic={memory:10,shapeLocks:15,colorLocks:20,colorChanges:5}[award.stat]||0;
+ return stage>=required&&frontier>=mechanic;
+}
+export function sortedAchievements(stats,mode,profile={}){
+ const earned=a=>profile.achievementClaims?.includes(a.id)||achievementProgress(stats,a)>=a.target;
+ return MODE_ACHIEVEMENTS.filter(a=>a.mode===mode&&achievementVisible(stats,a,profile)).sort((a,b)=>Number(earned(b))-Number(earned(a))||achievementProgress(stats,b)/b.target-achievementProgress(stats,a)/a.target||a.tier-b.tier||a.id.localeCompare(b.id));
+}
 export const achievementProgress=(stats,award)=>Math.min(award.target,stats?.[award.mode]?.[award.stat]||0);
-export function claimAchievement(profile,stats,id){const award=MODE_ACHIEVEMENTS.find(a=>a.id===id);if(!award||achievementProgress(stats,award)<award.target||profile.achievementClaims?.includes(id))return profile;return {...profile,coins:(profile.coins||0)+award.reward,achievementClaims:[...(profile.achievementClaims||[]),id]};}
+export function claimAchievement(profile,stats,id){const award=MODE_ACHIEVEMENTS.find(a=>a.id===id);if(!award||!achievementVisible(stats,award,profile)||achievementProgress(stats,award)<award.target||profile.achievementClaims?.includes(id))return profile;return {...profile,coins:(profile.coins||0)+award.reward,achievementClaims:[...(profile.achievementClaims||[]),id]};}
 
 
 // Claim only eligible rewards in the explicitly selected mode, in one profile update.

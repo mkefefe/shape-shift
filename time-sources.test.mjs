@@ -39,7 +39,17 @@ test('actual bottom-button handler starts a separate paid ability and stops only
  const source=fs.readFileSync(new URL('./game.js',import.meta.url),'utf8');
  const extract=name=>{const start=source.indexOf('function '+name+'(');let depth=0;for(let i=source.indexOf('{',start);i<source.length;i++){if(source[i]==='{')depth++;if(source[i]==='}'&&!--depth)return source.slice(start,i+1);}throw Error(name);};
  const c={...e,state:pickup(base()),profile:{coins:0,inventory:{freeze:2}},autoPowers:new Set(),consume,active:true,paused:false,locked:false,rockFills:[],actions:[],ranked:null,runMode:'endless',analytics:{count(){}},runBoostUnlocked:()=>true,abilityGuideOpen:()=>false,saveProfile(){},trackRankedActions:()=>Promise.resolve(),$:()=>({}),update(){},timer(){},sound(){}};
+ c.starBoosts={};c.boostCharges=name=>(c.profile.inventory[name]||0)+(c.starBoosts[name]||0);
  vm.createContext(c);vm.runInContext(extract('chargePower')+extract('ability')+";ability('freeze');",c);
  assert.equal(c.profile.inventory.freeze,1);assert.equal(c.state.slowRounds,5);assert.equal(c.state.pickupSlowRounds,3);assert.equal(e.elapsedBoardTime(1000,c.state),250);assert.equal(c.actions[0].type,'ability');
  vm.runInContext("ability('freeze');",c);assert.equal(c.state.slowRounds,0);assert.equal(c.state.pickupSlowRounds,3);assert.equal(e.elapsedBoardTime(1000,c.state),500);assert.equal(c.profile.inventory.freeze,1);assert.equal(c.actions[1].type,'stopAbility');
+});
+
+
+test('Adventure task supply is consumed before owned stock and never saved into inventory',()=>{
+ const source=fs.readFileSync(new URL('./game.js',import.meta.url),'utf8');
+ const start=source.indexOf('function chargePower(');let end=start,depth=0;for(let i=source.indexOf('{',start);i<source.length;i++){if(source[i]==='{')depth++;if(source[i]==='}'&&!--depth){end=i+1;break;}}
+ const c={...e,state:base(),profile:{coins:13,inventory:{freeze:2}},starBoosts:{freeze:1},consume,runMode:'adventure',levelPickStats:{},trackLevelAbility:(s,n)=>({...s,[n]:true}),actions:[],ranked:null,analytics:{count(){}},runBoostUnlocked:()=>true,saveProfile(){},trackRankedActions:()=>Promise.resolve()};
+ vm.createContext(c);vm.runInContext(source.slice(start,end)+";chargePower('freeze');",c);
+ assert.equal(c.starBoosts.freeze,0);assert.equal(c.profile.inventory.freeze,2);assert.equal(c.profile.coins,13);assert.equal(c.levelPickStats.freeze,true);assert.equal(c.state.slowRounds,5);
 });

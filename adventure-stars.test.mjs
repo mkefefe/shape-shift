@@ -17,8 +17,8 @@ test('frame earns one optional star only on a win and collections still unlock c
  assert(levelComplete(40,stats));
 });
 test('all three boosts means three distinct successful activations in this run',()=>{
- let s={};for(let i=0;i<3;i++)s=trackLevelAbility(s,'shield');const at=levelTasks(19).findIndex(t=>t.type==='ability');assert.equal(levelTaskStatus(19,s)[at].value,'1 / 3');assert(!levelObjectives(19,{...s,won:true})[at].done);
- s=trackLevelAbility(s,'freeze');s=trackLevelAbility(s,'boost');assert(levelObjectives(19,{...s,won:true})[at].done);assert(!levelObjectives(19,{won:true})[at].done);
+ let s={};for(let i=0;i<3;i++)s=trackLevelAbility(s,'shield');const at=levelTasks(28).findIndex(t=>t.type==='ability');assert.equal(levelTaskStatus(28,s)[at].value,'1 / 3');assert(!levelObjectives(28,{...s,won:true})[at].done);
+ s=trackLevelAbility(s,'freeze');s=trackLevelAbility(s,'boost');assert(levelObjectives(28,{...s,won:true})[at].done);assert(!levelObjectives(28,{won:true})[at].done);
 });
 test('pickup stars require clicking the pickup and offer it without displacing memory or the last ordinary choices',()=>{
  const board=[{shape:0,color:0},{shape:1,color:1},{shape:2,color:2},{memory:true,shape:3,color:3}];
@@ -28,8 +28,8 @@ test('pickup stars require clicking the pickup and offer it without displacing m
 });
 
 test('only collected pickups satisfy pickup stars and fresh runs start empty',()=>{
- const index=levelTasks(10).findIndex(t=>t.type==='pickup');
- for(const outcome of ['wrong','miss','protected','ready'])assert(!levelObjectives(10,{...trackLevelPick({}, {special:'crystal'},false,outcome),won:true})[index].done);
- const stats=trackLevelPick({}, {special:'crystal'},false,'correct');assert(levelObjectives(10,{...stats,won:true})[index].done);assert(!levelObjectives(10,{won:true})[index].done);
- const board=[{shape:0,color:0},{shape:1,color:1},{shape:2,color:2}];assert.equal(ensureStarPickup(10,stats,{},board),board);
+ const index=levelTasks(22).findIndex(t=>t.type==='pickup');
+ for(const outcome of ['wrong','miss','protected','ready'])assert(!levelObjectives(22,{...trackLevelPick({}, {special:'crystal'},false,outcome),won:true})[index].done);
+ const stats=trackLevelPick({}, {special:'crystal'},false,'correct');assert(levelObjectives(22,{...stats,won:true})[index].done);assert(!levelObjectives(22,{won:true})[index].done);
+ const board=[{shape:0,color:0},{shape:1,color:1},{shape:2,color:2}];assert.equal(ensureStarPickup(22,stats,{},board),board);
 });

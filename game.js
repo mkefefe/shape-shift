@@ -1,4 +1,5 @@
-import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web21';
+import {initLivingMenu} from './menu-polish.js?v=49439-web22';
+import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web22';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
@@ -7,14 +8,14 @@ import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
-import {initStoryUI} from './story-ui.js?v=49439-web21';
+import {initStoryUI} from './story-ui.js?v=49439-web22';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
 import {initPianoFlow} from './piano-flow.js?v=49439-web12';
-import {claimPianoReward} from './piano-flow-engine.js?v=49439-web12';
+import {claimPianoReward} from './piano-flow-engine.js?v=49439-web22';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web12';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web12';
-import {initInputFeedback} from './input-feedback.js?v=49439-web21';
+import {initInputFeedback} from './input-feedback.js?v=49439-web22';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web12';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web12';
 import {enableHoldBuying} from './hold-buy.js?v=49439-web12';
@@ -23,29 +24,29 @@ import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web12';
 import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
 import {initSettingsExtras} from './settings-extras.js?v=49439-web12';
 import {initShapeSlice} from './shape-slice.js?v=49439-web12';
-import {claimSliceReward} from './shape-slice-engine.js?v=49439-web12';
+import {claimSliceReward} from './shape-slice-engine.js?v=49439-web22';
 import {initGamesHub} from './games-hub.js?v=49439-web12';
 import {initShapeDrop} from './shape-drop.js?v=49439-web12';
-import {claimDropReward} from './shape-drop-engine.js?v=49439-web12';
+import {claimDropReward} from './shape-drop-engine.js?v=49439-web22';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web12';
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web21';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web22';
 import {observeBoard} from './board-fit.js?v=49439-web12';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=49439-web12';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web12';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web12';
-import {initWorldMenu,trackLevelAbility,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web21';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web22';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web12';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web12';
 
 import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49439-web12';
 import {earnsMatchCoin} from './economy.js?v=49439-web12';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web12';
-import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web12';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=49439-web22';
+import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49439-web22';
 
 
 
@@ -81,7 +82,7 @@ import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,a
 
 
 
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web12';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49439-web22';
 
 
 
@@ -261,6 +262,8 @@ let state,board=[],active=false,paused=false,locked=false,counting=false;
 let burstEffect=null,burstElapsed=0,effectScoreBefore=null,visualStrikes=null;
 
 let reviveCounting=false,nativeBackground=false;
+let starBoosts={};
+const boostCharges=name=>(profile.inventory[name]||0)+(starBoosts[name]||0);
 let levelPickStats={},runBoostLevel=1,rockLayout=null;
 let collectionRun=0;
 let colorFlip=null;
@@ -299,7 +302,7 @@ function paintCurrentShape(){
 }
 
 const currentLevelStats=()=>({...levelPickStats,picks:modePicks,turns:modeTurns,elapsed:modeElapsed,wrong:modeWrong,score:state?.score||0,frame:state?.frame});
-const runBoostUnlocked=name=>runBoostLevel>=BOOST_UNLOCK_LEVELS[name];
+const runBoostUnlocked=name=>(starBoosts[name]||0)>0||runBoostLevel>=BOOST_UNLOCK_LEVELS[name];
 let runStartXp=0,completionXpGranted=false;
 const survivalClock=createSurvivalClock();
 function renderSurvivalClock(){
@@ -501,12 +504,12 @@ function update(){
 
 
 
-  $(name+'-charges').textContent=runBoostUnlocked(name)?profile.inventory[name]:'Map '+BOOST_UNLOCK_LEVELS[name];$(name).classList.toggle('level-locked',!runBoostUnlocked(name));
+  $(name+'-charges').textContent=runBoostUnlocked(name)?boostCharges(name):'Map '+BOOST_UNLOCK_LEVELS[name];$(name).classList.toggle('level-locked',!runBoostUnlocked(name));
 
 
 
   if(name==='shield'&&state.shieldCooldown>0){$(name+'-charges').textContent='Wait '+state.shieldCooldown+' turns';}
-  if(!enabled&&profile.inventory[name]===0)autoPowers.delete(name);
+  if(!enabled&&boostCharges(name)===0)autoPowers.delete(name);
 
 
 
@@ -522,7 +525,7 @@ function update(){
 
 
 
-  $(name).setAttribute('aria-label',label+' — '+effect+'. '+profile.inventory[name]+' charges. '+(name==='shield'&&state.shieldCooldown>0?state.shieldCooldown+' turns cooldown. ':'')+'Auto refill '+(autoPowers.has(name)?'on':'off'));
+  $(name).setAttribute('aria-label',label+' — '+effect+'. '+boostCharges(name)+' charges. '+(name==='shield'&&state.shieldCooldown>0?state.shieldCooldown+' turns cooldown. ':'')+'Auto refill '+(autoPowers.has(name)?'on':'off'));
 
 
 
@@ -531,7 +534,7 @@ function update(){
 
 
   if(!runBoostUnlocked(name))$(name).setAttribute('aria-label',label+' — finish Adventure level '+BOOST_UNLOCK_LEVELS[name]);
-  $(name).title=label+': '+(enabled?'Active. Tap to stop. ':'Tap to activate. ')+profile.inventory[name]+' charges left.';
+  $(name).title=label+': '+(enabled?'Active. Tap to stop. ':'Tap to activate. ')+boostCharges(name)+' charges left.';
 
 
 
@@ -547,7 +550,7 @@ function update(){
 
 
 
- for(const name of Object.keys(PRICES)){$(name).disabled=locked||rockFills.length>0||paused||counting||(runBoostUnlocked(name)&&!autoPowers.has(name)&&!abilityActive(state,name)&&profile.inventory[name]===0);$(name).setAttribute('aria-pressed',String(autoPowers.has(name)||abilityActive(state,name)));}
+ for(const name of Object.keys(PRICES)){$(name).disabled=locked||rockFills.length>0||paused||counting||(runBoostUnlocked(name)&&!autoPowers.has(name)&&!abilityActive(state,name)&&boostCharges(name)===0);$(name).setAttribute('aria-pressed',String(autoPowers.has(name)||abilityActive(state,name)));}
 
 
 
@@ -704,6 +707,7 @@ function nextBoard(){for(const node of $('board').children)node.classList.remove
   board=ensureStarPickup(adventureLevel,currentLevelStats(),state,board);
  board=collectionBoard(adventureLevel,state,board,runRng,currentLevelStats());
   board=ensureAdventureMatch(state,board);
+  board=ensureStarChoice(adventureLevel,currentLevelStats(),state,board);
  }
  }
 
@@ -1465,7 +1469,7 @@ function chargePower(name){
 
 
 
- const paid=consume(profile,name);if(paid===profile)return false;
+ const loan=starBoosts[name]>0;const paid=loan?profile:consume(profile,name);if(!loan&&paid===profile)return false;if(loan)starBoosts[name]--;
 
 
 
@@ -1515,7 +1519,7 @@ function ability(name){
 
 
 
- if(profile.inventory[name]<=0)return;
+ if(boostCharges(name)<=0)return;
 
 
 
@@ -1568,7 +1572,7 @@ async function start(forceTutorial=false){
 
 
 
- if(counting||active)return;const token=++countdownToken;counting=true;$('play').disabled=true;$('run-load-error')?.remove();try{collectionRun++;survivalClock.reset();renderSurvivalClock();colorFlip=null;runStartXp=profile.xp||0;syncAdventureBoosts();runBoostLevel=profile.adventureCompleted||0;completionXpGranted=false;modePicks=0;modeTurns=0;runCoins=0;rushRemaining=60000;modeWon=false;modeElapsed=0;modeWrong=0;levelPickStats={};rockLayout=null;memoryCards=new Map();memoryPeek=null;memoryLesson=null;mechanicHold=0;lastWheelPick=0;wheelTurns=0;lastMatchRule=null;rockFills=[];rockFillElapsed=0;praiseRun.startRun();praiseAnimation?.cancel();if($('streak-praise'))$('streak-praise').hidden=true;clearCoinFlights();trackAchievements({type:'runStart',mode:runMode,difficulty:endlessDifficulty});uiSound('start');autoPowers.clear();audio()?.start();syncIdentity().catch(()=>{});
+ if(counting||active)return;const token=++countdownToken;counting=true;$('play').disabled=true;$('run-load-error')?.remove();try{collectionRun++;survivalClock.reset();renderSurvivalClock();colorFlip=null;runStartXp=profile.xp||0;syncAdventureBoosts();runBoostLevel=profile.adventureCompleted||0;completionXpGranted=false;modePicks=0;modeTurns=0;runCoins=0;rushRemaining=60000;modeWon=false;modeElapsed=0;modeWrong=0;levelPickStats={};starBoosts={};if(runMode==='adventure')for(const task of levelTasks(adventureLevel))if(task.type==='ability')for(const name of task.ability==='all'?['shield','freeze','boost']:[task.ability])starBoosts[name]=1;rockLayout=null;memoryCards=new Map();memoryPeek=null;memoryLesson=null;mechanicHold=0;lastWheelPick=0;wheelTurns=0;lastMatchRule=null;rockFills=[];rockFillElapsed=0;praiseRun.startRun();praiseAnimation?.cancel();if($('streak-praise'))$('streak-praise').hidden=true;clearCoinFlights();trackAchievements({type:'runStart',mode:runMode,difficulty:endlessDifficulty});uiSound('start');autoPowers.clear();audio()?.start();syncIdentity().catch(()=>{});
 
 
 
@@ -1620,7 +1624,7 @@ async function start(forceTutorial=false){
 
 
 
- runRng=ranked?seededRandom(ranked.seed):Math.random;runId=crypto.randomUUID();actions=[];runSaved=false;
+ runRng=runMode==='adventure'?seededRandom(0x53480000+adventureLevel):ranked?seededRandom(ranked.seed):Math.random;runId=crypto.randomUUID();actions=[];runSaved=false;
 
 
 
@@ -1628,8 +1632,9 @@ async function start(forceTutorial=false){
 
 
 
- state=applyLoadout(createRun(runRng),profile.equipped.frame,profile.equipped.background,runRng,profile.upgrades[profile.equipped.frame]||0);state.mode=runMode;state.difficulty=endlessDifficulty;analytics.startRun(runMode,endlessDifficulty,adventureLevel);actions.push({type:'loadout',frame:replayFrame(profile.equipped.frame),map:profile.equipped.background,upgrade:profile.upgrades[profile.equipped.frame]||0});for(const name of Object.keys(PRICES))state[name]=profile.inventory[name]>0?1:0;
+ state=applyLoadout(createRun(runRng),profile.equipped.frame,profile.equipped.background,runRng,profile.upgrades[profile.equipped.frame]||0);state.mode=runMode;state.difficulty=endlessDifficulty;analytics.startRun(runMode,endlessDifficulty,adventureLevel);actions.push({type:'loadout',frame:replayFrame(profile.equipped.frame),map:profile.equipped.background,upgrade:profile.upgrades[profile.equipped.frame]||0});for(const name of Object.keys(PRICES))state[name]=boostCharges(name)>0?1:0;
  if(runMode==='adventure'){
+ state.adventureLevel=adventureLevel;
  const requiredShapes=levelRequirements(adventureLevel).filter(g=>g.type==='collection').map(g=>g.shape);
  if(requiredShapes.includes(state.excludedShape)){
   state.excludedShape=[0,1,2,3].find(shape=>!requiredShapes.includes(shape))??null;
@@ -3051,7 +3056,7 @@ function renderPersonalRanking(entries=[],cached=false){
  const name=document.createElement('strong');name.className='personal-rank-name';name.textContent=identity.name;
  const hint=document.createElement('small');hint.textContent=summary.listed?(cached?'Last loaded ranking':'Your ranking'):'Personal best · rank unavailable';copy.append(name,hint);
  const score=document.createElement('b');score.className='rank-score';score.textContent=summary.score;
- footer.replaceChildren(rank,leaderboardAvatar(identity),copy,score);footer.disabled=!summary.listed;
+ footer.replaceChildren(rank,leaderboardAvatar(identity),copy,score);footer.disabled=!summary.listed;footer.hidden=summary.listed&&summary.rank<=3;
  footer.setAttribute('aria-label',summary.listed?'Your rank '+summary.rank+', '+identity.name+', '+summary.score+' points. Jump to your entry.':identity.name+', personal best '+summary.score+' points. Global rank unavailable.');
  footer.onclick=()=>{
   const row=$('leaderboard-rows').querySelector('.rank-you');if(!row)return;
@@ -3587,7 +3592,7 @@ function renderQuests(){
  if(profile.normalClaimed.length>=NORMAL_QUEST_TOTAL)questTab='daily';
  $('quests-normal-tab').hidden=profile.normalClaimed.length>=NORMAL_QUEST_TOTAL;
  for(const tab of ['daily','normal'])$('quests-'+tab+'-tab').setAttribute('aria-selected',String(questTab===tab));
- const list=$('quest-list'),quests=questList(profile,questTab),empty=questTab==='daily'&&!quests.length;
+ const list=$('quest-list'),quests=[...questList(profile,questTab)].sort((a,b)=>Number(b.progress>=b.target)-Number(a.progress>=a.target)||(b.progress/b.target)-(a.progress/a.target)),empty=questTab==='daily'&&!quests.length;
  list.setAttribute('aria-labelledby','quests-'+questTab+'-tab');list.classList.toggle('daily-cleared',empty);
  updateQuestBadge();list.replaceChildren();
  const batch=showQuestCollectAll();
@@ -3979,3 +3984,5 @@ async function prepareStartup(){
 prepareStartup();
 
 window.addEventListener('playables-save',flushProfile);
+
+initLivingMenu({getProfile:()=>profile,commit:next=>{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));profile=next;saveProfile();flushProfile();},sound:uiSound});

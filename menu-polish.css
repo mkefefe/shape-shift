@@ -1,0 +1,32 @@
+/* Consistent room between independent controls and cards. */
+#quests-dialog #quest-list{display:flex;flex-direction:column;gap:16px!important;padding:5px 3px 12px;overflow-y:auto;min-height:0}
+#quests-dialog #quest-list .quest-card{flex:none;min-height:128px;margin:0;padding:12px;overflow:hidden}
+#quests-dialog .dialog-content{padding-top:28px!important}
+#quests-dialog h2{margin:0 42px 14px!important}
+#quests-dialog .quest-tabs{margin-top:8px;margin-bottom:8px;gap:12px}
+#quests-dialog .close{top:7px!important;right:7px!important}
+#achievement-list{gap:14px!important;padding:6px!important}
+#profile-dialog .profile-cosmetics{gap:12px!important}
+#level-objectives{display:flex;flex-direction:column;gap:10px}
+#level-objectives li{border-radius:10px;background:#dcf8f888;padding:8px}
+#leaderboard-personal[hidden]{display:none!important}
+.profile-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:12px 0 16px;flex-shrink:0}
+.profile-tabs button{padding:8px 2px;min-height:42px;font:900 12px Nunito,sans-serif;border:1px solid #41aec5;border-radius:10px;background:#d6f8ff;color:#164b63}
+.profile-tabs button[aria-selected=true]{background:#ffe589;border-color:#cc9a22;color:#69420e}
+#profile-dialog .profile-tab-panel[hidden]{display:none!important}
+#profile-dialog .profile-tab-panel{min-height:190px;padding:4px 0 12px}
+#profile-dialog #avatar-presets{margin:12px 0}
+#profile-dialog .dialog-content{gap:10px}
+#app[data-screen=home] .home-tools #achievements-open>img{width:38px!important;height:38px!important;min-height:0!important;margin:3px auto;object-fit:contain}
+/* Reserve a real header band, so the Beacon never overlays a level node. */
+#adventure-map .map-header{height:122px!important;margin-bottom:0!important;background:linear-gradient(#164c5cf5,#247f8bf5)!important}
+#adventure-map{scroll-padding-top:145px}
+#map-landscape{margin-top:0!important;border-top:0;box-sizing:content-box}
+#living-water{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#home>h1,#home>.tagline,#home>.mode-carousel,#home>#mode-dots,#home>.home-actions{position:relative;z-index:1}
+#home h1[role=button]{cursor:pointer}
+#discovery-notice{position:absolute;bottom:23%;left:50%;transform:translateX(-50%);z-index:8;max-width:90%;padding:9px 15px;border:1px solid #fff2a7;border-radius:18px;background:#164b5ef2;color:#fff2a7;font:900 14px Nunito,sans-serif;pointer-events:none;white-space:nowrap}
+.mode-card[data-position='-2'],.mode-card[data-position='2']{visibility:hidden;pointer-events:none}
+@media(max-width:360px){.profile-tabs{gap:4px}.profile-tabs button{font-size:11px}#quests-dialog #quest-list{gap:12px!important}}
+@media(prefers-reduced-motion:reduce){#living-water{display:none}}
+.reduce-motion #living-water{display:none}

@@ -34,7 +34,7 @@ export const difficultyFor=state=>DIFFICULTIES[state.mode==='endless'?state.diff
 export const duration = state => {
  const d=difficultyFor(state);
  const lateFloor=Math.max(450,ENDLESS_MIN_TIME/(1+Math.max(0,endlessPressure(state)-500)/1500));
- const base=state.mode==='endless'?Math.max(lateFloor,d.start-endlessPressure(state)*d.ramp):Math.max(1800,2800-state.picks*5);
+ const base=state.mode==='endless'?Math.max(lateFloor,d.start-endlessPressure(state)*d.ramp):state.mode==='adventure'&&state.adventureLevel>=1&&state.adventureLevel<=20?Math.max(3500,5000-(state.adventureLevel-1)*65):Math.max(1800,2800-state.picks*5);
  return Math.round((base+(state.map==='garden'&&state.picks<5?200:0))*(state.timeFactor||1));
 };
 export const randomTile = (rng=Math.random) => ({shape:Math.min(3,Math.floor(rng()*4)),color:Math.min(3,Math.floor(rng()*4))});
