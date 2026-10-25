@@ -14,14 +14,15 @@ const flowingTune=[
 ];
 const bass=[48,45,41,43,40,45,38,43];
 export const pianoTempo=seconds=>90+Math.min(90,Math.max(0,seconds)*.32);
-// Full-song play accelerates gently from eight seconds, independently of song changes.
-export const pianoSongTempo=seconds=>88+Math.min(56,Math.max(0,seconds-8)*.35);
+// Full-song play accelerates gently from four seconds, independently of song changes.
+export const pianoSongTempo=seconds=>88+Math.min(68,Math.max(0,seconds-4)*.65);
 export const pianoStripTempo=seconds=>72+Math.min(108,Math.max(0,seconds-30)*.3);
 export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upgrade=0,directTouch=false,rhythm=false,stripTap=false,melodicStrips=false,fullSongs=false}={}){
  const resumableHolds=stripTap||melodicStrips;
  const maxLives=maxLivesForFrame(frame,upgrade),g={frame,time:0,beat:fullSongs?-3:stripTap?0:-4,countdown:stripTap?3:0,started:false,paused:false,over:false,notes:[],score:0,coins:0,hits:0,combo:0,bestCombo:0,maxLives,lives:maxLives,bpm:fullSongs?88:stripTap?72:90,lanes:rhythm?4:3,fullSongs,songTitle:'',section:'',songsCompleted:0,rhythm,stripTap,melodicStrips,pressed:new Set()};
  let cursor=stripTap?2:directTouch&&!rhythm?2.5:0,serial=0,lastLane=-1,lastWrong=-10,lastBeat=stripTap?-1:-5;
  const nextMusic=fullSongs?createSongSequence(rng):createPianoSequence(rng,{difficulty:()=>pianoDifficulty(g.time)});
+ let performed=null,nextBackingBeat=0,performancePulse=0;
  const measures=[],backingOrigin=fullSongs?2:0;let backingPulse=0,damageUntil=-1;
  const emit=(type,extra={})=>onEvent({type,...extra,time:g.time,beat:g.beat});
  function fill(){while(cursor<g.beat+9){
@@ -62,8 +63,22 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  const deadline=note=>note.beat+(resumableHolds?note.hold:PIANO_WINDOW)+(fullSongs?.65:0);
  function wrongStrip(){if(g.time-lastWrong>.25){lastWrong=g.time;fail(null,'wrong');}return false;}
  // A successful physical strike owns both the animation and the sound.
+ function playBacking(reset=false){
+  if(!performed)return;
+  const note=performed.note,chord=note.chord,step=performancePulse%4;
+  if(!Array.isArray(chord)||chord.length<3)return;
+  // A quiet bass/fifth supports the played melody instead of a second high melody.
+  const bass=(step===2?chord[2]:chord[0])-12,pitch=bass<36?bass+12:bass;
+  emit('accompaniment',{reset,energy:note.energy??.6,pitch,pitches:[pitch],velocity:step===0?.48:.28,pulse:performancePulse*2,duration:(step%2===0?.85:.4)*60/g.bpm,musicalBeat:g.beat,chord:[...chord],song:note.song,bar:note.bar});
+  performancePulse++;
+ }
  function soundNote(note){
   note.soundPending=false;
+  if(fullSongs){
+   const changed=!performed||performed.note.song!==note.song||performed.note.round!==note.round||performed.note.bar!==note.bar;
+   performed={note,lastBeat:g.beat};g.songTitle=note.title;g.section=note.section;g.songsCompleted=note.round;
+   if(changed){performancePulse=0;playBacking(true);nextBackingBeat=g.beat+1;}
+  }
   emit('note',{note,remaining:note.hold?(resumableHolds?Math.max(.01,note.hold-(note.heldBeats||0)):Math.max(.1,note.end-g.beat)):rhythm?note.duration*.9:0});
  }
  function beginNote(note){
@@ -107,7 +122,12 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  function step(dt){if(!g.started||g.paused||g.over||!Number.isFinite(dt)||dt<=0||g.notes.some(n=>n.status==='holding'&&n.awaiting))return;
   const seconds=Math.min(.05,dt);if(g.countdown>0){const before=Math.ceil(g.countdown);g.countdown=Math.max(0,g.countdown-seconds);if(g.countdown<1e-8)g.countdown=0;const after=Math.ceil(g.countdown);if(after!==before)emit(after?'countdown':'ready',{count:after});return;}
   const previousBeat=g.beat;g.time+=seconds;g.bpm=fullSongs?pianoSongTempo(g.time):stripTap?pianoStripTempo(g.time):pianoTempo(g.time);g.beat+=seconds*g.bpm/60;
-  if(melodicStrips){
+  if(fullSongs&&performed&&g.beat>=nextBackingBeat){
+   // No catch-up burst or unrelated progression when the player stops playing.
+   if(g.beat-performed.lastBeat<=Math.max(4,performed.note.duration))playBacking();
+   nextBackingBeat=g.beat+1;
+  }
+  if(melodicStrips&&!fullSongs){
    // The first written note is the downbeat. Keep a little harmonic history
    // so a rewarded continuation can rewind its lead-in without a wrong chord.
    while(backingOrigin+backingPulse*.5<=g.beat){
@@ -147,7 +167,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   }
   g.notes=g.notes.filter(n=>n.soundPending||n.end>g.beat-2||n.status==='holding');fill();
  }
- return Object.assign(g,{revive(){if(!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();if(fullSongs){const next=g.notes.find(n=>['waiting','partial','holding'].includes(n.status)||n.soundPending);if(next){g.beat=next.beat-5;for(const n of g.notes)if(!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;n.soundPending=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding')n.awaiting=true;}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
+ return Object.assign(g,{revive(){if(!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();performed=null;performancePulse=0;if(fullSongs){const next=g.notes.find(n=>['waiting','partial','holding'].includes(n.status)||n.soundPending);if(next){g.beat=next.beat-5;for(const n of g.notes)if(!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;n.soundPending=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding')n.awaiting=true;}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const receipt=e=>e&&/^piano-flow-[a-f0-9-]{36}$/.test(e.id)&&Number.isSafeInteger(e.coins)&&e.coins>=0&&e.coins<=100000;

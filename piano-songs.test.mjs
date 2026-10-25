@@ -5,7 +5,7 @@ const config={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()
 const advance=(g,seconds)=>{for(let i=0;i<seconds*120;i++)g.step(1/120);};
 test('original songs have complete forms and identical returning choruses',()=>{assert.equal(ORIGINAL_SONGS.length,10);for(const song of ORIGINAL_SONGS){assert.equal(song.beats,176);assert.equal(song.notes.reduce((s,n)=>s+n.duration,0),176);assert(song.notes.every(n=>n.pitch>=48&&n.pitch<=74));const chorus=song.notes.filter(n=>n.section==='Chorus');const half=chorus.length/2;assert.deepEqual(chorus.slice(0,half).map(n=>[n.pitch,n.duration,n.chord]),chorus.slice(half).map(n=>[n.pitch,n.duration,n.chord]));}});
 test('distinct songs rotate with their fixed written metadata',()=>{const next=createSongSequence(()=>0);let last;for(let round=0;round<4;round++){const song=ORIGINAL_SONGS[round%ORIGINAL_SONGS.length];for(let beats=0;beats<song.beats;){const n=next();assert.equal(n.songBeat,beats);beats+=n.duration;assert(beats<=song.beats);assert.equal(n.song,song.id);assert.equal(n.bpm,song.bpm);last=n;}}assert.equal(last.round,3);});
-test('missed tiles do not play melody while accompaniment continues',()=>{const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,10);assert(events.some(e=>e.type==='accompaniment'));assert(!events.some(e=>e.type==='note'));assert(g.lives<g.maxLives);});
+test('backing waits for the first played note instead of performing an unrelated song',()=>{const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,10);assert(!events.some(e=>e.type==='accompaniment'));assert(!events.some(e=>e.type==='note'));assert(g.lives<g.maxLives);});
 test('full songs are playable one-handed through song boundaries without life loss',()=>{const g=createPianoGame(config);g.start();advance(g,3);for(let i=0;i<120*265&&!g.over;i++){if(!g.notes.some(n=>['holding','queued'].includes(n.status))){const n=g.notes.find(n=>['waiting','partial'].includes(n.status));if(n&&n.beat-g.beat<.15){for(const lane of g.pressed)g.release(lane);g.pressStrip(n.lane);}}g.step(1/120);}assert(!g.over);assert.equal(g.lives,g.maxLives);assert(g.songsCompleted>=2);assert(g.hits>0);});
 
 test('rewarded continuation retains the song chart and score with no backing burst',()=>{const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,3);g.beat=8;g.step(.001);g.hits=12;g.score=12;for(const n of g.notes)if(n.beat<8)n.status='missed';g.lives=0;g.end();const next=g.notes.find(n=>n.status==='waiting');assert(g.revive());assert.equal(g.hits,12);assert.equal(g.countdown,3);assert(g.notes.includes(next));advance(g,3);events.length=0;g.step(.01);assert(events.filter(e=>e.type==='accompaniment').length<=1);});
@@ -43,12 +43,12 @@ test('early holds immediately retain earned progress and sound on each press',()
 
 import {pianoSongTempo} from './piano-flow-engine.js';
 test('full-song speed rises early, continuously, and never jumps at song changes',()=>{
- assert.equal(pianoSongTempo(0),88);assert.equal(pianoSongTempo(8),88);
- assert(pianoSongTempo(30)>95);assert(pianoSongTempo(60)>106);assert.equal(pianoSongTempo(10000),144);
+ assert.equal(pianoSongTempo(0),88);assert.equal(pianoSongTempo(4),88);
+ assert(pianoSongTempo(30)>104);assert(pianoSongTempo(60)>124);assert.equal(pianoSongTempo(10000),156);
  const g=createPianoGame(config);g.start();advance(g,3);let previous=g.bpm,changes=0,round=0;
  for(let i=0;i<120*240&&!g.over;i++){
   if(!g.notes.some(n=>['holding','queued'].includes(n.status))){const n=g.notes.find(n=>['waiting','partial'].includes(n.status));if(n&&n.beat-g.beat<.15){for(const lane of g.pressed)g.release(lane);g.pressStrip(n.lane);}}
-  g.step(1/120);assert(g.bpm>=previous);assert(g.bpm-previous<.004);previous=g.bpm;
+  g.step(1/120);assert(g.bpm>=previous);assert(g.bpm-previous<.006);previous=g.bpm;
   if(g.songsCompleted!==round){changes++;round=g.songsCompleted;}
  }
  assert(changes>=2);assert.equal(g.lives,g.maxLives);assert(!g.over);
@@ -119,4 +119,13 @@ test('all ten arrangements remain playable with individual taps and held notes',
   }
   assert(!g.over);assert.equal(g.lives,g.maxLives);assert(g.songsCompleted>=1);
  }
+});
+
+test('early phrase change switches backing to the actually played chord immediately',()=>{
+ const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,3);g.beat=2;
+ const base=g.notes[0];const a={...base,id:800,lane:0,hold:0,beat:3,end:3,status:'waiting',bar:0,chord:[48,52,55]},b={...base,id:801,lane:1,hold:0,beat:6,end:6,status:'waiting',bar:1,chord:[53,57,60]};g.notes=[a,b];
+ assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(1));g.release(1);
+ const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,2);assert.deepEqual(backing[0].chord,a.chord);assert.deepEqual(backing[1].chord,b.chord);assert.equal(backing[1].reset,true);assert.equal(backing[1].musicalBeat,2);assert.equal(backing[1].pitch,41);
+ events.length=0;advance(g,.7);assert(events.some(e=>e.type==='accompaniment'));assert(events.filter(e=>e.type==='accompaniment').every(e=>e.chord.join()===b.chord.join()));
+ g.pause();events.length=0;advance(g,5);assert.equal(events.length,0);
 });

@@ -98,7 +98,7 @@ test('late taps remain forgiving and a held key cannot collect the next short no
  assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
 });
 
-test('the backing starts on the first written downbeat and follows each bar chord',()=>{
+test('the quieter backing follows played bar changes with one pulse per beat',()=>{
  const events=[],g=createPianoGame({...options,onEvent:e=>events.push(e)});g.start();
  for(let i=0;i<360;i++)g.step(1/120);
  until(g,1.99);assert.equal(events.filter(e=>e.type==='accompaniment').length,0);
@@ -109,14 +109,14 @@ test('the backing starts on the first written downbeat and follows each bar chor
   }
   g.step(1/240);
  }
- const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,9);
+ const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,5);
  for(const [i,e] of backing.entries()){
-  assert.equal(e.pulse,i);assert.equal(e.musicalBeat,2+i*.5);
+  assert.equal(e.pulse,(i%4)*2);if(i>0&&!e.reset)assert(Math.abs(e.musicalBeat-backing[i-1].musicalBeat-1)<.02);
   assert.equal(e.pitches.length,1);assert(e.velocity>0&&e.velocity<.7);
  }
  const root=chord=>chord[0]>=48?chord[0]-12:chord[0];
  assert.equal(backing[0].pitch,root(ORIGINAL_SONGS[0].notes[0].chord));
- assert.equal(backing[8].pitch,root(ORIGINAL_SONGS[0].notes.find(n=>n.songBeat===4).chord));
+ assert.equal(backing[4].pitch,root(ORIGINAL_SONGS[0].notes.find(n=>n.songBeat===4).chord));
  assert.equal(g.lives,g.maxLives);
 });
 

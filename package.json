@@ -1,7 +1,7 @@
 {
   "name": "shape-shift-browser",
   "private": true,
-  "version": "4.94.70",
+  "version": "4.94.73",
   "type": "module",
   "scripts": {
     "test": "node --test audio-worlds.test.mjs piano-timing.test.mjs menu-polish.test.mjs engine.test.mjs difficulty.test.mjs time-sources.test.mjs blossom-rewards.test.mjs cosmic-round.test.mjs adventure-stars.test.mjs adventure-design.test.js piano-flow.test.mjs piano-songs.test.mjs first-endless.test.mjs drop-keyboard.test.mjs startup-loader.test.mjs board-keyboard.test.mjs shop-prices.test.mjs beacon-controller.test.mjs story-finale.test.mjs piano-input.test.mjs quest-task-ui.test.mjs scenery-progress.test.mjs",
