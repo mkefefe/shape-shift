@@ -6,6 +6,7 @@ import test from 'node:test';
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
 const path=world=>'assets/music/menu-'+world+'-v49458.ogg';
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
+const nonVictory=state=>state.fetches.filter(url=>!url.includes('/victory-'));
 const response=()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
 function buffer(channels,length,rate=44100){
  const data=Array.from({length:channels},()=>new Float32Array(length));
@@ -25,7 +26,7 @@ function harness(options={}){
   createBufferSource(){const n=node();n.stops=[];n.start=(...args)=>{n.startArgs=args;};n.stop=time=>n.stops.push(time);state.sources.push(n);return n;}
   createBuffer(channels,length,rate){return buffer(channels,length,rate);}
   async decodeAudioData(data){return options.decode?options.decode(data):{url:data.url,duration:96};}
-  async resume(){this.state='running';}
+  async resume(){if(options.resume)return options.resume();this.state='running';}
   async suspend(){this.state='suspended';}
  }
  let serial=0;const window={AudioContext,setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
@@ -39,22 +40,22 @@ test('selecting a menu world before the first gesture loads only that theme',asy
  const {audio,state,tracks}=harness();audio.setMenuWorld('moon');
  assert.equal(state.contexts,0);assert.equal(state.fetches.length,0);
  await audio.start();await flush();assert.equal(tracks().length,1);
- assert.equal(tracks()[0].buffer.url,path('moon'));assert.deepEqual(state.fetches,[path('moon')]);
+ assert.equal(tracks()[0].buffer.url,path('moon'));assert.deepEqual(nonVictory(state),[path('moon')]);
 });
 
 test('common preload caches all three world themes and all three gameplay tracks without playing',async()=>{
  const {audio,state,tracks}=harness();assert(await audio.prepareCommon());
  const fetched=state.fetches.filter(url=>url.includes('/music/'));
  assert.equal(fetched.length,6);for(const world of ['garden','moon','sunset'])assert(fetched.includes(path(world)));
- assert.equal(tracks().length,0);const count=state.fetches.length;
+ assert.equal(tracks().length,0);const count=nonVictory(state).length;
  assert(await audio.prepareCommon());audio.setMenuWorld('sunset');await audio.start();await flush();
- assert.equal(state.fetches.length,count);assert.equal(tracks()[0].buffer.url,path('sunset'));
+ assert.equal(nonVictory(state).length,count);assert.equal(tracks()[0].buffer.url,path('sunset'));
 });
 
 test('equipping a world during gameplay leaves the gameplay track alone until returning to menu',async()=>{
  const {audio,state,tracks}=harness();audio.setScene('game');await audio.start();await flush();
  const game=tracks()[0];audio.setMenuWorld('sunset');await flush();
- assert.equal(tracks().length,1);assert.equal(game.stops.length,0);assert.equal(state.fetches.length,1);
+ assert.equal(tracks().length,1);assert.equal(game.stops.length,0);assert.equal(nonVictory(state).length,1);
  audio.setScene('menu');await flush();assert.equal(tracks().length,2);
  assert.equal(tracks()[1].buffer.url,path('sunset'));assert.equal(game.stops.length,1);
 });
@@ -88,7 +89,7 @@ test('out-of-order downloads during rapid world changes can only start the lates
  pending.get(path('sunset'))(response());await flush();assert.equal(tracks().length,1);
  assert.equal(tracks()[0].buffer.url,path('sunset'));
  audio.setMenuWorld('moon');await flush();assert.equal(tracks().length,2);
- assert.equal(tracks()[1].buffer.url,path('moon'));assert.equal(state.fetches.length,3);
+ assert.equal(tracks()[1].buffer.url,path('moon'));assert.equal(nonVictory(state).length,3);
 });
 
 test('invalid worlds fall back to garden and cancel a pending change without interrupting garden',async()=>{
@@ -177,4 +178,48 @@ test('star rewards use the recorded victory family through the centered effects 
  }
  assert.equal(state.gains[2].channelCount,1);const count=state.sources.length;
  audio.setSfx(false);audio.play('star-land-1');assert.equal(state.sources.length,count);
+});
+
+
+test('starting a run does not wait for an uncached optional backing track',async()=>{
+ let resolveTrack;const track='assets/music/groove-game-v49431.ogg';
+ const {audio,state,tracks}=harness({fetch:url=>url===track?new Promise(resolve=>resolveTrack=resolve):response()});
+ assert.equal(await audio.prepareGameStart('game'),true);
+ audio.setScene('game');await flush();assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
+ resolveTrack(response());await flush();assert.equal(tracks().at(-1).buffer.url,track);
+ assert.equal(state.fetches.filter(url=>url===track).length,1);
+});
+
+test('an unavailable optional backing does not block gameplay and can retry later',async()=>{
+ let fail=true;const track='assets/music/groove-slice-v49431.ogg';
+ const {audio,state,tracks}=harness({fetch:url=>url===track&&fail?{ok:false}:response()});
+ assert.equal(await audio.prepareGameStart('slice'),true);audio.setScene('slice');await flush();
+ assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
+ fail=false;state.context.currentTime=6;for(const callback of state.timers.values())callback();await flush();
+ assert.equal(tracks().at(-1).buffer.url,track);
+});
+
+test('piano prepares only its own samples and retries a failed key without reloading the rest',async()=>{
+ let fail=true;const key='assets/music/keys/60.ogg';
+ const {audio,state}=harness({fetch:url=>url===key&&fail?{ok:false}:response()});
+ assert.equal(await audio.preparePiano(),false);assert.equal(state.fetches.length,13);
+ assert(state.fetches.every(url=>url.includes('/keys/')||url.includes('/pop-')));
+ fail=false;assert.equal(await audio.preparePiano(),true);assert.equal(state.fetches.length,14);
+ assert.equal(state.fetches.filter(url=>url===key).length,2);
+});
+
+
+test('a pending browser audio permission does not hold up starting a run',async()=>{
+ const {audio}=harness({resume:()=>new Promise(()=>{})});
+ assert.equal(await audio.prepareGameStart('game'),true);
+});
+
+
+test('first audio start warms victory samples without waiting and later starts retry failures',async()=>{
+ const pending=new Map();let defer=true;
+ const {audio,state}=harness({fetch:url=>url.includes('/victory-')&&defer?new Promise(resolve=>pending.set(url,resolve)):response()});
+ await audio.start();assert.equal(pending.size,14);assert.equal(state.context.state,'running');
+ let index=0;for(const resolve of pending.values())resolve(index++===0?{ok:false}:response());await flush();
+ const before=state.fetches.filter(url=>url.includes('/victory-')).length;defer=false;
+ await audio.start();await flush();assert.equal(state.fetches.filter(url=>url.includes('/victory-')).length,before+1);
 });

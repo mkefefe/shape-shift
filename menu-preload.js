@@ -13,7 +13,7 @@ const retained=new Map(),pending=new Map();
 export function prepareMenuImage(src){
  if(retained.has(src))return Promise.resolve(retained.get(src));
  if(pending.has(src))return pending.get(src);
- const loading=(async()=>{const image=new Image();image.decoding='async';image.src=src;await image.decode();retained.set(src,image);return image;})();
+ const loading=(async()=>{const image=new Image();image.decoding='async';image.src=src;let timer;try{await Promise.race([image.decode(),new Promise((_,reject)=>{timer=setTimeout(()=>{image.src='';reject(Error('Image load timed out: '+src));},20000);})]);}finally{clearTimeout(timer);}retained.set(src,image);return image;})();
  pending.set(src,loading);
  loading.then(()=>pending.delete(src),()=>pending.delete(src));
  return loading;

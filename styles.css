@@ -296,8 +296,8 @@ input,textarea,[contenteditable="true"],[contenteditable=""],[contenteditable="p
 
 #startup-ready{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#076b9c;color:white;font-weight:800}#startup-ready img{width:min(70vw,330px);height:auto}#startup-ready[hidden]{display:none}
 
-/* Branded launch cover: existing painted world, logo and gold reward colors. */
-#startup-ready{background:radial-gradient(ellipse at 50% 38%,#087fa455,#032742d9),url('assets/home-world-v101.webp') center/cover;gap:18px;padding:24px;box-sizing:border-box;transition:opacity .28s ease}
+/* Branded launch cover without downloading the optional menu landscape. */
+#startup-ready{background:radial-gradient(ellipse at 50% 38%,#087fa4,#032742);gap:18px;padding:24px;box-sizing:border-box;transition:opacity .28s ease}
 #startup-ready>img{filter:drop-shadow(0 8px 12px #002d55aa);animation:startup-float 3s ease-in-out infinite}
 #startup-ready>p{margin:0;font:900 17px/1.4 Nunito,sans-serif;text-shadow:0 2px 5px #002c4c}
 .startup-meter{position:relative;width:min(76vw,300px);height:30px;border:3px solid #6de8ff;border-radius:22px;background:#073a58;box-shadow:0 3px 0 #002b49,0 0 18px #20dcff66;overflow:hidden}

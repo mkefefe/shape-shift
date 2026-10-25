@@ -98,21 +98,29 @@ export function paintLivingBackground(ctx,world,width,height,time,clouds,waterSu
 export function initLivingBackground(app,home){
  const canvas=document.createElement('canvas');canvas.id='living-water';canvas.setAttribute('aria-hidden','true');home.prepend(canvas);
  const ctx=canvas.getContext('2d'),motion=matchMedia('(prefers-reduced-motion: reduce)');let frame=0,last=-Infinity,clouds=null,cardWater=null;const waterSurfaces={};
- const atlas=new Image();atlas.src=new URL('./assets/worlds-v12.webp',import.meta.url).href;
- atlas.decode().then(()=>{clouds=createCloudDrift(atlas);waterSurfaces.moon=createWaterSurface(atlas,'moon',scenes.moon);waterSurfaces.sunset=createWaterSurface(atlas,'sunset',scenes.sunset);}).catch(()=>{});
- const garden=new Image();garden.src=new URL('./assets/home-world-v101.webp',import.meta.url).href;
- garden.decode().then(()=>{waterSurfaces.garden=createWaterSurface(garden,'garden',scenes.garden);}).catch(()=>{});
- const cards=new Image();cards.src=new URL('./assets/mode-cards-v101.webp',import.meta.url).href;
- cards.decode().then(()=>{cardWater=createCardWater(cards,home);}).catch(()=>{});
- const running=()=>app.dataset.screen==='home'&&!document.hidden&&!document.body.classList.contains('reduce-motion')&&!motion.matches&&!document.querySelector('dialog[open]');
+ let atlas,garden,cards;
+ function prepareVisibleWorld(){
+  if(document.documentElement.classList.contains('startup-loading')||app.dataset.screen!=='home')return;
+  if(!atlas&&app.dataset.background!=='garden'){
+   atlas=new Image();atlas.src=new URL('./assets/worlds-v12.webp',import.meta.url).href;
+   atlas.decode().then(()=>{clouds=createCloudDrift(atlas);waterSurfaces.moon=createWaterSurface(atlas,'moon',scenes.moon);waterSurfaces.sunset=createWaterSurface(atlas,'sunset',scenes.sunset);}).catch(()=>{atlas=null;});
+  }
+  if(!garden&&app.dataset.background==='garden'){
+   garden=new Image();garden.src=new URL('./assets/home-world-v101.webp',import.meta.url).href;
+   garden.decode().then(()=>{waterSurfaces.garden=createWaterSurface(garden,'garden',scenes.garden);}).catch(()=>{garden=null;});
+  }
+  if(!cards){cards=new Image();cards.src=new URL('./assets/mode-cards-v101.webp',import.meta.url).href;cards.decode().then(()=>{cardWater=createCardWater(cards,home);}).catch(()=>{cards=null;});}
+ }
+ const running=()=>!document.documentElement.classList.contains('startup-loading')&&app.dataset.screen==='home'&&!document.hidden&&!document.body.classList.contains('reduce-motion')&&!motion.matches&&!document.querySelector('dialog[open]');
  function paint(time){
   frame=0;if(!running())return;frame=requestAnimationFrame(paint);if(time-last<33)return;last=time;
   const w=home.clientWidth,h=home.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
   if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
   ctx.setTransform(dpr,0,0,dpr,0,0);paintLivingBackground(ctx,app.dataset.background,w,h,time,clouds,waterSurfaces);cardWater?.paint(time);
  }
- function refresh(){if(frame)cancelAnimationFrame(frame);frame=0;last=-Infinity;canvas.hidden=!running();if(canvas.hidden)cardWater?.hide();ctx.clearRect(0,0,canvas.width,canvas.height);if(running())frame=requestAnimationFrame(paint);}
+ function refresh(){prepareVisibleWorld();if(frame)cancelAnimationFrame(frame);frame=0;last=-Infinity;canvas.hidden=!running();if(canvas.hidden)cardWater?.hide();ctx.clearRect(0,0,canvas.width,canvas.height);if(running())frame=requestAnimationFrame(paint);}
  new MutationObserver(refresh).observe(app,{attributes:true,attributeFilter:['data-screen','data-background']});
  new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['class','open'],subtree:true});
+ new MutationObserver(refresh).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
  document.addEventListener('visibilitychange',refresh);motion.addEventListener('change',refresh);refresh();
 }

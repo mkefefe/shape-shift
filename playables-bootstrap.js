@@ -1,6 +1,6 @@
 import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=49439-web12';
 import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=49439-web12';
-import {prepareMenuImage} from './menu-preload.js?v=49439-web12';
+import {observeDeferredImages} from './deferred-images.js?v=49479';
 
 const sdk = window.ytgame;
 const live = Boolean(sdk?.IN_PLAYABLES_ENV);
@@ -36,6 +36,7 @@ const platform = window.ShapeShiftPlatform = {
     announced = true;
     sdk?.game?.gameReady?.();
     document.documentElement.dataset.playablesReady = 'true';
+    if(parent!==window)parent.postMessage('shape-shift-ready',location.origin);
     reportScore().catch(warn);
   },
   flush: () => store.flush()
@@ -100,13 +101,10 @@ async function start() {
   const cover = document.getElementById('startup-ready');
   try {
     await store.initialize();
-    // The map is a required destination after Adventure results. Decode and retain
-    // its CSS artwork before enabling play, not after the green map is exposed.
-    await Promise.all(['assets/map-route-v102.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp'].map(prepareMenuImage));
+    observeDeferredImages();
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
-    await loadScript('audio.js?v=49466');
-    await loadScript('assets/vendor/matter-0.20.0.min.js?v=49439-web12');
-    await import('./game.js?v=49467');
+    await loadScript('audio.js?v=49479');
+    await import('./game.js?v=49479');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

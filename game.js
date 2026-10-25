@@ -1,10 +1,10 @@
 import {animateQuestRedemption} from './quest-redemption.js?v=49467';
-import {initLivingMenu} from './menu-polish.js?v=49461';
+import {initLivingMenu} from './menu-polish.js?v=49479';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
-import {loadStartupAssets} from './startup-loader.js?v=49462';
+import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=49479';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
@@ -12,7 +12,7 @@ import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
 import {initStoryUI} from './story-ui.js?v=49459';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
-import {initPianoFlow} from './piano-flow.js?v=49458';
+import {initPianoFlow} from './piano-flow.js?v=49479';
 import {claimPianoReward} from './piano-flow-engine.js?v=49458';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web12';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web12';
@@ -20,26 +20,26 @@ import {initInputFeedback} from './input-feedback.js?v=49439-web24';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web12';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web12';
 import {enableHoldBuying} from './hold-buy.js?v=49439-web12';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49439-web12';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49479';
 import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web12';
 import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
 import {initSettingsExtras} from './settings-extras.js?v=49456';
-import {initShapeSlice} from './shape-slice.js?v=49439-web12';
+import {initShapeSlice} from './shape-slice.js?v=49479';
 import {claimSliceReward} from './shape-slice-engine.js?v=49439-web24';
 import {initGamesHub} from './games-hub.js?v=49439-web12';
-import {initShapeDrop} from './shape-drop.js?v=49439-web12';
+import {initShapeDrop} from './shape-drop.js?v=49479';
 import {claimDropReward} from './shape-drop-engine.js?v=49439-web24';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49439-web12';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49479';
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49439-web24';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49479';
 import {observeBoard} from './board-fit.js?v=49439-web12';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=49439-web12';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web12';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web12';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49439-web24';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49479';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web12';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web12';
 
@@ -75,7 +75,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49439-web12';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49479';
 
 
 
@@ -133,7 +133,7 @@ document.addEventListener('click',tapWelcomeAudio,true);
 document.addEventListener('unused-visibilitychange',welcomeVisibility);
 window.addEventListener('unused-androidpause',pauseWelcomeAudio);
 window.addEventListener('unused-androidresume',startWelcomeAudio);
-startWelcomeAudio();
+// Music begins on interaction; it must not compete with first-play downloads.
 const shareGameplayStatistics=await ensureTerms();
 await ensureAudience();
 document.removeEventListener('pointerdown',startWelcomeAudio,true);
@@ -191,8 +191,9 @@ try{resetProgressOnce(window.ShapeShiftPlatform.storage);}catch{}
 
 let profile=preserveStarterAvatar(ensureQuests(normalizeProfile(store.get('shape-shift-profile-v1',freshProfile()))),getIdentity().avatar);
 // Privileges are checked against the private installation credential on the server.
-let ownerPermission=await ownerAccess().catch(()=>({owner:false,adminActive:false}));
 const adminRecovery=store.get('shape-shift-admin-recovery-v2',null);
+const ownerCheck=ownerAccess().catch(()=>({owner:false,adminActive:false}));
+let ownerPermission=profile.adminMode||adminRecovery?.adminMode?await ownerCheck:{owner:false,adminActive:false};
 if(ownerPermission.owner&&ownerPermission.adminActive&&adminRecovery?.adminMode){profile=normalizeProfile(adminRecovery);const map=store.get('shape-shift-admin-recovery-map-v2',null);if(map)store.set('shape-shift-adventure-v1',map);}
 if(profile.adminMode&&(!ownerPermission.owner||!ownerPermission.adminActive)){
  store.set('shape-shift-admin-recovery-v2',profile);
@@ -3976,8 +3977,9 @@ adminExit.onclick=async()=>{try{await setOwnerAdmin(false);}catch{return;}const 
 document.querySelector('#settings-dialog .settings-links').append(adminExit);
 const adminEnter=document.createElement('button');adminEnter.className='secondary';adminEnter.textContent='Enable admin mode';adminEnter.hidden=!ownerPermission.owner||profile.adminMode;
 adminEnter.onclick=async()=>{await enableAdminMode();adminEnter.hidden=!!profile.adminMode;};document.querySelector('#settings-dialog .settings-links').append(adminEnter);
+ownerCheck.then(permission=>{ownerPermission=permission;adminEnter.hidden=!permission.owner||profile.adminMode;});
 
-// Prepare the active artwork and sampled instrument before exposing Play.
+// Only first-play artwork blocks entry. Other destinations prepare on demand.
 async function prepareStartup(){
  const cover=document.getElementById('startup-ready');if(!cover)return;
  document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;
@@ -3985,14 +3987,15 @@ async function prepareStartup(){
  try{
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
   cover.querySelector('p').textContent='Getting ready to play…';
-  await Promise.all([document.fonts.ready,shapeDrop.prepare(),shapeSlice.prepare(),audio()?.prepareCommon(),effectArtReady,skinArtReady,...SHAPE_SKINS.map(skin=>skin.id).flatMap(id=>[false,true].map(chained=>ensureSkinArt(id,chained).then(ready=>{if(!ready)throw Error('Skin artwork unavailable: '+id);}))),audio()?.prepareVictory().then(ready=>{if(!ready)throw Error('Victory samples unavailable');}),audio()?.preparePiano().then(ready=>{if(!ready)throw Error('Piano samples unavailable');}),...['assets/logo-v2-cut.webp','assets/menu-panel-v240.webp','assets/action-v45.webp'].map(src=>{const image=new Image();image.src=src;return image.decode();})]);
+  await Promise.all([document.fonts.ready,effectArtReady,skinArtReady.then(values=>{if(values.some(ready=>!ready))throw Error('Current shape artwork unavailable');})]);
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';cover.classList.add('startup-finished');await new Promise(r=>window.ShapeShiftPlatform.setTimeout(r,280));
   window.ShapeShiftPlatform.ready();
+  window.setTimeout(()=>{loadBackgroundAssets({paused:()=>window.ShapeShiftPlatform.paused||document.hidden});},1500);
   if(firstEndless.pending){
    runMode='endless';const launch=start(true);
    // start() switches to the game synchronously, before revealing the app.
-   cover.hidden=true;document.getElementById('app').inert=false;await launch;
-  }else{cover.hidden=true;await storyUI.onFirstOpen();document.getElementById('app').inert=false;}
+   cover.hidden=true;document.documentElement.classList.remove('startup-loading');document.getElementById('app').inert=false;await launch;
+  }else{cover.hidden=true;document.documentElement.classList.remove('startup-loading');await storyUI.onFirstOpen();document.getElementById('app').inert=false;}
   window.ShapeShiftReminders?.requestFirstLaunch?.();
  }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}
 }

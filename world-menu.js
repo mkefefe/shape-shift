@@ -1,3 +1,5 @@
+import {loadStartupAssets} from './startup-loader.js?v=49479';
+import {loadDestination} from './destination-loader.js?v=49479';
 import {starTasks} from './adventure-star-tasks.js?v=49439-web24';
 import {COSMETICS} from './economy.js?v=49439-web12';
 import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web12';
@@ -186,7 +188,8 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   markMapSelection(restoreFocus);
  }
  function sizeMap(){const width=$('adventure-map').clientWidth||390;mapWidth=width;$('map-landscape').style.height=(50*width)+'px';mapWindow='';}
- function map(){mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
+ let mapReady=false,mapOpening=false;
+ async function map(){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',()=>loadStartupAssets(()=>{},{assets:['assets/map-route-v102.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']}));mapOpening=false;if(!loaded)return;mapReady=true;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
  const mapNotice=document.createElement('div');mapNotice.id='map-notice';mapNotice.setAttribute('role','status');mapNotice.setAttribute('aria-live','polite');mapNotice.hidden=true;document.body.append(mapNotice);let mapNoticeAnimation;
  function showMapNotice(message){
  mapNoticeAnimation?.cancel();mapNotice.textContent=message;mapNotice.hidden=false;

@@ -12,6 +12,14 @@
   let effectPitch=1,effectGain=1;const previousPitch=new Map();
   const midi = n => 440 * 2 ** ((n - 69) / 12);
 
+  // Optional recordings load on demand; a stalled request must be retryable.
+  async function audioData(url){
+    const controller=typeof AbortController==='function'?new AbortController():null;
+    const timeout=controller?window.setTimeout?.(()=>controller.abort(),12000):null;
+    try{const response=await fetch(url,controller?{signal:controller.signal}:undefined);if(!response.ok)throw Error('Audio unavailable');return await response.arrayBuffer();}
+    finally{if(timeout!==null)window.clearTimeout?.(timeout);}
+  }
+
   function setup() {
     if (context) return true;
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -70,7 +78,7 @@
     if(!setup())return false;
     const ready=await Promise.all(['transform','gather','burst','spark0','spark1','spark2','spark3','resolve','panel','reward-fill','reward-flight','reward-land1','reward-land2','reward-land3'].map(name=>{
       if(victoryBuffers.has(name))return true;
-      if(!victoryLoads.has(name))victoryLoads.set(name,fetch('assets/audio/victory-'+name+(name.startsWith('reward-')?'-v49459.ogg':['burst','spark0','spark1','spark2','spark3'].includes(name)?'-v49436.ogg':'-v4947.ogg')).then(r=>{if(!r.ok)throw Error('Victory audio unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).then(buffer=>{victoryBuffers.set(name,buffer);return true;}).catch(()=>{victoryLoads.delete(name);return false;}));
+      if(!victoryLoads.has(name))victoryLoads.set(name,audioData('assets/audio/victory-'+name+(name.startsWith('reward-')?'-v49459.ogg':['burst','spark0','spark1','spark2','spark3'].includes(name)?'-v49436.ogg':'-v4947.ogg')).then(data=>context.decodeAudioData(data)).then(buffer=>{victoryBuffers.set(name,buffer);return true;}).catch(()=>{victoryLoads.delete(name);return false;}));
       return victoryLoads.get(name);
     }));return ready.every(Boolean);
   }
@@ -183,7 +191,7 @@
     const ready=await Promise.all([...pianoKeys,'kick','clap','shaker'].map(key=>{
       if(pianoBuffers.has(key))return true;
       const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':'assets/music/pop-'+key+'-v322.ogg';
-      if(!pianoLoads.has(key))pianoLoads.set(key,fetch(url).then(r=>{if(!r.ok)throw Error('Piano unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
+      if(!pianoLoads.has(key))pianoLoads.set(key,audioData(url).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
       return pianoLoads.get(key);
     }));return ready.every(Boolean);
   }
@@ -227,7 +235,7 @@
   let musicVoice=null,musicEpoch=0,musicPending=null;
   function musicBuffer(name){
     if(!musicBuffers.has(name)){
-      const request=fetch(musicTracks[name]).then(r=>{if(!r.ok)throw Error('Music unavailable');return r.arrayBuffer();})
+      const request=audioData(musicTracks[name])
         .then(data=>context.decodeAudioData(data)).catch(()=>{musicBuffers.delete(name);musicRetry.set(name,context.currentTime+5);return null;});
       musicBuffers.set(name,request);
     }
@@ -272,6 +280,9 @@
     if (!window.ShapeShiftPlatform.audioAllowed) return;
     if (!setup()) return;
     try { if (context.state !== 'running') await context.resume(); } catch (_) { return; }
+    // Warm celebration samples after the first gesture without delaying play.
+    // Calling start again retries only failed recordings.
+    void prepareVictory();
     if (active) return;
     active = true;
     schedule(); timer = window.ShapeShiftPlatform.setInterval(schedule, 100);
@@ -492,13 +503,12 @@
   let uiEpoch=0;
   async function ui(name='click'){const epoch=++uiEpoch,requestedAt=Date.now();if(context?.state==='running'){play(name);if(!active)await start();return;}await start();if(epoch===uiEpoch&&!window.ShapeShiftPlatform.paused&&Date.now()-requestedAt<180)play(name);}
   async function prepareGameStart(track='game'){
-    // Resume inside the launch gesture, then wait for the actual decoded track.
-    // Muted players must not be held up by an asset they will not hear.
+    // Resume inside the launch gesture. Music streams in independently, so a
+    // slow or unavailable optional recording never prevents a playable run.
     if(!window.ShapeShiftPlatform.audioAllowed||(!music&&!sfx))return true;
     if(!setup())return true;
-    await start();
-    if(context.state!=='running')return false;
-    if(music&&musicVolume>0){if(!await musicBuffer(track))return false;musicRetry.delete(track);}
+    void start().catch(()=>{});
+    if(music&&musicVolume>0&&musicTracks[track])void musicBuffer(track);
     return true;
   }
   async function prepareCommon(){if(!setup())return false;const results=await Promise.all([...Object.keys(musicTracks).map(musicBuffer),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}

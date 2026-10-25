@@ -10,8 +10,16 @@ import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
 import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=49439-web12';
 import {shapeArtReady,paintMiniShape} from './mini-shape-art.js?v=49439-web12';
 import {cutShape,splitFragment,stepFragments,artworkBox} from './slice-fragments.js?v=49439-web12';
-const bomb=new Image();bomb.src='assets/slice-bomb-v239.webp';const bombReady=bomb.decode().then(()=>true).catch(()=>false);
-const galaxy=new Image();galaxy.src='assets/slice-galaxy-v260.webp';const galaxyReady=galaxy.decode().then(()=>true).catch(()=>false);
+const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
+function loadSliceImage(image,src){
+ if(image.complete&&image.naturalWidth)return Promise.resolve(true);
+ if(!imageLoads.has(image)){
+  const loading=new Promise(resolve=>{let done=false;const finish=ready=>{if(done)return;done=true;window.clearTimeout(timer);resolve(ready);};const timer=window.setTimeout(()=>{image.src='';finish(false);},12000);image.src=src;image.decode().then(()=>finish(true),()=>finish(false));});
+  imageLoads.set(image,loading.then(ready=>{if(!ready)imageLoads.delete(image);return ready;}));
+ }
+ return imageLoads.get(image);
+}
+async function prepareAssets(){return (await Promise.all([shapeArtReady,loadSliceImage(bomb,'assets/slice-bomb-v239.webp'),loadSliceImage(galaxy,'assets/slice-galaxy-v49476.webp')])).every(Boolean);}
 const KEY='shape-shift-slice-v1',colors=['#ff5878','#49ceff','#6bff89','#ffe56c'];
 export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
  const teaching=createMiniTutorial('slice');
@@ -85,7 +93,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   const help=el('div','slice-help');notice=el('span','','Swipe shapes · Avoid the bombs');notice.setAttribute('aria-live','polite');help.append(notice);dialog.append(help);lifeNotice=el('div','slice-life-loss');lifeNotice.hidden=true;lifeNotice.setAttribute('role','status');lifeNotice.setAttribute('aria-live','assertive');lifeNotice.setAttribute('aria-atomic','true');dialog.append(lifeNotice);
   const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close));
   let loadingTimer;
-  const ready=await Promise.race([Promise.all([shapeArtReady,bombReady,galaxyReady,audioReady]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),10000);})]);
+  const ready=await Promise.race([Promise.all([prepareAssets(),audioReady]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),10000);})]);
   window.ShapeShiftPlatform.clearTimeout(loadingTimer);
   if(token!==version||!dialog.open)return;
   if(!ready){const card=panel('Unable to load');card.append(el('p','','Check your connection and try again.'),button('Retry',start),button('Games',close));return;}
@@ -122,5 +130,5 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
  dialog.addEventListener('cancel',e=>{e.preventDefault();if(game&&!game.over){if(paused)resume();else pause();}else close();});dialog.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='p'&&game&&!game.over){e.preventDefault();paused?resume():pause();}});
  const autoPause=()=>{if(dialog.open)pause();};window.addEventListener('unused-blur',autoPause);window.addEventListener('unused-androidpause',autoPause);document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)autoPause();});window.addEventListener('unused-pagehide',()=>{if(game&&!saved){game.end();save();}});new ResizeObserver(()=>{if(game){endGesture(true);render();}}).observe(dialog);
  try{onProgress(progress);}catch{}
- return {async prepare(){await Promise.all([bomb.decode(),galaxy.decode(),shapeArtReady]);},open(){if(dialog.open)return;dialog.showModal();start();},close};
+ return {async prepare(){if(!await prepareAssets())throw Error('Shape Slice assets unavailable');},open(){if(dialog.open)return;dialog.showModal();start();},close};
 }

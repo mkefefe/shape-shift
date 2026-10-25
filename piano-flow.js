@@ -12,6 +12,11 @@ import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49439-web12';
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js?v=49439-web12';
 
 const STRIP_LINGER=1.6,STRIP_FADE=1.3;
+let skyReady;
+function prepareSky(){
+ if(!skyReady)skyReady=new Promise(resolve=>{const image=new Image();let done=false;const finish=ready=>{if(done)return;done=true;window.clearTimeout(timer);resolve(ready);};const timer=window.setTimeout(()=>{image.src='';finish(false);},12000);image.src='assets/piano-sky-v281.webp';image.decode().then(()=>finish(true),()=>finish(false));}).then(ready=>{if(!ready)skyReady=null;return ready;});
+ return skyReady;
+}
 
 
 
@@ -226,7 +231,8 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
   game=createPianoGame({...getLoadout(),directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,onEvent:event});settle();update();draw();const card=panel('Piano Flow');const status=el('p','','Preparing the piano…');card.append(status);
 
-  const [ready]=await Promise.all([window.gameAudio?.preparePiano(),skinArtReady]);if(version!==epoch||!dialog.open)return;
+  card.append(button('Games',close,'drop-secondary'));let loadingTimer;
+  const ready=await Promise.race([Promise.all([window.gameAudio?.preparePiano(),Promise.resolve(skinArtReady).then(values=>values.every(Boolean)),prepareSky()]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),15000);})]);window.ShapeShiftPlatform.clearTimeout(loadingTimer);if(version!==epoch||!dialog.open)return;
 
   card.replaceChildren(el('h2','','Piano Flow'));if(!ready){card.append(el('p','','The piano could not load. Try again.'),button('Try again',start),button('Games',close,'drop-secondary'));return;}
 

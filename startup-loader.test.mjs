@@ -1,7 +1,9 @@
+import {CORE_STARTUP_ASSETS,BACKGROUND_ASSETS} from './startup-plan.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {loadStartupAssets} from './startup-loader.js';
+import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js';
 import {prepareMenuImage} from './menu-preload.js';
+import {observeDeferredImages} from './deferred-images.js';
 test('startup awaits decoded images and completely downloaded audio',async()=>{
  let release,done=false;const gate=new Promise(r=>release=r),progress=[];
  const loading=loadStartupAssets((n,total)=>progress.push([n,total]),{assets:['test-delayed.webp','test-audio.ogg'],prepareImage:()=>gate,fetcher:async()=>({ok:true,arrayBuffer:async()=>gate})}).then(()=>done=true);
@@ -17,4 +19,30 @@ test('HTTP failures cannot count as loaded assets',async()=>{
 test('image preparation shares pending work, retains success and retries failures',async()=>{
  const original=globalThis.Image;let count=0,fail=true;globalThis.Image=class{constructor(){count++;}async decode(){if(fail)throw Error('offline');}};
  try{const first=prepareMenuImage('test-retained.png');assert.equal(first,prepareMenuImage('test-retained.png'));await assert.rejects(first,/offline/);fail=false;const image=await prepareMenuImage('test-retained.png');assert.equal(await prepareMenuImage('test-retained.png'),image);assert.equal(count,2);}finally{globalThis.Image=original;}
+});
+
+test('only core first-play assets are required; optional modes and music are deferred',()=>{
+ assert(CORE_STARTUP_ASSETS.includes('assets/shapes-v2.webp'));
+ assert.equal(CORE_STARTUP_ASSETS.length,12);
+ assert(!CORE_STARTUP_ASSETS.some(src=>/piano|slice|drop|story|music|wrapped|frame-/.test(src)));
+ assert(BACKGROUND_ASSETS.includes('assets/slice-galaxy-v49476.webp'));
+ assert(!BACKGROUND_ASSETS.some(src=>CORE_STARTUP_ASSETS.includes(src)));
+});
+test('background work is scheduled after startup and continues past optional failures',async()=>{
+ const scheduled=[],calls=[],errors=[];
+ const job=loadBackgroundAssets({assets:['optional-broken.webp','optional-good.webp'],schedule:fn=>scheduled.push(fn),paused:()=>false,onError:src=>errors.push(src),fetcher:async(src,options)=>{calls.push(src);assert.equal(options.priority,'low');return {ok:src.includes('good'),arrayBuffer:async()=>new ArrayBuffer(0)};}});
+ assert.deepEqual(calls,[]);await scheduled.shift()();await scheduled.shift()();assert.equal(calls.length,2);assert.deepEqual(errors,['optional-broken.webp']);job.stop();
+});
+test('background loading yields while paused and can be cancelled',async()=>{
+ const scheduled=[];let paused=true,calls=0;const job=loadBackgroundAssets({assets:['unused.webp'],schedule:fn=>scheduled.push(fn),paused:()=>paused,fetcher:async()=>{calls++;return {ok:true,arrayBuffer:async()=>new ArrayBuffer(0)};}});
+ await scheduled.shift()();assert.equal(calls,0);paused=false;job.stop();await scheduled.shift()();assert.equal(calls,0);
+});
+
+test('hidden menu images do not download behind startup; visible images load when revealed',()=>{
+ const originalObserver=globalThis.MutationObserver,originalRaf=globalThis.requestAnimationFrame;
+ let notify,starting=true,visible=false;
+ const image={dataset:{src:'menu.webp'},getClientRects:()=>visible?[{}]:[]};
+ const root={documentElement:{classList:{contains:()=>starting}},querySelectorAll:()=>image.dataset.src?[image]:[]};
+ globalThis.MutationObserver=class{constructor(callback){notify=callback;}observe(){}};globalThis.requestAnimationFrame=fn=>fn();
+ try{observeDeferredImages(root);visible=true;notify();assert.equal(image.src,undefined);starting=false;visible=false;notify();assert.equal(image.src,undefined);visible=true;notify();assert.equal(image.src,'menu.webp');assert.equal(image.dataset.src,undefined);}finally{globalThis.MutationObserver=originalObserver;globalThis.requestAnimationFrame=originalRaf;}
 });
