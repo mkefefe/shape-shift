@@ -56,11 +56,12 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
  M.Composite.add(world,[M.Bodies.rectangle(-20,wallY,40,wallHeight,{isStatic:true}),M.Bodies.rectangle(340,wallY,40,wallHeight,{isStatic:true}),floor]);
  const random=createDropSequence(rng);let game;
  const next=()=>{
-  const turn=game?game.drops+1:0,tile=random(game?.pieces||[],turn,game?.queue||[],game?.score||0);
+  const turn=game?game.drops+game.queue.length:0,tile=random(game?.pieces||[],turn,game?.queue||[],game?.score||0);
   if(!tile.bomb&&!tile.obstacle)tile.r*=dropViewportScale(height,turn);
   return tile;
  };
  game={frame,engine,height,pieces:[],queue:[next()],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[]};
+ game.queue.push(next());
  let accumulator=0,frameReady=null,frameMerges=0,frameGroups=[],supportCheckAt=0;
  function containPieces(){
   for(const body of game.pieces){

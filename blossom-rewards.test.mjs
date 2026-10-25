@@ -54,3 +54,12 @@ test('Drop doubles matched and bomb points while retaining actual clear counts',
  g.addPiece({shape:2,color:3},70,498);const before=g.score;const cleared=g.bombAt(70,498);assert(cleared.length);assert.equal(g.score-before,cleared.length*2);
  assert.equal(finishDropProgress({},g,'x').best,g.score);g.dispose();
 });
+
+test('Drop preview is the exact next piece and survives failed drops and rotation',()=>{
+ const context={console};vm.runInNewContext(fs.readFileSync(new URL('./assets/vendor/matter-0.20.0.min.js',import.meta.url),'utf8'),context);
+ const g=createDropGame(context.Matter,{autoDrop:false});assert.equal(g.queue.length,2);
+ const first=g.queue[0],preview=g.queue[1];g.rotate();assert.equal(g.queue[1],preview);
+ assert(g.drop());assert.equal(g.queue[0],preview);assert.equal(g.queue.length,2);assert.equal(g.pieces[0].drop.shape,first.shape);
+ const next=g.queue[1];assert.equal(g.drop(),false);assert.equal(g.queue[1],next);
+ for(let i=0;i<60;i++)g.step(1/120);assert(g.drop());assert.equal(g.queue[0],next);g.dispose();
+});

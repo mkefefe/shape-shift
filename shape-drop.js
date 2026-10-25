@@ -27,7 +27,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  function dropCrop(tile){if(tile.bomb)return {art:bombArt,x:0,y:0,w:1280,h:1280};return !tile.obstacle&&activeSkin()!=='classic'?skinCrop(tile):crops[tile.color*4+tile.shape];}
  let framePatches=dropFramePatches();
  let progress;try{progress=dropProgress(JSON.parse(window.ShapeShiftPlatform.storage.getItem(KEY)||'null'));}catch{progress=dropProgress();}
- let sceneryTint;
+ let sceneryTint,nextPreview;
  let game=null,raf=0,last=0,paused=false,runId='',saved=false,pendingSave=null,canvas,ctx,hudScore,hudCoins,announcement,overlay,transform,drag=null,fx=[],version=0,quiet=false,viewBounds=null,lastHud='',paintElapsed=0;
  const stamps=new Map();let stampPixels=0;
  const make=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls||'';if(text!==undefined)el.textContent=text;return el;};
@@ -107,7 +107,15 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   for(const p of framePatches)ctx.drawImage(containerArt,p.sx,p.sy,p.sw,p.sh,p.x,p.y,p.width,p.height);
 
  }
- function update(){if(!game)return;const key=[game.score,game.cleared,game.pieces.length,game.drops].join(':');if(key===lastHud)return;lastHud=key;hudScore.textContent=game.score.toLocaleString();hudCoins.textContent=miniGameCoins(game.cleared).toLocaleString();hudCoins.parentElement.setAttribute('aria-label',miniGameCoins(game.cleared)+' coins earned this run');canvas.setAttribute('aria-label',`Shape Drop play area. Score ${game.score}. ${game.pieces.filter(p=>!p.drop.obstacle).length} shapes. ${game.pieces.filter(p=>p.drop.obstacle).length} locked blocks. Next: ${game.queue[0].bomb?'bomb, clears nearby objects':game.queue[0].obstacle?'locked block, cannot match':`matching shape, ${game.queue[0].sizeScale??1} times size`}. Drag to aim and release to drop. Hold A or D to aim smoothly, S drops. Left and right arrows also aim, Space drops, Up rotates.`);}
+ function updateNextPreview(){
+  const tile=game.queue[1];if(!tile||!nextPreview)return;
+  const label=tile.bomb?'Bomb':tile.obstacle?'Locked block':['Red','Blue','Green','Yellow'][tile.color]+' '+['circle','triangle','square','star'][tile.shape];
+  const art=tile.bomb?make('img','drop-next-art'):sprite(tile,'drop-next-art');if(tile.bomb){art.src=bombArt.src;art.alt='';}
+  const holder=make('span','drop-next-holder');holder.append(art);
+  if(tile.obstacle){const chains=make('img','drop-next-chains');chains.src=obstacleArt.src;chains.alt='';holder.append(chains);}
+  nextPreview.replaceChildren(make('span','','NEXT'),holder);nextPreview.setAttribute('aria-label','Next drop: '+label);
+ }
+ function update(){if(!game)return;const key=[game.score,game.cleared,game.pieces.length,game.drops].join(':');if(key===lastHud)return;lastHud=key;updateNextPreview();hudScore.textContent=game.score.toLocaleString();hudCoins.textContent=miniGameCoins(game.cleared).toLocaleString();hudCoins.parentElement.setAttribute('aria-label',miniGameCoins(game.cleared)+' coins earned this run');canvas.setAttribute('aria-label',`Shape Drop play area. Score ${game.score}. ${game.pieces.filter(p=>!p.drop.obstacle).length} shapes. ${game.pieces.filter(p=>p.drop.obstacle).length} locked blocks. Next: ${game.queue[0].bomb?'bomb, clears nearby objects':game.queue[0].obstacle?'locked block, cannot match':`matching shape, ${game.queue[0].sizeScale??1} times size`}. Drag to aim and release to drop. Hold A or D to aim smoothly, S drops. Left and right arrows also aim, Space drops, Up rotates.`);}
  function release(){if(!game||paused||game.over)return;const locked=game.queue[0].obstacle;if(game.drop()){teaching.event('drop');play(locked?'drop-block':'drop-release');announcement.textContent=locked?'Locked blocks stay in the pile':dropHint();update();}}
  function panel(title){overlay?.remove();overlay=make('div','drop-overlay');const card=make('section','drop-panel');card.append(make('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
  function resume(){if(!paused||game?.over)return;overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;paused=false;dialog.dataset.paused='false';last=window.ShapeShiftPlatform.now();canvas.focus();update();}
@@ -119,7 +127,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   window.gameAudio?.start()?.catch(()=>{});
   if(game&&!saveRun())return;stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;runId='shape-drop-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const scenery=make('div','drop-scenery');sceneryTint=createSceneryTint(scenery,{garden:true});scenery.setAttribute('aria-hidden','true');const stars=make('div','drop-night-stars');scenery.append(stars);const motes=make('div','drop-motes');for(let i=0;i<24;i++){const mote=make('i');mote.style.cssText=`left:${5+(i*37)%90}%;top:${40+(i*17)%55}%;animation-delay:${-i*1.7}s`;motes.append(mote);}scenery.append(motes);dialog.append(scenery);
-  const hud=make('header','drop-play-hud');hudScore=make('strong','drop-live-score','0');hudScore.setAttribute('aria-label','Score');const coins=make('div','mini-run-coins'),coinIcon=make('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';hudCoins=make('strong','','0');coins.append(coinIcon,hudCoins);hud.append(icon('Pause Shape Drop',()=>pause(),'pause'),hudScore,coins);dialog.append(hud);
+  const hud=make('header','drop-play-hud');hudScore=make('strong','drop-live-score','0');hudScore.setAttribute('aria-label','Score');const coins=make('div','mini-run-coins'),coinIcon=make('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';hudCoins=make('strong','','0');coins.append(coinIcon,hudCoins);hud.append(icon('Pause Shape Drop',()=>pause(),'pause'),hudScore,coins);nextPreview=make('div','drop-next-preview');nextPreview.setAttribute('role','img');hud.append(nextPreview);dialog.append(hud);
   const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
   const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
