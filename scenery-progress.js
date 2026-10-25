@@ -16,7 +16,8 @@ export function createSceneryTint(element,{garden=false}={}){
  return {step(delta,score=0,reduced=false){
   const mood=journey.step(delta,score,reduced);elapsed+=Math.max(0,delta);
   if(elapsed>=.1){elapsed=0;
-   const hues=garden?[0,-22,24,48,0]:[0,72,155,235,305],i=Math.floor(mood.phase),t=mood.phase-i;
+   if(garden){const night=Math.min(1,mood.phase/3);element.style.setProperty('--night',night);element.style.setProperty('--dusk',Math.sin(night*Math.PI));element.style.filter='none';return mood;}
+   const hues=[0,72,155,235,305],i=Math.floor(mood.phase),t=mood.phase-i;
    const hue=hues[i%hues.length]+(hues[(i+1)%hues.length]-hues[i%hues.length])*t;
    element.style.filter=`hue-rotate(${hue}deg) saturate(${1+Math.min(mood.phase,1)*(garden?.12:.22)})`;
   }

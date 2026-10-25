@@ -35,3 +35,18 @@ body.reduce-motion #shape-drop .drop-scenery::before,body.reduce-motion #shape-d
 #shape-drop .mini-run-coins{position:absolute;right:9px;top:33px}
 @media(max-height:650px){#shape-drop .mini-run-coins{top:23px}}
 @media(orientation:landscape) and (max-height:550px){#shape-drop .mini-run-coins{position:static;margin-top:8px}}
+
+/* Daylight changes affect the painted scenery, never the colored game pieces. */
+#shape-drop .drop-scenery{--night:0;--dusk:0;background:#0c183c}
+#shape-drop .drop-scenery::before{filter:brightness(calc(1 - var(--night)*.58)) saturate(calc(1 - var(--night)*.25))}
+#shape-drop .drop-scenery::after{background:linear-gradient(#142b79bb,#253c7550 55%,#0d28454d);opacity:var(--night)}
+#shape-drop .drop-night-stars{position:absolute;inset:0;z-index:1;opacity:var(--night);background-image:radial-gradient(circle at 12% 12%,#fff 0 1px,transparent 2px),radial-gradient(circle at 35% 7%,#bbddff 0 1.4px,transparent 3px),radial-gradient(circle at 65% 19%,#fff 0 1px,transparent 2px),radial-gradient(circle at 86% 9%,#def4ff 0 1.7px,transparent 3.5px),radial-gradient(circle at 23% 28%,#b9d6ff 0 1px,transparent 2px),radial-gradient(circle at 75% 35%,#fff 0 1px,transparent 2px);animation:drop-night-shine 4s ease-in-out infinite alternate}
+#shape-drop .drop-night-stars::after{content:'';position:absolute;inset:0;background:linear-gradient(#ff9d5840,transparent 70%);opacity:var(--dusk)}
+#shape-drop .drop-motes{opacity:calc(.28 + var(--night)*.72)}
+#shape-drop .drop-motes i{width:3px;height:3px;background:#fff4af;box-shadow:0 0 5px #ffffc9,0 0 11px #ffe477}
+#shape-drop .drop-motes i:nth-child(n+9){opacity:var(--night);animation-name:drop-night-firefly}
+@keyframes drop-night-firefly{0%,100%{opacity:0;transform:translate(0,10px)}40%,65%{opacity:var(--night)}85%{opacity:0;transform:translate(18px,-45px)}}
+@keyframes drop-night-shine{from{filter:brightness(.75)}to{filter:brightness(1.4)}}
+#shape-drop[data-paused='true'] .drop-night-stars{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){#shape-drop .drop-night-stars,#shape-drop .drop-motes i{animation:none}}
+body.reduce-motion #shape-drop .drop-night-stars,body.reduce-motion #shape-drop .drop-motes i{animation:none}
