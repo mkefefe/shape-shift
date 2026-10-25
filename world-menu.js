@@ -1,5 +1,5 @@
-import {loadStartupAssets} from './startup-loader.js?v=49479';
-import {loadDestination} from './destination-loader.js?v=49479';
+import {loadStartupAssets} from './startup-loader.js?v=49480';
+import {loadDestination} from './destination-loader.js?v=49480';
 import {starTasks} from './adventure-star-tasks.js?v=49439-web24';
 import {COSMETICS} from './economy.js?v=49439-web12';
 import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49439-web12';
@@ -177,7 +177,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  },true);
  $('map-levels').addEventListener('focusin',event=>{const node=event.target.closest('.level-node');if(node){mapSelected=Number(node.dataset.level);markMapSelection();}});
  $('map-levels').addEventListener('pointerdown',()=>{mapKeyboard=false;markMapSelection();});
- const mapHint=document.createElement('p');mapHint.className='map-keyboard-hint';mapHint.textContent='W next | S previous | Space select | Z back';$('adventure-map').append(mapHint);
+ const mapHint=document.createElement('p');mapHint.className='map-keyboard-hint';mapHint.textContent='W next · S previous · Space select · Esc back';$('adventure-map').append(mapHint);
  function paintMap(){
   mapFrame=0;const viewport=$('adventure-map'),width=viewport.clientWidth||390,range=visibleMapSections(Math.max(0,viewport.scrollTop-$('map-landscape').offsetTop),viewport.clientHeight,width),key=range.join(':')+':'+width+':'+starTotal(progress)+':'+progress.lightning.join('');
   if(key===mapWindow)return;const restoreFocus=mapKeyboard&&$('map-levels').contains(document.activeElement);mapWindow=key;$('map-levels').replaceChildren();

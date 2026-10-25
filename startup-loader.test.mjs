@@ -23,7 +23,8 @@ test('image preparation shares pending work, retains success and retries failure
 
 test('only core first-play assets are required; optional modes and music are deferred',()=>{
  assert(CORE_STARTUP_ASSETS.includes('assets/shapes-v2.webp'));
- assert.equal(CORE_STARTUP_ASSETS.length,12);
+ assert.equal(CORE_STARTUP_ASSETS.length,16);
+ assert(CORE_STARTUP_ASSETS.includes('browser-shield-hd1.png'));
  assert(!CORE_STARTUP_ASSETS.some(src=>/piano|slice|drop|story|music|wrapped|frame-/.test(src)));
  assert(BACKGROUND_ASSETS.includes('assets/slice-galaxy-v49476.webp'));
  assert(!BACKGROUND_ASSETS.some(src=>CORE_STARTUP_ASSETS.includes(src)));

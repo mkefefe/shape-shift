@@ -99,10 +99,11 @@ html,body{overflow:hidden;}
  #shape-drop .drop-keyboard-hint{pointer-events:none}
 }
 
-.keyboard-play-hint,.hub-keyboard-hint{display:none}
+.hub-keyboard-hint,.ability-key{display:none}
 #board .choice.keyboard-choice{outline:4px solid #ffe347;outline-offset:-4px;box-shadow:0 0 14px #fff5a0}
 @media (hover:hover) and (pointer:fine){
- .keyboard-play-hint,.hub-keyboard-hint{display:block;text-align:center;font-size:11px;line-height:16px;margin:2px 0;flex:none;color:#fff;font-weight:800;text-shadow:0 1px 3px #03506b}
+ .hub-keyboard-hint{display:block;text-align:center;font-size:11px;line-height:16px;margin:2px 0;flex:none;color:#fff;font-weight:800;text-shadow:0 1px 3px #03506b}
+ .ability-key{display:grid;place-items:center;position:absolute;top:-8px;left:6px;min-width:20px;height:20px;box-sizing:border-box;border:1px solid #bcefff;border-radius:6px;background:#075a7c;color:#fff;font:900 12px/1 Nunito,sans-serif;box-shadow:0 2px 4px #00334a66;pointer-events:none}
  #games-hub .hub-game.keyboard-game{outline:4px solid #ffe347;outline-offset:-4px;filter:brightness(1.08)}
 }
 
@@ -110,10 +111,10 @@ html,body{overflow:hidden;}
 
 @media (hover:hover) and (pointer:fine){
  #pause-dialog button.keyboard-menu-selected,dialog[data-paused="true"] .drop-pause-panel button.keyboard-menu-selected{outline:4px solid #ffe347;outline-offset:2px;filter:brightness(1.08)}
- #pause-dialog .pause-options::after,dialog[data-paused="true"] .drop-pause-panel::after{content:'W / S select · Space / Enter confirm · Z back';display:block;color:#075570;text-shadow:none;text-align:center;font:800 11px/1.5 Nunito,sans-serif;grid-column:1/-1}
+ #pause-dialog .pause-options::after,dialog[data-paused="true"] .drop-pause-panel::after{content:'W / S select · Space confirm · Esc back';display:block;color:#075570;text-shadow:none;text-align:center;font:800 11px/1.5 Nunito,sans-serif;grid-column:1/-1}
 }
 
-@media (hover:hover) and (pointer:fine){.keyboard-menu-selected{outline:3px solid #ffd35d!important;outline-offset:4px!important}#settings-dialog:has(.keyboard-menu-selected) .hint:empty::after{content:"W / S move · A / D adjust volume · Space / Enter confirm · Z back"}}
+@media (hover:hover) and (pointer:fine){.keyboard-menu-selected{outline:3px solid #ffd35d!important;outline-offset:4px!important}#settings-dialog:has(.keyboard-menu-selected) .hint:empty::after{content:"W / S move · A / D volume · Space confirm · Esc back"}}
 
 /* Keep the selected level clear while the map recycles its offscreen nodes. */
 #map-levels .level-node.keyboard-map-selected{outline:4px solid #ffe347;outline-offset:6px;filter:brightness(1.12)}

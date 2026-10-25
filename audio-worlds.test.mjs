@@ -13,7 +13,7 @@ function buffer(channels,length,rate=44100){
  return {numberOfChannels:channels,length,sampleRate:rate,duration:length/rate,getChannelData:channel=>data[channel]};
 }
 function harness(options={}){
- const state={contexts:0,sources:[],gains:[],convolvers:[],fetches:[],timers:new Map(),document:{hidden:false}};
+ const state={contexts:0,sources:[],gains:[],convolvers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
  const parameter=()=>({value:0,values:[],ramps:[],targets:[],cancelScheduledValues(){},setValueAtTime(v,t){this.values.push([v,t]);},linearRampToValueAtTime(v,t){this.ramps.push([v,t]);},exponentialRampToValueAtTime(v,t){this.ramps.push([v,t]);},setTargetAtTime(v,t,c){this.targets.push([v,t,c]);}});
  const node=()=>({connections:[],disconnects:0,connect(target){this.connections.push(target);return target;},disconnect(){this.disconnects++;},gain:parameter(),frequency:parameter(),Q:parameter(),playbackRate:parameter(),threshold:parameter(),ratio:parameter(),knee:parameter(),attack:parameter(),release:parameter()});
  class AudioContext{
@@ -29,7 +29,7 @@ function harness(options={}){
   async resume(){if(options.resume)return options.resume();this.state='running';}
   async suspend(){this.state='suspended';}
  }
- let serial=0;const window={AudioContext,setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
+ let serial=0;const window={AudioContext,setTimeout(fn){state.delays.push(fn);return ++serial;},setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
  window.ShapeShiftPlatform={audioAllowed:true,paused:false,setInterval:window.setInterval,clearInterval:window.clearInterval};
  const fetch=async url=>{state.fetches.push(url);const r=options.fetch?await options.fetch(url):response();return {...r,arrayBuffer:async()=>{const data=await r.arrayBuffer();data.url=url;return data;}};};
  vm.runInNewContext(source,{window,fetch,document:state.document});
@@ -170,7 +170,8 @@ test('returning to menu keeps the current music until its theme has decoded',asy
 
 
 test('star rewards use the recorded victory family through the centered effects bus',async()=>{
- const {audio,state}=harness();await audio.start();await audio.prepareVictory();
+ const {audio,state}=harness();await audio.start();const warming=audio.prepareVictory();
+ for(let i=0;i<14;i++){state.delays.shift()();await flush();}await warming;
  for(const [cue,name] of [['objective-fill','fill'],['star-flight','flight'],['star-land-1','land1'],['star-land-2','land2'],['star-land-3','land3']]){
   audio.play(cue);const voice=state.sources.at(-1);
   assert.equal(voice.buffer.url,'assets/audio/victory-reward-'+name+'-v49459.ogg');
@@ -215,11 +216,16 @@ test('a pending browser audio permission does not hold up starting a run',async(
 });
 
 
-test('first audio start warms victory samples without waiting and later starts retry failures',async()=>{
+test('victory warming yields between samples, never blocks play, and retries failures',async()=>{
  const pending=new Map();let defer=true;
  const {audio,state}=harness({fetch:url=>url.includes('/victory-')&&defer?new Promise(resolve=>pending.set(url,resolve)):response()});
- await audio.start();assert.equal(pending.size,14);assert.equal(state.context.state,'running');
- let index=0;for(const resolve of pending.values())resolve(index++===0?{ok:false}:response());await flush();
+ await audio.start();assert.equal(pending.size,0);assert.equal(state.context.state,'running');
+ for(let index=0;index<14;index++){
+  assert.equal(state.delays.length,1);state.delays.shift()();await flush();
+  assert.equal(pending.size,1,'only one optional download may compete with gameplay');
+  await audio.start();assert.equal(state.delays.length,0,'repeated starts share the active warmup');
+  [...pending.values()][0](index===0?{ok:false}:response());pending.clear();await flush();
+ }
  const before=state.fetches.filter(url=>url.includes('/victory-')).length;defer=false;
- await audio.start();await flush();assert.equal(state.fetches.filter(url=>url.includes('/victory-')).length,before+1);
+ await audio.start();state.delays.shift()();await flush();assert.equal(state.fetches.filter(url=>url.includes('/victory-')).length,before+1);
 });

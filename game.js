@@ -2,10 +2,12 @@ import {animateQuestRedemption} from './quest-redemption.js?v=49467';
 import {initLivingMenu} from './menu-polish.js?v=49479';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
+import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49480';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
-import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=49479';
+import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=49480';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
+import {initMenuReadiness} from './menu-readiness.js?v=49480';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
@@ -26,20 +28,20 @@ import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
 import {initSettingsExtras} from './settings-extras.js?v=49456';
 import {initShapeSlice} from './shape-slice.js?v=49479';
 import {claimSliceReward} from './shape-slice-engine.js?v=49439-web24';
-import {initGamesHub} from './games-hub.js?v=49439-web12';
+import {initGamesHub} from './games-hub.js?v=49480';
 import {initShapeDrop} from './shape-drop.js?v=49479';
 import {claimDropReward} from './shape-drop-engine.js?v=49439-web24';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49479';
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49479';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49480';
 import {observeBoard} from './board-fit.js?v=49439-web12';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=49439-web12';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web12';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web12';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49479';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49480';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web12';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web12';
 
@@ -401,7 +403,8 @@ function uiSound(name='click'){audio()?.ui(name).catch(()=>{});}
 
 
 
-function screen(name){if(name!=='game')clearFloatingPoints();audio()?.setScene(name==='game'?'game':'menu');$('app').dataset.screen=name;$('app').dataset.mode=runMode;gameplayScene.scene(name==='game'?runMode:null,adventureLevel);$('home').hidden=name!=='home';$('adventure-map').hidden=name!=='map';if(name==='home'){worldUI?.refresh();if(!profile.adminMode)prepareRankedRun(endlessDifficulty);}$('game').hidden=name!=='game';$('home-best').textContent=best;applyCosmetics();window.scrollTo({top:0,left:0,behavior:'instant'});}
+let menuReadiness;
+function screen(name){if(name==='home'&&menuReadiness&&!menuReadiness.homeReady())return menuReadiness.openHome(()=>screen(name));if(name!=='home')menuReadiness?.cancelHome();if(name!=='game')clearFloatingPoints();audio()?.setScene(name==='game'?'game':'menu');$('app').dataset.screen=name;$('app').dataset.mode=runMode;gameplayScene.scene(name==='game'?runMode:null,adventureLevel);$('home').hidden=name!=='home';$('adventure-map').hidden=name!=='map';if(name==='home'){worldUI?.refresh();if(!profile.adminMode)prepareRankedRun(endlessDifficulty);}$('game').hidden=name!=='game';$('home-best').textContent=best;applyCosmetics();window.scrollTo({top:0,left:0,behavior:'instant'});}
 
 
 
@@ -1008,7 +1011,7 @@ function finish(finalize=false){
  if(runMode==='rush'){$('result-return-countdown').hidden=false;cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent='Main menu in '+n+'s';},()=>{uiSound('leave-result');home();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open});}
  };
  const startResultRewards=()=>{
-  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{if(modeWon&&storyUI.summary().ready){home(true);worldUI?.map();void storyUI.afterResults();}else tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground});
+  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{if(modeWon&&storyUI.summary().ready){void (async()=>{if(await home(true)===false)return;worldUI?.map();await storyUI.afterResults();})();}else tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground});
   else tally();
  };
  const presentResults=(animateRewards=true)=>{
@@ -1562,7 +1565,7 @@ function ability(name){
 
 
 
-async function start(forceTutorial=false){
+async function start(forceTutorial=false,onPrepared=()=>{}){
 
 
 
@@ -1680,7 +1683,7 @@ async function start(forceTutorial=false){
 
 
 
-  $('countdown').hidden=true;const completed=await new Promise(resolve=>{tutorialCompletion=resolve;openTutorial(true);});
+  $('countdown').hidden=true;const completed=await new Promise(resolve=>{tutorialCompletion=resolve;openTutorial(true);onPrepared();});
 
 
 
@@ -1692,7 +1695,7 @@ async function start(forceTutorial=false){
 
 
 
- $('countdown').hidden=false;
+ onPrepared();$('countdown').hidden=false;
 
 
 
@@ -1735,6 +1738,7 @@ async function start(forceTutorial=false){
 
  }catch(error){
   console.error('Unable to start run',error);
+  if(forceTutorial&&document.documentElement.classList.contains('startup-loading')){counting=false;active=false;throw error;}
   if(token===countdownToken){home(true);const message=document.createElement('p');message.id='run-load-error';message.setAttribute('role','status');message.textContent='Could not load the game. Tap Play to try again.';$('play').after(message);}
  }finally{if(token===countdownToken){$('play').disabled=false;$('game').removeAttribute('aria-busy');}}
 }
@@ -1824,6 +1828,7 @@ function resume(){
 
 
 function home(skipOffer=false){
+ if(menuReadiness&&!menuReadiness.homeReady())return menuReadiness.openHome(()=>home(skipOffer));
 
  stopResultCountdown();
 
@@ -2077,7 +2082,7 @@ document.addEventListener('keydown',e=>{
 
 
 
- const boostKey={Digit1:'shield',Numpad1:'shield',Digit2:'freeze',Numpad2:'freeze',Digit3:'boost',Numpad3:'boost'}[e.code];
+ const boostKey=ABILITY_KEYS[e.code];
  if(boostKey){e.preventDefault();ability(boostKey);return;}
 
 
@@ -2169,11 +2174,8 @@ window.handleAndroidBack=()=>{
 };
 window.addEventListener('androidback',()=>window.handleAndroidBack());
 bindBoardKeyboard($('board'),{suspended:()=>!active||paused||abilityGuideOpen()||window.ShapeShiftPlatform.paused||!!document.querySelector('dialog[open]'),enabled:()=>['endless','adventure'].includes(runMode)&&active&&!paused&&!locked&&!counting&&!abilityGuideOpen()&&!window.ShapeShiftPlatform.paused&&!document.querySelector('dialog[open]')});
-const boardKeys=document.createElement('p');boardKeys.className='keyboard-play-hint';boardKeys.textContent='WASD move · Space pick · Z pause · 1 Shield · 2 Time · 3 ×5';$('board').before(boardKeys);
-document.addEventListener('keydown',event=>{
- if(!['KeyZ','Escape'].includes(event.code)||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing||(event.code==='KeyZ'&&event.target.closest?.('textarea,select,[contenteditable],input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button])')&&event.target.dataset.menuEditing!=='false')||!$('startup-ready').hidden)return;
- event.preventDefault();event.stopImmediatePropagation();if(!window.handleAndroidBack()&&event.code==='KeyZ')openSettings();
-},true);
+for(const [code,name] of Object.entries(ABILITY_KEYS).filter(([code])=>code.startsWith('Digit'))){const key=document.createElement('kbd');key.className='ability-key';key.textContent=code.slice(-1);key.setAttribute('aria-hidden','true');$(name).append(key);$(name).setAttribute('aria-keyshortcuts',key.textContent);}
+bindBackKeyboard({ready:()=>$('startup-ready').hidden,back:()=>window.handleAndroidBack()});
 
 
 
@@ -3901,7 +3903,7 @@ const storyUI=initStoryUI({document,storage:window.ShapeShiftPlatform.storage,ad
 });
 worldUI=initWorldMenu({getFrame:()=>profile.equipped.frame,openFrames:()=>$('profile-open').click(),drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);}});
 
-$('adventure-continue').onclick=async()=>{if(runMode==='endless'){dismissRunScreen();return;}if(runMode!=='adventure'||storyUI.isPlaying())return;const button=$('adventure-continue');button.disabled=true;try{uiSound('leave-result');home(true);worldUI?.map();await storyUI.afterResults();}finally{button.disabled=false;}};
+$('adventure-continue').onclick=async()=>{if(runMode==='endless'){dismissRunScreen();return;}if(runMode!=='adventure'||storyUI.isPlaying())return;const button=$('adventure-continue');button.disabled=true;try{uiSound('leave-result');if(await home(true)===false)return;worldUI?.map();await storyUI.afterResults();}finally{button.disabled=false;}};
 
 // Analytics tracks only fixed counters. Input text and pointer coordinates are never read.
 for(const event of ['pointerdown','keydown'])document.addEventListener(event,()=>analytics.input(),{passive:true});
@@ -3979,7 +3981,8 @@ const adminEnter=document.createElement('button');adminEnter.className='secondar
 adminEnter.onclick=async()=>{await enableAdminMode();adminEnter.hidden=!!profile.adminMode;};document.querySelector('#settings-dialog .settings-links').append(adminEnter);
 ownerCheck.then(permission=>{ownerPermission=permission;adminEnter.hidden=!permission.owner||profile.adminMode;});
 
-// Only first-play artwork blocks entry. Other destinations prepare on demand.
+menuReadiness=initMenuReadiness({getProfile:()=>profile,skinSources:SHAPE_SKINS.map(s=>s.art),prepareSkins:async()=>{const ready=await Promise.all(SHAPE_SKINS.map(s=>ensureSkinArt(s.id)));if(ready.some(value=>!value))throw Error('Shape previews unavailable');},idle:()=>!document.hidden&&!window.ShapeShiftPlatform.paused&&((!active&&!counting)||paused||$('tutorial-dialog').open)});
+// Prepare the first actual screen, then warm other destinations without blocking play.
 async function prepareStartup(){
  const cover=document.getElementById('startup-ready');if(!cover)return;
  document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;
@@ -3988,14 +3991,19 @@ async function prepareStartup(){
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
   cover.querySelector('p').textContent='Getting ready to play…';
   await Promise.all([document.fonts.ready,effectArtReady,skinArtReady.then(values=>{if(values.some(ready=>!ready))throw Error('Current shape artwork unavailable');})]);
-  bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';cover.classList.add('startup-finished');await new Promise(r=>window.ShapeShiftPlatform.setTimeout(r,280));
-  window.ShapeShiftPlatform.ready();
-  window.setTimeout(()=>{loadBackgroundAssets({paused:()=>window.ShapeShiftPlatform.paused||document.hidden});},1500);
+  let launch;
   if(firstEndless.pending){
-   runMode='endless';const launch=start(true);
-   // start() switches to the game synchronously, before revealing the app.
-   cover.hidden=true;document.documentElement.classList.remove('startup-loading');document.getElementById('app').inert=false;await launch;
-  }else{cover.hidden=true;document.documentElement.classList.remove('startup-loading');await storyUI.onFirstOpen();document.getElementById('app').inert=false;}
+   runMode='endless';let prepared;const boardReady=new Promise(resolve=>prepared=resolve);launch=start(true,prepared);
+   // The run promise includes user interaction with the tutorial. Only wait for
+   // its board and first lesson here, never for tutorial completion.
+   await Promise.race([boardReady,launch]);
+  }else await menuReadiness.prepareHome();
+  bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  cover.hidden=true;document.documentElement.classList.remove('startup-loading');document.getElementById('app').inert=false;
+  window.ShapeShiftPlatform.ready();menuReadiness.warm();
+  window.setTimeout(()=>{loadBackgroundAssets({paused:()=>window.ShapeShiftPlatform.paused||document.hidden||counting||(active&&!paused)});},2500);
+  if(launch)await launch;else await storyUI.onFirstOpen();
   window.ShapeShiftReminders?.requestFirstLaunch?.();
  }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}
 }

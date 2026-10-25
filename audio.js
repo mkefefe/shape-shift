@@ -73,14 +73,19 @@
     for(const source of victorySources){try{source.stop();}catch{}}
     victorySources=[];
   }
-  const victoryBuffers=new Map(),victoryLoads=new Map();let victorySpark=0;
-  async function prepareVictory(){
-    if(!setup())return false;
-    const ready=await Promise.all(['transform','gather','burst','spark0','spark1','spark2','spark3','resolve','panel','reward-fill','reward-flight','reward-land1','reward-land2','reward-land3'].map(name=>{
-      if(victoryBuffers.has(name))return true;
-      if(!victoryLoads.has(name))victoryLoads.set(name,audioData('assets/audio/victory-'+name+(name.startsWith('reward-')?'-v49459.ogg':['burst','spark0','spark1','spark2','spark3'].includes(name)?'-v49436.ogg':'-v4947.ogg')).then(data=>context.decodeAudioData(data)).then(buffer=>{victoryBuffers.set(name,buffer);return true;}).catch(()=>{victoryLoads.delete(name);return false;}));
-      return victoryLoads.get(name);
-    }));return ready.every(Boolean);
+  const victoryBuffers=new Map(),victoryLoads=new Map();let victorySpark=0,victoryWarm;
+  function prepareVictory(){
+    if(!setup())return Promise.resolve(false);
+    if(victoryWarm)return victoryWarm;
+    // Avoid fourteen simultaneous audio decodes during the first playable frame.
+    victoryWarm=(async()=>{let ready=true;
+      for(const name of ['transform','gather','burst','spark0','spark1','spark2','spark3','resolve','panel','reward-fill','reward-flight','reward-land1','reward-land2','reward-land3']){
+        if(victoryBuffers.has(name))continue;
+        await new Promise(resolve=>window.setTimeout(resolve,120));
+        if(!victoryLoads.has(name))victoryLoads.set(name,audioData('assets/audio/victory-'+name+(name.startsWith('reward-')?'-v49459.ogg':['burst','spark0','spark1','spark2','spark3'].includes(name)?'-v49436.ogg':'-v4947.ogg')).then(data=>context.decodeAudioData(data)).then(buffer=>{victoryBuffers.set(name,buffer);return true;}).catch(()=>{victoryLoads.delete(name);return false;}));
+        if(!await victoryLoads.get(name))ready=false;
+      }return ready;
+    })().finally(()=>{victoryWarm=null;});return victoryWarm;
   }
   // Piano and firework impacts share one recording and one playback clock.
   function victoryCue(name,time){
