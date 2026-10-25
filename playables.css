@@ -99,11 +99,10 @@ html,body{overflow:hidden;}
  #shape-drop .drop-keyboard-hint{pointer-events:none}
 }
 
-.hub-keyboard-hint,.ability-key{display:none}
+.hub-keyboard-hint{display:none}
 #board .choice.keyboard-choice{outline:4px solid #ffe347;outline-offset:-4px;box-shadow:0 0 14px #fff5a0}
 @media (hover:hover) and (pointer:fine){
  .hub-keyboard-hint{display:block;text-align:center;font-size:11px;line-height:16px;margin:2px 0;flex:none;color:#fff;font-weight:800;text-shadow:0 1px 3px #03506b}
- .ability-key{display:grid;place-items:center;position:absolute;top:-8px;left:6px;min-width:20px;height:20px;box-sizing:border-box;border:1px solid #bcefff;border-radius:6px;background:#075a7c;color:#fff;font:900 12px/1 Nunito,sans-serif;box-shadow:0 2px 4px #00334a66;pointer-events:none}
  #games-hub .hub-game.keyboard-game{outline:4px solid #ffe347;outline-offset:-4px;filter:brightness(1.08)}
 }
 

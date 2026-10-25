@@ -13,14 +13,7 @@ export function bindBackKeyboard({doc=document,ready,back}){
  return ()=>doc.removeEventListener('keydown',listener,{capture:true});
 }
 
-export function keyboardHelpFor({screen='home',dialog='',paused=false,loading=false}={}){
+export function keyboardHelpFor({loading=false}={}){
  if(loading)return null;
- if(dialog==='over-dialog')return {title:'Results',rows:[['Space','Continue'],['Esc','Continue']]};
- if(dialog&&(!['piano-flow','shape-drop','shape-slice'].includes(dialog)||paused))return {title:paused?'Paused':'Menus',rows:[['W A S D','Choose'],['Space','Confirm'],['Esc','Back']]};
- if(dialog==='piano-flow')return {title:'Piano Flow',rows:[['A S D F','Play notes'],['Hold','Long notes'],['Esc','Pause']]};
- if(dialog==='shape-drop')return {title:'Shape Drop',rows:[['A / D','Move'],['S','Drop'],['Esc','Pause']]};
- if(dialog==='shape-slice')return {title:'Shape Slice',rows:[['Drag','Slice shapes'],['Esc','Pause']]};
- if(screen==='game')return {title:'Play',rows:[['W A S D','Move'],['Space','Pick'],['Esc','Pause']]};
- if(screen==='map')return {title:'Adventure map',rows:[['W','Next level'],['S','Previous level'],['Space','Select'],['Esc','Back']]};
- return {title:'Main menu',rows:[['A / D','Switch modes'],['Space','Play'],['W / S','Menu buttons']]};
+ return {title:'Quick controls',rows:[['W A S D','Move / choose'],['Space','Select / confirm'],['Z','Back'],['Esc','Pause / back'],['1 2 3','Abilities']]};
 }

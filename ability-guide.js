@@ -4,6 +4,11 @@ export const BOOST_LESSONS={
  freeze:['Double Time','Tap for twice as much time for 5 rounds. Combines with Time Crystal for 4x time. Uses another when it ends. Tap again to stop only this boost.'],
  boost:['5x Multiplier','Tap for 5 times the points and coins for 5 rounds. Uses another when it ends. Tap again to stop.']
 };
+const BOOST_SHORTCUTS={shield:'1',freeze:'2',boost:'3'};
+export function guideActivationKey(event,shortcut=''){
+ if(event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.shiftKey||event.isComposing)return false;
+ return event.key==='Enter'||event.key===' '||!!shortcut&&(event.code==='Digit'+shortcut||event.code==='Numpad'+shortcut);
+}
 export const SPECIAL_LESSONS={
  bomb:['Bomb','Tap to clear nearby choices and earn points.'],
  starburst:['Starburst','Tap Starburst to collect every visible shape and earn points and coins. Covered memory cards stay.'],
@@ -24,7 +29,7 @@ export function showBoardGuide(target,lesson,onTap,options={}){
  const layer=document.createElement('div');layer.id='board-guide';layer.dataset.phase=phase;
  const hand=document.createElement('img');hand.src='assets/ability-hand-v169.webp';hand.alt='';hand.className='board-guide-hand';
  const copy=document.createElement('div');copy.className='board-guide-copy';copy.setAttribute('role','status');
- const message=document.createElement('p');message.textContent=lesson[1];
+ const message=document.createElement('p');message.textContent=lesson[1]+(options.shortcut?' Shortcut: '+options.shortcut+'.':'');
  const next=document.createElement('button');next.className='primary board-guide-continue';next.textContent='Continue';
  const title=document.createElement('strong');title.className='board-guide-title';title.textContent=lesson[0];copy.append(title,message,next);layer.append(copy,hand);document.body.append(layer);focus.classList.add('live-guide-focus');
  const position=()=>{
@@ -64,7 +69,7 @@ export function showBoardGuide(target,lesson,onTap,options={}){
  const handle=element=>{if(phase==='intro'){if(next.contains(element))advance();}else if(target.contains(element))activate();else wrong();};
  const pointer=e=>{e.preventDefault();e.stopImmediatePropagation();if(!e.isPrimary||e.button!==0)return;ignoreClickUntil=window.ShapeShiftPlatform.now()+600;handle(e.target);const swallow=event=>{event.preventDefault();event.stopImmediatePropagation();};document.addEventListener('click',swallow,{capture:true,once:true});window.ShapeShiftPlatform.setTimeout(()=>document.removeEventListener('click',swallow,true),500);};
  const click=e=>{e.preventDefault();e.stopImmediatePropagation();if(window.ShapeShiftPlatform.now()>=ignoreClickUntil)handle(e.target);};
- const keys=e=>{e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;if(e.key==='Enter'||e.key===' '){if(phase==='intro')advance();else activate();}};
+ const keys=e=>{e.preventDefault();e.stopImmediatePropagation();if(guideActivationKey(e,options.shortcut)){if(phase==='intro')advance();else activate();}};
  document.addEventListener('pointerdown',pointer,true);document.addEventListener('click',click,true);document.addEventListener('keydown',keys,true);window.addEventListener('resize',position);
  next.focus({preventScroll:true});position();
 }
@@ -84,7 +89,8 @@ export async function showAbilityGuide(target,lesson,onTap){
  }catch{target.setAttribute('aria-label',lesson[0]);}
  // The guide already has a visible title; never append a permanent label over its art.
  open=false;
- if(target.isConnected)showBoardGuide(target,lesson,onTap);
+ const shortcut=globalThis.matchMedia?.('(any-hover: hover) and (any-pointer: fine)').matches?BOOST_SHORTCUTS[boostKey]:'';
+ if(target.isConnected)showBoardGuide(target,lesson,onTap,shortcut?{shortcut,wrong:'Tap the glowing ability or press '+shortcut+'.'}:{});
 }
 
 let lockNotice;

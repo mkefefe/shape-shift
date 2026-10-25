@@ -2,12 +2,12 @@ import {animateQuestRedemption} from './quest-redemption.js?v=49467';
 import {initLivingMenu} from './menu-polish.js?v=49479';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
-import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49480';
+import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49481';
 import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
 import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=49480';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
-import {initMenuReadiness} from './menu-readiness.js?v=49480';
+import {initMenuReadiness} from './menu-readiness.js?v=49481';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
@@ -22,7 +22,7 @@ import {initInputFeedback} from './input-feedback.js?v=49439-web24';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web12';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web12';
 import {enableHoldBuying} from './hold-buy.js?v=49439-web12';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49479';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49481';
 import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web12';
 import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
 import {initSettingsExtras} from './settings-extras.js?v=49456';
@@ -31,7 +31,7 @@ import {claimSliceReward} from './shape-slice-engine.js?v=49439-web24';
 import {initGamesHub} from './games-hub.js?v=49480';
 import {initShapeDrop} from './shape-drop.js?v=49479';
 import {claimDropReward} from './shape-drop-engine.js?v=49439-web24';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49479';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49481';
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
@@ -2174,7 +2174,7 @@ window.handleAndroidBack=()=>{
 };
 window.addEventListener('androidback',()=>window.handleAndroidBack());
 bindBoardKeyboard($('board'),{suspended:()=>!active||paused||abilityGuideOpen()||window.ShapeShiftPlatform.paused||!!document.querySelector('dialog[open]'),enabled:()=>['endless','adventure'].includes(runMode)&&active&&!paused&&!locked&&!counting&&!abilityGuideOpen()&&!window.ShapeShiftPlatform.paused&&!document.querySelector('dialog[open]')});
-for(const [code,name] of Object.entries(ABILITY_KEYS).filter(([code])=>code.startsWith('Digit'))){const key=document.createElement('kbd');key.className='ability-key';key.textContent=code.slice(-1);key.setAttribute('aria-hidden','true');$(name).append(key);$(name).setAttribute('aria-keyshortcuts',key.textContent);}
+for(const [code,name] of Object.entries(ABILITY_KEYS).filter(([code])=>code.startsWith('Digit')))$(name).setAttribute('aria-keyshortcuts',code.slice(-1));
 bindBackKeyboard({ready:()=>$('startup-ready').hidden,back:()=>window.handleAndroidBack()});
 
 

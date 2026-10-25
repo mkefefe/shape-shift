@@ -20,21 +20,14 @@ test('back ignores repeat, browser shortcuts and startup, while Escape can leave
  f.ready=true;f.press('KeyZ',{editing:true});assert.equal(f.calls,0);assert.equal(f.press('Escape',{editing:true}).defaultPrevented,true);assert.equal(f.calls,1);
 });
 
-test('number labels keep the actual Shield, Time, Rewards mapping for both keyboard number rows',()=>{
+test('ability shortcuts keep the actual Shield, Time, Rewards mapping for both keyboard number rows',()=>{
  for(const [number,ability] of [[1,'shield'],[2,'freeze'],[3,'boost']]){assert.equal(ABILITY_KEYS['Digit'+number],ability);assert.equal(ABILITY_KEYS['Numpad'+number],ability);}
  assert.equal(ABILITY_KEYS.KeyC,undefined);
 });
 
-test('contextual desktop help uses Escape and the correct controls for every mode',()=>{
+test('desktop help gives one concise overview across menus and modes',()=>{
  assert.equal(keyboardHelpFor({loading:true}),null);
- assert.deepEqual(keyboardHelpFor({screen:'home'}).rows[0],['A / D','Switch modes']);
- assert.equal(keyboardHelpFor({screen:'home'}).rows.some(([key])=>key==='Esc'),false);
- assert.deepEqual(keyboardHelpFor({screen:'map'}).rows,[['W','Next level'],['S','Previous level'],['Space','Select'],['Esc','Back']]);
- assert.deepEqual(keyboardHelpFor({screen:'game'}).rows,[['W A S D','Move'],['Space','Pick'],['Esc','Pause']]);
- assert.deepEqual(keyboardHelpFor({dialog:'piano-flow'}).rows[0],['A S D F','Play notes']);
- assert.deepEqual(keyboardHelpFor({dialog:'shape-drop'}).rows.slice(0,2),[['A / D','Move'],['S','Drop']]);
- assert.deepEqual(keyboardHelpFor({dialog:'shape-slice'}).rows[0],['Drag','Slice shapes']);
- for(const dialog of ['piano-flow','shape-drop','shape-slice'])assert.deepEqual(keyboardHelpFor({dialog,paused:true}).rows.at(-1),['Esc','Back']);
- assert.deepEqual(keyboardHelpFor({dialog:'settings-dialog'}).rows.at(-1),['Esc','Back']);
- assert.deepEqual(keyboardHelpFor({dialog:'over-dialog'}),{title:'Results',rows:[['Space','Continue'],['Esc','Continue']]});
+ const help={title:'Quick controls',rows:[['W A S D','Move / choose'],['Space','Select / confirm'],['Z','Back'],['Esc','Pause / back'],['1 2 3','Abilities']]};
+ for(const screen of ['home','map','game'])assert.deepEqual(keyboardHelpFor({screen}),help);
+ for(const dialog of ['piano-flow','shape-drop','shape-slice','settings-dialog','over-dialog'])assert.deepEqual(keyboardHelpFor({dialog}),help);
 });
