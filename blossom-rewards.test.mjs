@@ -1,3 +1,4 @@
+import {fitDropArtwork,dropShapeBox} from './shape-drop-view.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -62,4 +63,14 @@ test('Drop preview is the exact next piece and survives failed drops and rotatio
  assert(g.drop());assert.equal(g.queue[0],preview);assert.equal(g.queue.length,2);assert.equal(g.pieces[0].drop.shape,first.shape);
  const next=g.queue[1];assert.equal(g.drop(),false);assert.equal(g.queue[1],next);
  for(let i=0;i<60;i++)g.step(1/120);assert(g.drop());assert.equal(g.queue[0],next);g.dispose();
+});
+
+test('Drop art occupies the physical silhouette even with wide or tall source crops',()=>{
+ for(const shape of [0,1,2,3])for(const radius of [25,40,80])for(const aspect of [.8,1,531/508,580/496,1.4])assert.deepEqual(fitDropArtwork(shape,radius,aspect),dropShapeBox(shape,radius));
+});
+test('touching matching squares merge, but separated squares do not',()=>{
+ const context={console};vm.runInNewContext(fs.readFileSync(new URL('./assets/vendor/matter-0.20.0.min.js',import.meta.url),'utf8'),context);
+ let clears=0;const g=createDropGame(context.Matter,{autoDrop:false,onClear:()=>clears++});
+ const a=g.addPiece({shape:2,color:0,r:40},100,400),b=g.addPiece({shape:2,color:0,r:40},170,400);
+ g.step(1/120);assert.equal(clears,0);context.Matter.Body.setPosition(b,{x:166,y:a.position.y});g.step(1/120);assert.equal(clears,1);assert.equal(g.cleared,2);g.dispose();
 });

@@ -28,4 +28,12 @@ export function dropShapeBox(shape,r){
  if(shape===1)return {width:outer*1.732,height:outer*1.5,y:-outer*.25};
  return {width:outer*Math.sin(Math.PI*2/5)*2,height:outer*(1+Math.cos(Math.PI/5)),y:outer*(Math.cos(Math.PI/5)-1)/2};
 }
-export function fitDropArtwork(shape,r,aspect=1){const box=dropShapeBox(shape,r),width=Math.min(box.width,box.height*Math.max(.01,aspect));return {...box,width,height:width/Math.max(.01,aspect)};}
+export function fitDropArtwork(shape,r,aspect=1){return dropShapeBox(shape,r);}
+
+// Rendering and physics share the same unrotated silhouette and center of mass.
+export function traceDropOutline(c,shape,r){
+ const box=dropShapeBox(shape,r);c.beginPath();
+ if(shape===0)c.arc(0,0,r,0,Math.PI*2);
+ else if(shape===2)c.roundRect(-box.width/2,-box.height/2,box.width,box.height,3);
+ else {const count=shape===1?3:10;for(let i=0;i<count;i++){const angle=-Math.PI/2+i*Math.PI*2/count,rad=r*1.23*(shape===3&&i%2?.52:1),x=Math.cos(angle)*rad,y=Math.sin(angle)*rad-box.y;if(i)c.lineTo(x,y);else c.moveTo(x,y);}c.closePath();}
+}

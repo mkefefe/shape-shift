@@ -8,7 +8,7 @@ import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
 import {ARTWORK_CROPS} from './artwork-crops.js?v=49439-web12';
 import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=49439-web12';
 import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
-import {dropLayout,fitDropArtwork,dropFramePatches} from './shape-drop-view.js?v=49439-web12';
+import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox,traceDropOutline} from './shape-drop-view.js?v=49439-web12';
 import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=49439-web12';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image();containerArt.src='assets/drop-container-v241.webp';const containerReady=containerArt.decode().then(()=>true).catch(()=>false);
@@ -59,24 +59,36 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   card.append(make('p','drop-copy','Touching shapes clear when their color OR shape matches. Gray chained blocks never match. Keep the pile below the line.'),button('Play Shape Drop',start));
   dialog.append(card,make('p','drop-best-summary','Best score  '+progress.best.toLocaleString()));settleRewards();window.gameAudio?.setScene('menu');
  }
- function drawShape(c,tile,x,y,size,angle=0,alpha=1){
+ function drawShape(c,tile,x,y,size,angle=0,alpha=1,golden=false){
   if(tile.bomb){c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;const scale=size/890;c.drawImage(bombArt,-600*scale,-775*scale,1280*scale,1280*scale);c.restore();return;}
-  const crop=dropCrop(tile);if(!crop)return;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;const h=size*crop.h/crop.w;
+  const crop=dropCrop(tile);if(!crop)return;c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=alpha;const unit=dropShapeBox(tile.shape,1),radius=size/unit.width,h=unit.height*radius;
   const density=Math.min(2,devicePixelRatio||1)*(transform?.scale||1),width=Math.max(1,Math.ceil(size*density)),height=Math.max(1,Math.ceil(h*density));
-  const key=[activeSkin(),tile.shape,tile.color,!!tile.obstacle,width,height].join(':');let stamp=stamps.get(key);
+  const key=[activeSkin(),tile.shape,tile.color,!!tile.obstacle,golden,width,height].join(':');let stamp=stamps.get(key);
   if(!stamp){
    stamp=document.createElement('canvas');stamp.width=width;stamp.height=height;const paint=stamp.getContext('2d');paint.imageSmoothingQuality='high';
    if(tile.obstacle)paint.filter='grayscale(1) brightness(.82)';
    paint.drawImage(crop.art,crop.x,crop.y,crop.w,crop.h,0,0,width,height);
+   if(golden){paint.filter='none';paint.globalCompositeOperation='source-atop';paint.fillStyle='#ffdc6699';paint.fillRect(0,0,width,height);paint.globalCompositeOperation='source-over';}
    if(tile.obstacle){paint.filter='none';const side=Math.min(width,height)*.94;paint.drawImage(obstacleArt,(width-side)/2,(height-side)/2,side,side);}
    stamps.set(key,stamp);stampPixels+=width*height;
    while(stamps.size>64||stampPixels>4_000_000){const oldest=stamps.keys().next().value;if(oldest===key)break;const old=stamps.get(oldest);stampPixels-=old.width*old.height;old.width=old.height=0;stamps.delete(oldest);}
   }
-  c.drawImage(stamp,-size/2,-h/2,size,h);
+  traceDropOutline(c,tile.shape,radius);c.fillStyle=golden?'#ffe589':tile.obstacle?'#343a40':COLORS[tile.color];c.fill();c.clip();c.drawImage(stamp,-size/2,-h/2,size,h);
   c.restore();
  }
  function dropHint(){return game.queue[0].bomb?'Drop the bomb to clear nearby shapes':game.queue[0].obstacle?'Locked block · Stays in the pile · Aim carefully':'Tap where you want to drop';}
 
+ function drawMerge(f){
+  const age=game.time-f.at;if(age<0||age>=.8)return;
+  for(const [index,p] of f.pieces.entries()){
+   const box=dropShapeBox(p.tile.shape,p.tile.r),travel=quiet?0:Math.max(0,Math.min(1,(age-.12)/.24)),ease=travel*travel*(3-2*travel);
+   if(age<.38){const shrink=1-.88*ease;ctx.save();ctx.translate(p.x+(f.x-p.x)*ease,p.y+(f.y-p.y)*ease);ctx.rotate(p.angle);ctx.shadowColor='#ffdc55';ctx.shadowBlur=quiet?3:12+p.tile.r*.15;drawShape(ctx,p.tile,0,box.y*shrink,box.width*shrink,0,1,true);ctx.restore();}
+   if(age>=.34){const t=Math.min(1,(age-.34)/.46),spread=(quiet?8:14+p.tile.r*.7)*t;
+    ctx.save();ctx.globalAlpha=1-t;ctx.fillStyle='#fff0a4';ctx.shadowColor='#ffc83d';ctx.shadowBlur=8;
+    for(let k=0;k<(quiet?3:6);k++){const a=k*Math.PI/3+index*.43;ctx.beginPath();ctx.arc(f.x+Math.cos(a)*spread,f.y+Math.sin(a)*spread+t*t*12,Math.max(.3,(1-t)*(1.4+p.tile.r*.025)),0,Math.PI*2);ctx.fill();}ctx.restore();
+   }
+  }
+ }
  function render(){
   if(!canvas||!ctx||!game)return;const rect=viewBounds??=canvas.getBoundingClientRect();if(!rect.width||!rect.height)return;
   const dpr=Math.min(2,devicePixelRatio||1);if(canvas.width!==Math.round(rect.width*dpr)||canvas.height!==Math.round(rect.height*dpr)){canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);}
@@ -96,8 +108,8 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
    ctx.save();ctx.translate(game.aim,dropSpawnY(tile));ctx.rotate(tile.angle||0);
    drawShape(ctx,tile,0,box.y,box.width);ctx.restore();
   }
-  for(const b of game.pieces){const t=b.drop,age=t.clearAt===null?0:(game.time-t.clearAt)/.12,crop=dropCrop(t),box=fitDropArtwork(t.shape,t.r,crop.w/crop.h);ctx.save();ctx.translate(b.position.x,b.position.y);ctx.rotate(b.angle);if(age){ctx.shadowColor=COLORS[t.color];ctx.shadowBlur=quiet?8:22;}drawShape(ctx,t,0,box.y,box.width*(1+age*.12),0,1-age);ctx.restore();}
-  for(const f of fx){const age=(game.time-f.at)/.8;if(age>=1)continue;ctx.globalAlpha=1-age;if(!quiet){ctx.strokeStyle=f.color;ctx.lineWidth=2*(1-age);ctx.beginPath();ctx.arc(f.x,f.y,10+age*32,0,Math.PI*2);ctx.stroke();for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.fillStyle=f.color;ctx.beginPath();ctx.arc(f.x+Math.cos(a)*(12+age*35),f.y+Math.sin(a)*(12+age*35),2.4*(1-age),0,Math.PI*2);ctx.fill();}}
+  for(const b of game.pieces){if(b.drop.clearAt!==null)continue;const t=b.drop,age=t.clearAt===null?0:(game.time-t.clearAt)/.12,crop=dropCrop(t),box=fitDropArtwork(t.shape,t.r,crop.w/crop.h);ctx.save();ctx.translate(b.position.x,b.position.y);ctx.rotate(b.angle);if(age){ctx.shadowColor=COLORS[t.color];ctx.shadowBlur=quiet?8:22;}drawShape(ctx,t,0,box.y,box.width*(1+age*.12),0,1-age);ctx.restore();}
+  for(const f of fx){if(f.kind==='merge'){drawMerge(f);continue;}const age=(game.time-f.at)/.8;if(age>=1)continue;ctx.globalAlpha=1-age;if(!quiet){ctx.strokeStyle=f.color;ctx.lineWidth=2*(1-age);ctx.beginPath();ctx.arc(f.x,f.y,10+age*32,0,Math.PI*2);ctx.stroke();for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.fillStyle=f.color;ctx.beginPath();ctx.arc(f.x+Math.cos(a)*(12+age*35),f.y+Math.sin(a)*(12+age*35),2.4*(1-age),0,Math.PI*2);ctx.fill();}}
    if(f.label){ctx.font='1000 19px Nunito,sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffffff';ctx.strokeStyle='#276c62';ctx.lineWidth=3;const yy=f.y-(quiet?12:age*32);ctx.strokeText(f.label,Math.max(35,Math.min(W-35,f.x)),yy);ctx.fillText(f.label,Math.max(35,Math.min(W-35,f.x)),yy);}}
   ctx.globalAlpha=1;ctx.restore();
   // Small translucent highlights sit on the front of the glass, below the painted rim.
@@ -132,7 +144,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
   const [,containerLoaded,obstacleLoaded]=await Promise.all([prepareArtwork(),containerArt.decode().then(()=>true).catch(()=>false),obstacleArt.decode().then(()=>true).catch(()=>false),skinArtReady]);if(token!==version||!dialog.open)return;if(!M||!crops.length||!containerLoaded||!obstacleLoaded){const card=panel('Unable to load');card.classList.add('drop-result-panel');card.append(make('p','','Shape Drop could not load its artwork. Please try again.'),button('Retry',start),button('Games',close,'drop-secondary'));return;}
-  settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),height:layout.worldHeight,autoDrop:false,onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});play('drop-pop');if(event.combo>1)play('drop-chain');for(const [i,b] of event.pieces.entries())fx.push({x:b.position.x,y:b.position.y,at:game.time,color:COLORS[b.drop.color],label:i===0?'+'+event.score:''});announcement.textContent='Match!  +'+event.score;}});
+  settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),height:layout.worldHeight,autoDrop:false,onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});play('drop-pop');if(event.combo>1)play('drop-chain');for(const group of event.groups)fx.push({kind:'merge',at:game.time,x:group.reduce((sum,b)=>sum+b.position.x,0)/group.length,y:group.reduce((sum,b)=>sum+b.position.y,0)/group.length,pieces:group.map(b=>({tile:{...b.drop},x:b.position.x,y:b.position.y,angle:b.angle}))});announcement.textContent='Match!  +'+event.score;}});
   teaching.mount(dialog);onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const aim=e=>{if(paused||game.over||!transform)return;const r=canvas.getBoundingClientRect();game.aimAt((e.clientX-r.left-transform.x)/transform.scale);};
   canvas.onpointerdown=e=>{if(e.button!==0||drag!==null||paused||game.over||!transform)return;keyboard.reset();drag=e.pointerId;canvas.setPointerCapture(e.pointerId);aim(e);};canvas.onpointermove=e=>{if(drag===e.pointerId)aim(e);};canvas.onpointerup=e=>{if(drag===e.pointerId){aim(e);drag=null;release();render();}};canvas.onpointercancel=()=>{drag=null;render();};canvas.onlostpointercapture=()=>{drag=null;render();};
