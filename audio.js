@@ -6,7 +6,7 @@
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
   // Slider percentages scale the mix: effects sit in front of the recorded bed.
-  const MUSIC_LEVEL=.55,PIANO_MUSIC_LEVEL=1.1,SFX_LEVEL=2;
+  const MUSIC_LEVEL=.55,PIANO_MUSIC_LEVEL=1.5,SFX_LEVEL=2;
   const musicLevel=()=>scene==='piano'?PIANO_MUSIC_LEVEL:MUSIC_LEVEL;
   const volumeValue=(value,fallback)=>Number.isFinite(Number(value))?Math.max(0,Math.min(100,Number(value))):fallback;
   let effectPitch=1,effectGain=1;const previousPitch=new Map();

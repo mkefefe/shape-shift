@@ -97,7 +97,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   else if(e.type==='beat')window.gameAudio?.pianoNote(e.pitch,.7,true);
   else if(e.type==='accompaniment'){
    if(e.reset)window.gameAudio?.stopPiano(true);
-   const backingEnergy=Math.max(0,Math.min(1,e.energy??1));
+   const backingEnergy=.78+.22*Math.max(0,Math.min(1,e.energy??1));
    for(const pitch of e.pitches)window.gameAudio?.pianoNote(pitch,e.duration,true,(e.velocity??.65)*backingEnergy);
    window.gameAudio?.pianoBeat(e.pulse,backingEnergy);
   }

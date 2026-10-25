@@ -112,7 +112,7 @@ test('the quieter backing follows played bar changes with one pulse per beat',()
  const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,5);
  for(const [i,e] of backing.entries()){
   assert.equal(e.pulse,(i%4)*2);if(i>0&&!e.reset)assert(Math.abs(e.musicalBeat-backing[i-1].musicalBeat-1)<.02);
-  assert.equal(e.pitches.length,1);assert(e.velocity>0&&e.velocity<.7);
+  assert.equal(e.pitches.length,1);assert(e.velocity>0&&e.velocity<=.8);
  }
  const root=chord=>chord[0]>=48?chord[0]-12:chord[0];
  assert.equal(backing[0].pitch,root(ORIGINAL_SONGS[0].notes[0].chord));
@@ -143,4 +143,19 @@ test('revive retains already earned points without replaying completed notes on 
 test('short screens allow striking the visible edge of a note immediately',()=>{
  const a=note(900,7,0),{g,events}=fixture([a]);g.inputWindow=5.2;
  assert(g.pressStrip(0));assert.equal(a.status,'done');assert.equal(events.filter(e=>e.type==='note').length,1);
+});
+
+test('a rapid second tap on a completed strip is harmless, without extra points or melody',()=>{
+ const a=note(900,4,0),b=note(901,5,1),{g,events}=fixture([a,b]);
+ assert(g.pressStrip(0));g.release(0);const lives=g.lives;
+ assert.equal(g.pressStrip(0),false);until(g,2.2);assert.equal(g.pressStrip(0),false);
+ assert.equal(g.lives,lives);assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='note').length,1);assert(!events.some(e=>e.type==='miss'));
+ until(g,3);g.pressStrip(0);assert.equal(g.lives,lives-1,'wrong-strip detection returns after grace');
+});
+test('hold completion has repeat protection and does not consume the next note',()=>{
+ const a=note(900,4,0,.5),b=note(901,5,1),{g,events}=fixture([a,b]);assert(g.pressStrip(0));until(g,2.6);assert.equal(a.status,'done');g.release(0);g.pressStrip(0);
+ assert.equal(g.hits,1);assert.equal(g.lives,g.maxLives);assert.equal(b.status,'waiting');assert(!events.some(e=>e.type==='miss'));
+});
+test('a valid next note on the same strip is still immediately playable',()=>{
+ const a=note(900,4,0),b=note(901,4.5,0),{g}=fixture([a,b]);assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(0));assert.equal(g.hits,2);
 });
