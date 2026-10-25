@@ -2,12 +2,12 @@ import {animateQuestRedemption} from './quest-redemption.js?v=49467';
 import {initLivingMenu} from './menu-polish.js?v=49479';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
-import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49482';
+import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49483';
 import {bindResultKeyboard} from './result-keyboard.js?v=49482';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
 import {loadStartupAssets} from './startup-loader.js?v=49482';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
-import {initMenuReadiness} from './menu-readiness.js?v=49482';
+import {initMenuReadiness} from './menu-readiness.js?v=49483';
 import {prepareMenuImage,awaitReady} from './menu-preload.js?v=49482';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
@@ -3746,7 +3746,7 @@ function renderLesson(){
 
 
 
- lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/ability-hand-v169.webp';hand.alt='';hand.setAttribute('aria-hidden','true');hand.style.setProperty('--hand-angle',index===0?'180deg':'-90deg');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
+ lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/ability-hand-v169.webp';hand.alt='';hand.setAttribute('aria-hidden','true');hand.style.setProperty('--hand-angle','-90deg');hand.style.setProperty('--hand-left',index===0?'38%':'50%');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
 
 
 
