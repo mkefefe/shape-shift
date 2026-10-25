@@ -2,46 +2,47 @@ import {animateQuestRedemption} from './quest-redemption.js?v=49467';
 import {initLivingMenu} from './menu-polish.js?v=49479';
 import {bindPauseKeyboard} from './pause-keyboard.js?v=49439-web24';
 import {bindBoardKeyboard} from './board-keyboard.js?v=49439-web12';
-import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49481';
-import {bindResultKeyboard} from './result-keyboard.js?v=49439-web12';
+import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49482';
+import {bindResultKeyboard} from './result-keyboard.js?v=49482';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49439-web12';
-import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=49480';
+import {loadStartupAssets} from './startup-loader.js?v=49482';
 import {firstEndlessLaunch} from './first-endless.js?v=49439-web12';
-import {initMenuReadiness} from './menu-readiness.js?v=49481';
+import {initMenuReadiness} from './menu-readiness.js?v=49482';
+import {prepareMenuImage,awaitReady} from './menu-preload.js?v=49482';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49439-web12';
 import {praiseDirector} from './praise-feedback.js?v=49439-web12';
 import {showAdventureVictory} from './adventure-victory.js?v=49439-web12';
 import {initStoryUI} from './story-ui.js?v=49459';
 import {initTouchUI} from './touch-ui.js?v=49439-web12';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49439-web12';
-import {initPianoFlow} from './piano-flow.js?v=49479';
+import {initPianoFlow} from './piano-flow.js?v=49482';
 import {claimPianoReward} from './piano-flow-engine.js?v=49458';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49439-web12';
-import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49439-web12';
+import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49482';
 import {initInputFeedback} from './input-feedback.js?v=49439-web24';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49439-web12';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49439-web12';
 import {enableHoldBuying} from './hold-buy.js?v=49439-web12';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49481';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49482';
 import {rankingLoadMessage} from './leaderboard-cache.js?v=49439-web12';
 import {loadPrivacyContent} from './privacy-content.js?v=49439-web12';
 import {initSettingsExtras} from './settings-extras.js?v=49456';
-import {initShapeSlice} from './shape-slice.js?v=49479';
+import {initShapeSlice} from './shape-slice.js?v=49482';
 import {claimSliceReward} from './shape-slice-engine.js?v=49439-web24';
-import {initGamesHub} from './games-hub.js?v=49480';
-import {initShapeDrop} from './shape-drop.js?v=49479';
+import {initGamesHub} from './games-hub.js?v=49482';
+import {initShapeDrop} from './shape-drop.js?v=49482';
 import {claimDropReward} from './shape-drop-engine.js?v=49439-web24';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49481';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49482';
 import {fitBoard} from './board-fit.js?v=49439-web12';
 import {analytics} from './analytics.js?v=49439-web12';
 import {ensureTerms} from './terms.js?v=49439-web12';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49480';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49482';
 import {observeBoard} from './board-fit.js?v=49439-web12';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=49439-web12';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49439-web12';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49439-web12';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49480';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=49482';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49439-web12';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49439-web12';
 
@@ -164,7 +165,7 @@ $('choose-photo').hidden=!onlineAllowed();$('profile-name').readOnly=false;
 
 
 
-const effectArtReady=Promise.all(['assets/specials-v13.webp','assets/health-boost-v5.webp','assets/abilities-v4.webp'].map(src=>{const image=new Image();image.src=src;return image.decode().catch(()=>{});}));
+const effectArtReady={then(resolve,reject){return Promise.all(['assets/specials-v13.webp','assets/health-boost-v5.webp','assets/abilities-v4.webp'].map(prepareMenuImage)).then(resolve,reject);}};
 
 const audio=()=>window.gameAudio;
 
@@ -1565,7 +1566,7 @@ function ability(name){
 
 
 
-async function start(forceTutorial=false,onPrepared=()=>{}){
+async function start(forceTutorial=false,onPrepared=()=>{},beforeTutorial=()=>Promise.resolve()){
 
 
 
@@ -1683,7 +1684,8 @@ async function start(forceTutorial=false,onPrepared=()=>{}){
 
 
 
-  $('countdown').hidden=true;const completed=await new Promise(resolve=>{tutorialCompletion=resolve;openTutorial(true);onPrepared();});
+  $('countdown').hidden=true;onPrepared();await beforeTutorial();if(token!==countdownToken)return;
+  const completed=await new Promise(resolve=>{tutorialCompletion=resolve;openTutorial(true);});
 
 
 
@@ -3758,7 +3760,7 @@ $('tutorial-next').onclick=()=>{if(lessonIndex<LESSONS.length){lessonIndex++;ren
 
 $('tutorial-dialog').addEventListener('cancel',e=>{e.preventDefault();closeTutorialReplay();});
 $('tutorial-dialog').addEventListener('keydown',event=>{
- if(!tutorialFromSettings||!['KeyZ','Escape'].includes(event.code)||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
+ if(!tutorialFromSettings||event.code!=='Escape'||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
  event.preventDefault();event.stopPropagation();closeTutorialReplay();
 });
 
@@ -3982,27 +3984,28 @@ adminEnter.onclick=async()=>{await enableAdminMode();adminEnter.hidden=!!profile
 ownerCheck.then(permission=>{ownerPermission=permission;adminEnter.hidden=!permission.owner||profile.adminMode;});
 
 menuReadiness=initMenuReadiness({getProfile:()=>profile,skinSources:SHAPE_SKINS.map(s=>s.art),prepareSkins:async()=>{const ready=await Promise.all(SHAPE_SKINS.map(s=>ensureSkinArt(s.id)));if(ready.some(value=>!value))throw Error('Shape previews unavailable');},idle:()=>!document.hidden&&!window.ShapeShiftPlatform.paused&&((!active&&!counting)||paused||$('tutorial-dialog').open)});
-// Prepare the first actual screen, then warm other destinations without blocking play.
+// Keep every screen and first-run lesson behind the full asset/readiness barrier.
 async function prepareStartup(){
  const cover=document.getElementById('startup-ready');if(!cover)return;
- document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;
+ cover.hidden=false;document.documentElement.classList.add('startup-loading');document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;
  cover.classList.remove('startup-finished');cover.querySelector('p').textContent='Loading your world…';const bar=cover.querySelector('progress'),percent=cover.querySelector('.startup-percent');bar.value=0;percent.textContent='0%';
  try{
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
   cover.querySelector('p').textContent='Getting ready to play…';
-  await Promise.all([document.fonts.ready,effectArtReady,skinArtReady.then(values=>{if(values.some(ready=>!ready))throw Error('Current shape artwork unavailable');})]);
-  let launch;
+  await Promise.all([awaitReady(document.fonts.ready,'Font preparation'),effectArtReady,skinArtReady.then(values=>{if(values.some(ready=>!ready))throw Error('Current shape artwork unavailable');})]);
+  await menuReadiness.prepareAll();bar.value=95;percent.textContent='95%';
+  await Promise.all([shapeDrop.prepare(),shapeSlice.prepare()]);
+  let launch,showFirstLesson;const firstScreenVisible=new Promise(resolve=>{showFirstLesson=resolve;});
   if(firstEndless.pending){
-   runMode='endless';let prepared;const boardReady=new Promise(resolve=>prepared=resolve);launch=start(true,prepared);
-   // The run promise includes user interaction with the tutorial. Only wait for
-   // its board and first lesson here, never for tutorial completion.
+   runMode='endless';let prepared;const boardReady=new Promise(resolve=>prepared=resolve);launch=start(true,prepared,()=>firstScreenVisible);
+   // Prepare the board without opening a modal above the loading cover. The
+   // first tutorial is presented only after all assets and the screen are ready.
    await Promise.race([boardReady,launch]);
-  }else await menuReadiness.prepareHome();
+  }
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   cover.hidden=true;document.documentElement.classList.remove('startup-loading');document.getElementById('app').inert=false;
-  window.ShapeShiftPlatform.ready();menuReadiness.warm();
-  window.setTimeout(()=>{loadBackgroundAssets({paused:()=>window.ShapeShiftPlatform.paused||document.hidden||counting||(active&&!paused)});},2500);
+  window.ShapeShiftPlatform.ready();showFirstLesson();
   if(launch)await launch;else await storyUI.onFirstOpen();
   window.ShapeShiftReminders?.requestFirstLaunch?.();
  }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}

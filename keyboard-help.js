@@ -3,9 +3,7 @@ export const ABILITY_KEYS=Object.freeze({Digit1:'shield',Numpad1:'shield',Digit2
 // Escape uses the same back stack as the visible pause and close controls.
 export function bindBackKeyboard({doc=document,ready,back}){
  const listener=event=>{
-  if(!['Escape','KeyZ'].includes(event.code)||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing||!ready())return;
-  const editing=event.target.closest?.('textarea,select,[contenteditable],input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button])');
-  if(event.code==='KeyZ'&&editing&&event.target.dataset.menuEditing!=='false')return;
+  if(event.code!=='Escape'||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing||!ready())return;
   if(!back())return;
   event.preventDefault();event.stopImmediatePropagation();
  };
@@ -15,5 +13,5 @@ export function bindBackKeyboard({doc=document,ready,back}){
 
 export function keyboardHelpFor({loading=false}={}){
  if(loading)return null;
- return {title:'Quick controls',rows:[['W A S D','Move / choose'],['Space','Select / confirm'],['Z','Back'],['Esc','Pause / back'],['1 2 3','Abilities']]};
+ return {title:'Quick controls',rows:[['W A S D','Move / choose'],['Space','Select / confirm'],['Esc','Pause / back'],['1 2 3','Abilities']]};
 }

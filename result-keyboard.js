@@ -1,7 +1,7 @@
 // Use the existing result actions so saving, ad waits and Adventure routing stay intact.
 export function bindResultKeyboard(host=window){
  const doc=host.document,dialog=doc.getElementById('over-dialog');
- const hint=doc.createElement('p');hint.className='result-keyboard-hint';hint.textContent='Press Space, Enter or Esc to continue';
+ const hint=doc.createElement('p');hint.className='result-keyboard-hint';hint.textContent='Press Space to close';
  dialog.querySelector('.result-content').append(hint);
  function keydown(event){
   if(!dialog.open||!dialog.contains(event.target))return;

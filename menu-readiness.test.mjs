@@ -103,3 +103,20 @@ test('failed actual DOM avatar decode stays unready and can be retried',async()=
  const root={querySelector:selector=>({querySelectorAll:()=>selector==='#profile-open'?[image]:[]}),getElementById:()=>null};const restore=setGlobal('Image',class{async decode(){}});
  try{const menus=initMenuReadiness({root,getProfile:()=>({equipped:{background:'garden',frame:'none'}})});await assert.rejects(menus.prepareHome(),/DOM decode failed/);assert.equal(menus.homeReady(),false);fail=false;await menus.prepareHome();assert.equal(calls,2);assert.equal(menus.homeReady(),true);}finally{restore();}
 });
+
+
+test('startup can prepare a menu without displaying it, then open it immediately',async()=>{
+ const gate=deferred(),dialog=node('dialog');let painted=false,loads=0,extras=0;
+ const assets=createAssetReadiness(()=>gate.promise);
+ const prepared=bindPreparedDialog(dialog,{sources:()=>['startup-menu.webp'],assets,extra:async()=>{extras++;},paint:async()=>{painted=true;},paintReady:()=>painted,load:()=>{loads++;}});
+ const work=prepared.prepare();await settle();assert.equal(dialog.open,false);assert.equal(painted,false);gate.resolve();await work;assert.equal(dialog.open,false);dialog.showModal();assert.equal(dialog.open,true);assert.equal(loads,0);assert.equal(extras,1);
+});
+
+test('full startup prepares hidden home and menu DOM images before first tutorial',async()=>{
+ const gate=deferred();let decoded=false,skinCalls=0,finished=false;
+ const image={dataset:{src:'assets/startup-dialog.webp'},loading:'lazy',getAttribute:()=>null,decode:async()=>{await gate.promise;decoded=true;}};
+ const dialog=node('dialog');dialog.id='shop-dialog';dialog.querySelectorAll=()=>[image];
+ const root={querySelector:()=>({querySelectorAll:()=>[]}),getElementById:id=>id==='shop-dialog'?dialog:null};
+ const restore=setGlobal('Image',class{async decode(){}});
+ try{const menus=initMenuReadiness({root,getProfile:()=>({equipped:{background:'garden'}}),prepareSkins:async()=>{skinCalls++;}});const work=menus.prepareAll().then(()=>{finished=true;});await settle();assert.equal(finished,false);assert.equal(dialog.open,false);assert.equal(image.loading,'eager');assert.equal(image.src,'assets/startup-dialog.webp');gate.resolve();await work;assert.equal(decoded,true);assert.equal(menus.homeReady(),true);assert(skinCalls>0);dialog.showModal();assert.equal(dialog.open,true);}finally{restore();}
+});

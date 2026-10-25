@@ -1,3 +1,4 @@
+import {prepareMenuImage} from './menu-preload.js?v=49482';
 import {SHAPE_SKINS} from './shape-skins.js?v=49439-web12';
 import {ARTWORK_CROPS} from './artwork-crops.js?v=49439-web12';
 const atlases=new Map(),loads=new Map();let active='classic';
@@ -7,7 +8,7 @@ export function ensureSkinArt(id=active,chained=false){
  if(loads.has(key))return loads.get(key);
  const skin=SHAPE_SKINS.find(s=>s.id===id);if(!skin)return Promise.resolve(false);
  const source=chained?skin.chainedArt:skin.art;
- const loading=(async()=>{try{const art=new Image();art.decoding='async';art.src=source;await art.decode();const cropKey=source.split('/').pop().replace(/\.(png|webp)$/,'');const crops=ARTWORK_CROPS[cropKey];if(!crops)throw Error('Missing skin crops');atlases.set(key,crops.map(c=>({...c,art})));return true;}catch{loads.delete(key);return false;}})();loads.set(key,loading);return loading;
+ const loading=(async()=>{try{const art=await prepareMenuImage(source);const cropKey=source.split('/').pop().replace(/\.(png|webp)$/,'');const crops=ARTWORK_CROPS[cropKey];if(!crops)throw Error('Missing skin crops');atlases.set(key,crops.map(c=>({...c,art})));return true;}catch{loads.delete(key);return false;}})();loads.set(key,loading);return loading;
 }
 // Resolve only Classic and the selected skin when a game actually requests art.
 export const skinArtReady={then(resolve,reject){return Promise.all([...new Set(['classic',active])].map(id=>ensureSkinArt(id))).then(resolve,reject);}};

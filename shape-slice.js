@@ -8,7 +8,7 @@ import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,step
 import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js?v=49439-web12';
 import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
 import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=49439-web12';
-import {shapeArtReady,paintMiniShape} from './mini-shape-art.js?v=49439-web12';
+import {shapeArtReady,paintMiniShape} from './mini-shape-art.js?v=49482';
 import {cutShape,splitFragment,stepFragments,artworkBox} from './slice-fragments.js?v=49439-web12';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
 function loadSliceImage(image,src){

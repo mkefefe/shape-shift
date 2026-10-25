@@ -1,9 +1,9 @@
-import {keyboardHelpFor} from './keyboard-help.js?v=49481';
+import {keyboardHelpFor} from './keyboard-help.js?v=49482';
 
 // Recover only when a game key is pressed on the surrounding page; never steal browser shortcuts.
 const frame=document.querySelector('iframe');
 for(const type of ['keydown','keyup'])document.addEventListener(type,event=>{
- if(!/^(Key[WASDFHBZ]|Space|Escape|Enter|NumpadEnter|Digit[123]|Numpad[123])$/.test(event.code)||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+ if(!/^(Key[WASDFHB]|Space|Escape|Enter|NumpadEnter|Digit[123]|Numpad[123])$/.test(event.code)||event.ctrlKey||event.metaKey||event.altKey||event.isComposing||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
  if(event.target.closest?.('#keyboard-help,#keyboard-help-toggle')&&['Space','Enter','NumpadEnter'].includes(event.code))return;
  const doc=frame.contentDocument;if(!doc||!doc.getElementById('startup-ready')?.hidden)return;
  event.preventDefault();frame.contentWindow.focus();

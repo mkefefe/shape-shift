@@ -1,8 +1,8 @@
-import {prepareMenuImage} from './menu-preload.js?v=49479';
+import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=49482';
 import {loadDestination} from './destination-loader.js?v=49480';
 
 // A cached download is not necessarily decoded. Hold each destination until its
-// artwork can actually be painted; unrelated modes never block first play.
+// artwork can actually be painted, including the first visit after loading.
 export function createAssetReadiness(prepare=prepareMenuImage){
  const ready=new Set(),pending=new Map();
  const key=src=>new URL(src,globalThis.document?.baseURI||'https://game.invalid/').href;
@@ -21,17 +21,19 @@ export function createAssetReadiness(prepare=prepareMenuImage){
 
 export function bindPreparedDialog(dialog,{sources,assets,extra=async()=>{},paint=async()=>{},paintReady=()=>true,load=loadDestination}){
  const show=dialog.showModal.bind(dialog),close=dialog.close.bind(dialog);let generation=0,controller,extraReady=false;
+ const prepare=async()=>{await Promise.all([assets.prepare(sources()),extraReady?Promise.resolve():extra().then(()=>{extraReady=true;})]);await paint();};
  dialog.showModal=()=>{
   if(dialog.open||controller)return;
   const list=sources();
   if(extraReady&&assets.has(list)&&paintReady()){show();return;}
   const token=++generation;controller=new AbortController();
-  load(dialog.querySelector('h2')?.textContent||'Loading',async()=>{await Promise.all([assets.prepare(list),extraReady?Promise.resolve():extra().then(()=>{extraReady=true;})]);await paint();},{signal:controller.signal}).then(ok=>{
+  load(dialog.querySelector('h2')?.textContent||'Loading',prepare,{signal:controller.signal}).then(ok=>{
    if(token!==generation)return;controller=null;
    if(ok&&dialog.isConnected&&!dialog.open){show();dialog.querySelector('[autofocus],button:not([disabled]),input')?.focus({preventScroll:true});}
   });
  };
  dialog.close=(...args)=>{generation++;controller?.abort();controller=null;return close(...args);};
+ return {prepare};
 }
 
 const HOME_ART=['assets/mode-cards-v101.webp','assets/avatars-v7.webp','assets/settings-v351.png','assets/quests-v351.png','browser-shop-hd1.png','browser-leaderboard-hd1.png','assets/achievements-v350.png','assets/xp-gold-painted-v335.webp'];
@@ -52,7 +54,7 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
   await assets.prepare(homeSources());homeRoots().forEach(node=>images(node,true));
   // Decode the actual lazy DOM nodes too, including the floating profile avatar
   // outside #home. A retained atlas alone does not make a new <img> paint ready.
-  await Promise.all(homeImages().map(async image=>{await image.decode();decodedHomeImages.add(image);}));
+  await Promise.all(homeImages().map(async image=>{await decodeMenuImage(image);decodedHomeImages.add(image);}));
  };
  const menuSources=dialog=>{
   const id=dialog.id,list=[...COMMON,...images(dialog,true)];
@@ -63,10 +65,11 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
  };
  const dialogs=['settings-dialog','shop-dialog','profile-dialog','leaderboard-dialog','quests-dialog','achievements-dialog','xp-help-dialog','coin-help-dialog','coins-ad-dialog'].map(id=>root.getElementById(id)).filter(Boolean);
  const decodedDialogImages=new WeakSet();
- for(const dialog of dialogs)bindPreparedDialog(dialog,{assets,sources:()=>menuSources(dialog),extra:()=>/profile|shop/.test(dialog.id)?prepareSkins():Promise.resolve(),paintReady:()=>[...dialog.querySelectorAll('img')].every(image=>decodedDialogImages.has(image)),paint:()=>Promise.all([...dialog.querySelectorAll('img')].map(async image=>{await image.decode();decodedDialogImages.add(image);} ))});
+ const preparedDialogs=dialogs.map(dialog=>bindPreparedDialog(dialog,{assets,sources:()=>menuSources(dialog),extra:()=>/profile|shop/.test(dialog.id)?prepareSkins():Promise.resolve(),paintReady:()=>[...dialog.querySelectorAll('img')].every(image=>decodedDialogImages.has(image)),paint:()=>Promise.all([...dialog.querySelectorAll('img')].map(async image=>{await decodeMenuImage(image);decodedDialogImages.add(image);} ))}));
  return {
   homeReady:()=>assets.has(homeSources())&&homeImages().every(image=>decodedHomeImages.has(image)),
   prepareHome,
+  async prepareAll(){await prepareHome();await prepareSkins();for(const dialog of preparedDialogs)await dialog.prepare();},
   openHome(action){
    if(homeRequest)return homeRequest;
    homeController=new AbortController();

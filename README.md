@@ -2,11 +2,11 @@
 
 Play at https://mkefefe.github.io/shape-shift/.
 
-## 4.94.79 progressive loading
+## 4.94.82 complete startup and simpler controls
 
-Startup waits for 12 shared first-play assets and the player's current shape skin. Hidden menu artwork, map art, cosmetic variants, music, narration, and mini-game assets no longer block entry. Remaining media warms the browser cache one low-priority request at a time after startup; that work pauses when the page is hidden. Opening a map or mini-game prepares its required assets with a local loading/retry screen and a Back option. Optional music or artwork failures cannot block the core game's startup.
+Startup waits for the complete verified media inventory: images are downloaded and decoded, and audio files are fully downloaded. Home and menu artwork is prepared before entry, including actual DOM images and the Drop/Slice artwork and physics. The first tutorial opens only after readiness completes and the loading cover is removed. Download or decode failures keep the game inactive and offer Retry.
 
-The build still verifies the complete media inventory. The smaller startup plan changes download priority, not which assets ship. Save keys and gameplay progression remain unchanged.
+Z has no game command and is absent from the control guide. Esc handles pause/back. Results display only "Press Space to close" while retaining Enter, Esc, and pointer dismissal. Save keys and gameplay progression remain unchanged.
 
 ## 4.94.39 browser update
 
@@ -18,11 +18,11 @@ Startup now attempts music automatically when browser policy permits it, with cl
 
 Shape Drop supports continuous A/D aiming and S to drop, with held inputs cleared on pause or focus loss. The home carousel accepts one A/D mode change per press. Desktop hints explain both controls; touch and mouse input remain available.
 
-The original full-media startup gate has been replaced by the progressive loading plan above. Tutorial art continues to reuse decoded images.
+The full-media startup gate also prepares tutorial artwork before the first lesson.
 
 Shield-protected mistakes now use a brief blue flash with the approved low impact and two-note chime. Activating Shield uses the same sound. Feedback stays in the existing HUD without a popup; reduced-motion and sound settings are respected.
 
-Endless and Adventure accept WASD to select a visible board tile and Space to pick it. Games accepts W/S and Space. Z follows Back/Pause and opens Settings from home; 1/2/3 activate Shield/Double Time/×5 rewards; H/F/B remain alternate shortcuts. Touch and mouse remain available.
+Endless and Adventure accept WASD to select a visible board tile and Space to pick it. Games accepts W/S and Space. Esc handles pause/back; 1/2/3 activate Shield/Double Time/×5 rewards; H/F/B remain alternate shortcuts. Touch and mouse remain available.
 
 Desktop browsers use a golden arrow cursor and matching hand pointer on clickable controls. Text editing and drag cursors remain native, and touch devices keep their existing controls.
 
@@ -30,7 +30,7 @@ Held WASD directions repeat after 140 ms and then every 75 ms, independently of 
 
 Board navigation wraps at edges, preserves held input through round locks, and restores selection focus after board replacement. Game keys reaching the outer page return focus to the game without intercepting browser modifier shortcuts.
 
-Pause menus accept W/S selection and Space/Enter confirmation, including all three mini-game Resume/End panels. Z retains its existing back/resume behavior; nested Settings controls keep their normal keyboard behavior.
+Pause menus accept W/S selection and Space/Enter confirmation, including all three mini-game Resume/End panels. Esc handles back/resume; Z has no game action, and nested Settings controls keep their normal keyboard behavior.
 
 ## Verify and build
 

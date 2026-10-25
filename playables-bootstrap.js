@@ -80,6 +80,11 @@ if (live) {
 }
 for (const type of ['pointerdown','pointerup','pointermove','click','keydown','keyup','touchstart','touchmove','touchend']) {
   document.addEventListener(type, event => {
+    if (document.documentElement.classList.contains('startup-loading') && !event.target.closest?.('#startup-ready')) {
+      if (event.cancelable) event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
     if (scheduler.paused && event.key !== 'Escape') {
       event.preventDefault(); event.stopImmediatePropagation();
     }
@@ -104,7 +109,7 @@ async function start() {
     observeDeferredImages();
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=49480');
-    await import('./game.js?v=49481');
+    await import('./game.js?v=49482');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

@@ -1,4 +1,4 @@
-import {loadStartupAssets} from './startup-loader.js?v=49480';
+import {loadStartupAssets} from './startup-loader.js?v=49482';
 import {loadDestination} from './destination-loader.js?v=49480';
 import {starTasks} from './adventure-star-tasks.js?v=49439-web24';
 import {COSMETICS} from './economy.js?v=49439-web12';
