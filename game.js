@@ -1380,7 +1380,7 @@ function tick(now){
  if(memoryPeek){memoryPeek.elapsed+=dt;if(memoryPeek.elapsed>=1300){const b=$('board').children[memoryPeek.index];b?.classList.remove('memory-open');if(b)paintMemory(b,board[memoryPeek.index]);memoryPeek=null;}}
  else mechanicHold=Math.max(0,mechanicHold-dt);
  }frame=window.ShapeShiftPlatform.requestAnimationFrame(tick);return;}
- const frameMs=now-last;if(frameMs>0&&frameMs<1000)analytics.count('frames',frameMs<20?'under-20ms':frameMs<34?'20-34ms':frameMs<50?'34-50ms':'50ms-plus');let delta=frameDelta(now,last);last=now;gameplayScene.tick(delta,{duration:boardTime,slow:state.slow,slowRate:timeSlowRate(state),locked});if(runMode==='adventure'&&!rockFills.length)modeElapsed+=delta;
+ const frameMs=now-last;if(frameMs>0&&frameMs<1000)analytics.count('frames',frameMs<20?'under-20ms':frameMs<34?'20-34ms':frameMs<50?'34-50ms':'50ms-plus');let delta=frameDelta(now,last);last=now;gameplayScene.tick(delta,{score:state.score,reduced:prefs.motion||matchMedia('(prefers-reduced-motion: reduce)').matches,duration:boardTime,slow:state.slow,slowRate:timeSlowRate(state),locked});if(runMode==='adventure'&&!rockFills.length)modeElapsed+=delta;
 
 
 
