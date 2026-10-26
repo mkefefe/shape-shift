@@ -1,15 +1,16 @@
-import {createSceneryTint} from './scenery-progress.js?v=49484';
-import {createPianoInput,bindPianoKeyboard} from './piano-input.js?v=49458';
-import {createMiniTutorial} from './mini-tutorial.js?v=49439-web12';
-import {createMiniResults} from './mini-results.js?v=49439-web12';
-import {createMiniContinue} from './mini-continue.js?v=49439-web12';
-import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
-import {drawPianoHoldGlow} from './piano-hold-glow.js?v=49439-web12';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=49458';
+import {translate} from './localization.js?v=49496';
+import {createSceneryTint} from './scenery-progress.js';
+import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
+import {createMiniTutorial} from './mini-tutorial.js';
+import {createMiniResults} from './mini-results.js';
+import {createMiniContinue} from './mini-continue.js';
+import {createHitFeedback} from './mini-hit-feedback.js';
+import {drawPianoHoldGlow} from './piano-hold-glow.js';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49482';
+import {skinArtReady,skinCrop} from './shape-skin-art.js';
 
-import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js?v=49439-web12';
+import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 
 const STRIP_LINGER=1.6,STRIP_FADE=1.3;
 let skyReady;
@@ -191,15 +192,15 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
    if(crop){const scale=p.size/Math.max(crop.w,crop.h),sw=crop.w*scale,sh=crop.h*scale;ctx.save();ctx.filter=started?'none':'grayscale(1)';ctx.globalAlpha=n===next||held?1:.75;ctx.shadowColor=color;ctx.shadowBlur=quiet?0:held||n===next?22:5;ctx.drawImage(crop.art,crop.x,crop.y,crop.w,crop.h,p.x-sw/2,p.y-sh/2,sw,sh);ctx.restore();}
 
-   if(n===next&&!n.hold&&game.beat>=0){ctx.fillStyle='#fff8d1';ctx.textAlign='center';ctx.font='900 10px Nunito,sans-serif';ctx.fillText('NEXT',p.x,p.y+p.size/2+15);}
+   if(n===next&&!n.hold&&game.beat>=0){ctx.fillStyle='#fff8d1';ctx.textAlign='center';ctx.font='900 10px Nunito,sans-serif';ctx.fillText(translate('NEXT'),p.x,p.y+p.size/2+15);}
 
 
 
    if(n.hold){
     // This stays visible as soon as the shape enters, even before its tail does.
-    const label=n.awaiting||n.status==='partial'?'CONTINUE':held?'HOLDING':n.status==='queued'?'READY':'HOLD',badgeY=Math.min(layout.missLine-26,p.y+p.size/2+7),badgeW=Math.min(lane-8,label==='HOLD'?54:76);
+    const label=n.awaiting||n.status==='partial'?'CONTINUE':held?'HOLDING':n.status==='queued'?'READY':'HOLD',badgeY=Math.min(layout.missLine-26,p.y+p.size/2+7),badgeW=Math.min(lane-8,Math.max(76,ctx.measureText(translate(label)).width+16));
     ctx.fillStyle=started?'#183348ee':'#edf2f4ee';round(p.x-badgeW/2,badgeY,badgeW,22,11);ctx.fill();
-    ctx.fillStyle=started?color:'#253747';ctx.textAlign='center';ctx.font='900 10px Nunito,sans-serif';ctx.fillText(label,p.x,badgeY+14);
+    ctx.fillStyle=started?color:'#253747';ctx.textAlign='center';ctx.font='900 10px Nunito,sans-serif';ctx.fillText(translate(label),p.x,badgeY+14);
    }
 
   }
@@ -212,7 +213,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
   for(const p of particles){const fade=Math.max(0,1-p.age/p.life),size=40*p.size*(.65+.35*fade);ctx.save();ctx.globalAlpha=Math.min(1,fade*1.6);ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.drawImage(sparkArt(p.color,p.square),-size/2,-size/2,size,size);ctx.restore();}ctx.restore();
 
-  if(game.started&&!game.paused&&(game.countdown>0||game.time<.4)){ctx.textAlign='center';ctx.font='1000 64px Nunito,sans-serif';ctx.fillStyle='#fff6d6';ctx.fillText(game.countdown>0?String(Math.ceil(game.countdown)):'GO!',w/2,h*.45);}
+  if(game.started&&!game.paused&&(game.countdown>0||game.time<.4)){ctx.textAlign='center';ctx.font='1000 64px Nunito,sans-serif';ctx.fillStyle='#fff6d6';ctx.fillText(game.countdown>0?String(Math.ceil(game.countdown)):translate('GO!'),w/2,h*.45);}
 
   if(damage>0&&!quiet){ctx.fillStyle=`rgba(255,82,110,${damage*.35})`;ctx.fillRect(0,0,w,h);}
 
@@ -222,7 +223,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  async function start(){if(game&&!save())return;stop();const version=epoch;dialog.replaceChildren();dialog.dataset.view='play';dialog.dataset.paused='true';overlay=null;saved=false;pendingSave=null;runId='piano-flow-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;window.gameAudio?.setScene('piano');window.gameAudio?.start()?.catch(()=>{});
 
-  skyClock=0;const scenery=el('div','piano-scenery');skyJourney=createSceneryTint(scenery);scenery.append(el('div','piano-mist'));dialog.append(scenery);canvas=el('canvas','piano-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');dialog.append(canvas);ctx=canvas.getContext('2d');canvas.onpointerdown=e=>{if(e.button!==0||!layout||!game||overlay)return;const r=canvas.getBoundingClientRect(),lane=pianoStripAt(layout,e.clientX-r.left,e.clientY-r.top);if(lane===null)return;e.preventDefault();canvas.focus({preventScroll:true});if(press(lane,'p'+e.pointerId))canvas.setPointerCapture(e.pointerId);};canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>release('p'+e.pointerId);
+  skyClock=0;const scenery=el('div','piano-scenery');skyJourney=createSceneryTint(scenery,{strength:.1});scenery.append(el('div','piano-mist'));dialog.append(scenery);canvas=el('canvas','piano-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');dialog.append(canvas);ctx=canvas.getContext('2d');canvas.onpointerdown=e=>{if(e.button!==0||!layout||!game||overlay)return;const r=canvas.getBoundingClientRect(),lane=pianoStripAt(layout,e.clientX-r.left,e.clientY-r.top);if(lane===null)return;e.preventDefault();canvas.focus({preventScroll:true});if(press(lane,'p'+e.pointerId))canvas.setPointerCapture(e.pointerId);};canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>release('p'+e.pointerId);
 
   const hud=el('header','piano-hud'),pauseButton=button('',pause,'piano-pause-button');pauseButton.setAttribute('aria-label','Pause Piano Flow');score=el('strong','piano-score','0');score.setAttribute('aria-label','Score');best=el('small','piano-best');hearts=el('div','piano-lives');hearts.setAttribute('role','img');const wallet=el('div','piano-coins'),coin=el('img');coin.src='assets/coin-v10.webp';coin.alt='Coins';coins=el('strong','','0');wallet.append(coin,coins);hud.append(pauseButton,score,hearts,best,wallet);dialog.append(hud);songLabel=el('p','piano-song');dialog.append(songLabel);
 

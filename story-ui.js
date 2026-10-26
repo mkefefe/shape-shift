@@ -1,6 +1,6 @@
-import {createBeaconController} from './beacon-controller.js?v=49459';
-export {CHARGE_KEY,createBeaconController} from './beacon-controller.js?v=49459';
-import {showStoryScene} from './story-scene.js?v=49459';
+import {createBeaconController} from './beacon-controller.js?v=49496';
+export {CHARGE_KEY,createBeaconController} from './beacon-controller.js?v=49496';
+import {showStoryScene} from './story-scene.js?v=49496';
 
 // The ending is an earned full-screen scene, never a map menu or charge shop.
 export function initStoryUI({document,...options}){

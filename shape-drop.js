@@ -1,18 +1,19 @@
-import {createDropMergeAudio} from './drop-merge-audio.js?v=49488';
-import {dropArtworkGeometry} from './drop-art-geometry.js?v=49484';
-import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=49488';
-import {createSceneryTint} from './scenery-progress.js?v=49484';
-import {bindDropKeyboard} from './drop-keyboard.js?v=49439-web12';
-import {dropBombFeedback} from './bomb-feedback.js?v=49439-web12';
-import {createMiniTutorial} from './mini-tutorial.js?v=49439-web12';
-import {createMiniResults} from './mini-results.js?v=49439-web12';
-import {createMiniContinue} from './mini-continue.js?v=49439-web12';
-import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
-import {ARTWORK_CROPS} from './artwork-crops.js?v=49439-web12';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=49482';
-import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
-import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js?v=49486';
-import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=49486';
+import {translate} from './localization.js?v=49496';
+import {createDropMergeAudio} from './drop-merge-audio.js';
+import {dropArtworkGeometry} from './drop-art-geometry.js';
+import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js';
+import {createSceneryTint} from './scenery-progress.js';
+import {bindDropKeyboard} from './drop-keyboard.js';
+import {dropBombFeedback} from './bomb-feedback.js';
+import {createMiniTutorial} from './mini-tutorial.js';
+import {createMiniResults} from './mini-results.js';
+import {createMiniContinue} from './mini-continue.js';
+import {createHitFeedback} from './mini-hit-feedback.js';
+import {ARTWORK_CROPS} from './artwork-crops.js';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js';
+import {miniGameCoins} from './mini-game-rewards.js';
+import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js';
+import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image(),obstacleArt=new Image(),bombArt=new Image(),gardenArt=new Image(),imageLoads=new WeakMap();
 function loadDropImage(image,src){
@@ -29,7 +30,7 @@ function prepareMatter(){
  if(!matterLoad)matterLoad=new Promise(resolve=>{
   const script=document.createElement('script');let timer;
   const finish=ready=>{window.clearTimeout(timer);script.onload=script.onerror=null;if(!ready){script.remove();matterLoad=null;}resolve(ready);};
-  script.src='assets/vendor/matter-0.20.0.min.js?v=49439-web12';script.async=true;script.onload=()=>finish(!!window.Matter);script.onerror=()=>finish(false);
+  script.src='assets/vendor/matter-0.20.0.min.js';script.async=true;script.onload=()=>finish(!!window.Matter);script.onerror=()=>finish(false);
   timer=window.setTimeout(()=>finish(false),12000);document.head.append(script);
  });
  return matterLoad;
@@ -45,7 +46,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   for(const [color,crop] of ARTWORK_CROPS['drop-'+shape+'-hd-v250'].entries())crops[color*4+index]={art,...crop};
  })).then(()=>true).catch(()=>{artworkPromise=null;return false;});}
  async function prepareAssets(){
-  const results=await Promise.all([prepareArtwork(),prepareMatter(),loadDropImage(containerArt,'assets/drop-container-v241.webp'),loadDropImage(obstacleArt,'assets/shape-lock-chains-v202.webp'),loadDropImage(bombArt,'assets/slice-bomb-v239.webp'),loadDropImage(gardenArt,'assets/garden-v2.webp'),Promise.resolve(skinArtReady).then(values=>values.every(Boolean))]);
+  const results=await Promise.all([prepareArtwork(),prepareMatter(),loadDropImage(containerArt,'assets/drop-container-v241.webp'),loadDropImage(obstacleArt,'assets/shape-lock-chains-v202.webp'),loadDropImage(bombArt,'assets/slice-bomb-v239.webp'),loadDropImage(gardenArt,'assets/drop-garden-v491.webp'),Promise.resolve(skinArtReady).then(values=>values.every(Boolean))]);
   M=window.Matter;const ready=results.every(Boolean)&&!!M&&crops.length===16;
   if(ready)for(let shape=0;shape<4;shape++)for(let color=0;color<4;color++)for(const obstacle of [false,true]){
    const crop=dropCrop({shape,color,obstacle});if(collisionArtwork.has(crop))continue;
@@ -124,7 +125,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   ctx.save();ctx.beginPath();ctx.rect(-4,-130,W+8,H+177);ctx.clip();
   if(game.danger>0){ctx.fillStyle='#ff786b25';ctx.fillRect(0,DROP_LINE,W,42);}
   ctx.strokeStyle=game.danger>0?'#cf4e53':'#76a89b88';ctx.setLineDash([6,8]);ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(6,DROP_LINE);ctx.lineTo(W-6,DROP_LINE);ctx.stroke();ctx.setLineDash([]);
-  if(game.danger>0){ctx.fillStyle='#a72e40';ctx.font='900 11px Nunito,sans-serif';ctx.textAlign='center';ctx.fillText('Clear the top!',W/2,DROP_LINE+20);}
+  if(game.danger>0){ctx.fillStyle='#a72e40';ctx.font='900 11px Nunito,sans-serif';ctx.textAlign='center';ctx.fillText(translate('Clear the top!'),W/2,DROP_LINE+20);}
   if(!game.over){
    if(drag!==null){ctx.strokeStyle='#4f8c8770';ctx.setLineDash([2,9]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(game.aim,52);ctx.lineTo(game.aim,H-8);ctx.stroke();ctx.setLineDash([]);}
    const tile=game.queue[0],crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r??DROP_RADIUS,crop.w/crop.h,tile.geometry);

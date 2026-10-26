@@ -1,15 +1,16 @@
-import {createSceneryTint} from './scenery-progress.js?v=49484';
-import {createMiniTutorial} from './mini-tutorial.js?v=49439-web12';
-import {createMiniResults} from './mini-results.js?v=49439-web12';
-import {createMiniContinue} from './mini-continue.js?v=49439-web12';
-import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
-import {sliceViewport} from './slice-viewport.js?v=49439-web12';
-import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js?v=49487';
-import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js?v=49489';
-import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
-import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=49439-web12';
-import {shapeArtReady,paintMiniShape} from './mini-shape-art.js?v=49482';
-import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js?v=49439-web12';
+import {translate} from './localization.js?v=49496';
+import {createSceneryTint} from './scenery-progress.js';
+import {createMiniTutorial} from './mini-tutorial.js';
+import {createMiniResults} from './mini-results.js';
+import {createMiniContinue} from './mini-continue.js';
+import {createHitFeedback} from './mini-hit-feedback.js';
+import {sliceViewport} from './slice-viewport.js';
+import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js';
+import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js';
+import {miniGameCoins} from './mini-game-rewards.js';
+import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js';
+import {shapeArtReady,paintMiniShape} from './mini-shape-art.js';
+import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
 function loadSliceImage(image,src){
  if(image.complete&&image.naturalWidth)return Promise.resolve(true);
@@ -69,7 +70,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
  function paintShape(p){const box=artworkBox(p.shape,p.r);ctx.translate(0,box.y);paintMiniShape(ctx,p,box.width);}
  function render(){if(!game||!ctx)return;const box=canvas.getBoundingClientRect();if(!box.width||!box.height)return;const dpr=Math.min(2,devicePixelRatio||1);if(canvas.width!==Math.round(box.width*dpr)||canvas.height!==Math.round(box.height*dpr)){canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,box.width,box.height);transform=sliceViewport(box.width,box.height);const {x,y,scale,bounds}=transform;game.setBounds(bounds);camera=bombCameraOffset(impacts);const scenery=dialog.querySelector('.slice-scenery');if(scenery)scenery.style.transform=`translate(${camera.x}px,${camera.y}px)`;const hud=dialog.querySelector('.slice-play-hud');if(hud)hud.style.transform=`translate(${camera.x}px,${camera.y}px)`;livesText.classList.toggle('slice-bomb-damage',impacts.some(p=>p.age<.4));livesText.classList.toggle('slice-life-damage',lifeLossTime>0);ctx.translate(x+camera.x,y+camera.y);ctx.scale(scale,scale);
   ctx.save(); // The canvas itself clips at the real display edges; no inner arena clip.
-  if(game.time<3){ctx.fillStyle='#c6f8ffbb';ctx.textAlign='center';ctx.font='900 18px Nunito,sans-serif';ctx.fillText('SWIPE TO SLICE',W/2,H*.4);ctx.font='700 12px Nunito,sans-serif';ctx.fillText('Shapes launch from below',W/2,H*.4+24);}
+  if(game.time<3){ctx.fillStyle='#c6f8ffbb';ctx.textAlign='center';ctx.font='900 18px Nunito,sans-serif';ctx.fillText(translate('SWIPE TO SLICE'),W/2,H*.4);ctx.font='700 12px Nunito,sans-serif';ctx.fillText(translate('Shapes launch from below'),W/2,H*.4+24);}
   for(const p of game.pieces){if(p.hazard){hazard(p);continue;}ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.shadowColor=colors[p.color];ctx.shadowBlur=quiet?0:8;paintShape(p);ctx.restore();}
   for(const f of fragments){ctx.save();ctx.globalAlpha=1;ctx.translate(f.x,f.y);ctx.rotate(f.angle);ctx.beginPath();f.mask.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.save();ctx.clip();ctx.translate(f.artX,f.artY);paintShape(f);ctx.restore();
    // The polygon is only a clipping mask; drawing its edge exposes a false outline.

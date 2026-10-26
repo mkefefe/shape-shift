@@ -1,5 +1,5 @@
-import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS} from './startup-plan.js?v=49482';
-import {prepareMenuImage} from './menu-preload.js?v=49482';
+import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS} from './startup-plan.js?v=49496';
+import {prepareMenuImage} from './menu-preload.js?v=49496';
 const loaded=new Set();
 export async function loadStartupAssets(progress,{fetcher=fetch,prepareImage=prepareMenuImage,assets=FULL_STARTUP_ASSETS}={}){
  let cursor=0,complete=0;

@@ -1,7 +1,7 @@
 /* Features unavailable in the Playables edition are omitted from its UI. */
 #terms-open, #privacy-policy-open, #delete-profile-open,
-#rankings-enable-open, #privacy-options, #player-id-row, #player-id-status,
-.name-label, .name-row, #choose-photo, #profile-photo, #language-open,
+#rankings-enable-open, #privacy-options,
+#choose-photo, #profile-photo,
 [for="notifications-setting"], #notifications-status, #admin-enter, #admin-exit {
   display: none !important;
 }
@@ -127,3 +127,6 @@ html,body{overflow:hidden;}
 
 .menu-input-hint{display:none}
 @media (hover:hover) and (pointer:fine){.menu-input-hint{display:block;font-size:11px;margin:4px 0 12px;color:#075570}}
+
+/* Playgama shares the online identity; respect an unavailable ID until initialized. */
+#profile-dialog #player-id-row[hidden]{display:none!important;}

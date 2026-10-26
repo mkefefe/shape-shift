@@ -3,7 +3,7 @@
 #shape-drop[data-view='play'][open]{display:flex;flex-direction:column}
 #shape-drop[data-view='play']::backdrop{background:#66b9d2;backdrop-filter:none}
 #shape-drop .drop-scenery{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:#6bc5ec}
-#shape-drop .drop-scenery::before{content:'';position:absolute;inset:-2%;background:url('assets/garden-v2.webp') center 58%/cover no-repeat;animation:drop-garden-drift 24s ease-in-out infinite alternate;transform:translate3d(0,0,0)}
+#shape-drop .drop-scenery::before{content:'';position:absolute;inset:-2%;background:url('assets/drop-garden-v491.webp') center 58%/cover no-repeat;animation:drop-garden-drift 24s ease-in-out infinite alternate;transform:translate3d(0,0,0)}
 #shape-drop .drop-scenery::after{content:'';position:absolute;inset:0;background:linear-gradient(#176b9f28,transparent 23%,transparent 75%,#084c4644)}
 #shape-drop .drop-motes{position:absolute;inset:0;z-index:1}
 #shape-drop .drop-motes i{position:absolute;width:5px;height:5px;background:#fffac6;border-radius:50%;box-shadow:0 0 8px #faffbf;opacity:0;animation:drop-mote-float 10s ease-in-out infinite}
@@ -23,7 +23,7 @@
 #shape-drop[data-view='play'] .drop-panel .drop-action{aspect-ratio:auto;min-height:52px;width:100%;background:#318b77;color:#fff;border:0;border-radius:18px;font-size:19px;text-shadow:none;padding:12px 20px;box-shadow:0 3px 0 #1b6756}
 #shape-drop[data-view='play'] .drop-panel .drop-secondary{width:100%;border:1px solid #a9cbbd;border-radius:18px;background:transparent;color:#367363;box-shadow:none;font-size:16px}
 #shape-drop[data-view='play'] .drop-reward{padding:7px 15px;font-size:13px;background:#e2f2d9;color:#59783f}
-#shape-drop .drop-preview-board{background:linear-gradient(#f3fff3e8,#d9f0d9ee),url('assets/garden-v2.webp') center/cover;border:3px solid #71a995;box-shadow:none}
+#shape-drop .drop-preview-board{background:linear-gradient(#f3fff3e8,#d9f0d9ee),url('assets/drop-garden-v491.webp') center/cover;border:3px solid #71a995;box-shadow:none}
 #shape-drop .drop-preview-trail{display:none}
 @keyframes drop-garden-drift{from{transform:translate3d(-.7%,0,0) scale(1.02)}to{transform:translate3d(.7%,-.5%,0) scale(1.035)}}
 @keyframes drop-mote-float{0%,100%{opacity:0;transform:translate3d(0,12px,0)}35%,65%{opacity:.6}85%{opacity:0;transform:translate3d(12px,-38px,0)}}

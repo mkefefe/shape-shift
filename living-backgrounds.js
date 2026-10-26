@@ -1,6 +1,6 @@
-import {createCardWater} from './card-water.js?v=49461';
-import {createWaterSurface} from './water-surface.js?v=49458';
-import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=49458';
+import {createCardWater} from './card-water.js?v=49496';
+import {createWaterSurface} from './water-surface.js?v=49496';
+import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=49496';
 export {createWaterSurface,createCloudDrift};
 // Water is lit in place. Never scroll strips of the landscape: they contain
 // plants and cliffs as well as water, and wrapping them makes the banks move.

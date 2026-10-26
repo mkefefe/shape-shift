@@ -1,4 +1,4 @@
-import {keyboardHelpFor} from './keyboard-help.js?v=49483';
+import {keyboardHelpFor} from './keyboard-help.js?v=49496';
 
 // Recover only when a game key is pressed on the surrounding page; never steal browser shortcuts.
 const frame=document.querySelector('iframe');
@@ -37,12 +37,15 @@ function updateGuide(){
  const dialog=doc?.activeElement?.closest('dialog[open]')||[...(doc?.querySelectorAll('dialog[open]')||[])].at(-1);
  const help=keyboardHelpFor({screen:app?.dataset.screen,dialog:dialog?.id,paused:dialog?.dataset.paused==='true',loading:!doc?.getElementById('startup-ready')?.hidden||doc.documentElement.classList.contains('startup-loading')||app?.dataset.storyActive==='true'});
  guideReady=!!help;showGuide();if(!help)return;
- const key=JSON.stringify(help);if(key===lastHelp)return;lastHelp=key;context.textContent=help.title;rows.replaceChildren();
- for(const [keys,action] of help.rows){const term=document.createElement('dt'),keycap=document.createElement('kbd'),description=document.createElement('dd');keycap.textContent=keys;term.append(keycap);description.textContent=action;rows.append(term,description);}
+ const i18n=frame.contentWindow.ShapeShiftI18n,t=text=>i18n?.translate(text)||text;
+ heading.textContent=t('Keyboard');hide.textContent=t('Hide');hide.setAttribute('aria-label',t('Hide keyboard controls'));guide.setAttribute('aria-label',t('Keyboard controls'));toggle.textContent=t('Keyboard controls');
+ document.documentElement.lang=doc.documentElement.lang;
+ const key=JSON.stringify([help,i18n?.currentLanguage()]);if(key===lastHelp)return;lastHelp=key;context.textContent=t(help.title);rows.replaceChildren();
+ for(const [keys,action] of help.rows){const term=document.createElement('dt'),keycap=document.createElement('kbd'),description=document.createElement('dd');keycap.textContent=t(keys);term.append(keycap);description.textContent=t(action);rows.append(term,description);}
 }
 function observeGame(){
  observer?.disconnect();const doc=frame.contentDocument;if(!doc?.documentElement)return;
  observer=new MutationObserver(records=>{if(!paint&&records.some(record=>record.type==='attributes'||record.target===doc.body))paint=requestAnimationFrame(updateGuide);});
- observer.observe(doc.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-screen','data-paused','data-story-active','open','hidden','class']});updateGuide();
+ observer.observe(doc.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-language','data-screen','data-paused','data-story-active','open','hidden','class']});updateGuide();
 }
 frame.addEventListener('load',observeGame);if(frame.contentDocument?.readyState!=='loading')observeGame();
