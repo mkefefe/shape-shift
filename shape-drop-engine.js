@@ -16,6 +16,7 @@ export const dropMatches=(a,b)=>!!a&&!!b&&!a.obstacle&&!b.obstacle&&!a.bomb&&!b.
 export const dropInterval=n=>Math.max(2.5,6-Math.floor(n/12)*.3);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const dropAimMargin=tile=>Math.max(29,Math.ceil((tile.r??DROP_RADIUS)*1.23)+2);
+export const DROP_IMPACT_MIN_SPEED=75,DROP_IMPACT_INTERVAL=.09,DROP_IMPACT_BODY_COOLDOWN=.18,DROP_IMPACT_PAIR_COOLDOWN=.28;
 
 // Bodies retain their own outline, rotation and momentum.
 export function makeDropBody(M,x,y,tile,r=tile.r??DROP_RADIUS){
@@ -48,7 +49,7 @@ export function dropAimBounds(M,tile){
  aimBoundsCache.set(tile,{signature,bounds});return bounds;
 }
 
-export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
+export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},onImpact=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
  height=Number.isFinite(height)?clamp(height,DROP_HEIGHT,1200):DROP_HEIGHT;
  const engine=M.Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});engine.gravity.y=1.05;
  const world=engine.world;
@@ -66,6 +67,40 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
  game={frame,engine,height,pieces:[],queue:[next()],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[]};
  game.queue.push(next());
  let accumulator=0,frameReady=null,frameMerges=0,frameGroups=[],supportCheckAt=0;
+ const pendingImpacts=new Map(),impactPairs=new Map(),impactBodies=new WeakMap();let lastImpactAt=-Infinity,impactCleanupAt=0;
+ // collisionStart occurs after beforeSolve and before the velocity solver in
+ // Matter 0.20. Measure incoming contact velocity here, not the rebound speed.
+ function captureImpacts(event){
+  if(game.over||game.time-lastImpactAt<DROP_IMPACT_INTERVAL)return;
+  for(const pair of event.pairs){
+   const collision=pair.collision,a=collision.parentA,b=collision.parentB;
+   if(pair.isSensor||a.isSensor||b.isSensor||(!a.drop&&!b.drop)||a.drop?.bomb||b.drop?.bomb||a.drop?.clearAt!=null||b.drop?.clearAt!=null)continue;
+   const contacts=pair.contacts.slice(0,pair.contactCount).map(c=>c.vertex);if(!contacts.length)continue;
+   const point=contacts.reduce((p,v)=>({x:p.x+v.x/contacts.length,y:p.y+v.y/contacts.length}),{x:0,y:0});
+   const velocity=body=>{if(body.isStatic||body.isSleeping)return {x:0,y:0};const v=M.Body.getVelocity(body),w=M.Body.getAngularVelocity(body);return {x:v.x-w*(point.y-body.position.y),y:v.y+w*(point.x-body.position.x)};};
+   const va=velocity(a),vb=velocity(b),speed=-((va.x-vb.x)*collision.normal.x+(va.y-vb.y)*collision.normal.y)*60;
+   if(!Number.isFinite(speed)||speed<DROP_IMPACT_MIN_SPEED)continue;
+   const key=a.id<b.id?a.id+':'+b.id:b.id+':'+a.id;
+   if(speed<=(pendingImpacts.get(key)?.speed??0))continue;
+   const body=a.drop?a:b,other=body===a?b:a,type=a===floor||b===floor?'floor':a.drop&&b.drop?'piece':'wall';
+   pendingImpacts.set(key,{key,a,b,type,speed,strength:clamp(speed/720,.1,1),radius:Math.max(a.drop?.r||0,b.drop?.r||0),locked:!!(a.drop?.obstacle||b.drop?.obstacle),x:point.x,y:point.y,time:game.time,bodyId:body.id,otherId:other.id});
+  }
+ }
+ function emitImpacts(){
+  // Resolve bomb/merge removals first, so a disappearing piece cannot also
+  // produce a landing cue. Resting contacts never enter this start-only path.
+  const live=pendingImpacts.size?new Set(game.pieces.filter(body=>body.drop.clearAt===null)):null;
+  for(const impact of [...pendingImpacts.values()].sort((a,b)=>b.speed-a.speed)){
+   const {a,b,key,...event}=impact;
+   if((a.drop&&!live.has(a))||(b.drop&&!live.has(b))||a.isSensor||b.isSensor)continue;
+   if(game.time-lastImpactAt<DROP_IMPACT_INTERVAL||game.time-(impactPairs.get(key)??-Infinity)<DROP_IMPACT_PAIR_COOLDOWN)continue;
+   if([a,b].some(body=>body.drop&&game.time-(impactBodies.get(body)??-Infinity)<DROP_IMPACT_BODY_COOLDOWN))continue;
+   lastImpactAt=game.time;impactPairs.set(key,game.time);for(const body of [a,b])if(body.drop)impactBodies.set(body,game.time);
+   onImpact(event);
+  }
+  pendingImpacts.clear();
+  if(game.time>=impactCleanupAt){for(const [key,at] of impactPairs)if(game.time-at>=DROP_IMPACT_PAIR_COOLDOWN)impactPairs.delete(key);impactCleanupAt=game.time+.5;}
+ }
  function containPieces(){
   for(const body of game.pieces){
    if(body.drop.clearAt!==null||body.isStatic)continue;
@@ -118,6 +153,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
  }
  // Capture new falling contacts before the solver can bounce matching pieces apart.
  M.Events.on(engine,'beforeSolve',clearTouching);
+ M.Events.on(engine,'collisionStart',captureImpacts);
  function add(tile,x,y=dropSpawnY(tile)){if(!tile.geometry)tile.geometry=geometryFor(tile);const limits=dropAimBounds(M,tile),body=makeDropBody(M,clamp(x,limits.min,limits.max),y,tile);body.drop.born=game.time;game.pieces.push(body);M.Composite.add(world,body);return body;}
  function drop(){
   if(game.over||game.cooldown>0)return false;
@@ -131,7 +167,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
  function end(reason='quit'){if(game.over)return;game.over=true;game.endReason=reason;onEnd({reason,score:game.score,cleared:game.cleared,bestCombo:game.bestCombo,drops:game.drops});}
  function tick(dt){
   game.time+=dt;game.cooldown=Math.max(0,game.cooldown-dt);
-  const alive=game.pieces.filter(b=>b.drop.clearAt===null),ready=new Set();frameReady=ready;frameMerges=0;frameGroups=[];
+  const alive=game.pieces.filter(b=>b.drop.clearAt===null),ready=new Set();frameReady=ready;frameMerges=0;frameGroups=[];pendingImpacts.clear();
   // Also capture an existing touch before velocity moves either body away.
   clearTouching();M.Engine.update(engine,dt*1000);containPieces();frameReady=null;
   for(const bomb of [...game.pieces])if(bomb.drop.bomb&&bomb.drop.clearAt===null){
@@ -153,6 +189,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
   }
   for(const body of game.pieces){if(body.drop.clearAt!==null&&game.time-body.drop.clearAt>.12)M.Composite.remove(world,body);}
   game.pieces=game.pieces.filter(b=>b.drop.clearAt===null||game.time-b.drop.clearAt<=.12);
+  emitImpacts();
   // Matches already wake their dependants immediately. Audit other sleeping
   // supports ten times a second instead of walking the whole pile at 120 Hz.
   if(game.time>=supportCheckAt){wakeUnsupported();supportCheckAt=game.time+.1;}
@@ -180,7 +217,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
   game.pieces=game.pieces.filter(b=>!targets.includes(b));for(const b of game.pieces)M.Sleeping.set(b,false);
   game.bombPoints+=targets.length;game.score+=targets.length*frameRewardMultiplier(frame);game.cleared+=targets.length;game.danger=0;return targets;
  }
- function dispose(){M.Events.off(engine,'beforeSolve',clearTouching);M.Composite.clear(world,false);M.Engine.clear(engine);game.pieces=[];game.events=[];}
+ function dispose(){M.Events.off(engine,'beforeSolve',clearTouching);M.Events.off(engine,'collisionStart',captureImpacts);pendingImpacts.clear();impactPairs.clear();M.Composite.clear(world,false);M.Engine.clear(engine);game.pieces=[];game.events=[];}
  function revive(){if(!game.over||game.endReason!=='overflow')return false;
   const removed=game.pieces.filter(b=>b.bounds.min.y<height*.55);for(const b of removed)M.Composite.remove(world,b);
   game.pieces=game.pieces.filter(b=>!removed.includes(b));for(const b of game.pieces)M.Sleeping.set(b,false);

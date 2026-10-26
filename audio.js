@@ -335,6 +335,7 @@
   const lastMiniCue=new Map();
   function play(name) {
     if (!context || !sfx || sfxVolume<=0 || context.state !== 'running') return;
+    if(/^drop-(land|touch|merge-start|merge-burst)$/.test(name)&&(!active||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed))return;
     if(/^(drop-|slice-)/.test(name)){const last=lastMiniCue.get(name)??-100;if(context.currentTime-last<(name==='slice-fall'?.22:.065))return;lastMiniCue.set(name,context.currentTime);}
     // Correct picks vary slightly upward only; other cues retain subtle variation.
     let variant=Math.floor(Math.random()*9);if(variant===previousPitch.get(name))variant=(variant+1+Math.floor(Math.random()*8))%9;previousPitch.set(name,variant);effectPitch=2**(((name==='correct'||name==='match'||/^(special-|rewind-|heart-fill|shield-arrive|skill-points|shield$)/.test(name))?variant*.06:(variant-4)*.2)/12);
@@ -342,8 +343,9 @@
     effectGain=/^(special-|rewind-|heart-fill|shield-arrive|skill-points)/.test(name)?1.7:1;
     const now = context.currentTime;
     const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
-    // Routine Slice swipes and Piano Flow taps leave their backing music steady.
-    if(scene!=='menu'&&!/^slice-(launch|fall|swish|cut|chip)$/.test(name)&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
+    // Routine contacts and slicing leave the backing music steady.
+    const steadyDrop=/^drop-(land|touch|merge-start|merge-burst)$/.test(name);
+    if(scene!=='menu'&&!steadyDrop&&!/^slice-(launch|fall|swish|cut|chip)$/.test(name)&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
     const notes = (list, spacing, length, volume = 0.2) => list.forEach((n, i) => tone(midi(n), now + i * spacing, length, volume, 'sine', effectsBus));
     switch (name) {
       case 'victory-transform': victoryCue('transform',now);break;
@@ -359,6 +361,14 @@
       case 'jumper-fall': tone(360,now,.3,.11,'sine',effectsBus,100);softSweep(now,.25,900,170,.05);break;
       case 'drop-block': tone(150,now,.18,.15,'triangle',effectsBus,65);noise(now,.07,.06,600,effectsBus);break;
       case 'drop-release': tone(500,now,.13,.13,'sine',effectsBus,210);softSweep(now,.10,900,350,.045);break;
+      // Rounded contact transients: the short falling body gives weight without a beep.
+      case 'drop-land': tone(205,now,.095,.18,'sine',effectsBus,105);softSweep(now,.075,950,350,.15);break;
+      case 'drop-touch': tone(325,now,.065,.10,'sine',effectsBus,185);softSweep(now,.055,1450,650,.09);break;
+      // Joining is a soft upward lift. The separate burst lands with the particle release.
+      case 'drop-merge-start': softSweep(now,.19,450,1400,.17);tone(260,now,.095,.105,'sine',effectsBus,390);break;
+      case 'drop-merge-burst':
+        tone(640,now,.09,.18,'sine',effectsBus,325);softSweep(now,.14,2600,950,.25);
+        tone(1319,now+.022,.065,.048,'sine',effectsBus);tone(1760,now+.048,.045,.026,'sine',effectsBus);break;
       case 'drop-pop': tone(360,now,.09,.17,'sine',effectsBus,950);tone(1397,now+.035,.18,.065,'sine',effectsBus);break;
       case 'drop-chain': notes([79,86,91],.045,.17,.09);break;
       case 'slice-launch': softSweep(now,.19,340,1100,.105);break;

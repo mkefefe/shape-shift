@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {dropArtworkGeometry} from './drop-art-geometry.js';
 import {makeDropBody,createDropGame} from './shape-drop-engine.js';
-import {dropMergePose,drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js';
+import {dropMergePose,drawDropMerge,DROP_MERGE_DURATION,DROP_MERGE_BURST_AT} from './drop-merge-fx.js';
 const context={console};vm.runInNewContext(fs.readFileSync(new URL('./assets/vendor/matter-0.20.0.min.js',import.meta.url),'utf8'),context);const M=context.Matter;
 function mask(predicate,width=160,height=144){const data=new Uint8ClampedArray(width*height*4);for(let y=0;y<height;y++)for(let x=0;x<width;x++)data[(y*width+x)*4+3]=predicate((x+.5-width/2)/(width/2),(y+.5-height/2)/(height/2))?255:0;return {data,width,height};}
 const profile=(m,shape=2)=>dropArtworkGeometry(m.data,m.width,m.height,shape);
@@ -34,4 +34,16 @@ test('merge shines at full size, holds one joined shape, and scales burst to the
  const small=dropMergePose(.9,25),large=dropMergePose(.9,80);assert(large.spread>small.spread*3);assert(large.glow>small.glow*3);assert(large.particleRadius>small.particleRadius);assert.equal(dropMergePose(DROP_MERGE_DURATION,25).visible,false);
  const calls=[],ctx={save(){},restore(){},translate(){},rotate(){},createRadialGradient(){return {addColorStop(){}};},fillRect(){},beginPath(){},arc(){},fill(){},moveTo(){},lineTo(){},stroke(){}},event={x:100,y:200,pieces:[{x:60,y:200,angle:0,tile:{r:25}},{x:140,y:200,angle:0,tile:{r:70}}]};
  drawDropMerge(ctx,event,.46,(_c,tile,scale)=>calls.push({tile,scale}));assert.equal(calls.length,1);assert.equal(calls[0].tile.r,70);assert.equal(calls[0].scale,1);let particles=0;ctx.arc=()=>particles++;drawDropMerge(ctx,event,.9,()=>{});assert.equal(particles,12);
+});
+
+
+test('merge trails converge before the shared burst time and large chains keep particle work bounded',()=>{
+ const seen={curves:0,dots:0,draws:0},ctx={save(){},restore(){},translate(){},rotate(){},createRadialGradient(){return {addColorStop(){}};},fillRect(){},beginPath(){},arc(...numbers){assert(numbers.every(Number.isFinite));seen.dots++;},fill(){},moveTo(){},lineTo(){},quadraticCurveTo(...numbers){assert(numbers.every(Number.isFinite));seen.curves++;},stroke(){}};
+ const event={x:160,y:260,pieces:Array.from({length:110},(_,i)=>({x:40+i%8*30,y:180+Math.floor(i/8)*15,angle:.3,tile:{r:25+i%3*25}}))},draw=()=>seen.draws++;
+ drawDropMerge(ctx,event,.25,draw);assert(seen.curves>0&&seen.curves<=10);assert.equal(seen.dots,0);assert.equal(seen.draws,110,'complete pieces remain visible before joining');
+ seen.draws=0;drawDropMerge(ctx,event,.46,draw);assert.equal(seen.draws,1,'joined full-size shape remains visible');
+ seen.dots=0;drawDropMerge(ctx,event,DROP_MERGE_BURST_AT-.001,draw);assert.equal(seen.dots,0);
+ drawDropMerge(ctx,event,.85,draw);assert(seen.dots>0&&seen.dots<=60);
+ seen.curves=seen.dots=0;drawDropMerge(ctx,event,.25,draw,{quiet:true});assert.equal(seen.curves,0);drawDropMerge(ctx,event,.85,draw,{quiet:true});assert(seen.dots<=30);
+ seen.dots=seen.draws=0;drawDropMerge(ctx,event,DROP_MERGE_DURATION,draw);drawDropMerge(ctx,{...event,pieces:[]},.85,draw);assert.equal(seen.dots+seen.draws,0);
 });

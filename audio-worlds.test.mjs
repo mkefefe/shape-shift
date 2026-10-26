@@ -30,7 +30,7 @@ function harness(options={}){
   async suspend(){this.state='suspended';}
  }
  let serial=0;const window={AudioContext,setTimeout(fn){state.delays.push(fn);return ++serial;},setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
- window.ShapeShiftPlatform={audioAllowed:true,paused:false,setInterval:window.setInterval,clearInterval:window.clearInterval};
+ window.ShapeShiftPlatform={audioAllowed:true,paused:false,setInterval:window.setInterval,clearInterval:window.clearInterval};state.platform=window.ShapeShiftPlatform;
  const fetch=async url=>{state.fetches.push(url);const r=options.fetch?await options.fetch(url):response();return {...r,arrayBuffer:async()=>{const data=await r.arrayBuffer();data.url=url;return data;}};};
  vm.runInNewContext(source,{window,fetch,document:state.document});
  return {audio:window.gameAudio,state,tracks:()=>state.sources.filter(n=>n.loop&&n.startArgs)};
@@ -255,4 +255,27 @@ test('Slice cut and chip cues finish promptly without repeated music dips',async
   for(const source of state.sources.slice(start))assert(source.stops[0]-state.context.currentTime<=.2);
  }
  assert.equal(duck.gain.ramps.length,before);
+});
+
+
+test('Drop contact and merge cues are centered, bounded, rate-limited and do not duck music',async()=>{
+ const {audio,state}=harness();audio.setScene('drop');await audio.start();await flush();
+ const cues=['drop-land','drop-touch','drop-merge-start','drop-merge-burst'],duck=state.gains[3],before=duck.gain.ramps.length;
+ for(const cue of cues){
+  state.context.currentTime+=1;const start=state.sources.length,tones=state.oscillators.length;
+  audio.play(cue);assert(state.sources.length>start);assert(state.oscillators.length>tones);
+  const count=state.sources.length+state.oscillators.length;audio.play(cue);
+  assert.equal(state.sources.length+state.oscillators.length,count,'simultaneous contacts must not pile up identical cues');
+  for(const source of state.sources.slice(start)){assert(source.stops[0]-state.context.currentTime<=.2);assert.equal(source.loop,undefined);}
+ }
+ assert.equal(state.gains[2].channelCount,1);assert.equal(duck.gain.ramps.length,before);
+});
+
+test('new Drop cues respect effects mute, zero volume, platform pause and host audio restriction',async()=>{
+ for(const block of [a=>a.audio.setSfx(false),a=>a.audio.setSfxVolume(0),a=>a.state.platform.paused=true,a=>a.state.platform.audioAllowed=false]){
+  const h=harness();h.audio.setScene('drop');await h.audio.start();await flush();block(h);
+  const count=h.state.sources.length+h.state.oscillators.length;
+  for(const cue of ['drop-land','drop-touch','drop-merge-start','drop-merge-burst'])h.audio.play(cue);
+  assert.equal(h.state.sources.length+h.state.oscillators.length,count);
+ }
 });
