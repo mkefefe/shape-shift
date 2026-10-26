@@ -57,7 +57,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  function dropCrop(tile){if(tile.bomb)return {art:bombArt,x:0,y:0,w:1280,h:1280};return !tile.obstacle&&activeSkin()!=='classic'?skinCrop(tile):crops[tile.color*4+tile.shape];}
  let framePatches=dropFramePatches();
  let progress;try{progress=dropProgress(JSON.parse(window.ShapeShiftPlatform.storage.getItem(KEY)||'null'));}catch{progress=dropProgress();}
- let sceneryTint,nextPreview;
+ let sceneryTint;
  let game=null,raf=0,last=0,paused=false,runId='',saved=false,pendingSave=null,canvas,ctx,hudScore,hudCoins,announcement,overlay,transform,drag=null,fx=[],version=0,quiet=false,viewBounds=null,lastHud='',paintElapsed=0;
  const stamps=new Map();let stampPixels=0;
  const make=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls||'';if(text!==undefined)el.textContent=text;return el;};
@@ -134,7 +134,6 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   for(const f of fx){if(f.kind==='merge'){drawMerge(f);continue;}const age=(game.time-f.at)/.8;if(age>=1)continue;ctx.globalAlpha=1-age;if(!quiet){ctx.strokeStyle=f.color;ctx.lineWidth=2*(1-age);ctx.beginPath();ctx.arc(f.x,f.y,10+age*32,0,Math.PI*2);ctx.stroke();for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.fillStyle=f.color;ctx.beginPath();ctx.arc(f.x+Math.cos(a)*(12+age*35),f.y+Math.sin(a)*(12+age*35),2.4*(1-age),0,Math.PI*2);ctx.fill();}}
    if(f.label){ctx.font='1000 19px Nunito,sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffffff';ctx.strokeStyle='#276c62';ctx.lineWidth=3;const yy=f.y-(quiet?12:age*32);ctx.strokeText(f.label,Math.max(35,Math.min(W-35,f.x)),yy);ctx.fillText(f.label,Math.max(35,Math.min(W-35,f.x)),yy);}}
   ctx.globalAlpha=1;ctx.restore();
-  positionNextPreview();
   // Small translucent highlights sit on the front of the glass, below the painted rim.
   ctx.save();ctx.beginPath();ctx.roundRect(0,DROP_LINE,W,H-DROP_LINE,[0,0,12,12]);ctx.clip();
   const sheen=ctx.createLinearGradient(0,0,W,0);sheen.addColorStop(0,'#ffffff00');sheen.addColorStop(.45,'#ffffff00');sheen.addColorStop(.5,'#ffffff0e');sheen.addColorStop(.57,'#ffffff00');sheen.addColorStop(1,'#ffffff00');ctx.fillStyle=sheen;ctx.save();ctx.transform(1,0,-.3,1,90,0);ctx.fillRect(-100,DROP_LINE,W+200,H-DROP_LINE);ctx.restore();
@@ -142,24 +141,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   for(const p of framePatches)ctx.drawImage(containerArt,p.sx,p.sy,p.sw,p.sh,p.x,p.y,p.width,p.height);
 
  }
- function positionNextPreview(){
-  if(!nextPreview||!game||!transform)return;const tile=game.queue[0],crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r??DROP_RADIUS,crop.w/crop.h,tile.geometry),a=tile.angle||0;
-  const half=Math.abs(Math.cos(a))*box.width/2+Math.abs(Math.sin(a))*box.height/2,offset=half+25;
-  const xx=game.aim+offset<W-15?game.aim+offset:game.aim-offset;
-  const size=Math.max(22,Math.min(34,32*transform.scale));
-  nextPreview.style.left=(transform.x+Math.max(18,Math.min(W-18,xx))*transform.scale)+'px';
-  nextPreview.style.top=(transform.y+(dropSpawnY(tile)-Math.min(24,tile.r*.3))*transform.scale)+'px';
-  nextPreview.style.setProperty('--next-size',size+'px');nextPreview.hidden=game.over;
- }
- function updateNextPreview(){
-  const tile=game.queue[1];if(!tile||!nextPreview)return;
-  const label=tile.bomb?'Bomb':tile.obstacle?'Locked block':['Red','Blue','Green','Yellow'][tile.color]+' '+['circle','triangle','square','star'][tile.shape];
-  const art=tile.bomb?make('img','drop-next-art'):sprite(tile,'drop-next-art');if(tile.bomb){art.src=bombArt.src;art.alt='';}
-  const holder=make('span','drop-next-holder');holder.append(art);
-  if(tile.obstacle){art.style.filter='grayscale(1) brightness(.82)';const chains=make('img','drop-next-chains');chains.src=obstacleArt.src;chains.alt='';holder.append(chains);}
-  nextPreview.replaceChildren(make('span','','NEXT'),holder);nextPreview.setAttribute('aria-label','Next drop: '+label);
- }
- function update(){if(!game)return;const key=[game.score,game.cleared,game.pieces.length,game.drops].join(':');if(key===lastHud)return;lastHud=key;updateNextPreview();hudScore.textContent=game.score.toLocaleString();hudCoins.textContent=miniGameCoins(game.cleared).toLocaleString();hudCoins.parentElement.setAttribute('aria-label',miniGameCoins(game.cleared)+' coins earned this run');canvas.setAttribute('aria-label',`Shape Drop play area. Score ${game.score}. ${game.pieces.filter(p=>!p.drop.obstacle).length} shapes. ${game.pieces.filter(p=>p.drop.obstacle).length} locked blocks. Next: ${game.queue[0].bomb?'bomb, clears nearby objects':game.queue[0].obstacle?'locked block, cannot match':`matching shape, ${game.queue[0].sizeScale??1} times size`}. Drag to aim and release to drop. Hold A or D to aim smoothly, S drops. Left and right arrows also aim, Space drops, Up rotates.`);}
+ function update(){if(!game)return;const key=[game.score,game.cleared,game.pieces.length,game.drops].join(':');if(key===lastHud)return;lastHud=key;hudScore.textContent=game.score.toLocaleString();hudCoins.textContent=miniGameCoins(game.cleared).toLocaleString();hudCoins.parentElement.setAttribute('aria-label',miniGameCoins(game.cleared)+' coins earned this run');canvas.setAttribute('aria-label',`Shape Drop play area. Score ${game.score}. ${game.pieces.filter(p=>!p.drop.obstacle).length} shapes. ${game.pieces.filter(p=>p.drop.obstacle).length} locked blocks. Current drop: ${game.queue[0].bomb?'bomb, clears nearby objects':game.queue[0].obstacle?'locked block, cannot match':`matching shape, ${game.queue[0].sizeScale??1} times size`}. Drag to aim and release to drop. Hold A or D to aim smoothly, S drops. Left and right arrows also aim, Space drops, Up rotates.`);}
  function release(){if(!game||paused||game.over)return;const locked=game.queue[0].obstacle;if(game.drop()){teaching.event('drop');play(locked?'drop-block':'drop-release');announcement.textContent=locked?'Locked blocks stay in the pile':dropHint();update();}}
  function panel(title){overlay?.remove();overlay=make('div','drop-overlay');const card=make('section','drop-panel');card.append(make('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
  function resume(){if(!paused||game?.over)return;overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;paused=false;dialog.dataset.paused='false';last=window.ShapeShiftPlatform.now();canvas.focus();update();}
@@ -170,8 +152,8 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   window.gameAudio?.start()?.catch(()=>{});
   if(game&&!saveRun())return;stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;runId='shape-drop-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const scenery=make('div','drop-scenery');sceneryTint=createSceneryTint(scenery,{garden:true});scenery.setAttribute('aria-hidden','true');const stars=make('div','drop-night-stars');scenery.append(stars);const motes=make('div','drop-motes');for(let i=0;i<24;i++){const mote=make('i');mote.style.cssText=`left:${5+(i*37)%90}%;top:${40+(i*17)%55}%;animation-delay:${-i*1.7}s`;motes.append(mote);}scenery.append(motes);dialog.append(scenery);
-  const hud=make('header','drop-play-hud');hudScore=make('strong','drop-live-score','0');hudScore.setAttribute('aria-label','Score');const coins=make('div','mini-run-coins'),coinIcon=make('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';hudCoins=make('strong','','0');coins.append(coinIcon,hudCoins);hud.append(icon('Pause Shape Drop',()=>pause(),'pause'),hudScore,coins);nextPreview=make('div','drop-next-preview');nextPreview.setAttribute('role','img');dialog.append(hud);
-  const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas,nextPreview);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
+  const hud=make('header','drop-play-hud');hudScore=make('strong','drop-live-score','0');hudScore.setAttribute('aria-label','Score');const coins=make('div','mini-run-coins'),coinIcon=make('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';hudCoins=make('strong','','0');coins.append(coinIcon,hudCoins);hud.append(icon('Pause Shape Drop',()=>pause(),'pause'),hudScore,coins);dialog.append(hud);
+  const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
   const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
   const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close,'drop-secondary'));let loadingTimer;

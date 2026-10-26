@@ -50,10 +50,3 @@ body.reduce-motion #shape-drop .drop-scenery::before,body.reduce-motion #shape-d
 #shape-drop[data-paused='true'] .drop-night-stars{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){#shape-drop .drop-night-stars,#shape-drop .drop-motes i{animation:none}}
 body.reduce-motion #shape-drop .drop-night-stars,body.reduce-motion #shape-drop .drop-motes i{animation:none}
-
-/* A compact upcoming piece travels beside the held piece, clear of the score. */
-#shape-drop .drop-next-preview{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);padding:0;color:#f7ffff;font:1000 9px/1 Nunito,sans-serif;letter-spacing:.7px;text-shadow:0 1px 3px #174d64,0 0 4px #174d64;pointer-events:none;filter:drop-shadow(0 2px 3px #204c6644)}
-#shape-drop .drop-next-preview[hidden]{display:none}
-#shape-drop .drop-next-holder{position:relative;width:var(--next-size,28px);height:var(--next-size,28px);display:grid;place-items:center}
-#shape-drop .drop-next-art{display:block;width:var(--next-size,28px)!important;max-height:var(--next-size,28px);object-fit:contain;background-repeat:no-repeat}
-#shape-drop .drop-next-chains{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}

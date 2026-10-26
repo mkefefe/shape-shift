@@ -5,7 +5,33 @@ export function createSliceBurst(piece,from,to,color,quiet=false,rng=Math.random
   const a=angle+i*2.39996+(rng()-.5)*.6,speed=(quiet?20:40)+rng()*(quiet?30:120);
   sparks.push({x:piece.x+Math.cos(a)*piece.r*.25,y:piece.y+Math.sin(a)*piece.r*.25,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-35,age:0,life:quiet?.25:.35+rng()*.2,size:quiet?2:2+rng()*2,color:i%5===0?'#ffffff':color,kind:i%3,angle:a,spin:(rng()-.5)*12});
  }
- return {sparks,flash:{x:piece.x,y:piece.y,r:piece.r,angle,color,age:0,life:quiet?.16:.22,quiet}};
+ const dx=to.x-from.x,dy=to.y-from.y,lengthSquared=dx*dx+dy*dy;
+ const crossing=lengthSquared?Math.max(0,Math.min(1,((piece.x-from.x)*dx+(piece.y-from.y)*dy)/lengthSquared)):0;
+ return {sparks,flash:{x:lengthSquared?from.x+dx*crossing:piece.x,y:lengthSquared?from.y+dy*crossing:piece.y,r:piece.r,angle,color,age:0,life:quiet?.16:.34,quiet}};
+}
+const clamp01=n=>Math.max(0,Math.min(1,n));
+// The slash grows in the swipe direction, then its tail catches up. Its entire
+// footprint stays beside the cut; it does not move the camera or add an overlay.
+export function sliceSlashPose(f){
+ const t=clamp01(f.age/f.life),head=f.quiet?.5:Math.min(1,.18+t*1.8),tail=f.quiet?.5:Math.max(0,(t-.2)/.8);
+ return {head,tail,opacity:(1-t)**1.4,length:f.r*2.7,bend:f.r*.45,glint:f.quiet?0:f.r*.16*Math.sin(Math.PI*Math.min(1,t*1.35))};
+}
+function drawCutAccent(ctx,f){
+ const pose=sliceSlashPose(f),t=clamp01(f.age/f.life);if(t>=1)return;
+ ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);ctx.lineCap='round';
+ // Keep the original immediate cut highlight, scaled to the struck shape.
+ ctx.globalAlpha=(1-t)*.65;ctx.strokeStyle='#fff7ff';ctx.lineWidth=Math.max(1.5,f.r*(f.quiet?.055:.08))*(1-t*.5);
+ ctx.shadowColor=f.color;ctx.shadowBlur=f.quiet?0:Math.min(13,f.r*.35);
+ ctx.beginPath();ctx.moveTo(-f.r*.8,0);ctx.lineTo(f.r*.8,0);ctx.stroke();
+ if(!f.quiet){
+  const point=u=>({x:(u-.5)*pose.length,y:-4*u*(1-u)*pose.bend});
+  const path=()=>{ctx.beginPath();for(let i=0;i<=12;i++){const p=point(pose.tail+(pose.head-pose.tail)*i/12);if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);}};
+  ctx.globalAlpha=pose.opacity*.8;ctx.strokeStyle=f.color;ctx.lineWidth=Math.max(2.5,f.r*.13)*(1-t*.4);ctx.shadowBlur=Math.min(15,f.r*.4);path();ctx.stroke();
+  ctx.shadowBlur=0;ctx.strokeStyle='#f4ffff';ctx.lineWidth=Math.max(1,f.r*.035)*(1-t*.3);ctx.stroke();
+  // One small four-point glint travels with the leading edge of the curved cut.
+  if(pose.glint>.1){const head=point(pose.head),r=pose.glint;ctx.globalAlpha=pose.opacity;ctx.fillStyle='#fffce5';ctx.shadowColor=f.color;ctx.shadowBlur=7;ctx.beginPath();ctx.moveTo(head.x-r,head.y);ctx.lineTo(head.x-r*.2,head.y-r*.2);ctx.lineTo(head.x,head.y-r);ctx.lineTo(head.x+r*.2,head.y-r*.2);ctx.lineTo(head.x+r,head.y);ctx.lineTo(head.x+r*.2,head.y+r*.2);ctx.lineTo(head.x,head.y+r);ctx.lineTo(head.x-r*.2,head.y+r*.2);ctx.closePath();ctx.fill();}
+ }
+ ctx.restore();
 }
 export function stepSliceEffects(effects,dt){
  for(const p of effects.sparks){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-dt*1.1);p.vy+=180*dt;p.angle+=(p.spin||0)*dt;}
@@ -22,11 +48,7 @@ function shard(ctx,r,kind=0){
 }
 export function drawSliceEffects(ctx,effects){
  ctx.save();ctx.lineCap='round';
- for(const f of effects.flashes){
-  const t=f.age/f.life;ctx.save();ctx.globalAlpha=(1-t)*.9;ctx.translate(f.x,f.y);ctx.rotate(f.angle);
-  ctx.shadowColor=f.color;ctx.shadowBlur=f.quiet?0:14;ctx.strokeStyle='#fff5ff';ctx.lineWidth=(1-t)*(f.quiet?2:5);
-  ctx.beginPath();ctx.moveTo(-f.r*(1+t),0);ctx.lineTo(f.r*(1+t),0);ctx.stroke();ctx.restore();
- }
+ for(let i=Math.max(0,effects.flashes.length-24);i<effects.flashes.length;i++)drawCutAccent(ctx,effects.flashes[i]);
  for(const p of effects.sparks){
   const t=p.age/p.life,fade=Math.min(1,(1-t)*2.5);ctx.save();ctx.globalAlpha=fade;ctx.translate(p.x,p.y);ctx.rotate(p.angle);
   ctx.fillStyle=p.color;ctx.strokeStyle='#102746';ctx.lineWidth=1.2;
