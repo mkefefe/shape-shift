@@ -142,8 +142,8 @@
     tone(74,time,.46,.24,'sine',effectsBus,42);
   }
 
-  // A quiet, unpitched air texture follows the blade. No sustained musical
-  // tones: the separate short cut sound supplies impact when a shape splits.
+  // Restore the original bright laser shimmer, with one movement-driven voice.
+  // Keep release/mute cleanup and steady backing music during repeated cuts.
   let sliceVoice=null,sliceAirBuffer=null;
   function sliceMotion(value){
     const speed=Math.max(0,Math.min(1,Number(value)||0));
@@ -158,14 +158,16 @@
         for(let i=0;i<raw.length;i++){seed=(seed*16807)%2147483647;raw[i]=seed/1073741824-1;}
         for(let i=0;i<length;i++){const blend=i<fade?(1-Math.cos(Math.PI*i/fade))/2:1;data[i]=i<fade?raw[length+i]*(1-blend)+raw[i]*blend:raw[i];}
       }
-      const air=context.createBufferSource(),filter=context.createBiquadFilter(),warmth=context.createBiquadFilter(),airGain=context.createGain(),gain=context.createGain();
-      air.buffer=sliceAirBuffer;air.loop=true;filter.type='bandpass';filter.Q.value=.45;filter.frequency.value=850;warmth.type='lowpass';warmth.Q.value=.5;warmth.frequency.value=3200;airGain.gain.value=.22;gain.gain.value=0;
-      air.connect(filter);filter.connect(warmth);warmth.connect(airGain);airGain.connect(gain);gain.connect(effectsBus);
-      const sources=[air],nodes=[air,filter,warmth,airGain,gain];
-      sliceVoice={sources,nodes,filter,gain};air.start(now);
+      const air=context.createBufferSource(),filter=context.createBiquadFilter(),airGain=context.createGain(),gain=context.createGain();
+      air.buffer=sliceAirBuffer;air.loop=true;filter.type='bandpass';filter.Q.value=.5;filter.frequency.value=1500;airGain.gain.value=.28;gain.gain.value=0;
+      air.connect(filter);filter.connect(airGain);airGain.connect(gain);gain.connect(effectsBus);
+      const sources=[air],nodes=[air,filter,airGain,gain],tones=[];
+      for(const [ratio,volume] of [[1,.022],[2,.009]]){const osc=context.createOscillator(),level=context.createGain();osc.type='sine';osc.frequency.value=523.25*ratio;level.gain.value=volume;osc.connect(level);level.connect(gain);sources.push(osc);nodes.push(osc,level);tones.push({osc,ratio});}
+      sliceVoice={sources,nodes,tones,filter,gain};for(const source of sources)source.start(now);
     }
-    sliceVoice.gain.gain.setTargetAtTime(speed<.005?0:Math.sqrt(speed)*.44,now,.035);
-    sliceVoice.filter.frequency.setTargetAtTime(750+speed*1050,now,.07);
+    sliceVoice.gain.gain.setTargetAtTime(speed<.005?0:.18+Math.sqrt(speed)*.42,now,.055);
+    sliceVoice.filter.frequency.setTargetAtTime(1400+speed*1400,now,.09);
+    for(const {osc,ratio} of sliceVoice.tones)osc.frequency.setTargetAtTime((523.25+speed*55)*ratio,now,.12);
   }
   function stopSlice(){
     if(!sliceVoice)return;const voice=sliceVoice;sliceVoice=null;const now=context.currentTime;
@@ -398,9 +400,9 @@
         dropCue(name,now,variant);break;
       case 'slice-launch': softSweep(now,.19,340,1100,.105);break;
       case 'slice-fall': softSweep(now,.17,850,300,.06);break;
-      case 'slice-swish': softSweep(now,.14,1350,650,.15);break;
-      case 'slice-cut': softSweep(now,.125,1850,650,.22);tone(540,now,.065,.12,'sine',effectsBus,220);break;
-      case 'slice-chip': softSweep(now,.085,1550,750,.12);tone(680,now,.045,.055,'sine',effectsBus,340);break;
+      case 'slice-swish': softSweep(now,.20,1100,2900,.23);tone(784,now,.18,.055,'sine',effectsBus,880);break;
+      case 'slice-cut': softSweep(now,.17,2600,1200,.24);tone(1175,now,.21,.14,'sine',effectsBus);tone(1762,now+.025,.15,.035,'sine',effectsBus);break;
+      case 'slice-chip': softSweep(now,.12,3100,1700,.15);tone(1568,now,.15,.085,'sine',effectsBus);break;
       case 'slice-bomb': sliceBomb(now);break;
       case 'slice-miss': tone(440,now,.16,.10,'sine',effectsBus,220);tone(196,now+.09,.15,.055,'triangle',effectsBus);break;
       case 'correct': case 'match': matchChime(now);break;

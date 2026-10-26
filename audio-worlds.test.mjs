@@ -232,16 +232,17 @@ test('victory warming yields between samples, never blocks play, and retries fai
 });
 
 
-test('Slice movement is unpitched, reuses one air voice, and stops on release or mute',async()=>{
+test('Slice laser reuses its air and octave voices and stops on release or mute',async()=>{
  const {audio,state}=harness();audio.setScene('slice');await audio.start();await flush();
  const before=state.sources.length,tones=state.oscillators.length,duck=state.gains[3],duckEvents=duck.gain.ramps.length;
  audio.sliceMotion(.6);const voice=state.sources.at(-1);
  assert.equal(state.sources.length,before+1);assert.equal(voice.loop,true);
  for(let i=0;i<120;i++){state.context.currentTime+=1/60;audio.sliceMotion((i%30)/30);}
  assert.equal(state.sources.length,before+1,'pointer moves must not create overlapping voices');
- assert.equal(state.oscillators.length,tones,'held swipes must not become a pitched drone');
+ assert.equal(state.oscillators.length,tones+2,'laser shimmer must reuse its two octave voices');
  assert.equal(duck.gain.ramps.length,duckEvents,'continuous slicing must not pump the music');
  audio.stopSlice();assert.equal(voice.stops.length,1);
+ for(const osc of state.oscillators.slice(tones))assert.equal(osc.stops.length,1,'release stops laser tones');
  audio.sliceMotion(.7);const next=state.sources.at(-1);assert.notEqual(next,voice);
  audio.setSfx(false);assert.equal(next.stops.length,1);const count=state.sources.length;
  audio.sliceMotion(1);assert.equal(state.sources.length,count);
@@ -253,7 +254,7 @@ test('Slice cut and chip cues finish promptly without repeated music dips',async
  for(const cue of ['slice-launch','slice-fall','slice-swish','slice-cut','slice-chip']){
   state.context.currentTime+=1;const start=state.sources.length;
   audio.play(cue);
-  for(const source of state.sources.slice(start))assert(source.stops[0]-state.context.currentTime<=.2);
+  for(const source of state.sources.slice(start))assert(source.stops[0]-state.context.currentTime<=.25);
  }
  assert.equal(duck.gain.ramps.length,before);
 });

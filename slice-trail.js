@@ -39,7 +39,7 @@ export function drawSliceTrail(ctx,points,now,quiet=false){
   const first=list[0],last=list.at(-1),radius=(quiet?5:SLICE_TRAIL_WIDTH)/2;
   ctx.globalAlpha=Math.max(0,1-(now-group.points.at(-1).time)/SLICE_TRAIL_LIFETIME);
   const path=()=>{ctx.beginPath();ctx.moveTo(first.x,first.y);for(let i=1;i<list.length;i++)ctx.lineTo(list[i].x,list[i].y);};
-  path();ctx.strokeStyle='#b8e9ff';ctx.shadowColor='#b8e9ff';ctx.shadowBlur=quiet?0:10;ctx.lineWidth=radius*2;ctx.stroke();ctx.shadowBlur=0;
+  path();ctx.strokeStyle='#b8e9ff';ctx.shadowColor='#b8e9ff';ctx.shadowBlur=quiet?0:18;ctx.lineWidth=radius*2;ctx.stroke();ctx.shadowBlur=0;
   const edges=list.map((p,i)=>{const prev=list[Math.max(0,i-1)],next=list[Math.min(list.length-1,i+1)],dx=next.x-prev.x,dy=next.y-prev.y,len=Math.hypot(dx,dy)||1;return {x:-dy/len*radius,y:dx/len*radius};});
   for(let i=1;i<list.length;i++){
    const a=list[i-1],b=list[i],u=edges[i-1],v=edges[i],gradient=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
@@ -48,7 +48,7 @@ export function drawSliceTrail(ctx,points,now,quiet=false){
   }
   // Only the two ends are round, not every sample along the slash.
   for(const p of [first,last]){ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,radius,0,Math.PI*2);ctx.fill();}
-  path();ctx.strokeStyle='#f3ffff';ctx.lineWidth=2;ctx.stroke();
+  path();ctx.strokeStyle='#f3ffff';ctx.lineWidth=quiet?2:3;ctx.stroke();
  }
  ctx.restore();
 }
