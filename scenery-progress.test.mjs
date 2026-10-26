@@ -22,3 +22,17 @@ test('garden reaches night monotonically and resets on a fresh run',()=>{
  assert.equal(element.style['--night'],1);scene.step(.1,0);assert.equal(element.style['--night'],1);
  createSceneryTint(element,{garden:true}).step(.1,0);assert.equal(element.style['--night'],0);
 });
+
+
+test('Slice can keep its painted palette while the other scenery keeps full variation',()=>{
+ const subtle={style:{}},normal={style:{}},a=createSceneryTint(subtle,{strength:.075}),b=createSceneryTint(normal);
+ let maximum=0;
+ for(let i=0;i<2400;i++){
+  a.step(.1,Math.floor(i/60)*50);b.step(.1,Math.floor(i/60)*50);
+  const values=[...subtle.style.filter.matchAll(/-?[\d.]+/g)].map(match=>Number(match[0]));
+  assert(values[0]>=0&&values[0]<=22.875);assert(values[1]<=1.0165);
+  maximum=Math.max(maximum,values[0]);
+ }
+ assert(maximum>20,'milestone color should still change visibly');
+ assert.notEqual(subtle.style.filter,normal.style.filter);
+});

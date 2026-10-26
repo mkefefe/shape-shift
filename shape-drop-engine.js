@@ -21,7 +21,10 @@ export const dropAimMargin=tile=>Math.max(29,Math.ceil((tile.r??DROP_RADIUS)*1.2
 export function makeDropBody(M,x,y,tile,r=tile.r??DROP_RADIUS){
  const opts={restitution:tile.obstacle?.12:tile.shape===0?.48:.24,friction:tile.obstacle?.65:.42,frictionStatic:.7,frictionAir:.008,density:tile.obstacle?.0035:.002,slop:.03,label:tile.obstacle?'drop-obstacle':'drop-piece'};
  let body;
- if(tile.shape===0)body=M.Bodies.circle(x,y,r,opts,24);
+ if(tile.geometry&&!tile.bomb){
+  const parts=tile.geometry.parts.map(points=>{const vertices=points.map(p=>({x:p.x*r,y:p.y*r})),center=M.Vertices.centre(vertices);return M.Bodies.fromVertices(center.x,center.y,vertices,opts,true,.001,0,.001);});
+  body=parts.length===1?parts[0]:M.Body.create({...opts,parts});M.Body.setPosition(body,{x,y});
+ }else if(tile.shape===0)body=M.Bodies.circle(x,y,r,opts,24);
  else if(tile.shape===2)body=M.Bodies.rectangle(x,y,r*1.65,r*1.65,{...opts,chamfer:{radius:3}});
  else if(tile.shape===1){
   const size=r*1.23;body=M.Bodies.fromVertices(x,y,[{x:0,y:-size},{x:size*.866,y:size*.5},{x:-size*.866,y:size*.5}],opts);
@@ -31,7 +34,7 @@ export function makeDropBody(M,x,y,tile,r=tile.r??DROP_RADIUS){
   const parts=Array.from({length:5},(_,i)=>{const tip=i*2,points=[{x:0,y:0},vertices[(tip+9)%10],vertices[tip],vertices[(tip+1)%10]],center=M.Vertices.centre(points);return M.Bodies.fromVertices(center.x,center.y,points,opts);});
   body=M.Body.create({...opts,parts});M.Body.setPosition(body,{x,y});
  }
- body.drop={shape:tile.shape,color:tile.color,obstacle:!!tile.obstacle,bomb:!!tile.bomb,r,born:0,clearAt:null,danger:0};
+ body.drop={shape:tile.shape,color:tile.color,obstacle:!!tile.obstacle,bomb:!!tile.bomb,r,geometry:tile.geometry||null,born:0,clearAt:null,danger:0};
  M.Body.setAngle(body,tile.angle||0);return body;
 }
 
@@ -45,7 +48,7 @@ export function dropAimBounds(M,tile){
  aimBoundsCache.set(tile,{signature,bounds});return bounds;
 }
 
-export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},height=DROP_HEIGHT,frame='none'}={}){
+export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
  height=Number.isFinite(height)?clamp(height,DROP_HEIGHT,1200):DROP_HEIGHT;
  const engine=M.Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});engine.gravity.y=1.05;
  const world=engine.world;
@@ -58,7 +61,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
  const next=()=>{
   const turn=game?game.drops+game.queue.length:0,tile=random(game?.pieces||[],turn,game?.queue||[],game?.score||0);
   if(!tile.bomb&&!tile.obstacle)tile.r*=dropViewportScale(height,turn);
-  return tile;
+  tile.geometry=geometryFor(tile);return tile;
  };
  game={frame,engine,height,pieces:[],queue:[next()],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[]};
  game.queue.push(next());
@@ -115,7 +118,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
  }
  // Capture new falling contacts before the solver can bounce matching pieces apart.
  M.Events.on(engine,'beforeSolve',clearTouching);
- function add(tile,x,y=dropSpawnY(tile)){const limits=dropAimBounds(M,tile),body=makeDropBody(M,clamp(x,limits.min,limits.max),y,tile);body.drop.born=game.time;game.pieces.push(body);M.Composite.add(world,body);return body;}
+ function add(tile,x,y=dropSpawnY(tile)){if(!tile.geometry)tile.geometry=geometryFor(tile);const limits=dropAimBounds(M,tile),body=makeDropBody(M,clamp(x,limits.min,limits.max),y,tile);body.drop.born=game.time;game.pieces.push(body);M.Composite.add(world,body);return body;}
  function drop(){
   if(game.over||game.cooldown>0)return false;
   if(game.pieces.length>=110){end('overflow');return false;}

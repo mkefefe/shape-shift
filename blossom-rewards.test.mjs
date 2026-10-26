@@ -65,8 +65,8 @@ test('Drop preview is the exact next piece and survives failed drops and rotatio
  for(let i=0;i<60;i++)g.step(1/120);assert(g.drop());assert.equal(g.queue[0],next);g.dispose();
 });
 
-test('Drop art occupies the physical silhouette even with wide or tall source crops',()=>{
- for(const shape of [0,1,2,3])for(const radius of [25,40,80])for(const aspect of [.8,1,531/508,580/496,1.4])assert.deepEqual(fitDropArtwork(shape,radius,aspect),dropShapeBox(shape,radius));
+test('Drop preserves the source artwork aspect ratio and nominal piece width',()=>{
+ for(const shape of [0,1,2,3])for(const radius of [25,40,80])for(const aspect of [.8,1,531/508,580/496,1.4]){const box=fitDropArtwork(shape,radius,aspect);assert.equal(box.width,dropShapeBox(shape,radius).width);assert(Math.abs(box.width/box.height-aspect)<1e-9);}
 });
 test('touching matching squares merge, but separated squares do not',()=>{
  const context={console};vm.runInNewContext(fs.readFileSync(new URL('./assets/vendor/matter-0.20.0.min.js',import.meta.url),'utf8'),context);

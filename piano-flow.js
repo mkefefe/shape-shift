@@ -1,4 +1,4 @@
-import {createSceneryTint} from './scenery-progress.js';
+import {createSceneryTint} from './scenery-progress.js?v=49484';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js?v=49458';
 import {createMiniTutorial} from './mini-tutorial.js?v=49439-web12';
 import {createMiniResults} from './mini-results.js?v=49439-web12';

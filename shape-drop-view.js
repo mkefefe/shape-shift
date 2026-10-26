@@ -1,4 +1,4 @@
-import {DROP_HEADROOM} from './shape-drop-engine.js?v=49439-web12';
+import {DROP_HEADROOM} from './shape-drop-engine.js?v=49484';
 // The frame's inner rails map to x=0/320; its floor follows the playfield height.
 // Preserve illustrated caps/corners at a uniform scale; only plain rail sections stretch.
 const FRAME_SCALE=.3,FRAME_LEFT=107,FRAME_RIGHT=917,FRAME_FLOOR=1368,FRAME_TIP=95;
@@ -20,7 +20,7 @@ export function dropLayout(width,height,runHeight){
  const scale=Math.max(.01,Math.min((width-20)/384.2,(height-20)/(worldHeight+headroom+footroom)));
  return {scale,x:(width-320*scale)/2,y:10+headroom*scale,worldHeight};
 }
-// Match the unrotated collision silhouettes. The artwork keeps its native aspect ratio.
+// Nominal piece widths stay stable; artwork and alpha-derived bodies share its native aspect ratio.
 export function dropShapeBox(shape,r){
  if(shape===0)return {width:r*2,height:r*2,y:0};
  if(shape===2)return {width:r*1.65,height:r*1.65,y:0};
@@ -28,12 +28,7 @@ export function dropShapeBox(shape,r){
  if(shape===1)return {width:outer*1.732,height:outer*1.5,y:-outer*.25};
  return {width:outer*Math.sin(Math.PI*2/5)*2,height:outer*(1+Math.cos(Math.PI/5)),y:outer*(Math.cos(Math.PI/5)-1)/2};
 }
-export function fitDropArtwork(shape,r,aspect=1){return dropShapeBox(shape,r);}
-
-// Rendering and physics share the same unrotated silhouette and center of mass.
-export function traceDropOutline(c,shape,r){
- const box=dropShapeBox(shape,r);c.beginPath();
- if(shape===0)c.arc(0,0,r,0,Math.PI*2);
- else if(shape===2)c.roundRect(-box.width/2,-box.height/2,box.width,box.height,3);
- else {const count=shape===1?3:10;for(let i=0;i<count;i++){const angle=-Math.PI/2+i*Math.PI*2/count,rad=r*1.23*(shape===3&&i%2?.52:1),x=Math.cos(angle)*rad,y=Math.sin(angle)*rad-box.y;if(i)c.lineTo(x,y);else c.moveTo(x,y);}c.closePath();}
+export function fitDropArtwork(shape,r,aspect=1,geometry=null){
+ const width=dropShapeBox(shape,r).width,height=width/aspect;
+ return {width,height,x:geometry?-geometry.center.x*r:0,y:geometry?-geometry.center.y*r:shape===1?-height/6:shape===3?dropShapeBox(shape,r).y:0};
 }

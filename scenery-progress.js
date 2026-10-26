@@ -11,15 +11,15 @@ export function sceneryPalette(phase){const p=Math.max(0,Number(phase)||0),index
 export function createSceneryProgress(){let seconds=0,stage=0,phase=0;return {step(delta,score=0,reduced=false){const dt=Math.max(0,Math.min(.25,Number(delta)||0));seconds+=dt;stage=Math.max(stage,sceneryStage(score,seconds));phase=Math.min(stage,phase+dt/(reduced?12:6));return {seconds,stage,phase,palette:sceneryPalette(phase),speed:1+Math.min(stage,6)*.12};}};}
 
 // Only tint the scenery element: targets, HUD and controls retain their original colors.
-export function createSceneryTint(element,{garden=false}={}){
- const journey=createSceneryProgress();let elapsed=0;
+export function createSceneryTint(element,{garden=false,strength=1}={}){
+ const journey=createSceneryProgress(),intensity=Math.max(0,Math.min(1,Number(strength)||0));let elapsed=0;
  return {step(delta,score=0,reduced=false){
   const mood=journey.step(delta,score,reduced);elapsed+=Math.max(0,delta);
   if(elapsed>=.1){elapsed=0;
    if(garden){const night=Math.min(1,mood.phase/3);element.style.setProperty('--night',night);element.style.setProperty('--dusk',Math.sin(night*Math.PI));element.style.filter='none';return mood;}
    const hues=[0,72,155,235,305],i=Math.floor(mood.phase),t=mood.phase-i;
    const hue=hues[i%hues.length]+(hues[(i+1)%hues.length]-hues[i%hues.length])*t;
-   element.style.filter=`hue-rotate(${hue}deg) saturate(${1+Math.min(mood.phase,1)*(garden?.12:.22)})`;
+   element.style.filter=`hue-rotate(${hue*intensity}deg) saturate(${1+Math.min(mood.phase,1)*.22*intensity})`;
   }
   return mood;
  }};

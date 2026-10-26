@@ -13,12 +13,12 @@ function buffer(channels,length,rate=44100){
  return {numberOfChannels:channels,length,sampleRate:rate,duration:length/rate,getChannelData:channel=>data[channel]};
 }
 function harness(options={}){
- const state={contexts:0,sources:[],gains:[],convolvers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
+ const state={contexts:0,oscillators:[],sources:[],gains:[],convolvers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
  const parameter=()=>({value:0,values:[],ramps:[],targets:[],cancelScheduledValues(){},setValueAtTime(v,t){this.values.push([v,t]);},linearRampToValueAtTime(v,t){this.ramps.push([v,t]);},exponentialRampToValueAtTime(v,t){this.ramps.push([v,t]);},setTargetAtTime(v,t,c){this.targets.push([v,t,c]);}});
  const node=()=>({connections:[],disconnects:0,connect(target){this.connections.push(target);return target;},disconnect(){this.disconnects++;},gain:parameter(),frequency:parameter(),Q:parameter(),playbackRate:parameter(),threshold:parameter(),ratio:parameter(),knee:parameter(),attack:parameter(),release:parameter()});
  class AudioContext{
   constructor(){state.contexts++;state.context=this;this.state='suspended';this.sampleRate=44100;this.currentTime=0;this.destination={};}
-  createOscillator(){const n=node();n.start=()=>{};n.stop=()=>{};return n;}
+  createOscillator(){const n=node();n.start=()=>{};n.stop=()=>{};state.oscillators.push(n);return n;}
   createGain(){const n=node();state.gains.push(n);return n;}
   createBiquadFilter(){return node();}
   createDynamicsCompressor(){return node();}
@@ -228,4 +228,31 @@ test('victory warming yields between samples, never blocks play, and retries fai
  }
  const before=state.fetches.filter(url=>url.includes('/victory-')).length;defer=false;
  await audio.start();state.delays.shift()();await flush();assert.equal(state.fetches.filter(url=>url.includes('/victory-')).length,before+1);
+});
+
+
+test('Slice movement is unpitched, reuses one air voice, and stops on release or mute',async()=>{
+ const {audio,state}=harness();audio.setScene('slice');await audio.start();await flush();
+ const before=state.sources.length,tones=state.oscillators.length,duck=state.gains[3],duckEvents=duck.gain.ramps.length;
+ audio.sliceMotion(.6);const voice=state.sources.at(-1);
+ assert.equal(state.sources.length,before+1);assert.equal(voice.loop,true);
+ for(let i=0;i<120;i++){state.context.currentTime+=1/60;audio.sliceMotion((i%30)/30);}
+ assert.equal(state.sources.length,before+1,'pointer moves must not create overlapping voices');
+ assert.equal(state.oscillators.length,tones,'held swipes must not become a pitched drone');
+ assert.equal(duck.gain.ramps.length,duckEvents,'continuous slicing must not pump the music');
+ audio.stopSlice();assert.equal(voice.stops.length,1);
+ audio.sliceMotion(.7);const next=state.sources.at(-1);assert.notEqual(next,voice);
+ audio.setSfx(false);assert.equal(next.stops.length,1);const count=state.sources.length;
+ audio.sliceMotion(1);assert.equal(state.sources.length,count);
+});
+
+test('Slice cut and chip cues finish promptly without repeated music dips',async()=>{
+ const {audio,state}=harness();audio.setScene('slice');await audio.start();await flush();
+ const duck=state.gains[3],before=duck.gain.ramps.length;
+ for(const cue of ['slice-launch','slice-fall','slice-swish','slice-cut','slice-chip']){
+  state.context.currentTime+=1;const start=state.sources.length;
+  audio.play(cue);
+  for(const source of state.sources.slice(start))assert(source.stops[0]-state.context.currentTime<=.2);
+ }
+ assert.equal(duck.gain.ramps.length,before);
 });
