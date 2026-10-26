@@ -22,6 +22,30 @@ function mergeCore(ctx,event,age,r,quiet){
  const spread=r*(.34+.44*pulse);ctx.save();ctx.globalAlpha=pulse*(quiet?.32:.86);
  const glow=ctx.createRadialGradient(event.x,event.y,0,event.x,event.y,spread);glow.addColorStop(0,'#fff9d8');glow.addColorStop(.18,'#fff0a9ef');glow.addColorStop(.48,'#ffd44780');glow.addColorStop(1,'#ffc42d00');ctx.fillStyle=glow;ctx.fillRect(event.x-spread,event.y-spread,spread*2,spread*2);ctx.restore();
 }
+
+const colorBursts=new WeakMap(),burstColors=['#61e7ff','#ff79cd','#b99aff'];
+// Seed once per merge: random spray trajectories stay stable between frames.
+export function createDropColorBurst(event,rng=Math.random){
+ const r=radiusOf(Math.max(...event.pieces.map(p=>p.tile.r))),count=Math.min(24,12+event.pieces.length*3);
+ return Array.from({length:count},(_,i)=>({color:burstColors[i%3],angle:rng()*Math.PI*2,
+  speed:r*(2.6+rng()*3.2),size:Math.max(1.5,r*(.028+rng()*.027)),
+  delay:rng()*.035,life:.39+rng()*.12,offset:r*rng()*.08}));
+}
+function drawColorBurst(ctx,event,age,r,quiet){
+ if(age<DROP_MERGE_BURST_AT)return;
+ let particles=colorBursts.get(event);if(!particles){particles=createDropColorBurst(event);colorBursts.set(event,particles);}
+ ctx.save();ctx.lineCap='round';
+ for(const p of particles.slice(0,quiet?6:24)){
+  const elapsed=age-DROP_MERGE_BURST_AT-p.delay;if(elapsed<0||elapsed>=p.life)continue;
+  const t=elapsed/p.life,travel=quiet?r*.24*t:p.speed*(1-Math.exp(-elapsed*3))/3;
+  const x=event.x+Math.cos(p.angle)*(p.offset+travel),y=event.y+Math.sin(p.angle)*(p.offset+travel)+(quiet?0:r*elapsed*elapsed*.65);
+  const size=p.size*(1-t*.65);ctx.globalAlpha=(1-t)**.85;ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=quiet?0:Math.min(12,r*.17);
+  if(!quiet){ctx.strokeStyle=p.color;ctx.lineWidth=Math.max(.6,size*.48);const tail=r*.14*(1-t);ctx.beginPath();ctx.moveTo(x-Math.cos(p.angle)*tail,y-Math.sin(p.angle)*tail);ctx.lineTo(x,y);ctx.stroke();}
+  ctx.beginPath();ctx.arc(x,y,size,0,Math.PI*2);ctx.fill();
+ }
+ ctx.restore();
+}
+
 export function drawDropMerge(ctx,event,age,drawPiece,{quiet=false}={}){
  if(age<0||age>=DROP_MERGE_DURATION||!event.pieces?.length)return;
  const largest=event.pieces.reduce((best,p)=>p.tile.r>best.tile.r?p:best,event.pieces[0]),stride=Math.max(1,Math.ceil(event.pieces.length/10));
@@ -44,4 +68,5 @@ export function drawDropMerge(ctx,event,age,drawPiece,{quiet=false}={}){
   }
  }
  mergeCore(ctx,event,age,radiusOf(largest.tile.r),quiet);
+ drawColorBurst(ctx,event,age,radiusOf(largest.tile.r),quiet);
 }

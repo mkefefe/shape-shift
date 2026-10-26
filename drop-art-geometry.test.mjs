@@ -33,7 +33,7 @@ test('merge shines at full size, holds one joined shape, and scales burst to the
  const before=dropMergePose(.1,25),joined=dropMergePose(.46,25),collapsed=dropMergePose(.71,25);assert.equal(before.scale,1);assert.equal(before.travel,0);assert.equal(joined.scale,1);assert.equal(joined.travel,1);assert.equal(collapsed.scale,0);
  const small=dropMergePose(.9,25),large=dropMergePose(.9,80);assert(large.spread>small.spread*3);assert(large.glow>small.glow*3);assert(large.particleRadius>small.particleRadius);assert.equal(dropMergePose(DROP_MERGE_DURATION,25).visible,false);
  const calls=[],ctx={save(){},restore(){},translate(){},rotate(){},createRadialGradient(){return {addColorStop(){}};},fillRect(){},beginPath(){},arc(){},fill(){},moveTo(){},lineTo(){},stroke(){}},event={x:100,y:200,pieces:[{x:60,y:200,angle:0,tile:{r:25}},{x:140,y:200,angle:0,tile:{r:70}}]};
- drawDropMerge(ctx,event,.46,(_c,tile,scale)=>calls.push({tile,scale}));assert.equal(calls.length,1);assert.equal(calls[0].tile.r,70);assert.equal(calls[0].scale,1);let particles=0;ctx.arc=()=>particles++;drawDropMerge(ctx,event,.9,()=>{});assert.equal(particles,12);
+ drawDropMerge(ctx,event,.46,(_c,tile,scale)=>calls.push({tile,scale}));assert.equal(calls.length,1);assert.equal(calls[0].tile.r,70);assert.equal(calls[0].scale,1);let particles=0;ctx.arc=()=>particles++;drawDropMerge(ctx,event,.9,()=>{});assert.equal(particles,30);
 });
 
 
@@ -43,7 +43,18 @@ test('merge trails converge before the shared burst time and large chains keep p
  drawDropMerge(ctx,event,.25,draw);assert(seen.curves>0&&seen.curves<=10);assert.equal(seen.dots,0);assert.equal(seen.draws,110,'complete pieces remain visible before joining');
  seen.draws=0;drawDropMerge(ctx,event,.46,draw);assert.equal(seen.draws,1,'joined full-size shape remains visible');
  seen.dots=0;drawDropMerge(ctx,event,DROP_MERGE_BURST_AT-.001,draw);assert.equal(seen.dots,0);
- drawDropMerge(ctx,event,.85,draw);assert(seen.dots>0&&seen.dots<=60);
- seen.curves=seen.dots=0;drawDropMerge(ctx,event,.25,draw,{quiet:true});assert.equal(seen.curves,0);drawDropMerge(ctx,event,.85,draw,{quiet:true});assert(seen.dots<=30);
+ drawDropMerge(ctx,event,.85,draw);assert(seen.dots>0&&seen.dots<=84);
+ seen.curves=seen.dots=0;drawDropMerge(ctx,event,.25,draw,{quiet:true});assert.equal(seen.curves,0);drawDropMerge(ctx,event,.85,draw,{quiet:true});assert(seen.dots<=36);
  seen.dots=seen.draws=0;drawDropMerge(ctx,event,DROP_MERGE_DURATION,draw);drawDropMerge(ctx,{...event,pieces:[]},.85,draw);assert.equal(seen.dots+seen.draws,0);
+});
+
+test('extra three-color merge spray keeps random trajectories stable across repaints',()=>{
+ const points=[],ctx={save(){},restore(){},translate(){},rotate(){},createRadialGradient(){return {addColorStop(){}};},fillRect(){},beginPath(){},arc(x,y,r){points.push([x,y,r,this.fillStyle]);},fill(){},moveTo(){},lineTo(){},stroke(){}};
+ const event={x:100,y:200,pieces:[{x:70,y:200,angle:0,tile:{r:45}},{x:130,y:200,angle:0,tile:{r:45}}]};
+ drawDropMerge(ctx,event,.82,()=>{});const first=points.splice(0);
+ drawDropMerge(ctx,event,.82,()=>{});assert.deepEqual(points,first,'redrawing the same frame must not re-randomize particles');
+ const spray=points.filter(p=>['#61e7ff','#ff79cd','#b99aff'].includes(p[3]));
+ assert.equal(spray.length,18);assert.equal(new Set(spray.map(p=>p[3])).size,3);
+ assert(spray.every(p=>p.slice(0,3).every(Number.isFinite)));assert(new Set(spray.map(p=>p[0])).size>12);
+ points.length=0;drawDropMerge(ctx,event,DROP_MERGE_DURATION,()=>{});assert.equal(points.length,0);
 });

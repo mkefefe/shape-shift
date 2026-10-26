@@ -354,7 +354,7 @@
     let pick=variant%3;if(pick===dropVoicings.get(name))pick=(pick+1+variant%2)%3;dropVoicings.set(name,pick);
     const freq=midi(chord[pick]),next=midi(chord[(pick+1)%3]+(pick===2?12:0));
     // Small changes in touch and voicing, with exact chord pitches and no detuning.
-    effectPitch=1;effectGain=.94+variant*.0125;
+    effectPitch=1;effectGain=1.4*(.94+variant*.0125);
     switch(name){
       case 'drop-release': tapPluck(time,freq,freq,.105,.115);break;
       case 'drop-land': tapPluck(time,freq/2,freq/2,.11,.14);break;

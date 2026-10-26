@@ -306,7 +306,7 @@ test('Drop cues are immediate with unavailable music and vary within a bounded c
  for(let i=0;i<12;i++){
   state.context.currentTime=30+i*.1;const start=state.oscillators.length;audio.play('drop-release');const added=state.oscillators.slice(start);assertChord(added,[0,4,7]);
   frequencies.push(added[0].frequency.values[0][0]);
-  const volume=added[0].connections[0].gain.ramps[0][0];assert(volume>=.115*.94&&volume<=.115*1.04);
+  const volume=added[0].connections[0].gain.ramps[0][0];assert(volume>=.115*.94*1.4-1e-9&&volume<=.115*1.04*1.4+1e-9);
  }
  assert(new Set(frequencies).size>1);for(let i=1;i<frequencies.length;i++)assert.notEqual(frequencies[i],frequencies[i-1]);
  assert(Math.max(...frequencies)/Math.min(...frequencies)<1.51);
