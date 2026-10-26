@@ -28,7 +28,7 @@ test('actual nextBoard path refreshes Cosmic tiles and timer even with nearly ex
   const nodes=Object.fromEntries(['board','timer','mode-hud','board-status'].map(k=>[k,node()]));nodes.timer.parentElement=node();
   let s=engine.applyLoadout(engine.createRun(()=>0),'cosmic');for(let i=0;i<10;i++)s=engine.choose(s,[s.current],0);
   if(stale)s={...s,heldBoard:[s.current],bombRefillBoard:[s.current]};
-  const c={...engine,state:s,board:[],remaining:1,boardTime:2800,transition:460,locked:true,boardSerial:4,runMode:'endless',runRng:()=>0,adventureLevel:1,rockLayout:null,rockFills:[],rockFillElapsed:0,burstEffect:null,effectScoreBefore:0,visualStrikes:null,memoryCards:new Map([[0,{}]]),autoPowers:[],rushRemaining:0,
+  const c={...engine,openingCoach:null,state:s,board:[],remaining:1,boardTime:2800,transition:460,locked:true,boardSerial:4,runMode:'endless',runRng:()=>0,adventureLevel:1,rockLayout:null,rockFills:[],rockFillElapsed:0,burstEffect:null,effectScoreBefore:0,visualStrikes:null,memoryCards:new Map([[0,{}]]),autoPowers:[],rushRemaining:0,
    $:id=>nodes[id],document:{createElement:node},prepareAdventureMechanic(){},chargePower(){},update(){},trackAchievements(){},sprite(){},paintMemory(){},tileName:t=>t.shape+' '+t.color,resolve(){},adventureLayout:(level,size)=>({name:'test',columns:3,cells:Array.from({length:size},(_,i)=>i+1)})};
   vm.createContext(c);vm.runInContext(timer+source.slice(start,end)+';nextBoard();',c);
   assert.equal(c.remaining,c.boardTime);assert(c.remaining>1);assert.equal(nodes.timer.style.transform,'scaleX(1)');assert.equal(nodes.timer.parentElement['aria-valuenow'],100);

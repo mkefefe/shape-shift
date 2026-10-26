@@ -1,4 +1,4 @@
-import {fitBoard} from './board-fit.js?v=49496';
+import {fitBoard} from './board-fit.js?v=49499';
 export const SPECIAL_DESTINATIONS=Object.freeze({heart:'health',crystal:'shield',hourglass:'timer',reset:'board'});
 export const effectDuration=reduced=>reduced?400:1050;
 const clamp=x=>Math.max(0,Math.min(1,x));
@@ -75,6 +75,8 @@ export function createSpecialEffect(kind,boardElement,index,destinations,reduced
  const changed=[],boardStyle=boardElement.getAttribute('style');let flyer,trails=[],landing;
  if(kind==='reset'){
  landing=singleCardTarget(boardElement);
+ // Fixed-position cards no longer occupy their old grid cells.
+ boardElement.classList.add('rewind-active');
  // Read every original rectangle before taking any card out of grid flow.
  for(const el of boardElement.children){if(el.classList.contains('collected')||el.classList.contains('board-rock'))continue;const r=el.getBoundingClientRect(),art=el.querySelector('.sprite');changed.push({el,x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height,style:el.getAttribute('style'),art,artStyle:art?.getAttribute('style'),artSize:art?.getBoundingClientRect().width||0});}
  changed.forEach(p=>{const {el,x,y,width,height,art,artSize}=p;el.style.cssText+=';position:fixed;box-sizing:border-box;transition:none;animation:none;margin:0;left:'+(x-width/2)+'px;top:'+(y-height/2)+'px;width:'+width+'px;height:'+height+'px;z-index:7;will-change:transform;';if(art){art.style.setProperty('width',artSize+'px','important');art.style.setProperty('height',artSize+'px','important');}});
@@ -120,7 +122,7 @@ export function createSpecialEffect(kind,boardElement,index,destinations,reduced
  trails.forEach((dot,i)=>{const q=clamp(p-i*.045),v=flightPosition(origin,end,q);dot.style.left=v.x+'px';dot.style.top=v.y+'px';dot.style.opacity=String((1-i/6)*Math.sin(p*Math.PI)*.8);});
  ringAt(end.x,end.y,clamp((t-.62)/.38));
  }
- },clear(){if(kind==='reset'){boardStyle===null?boardElement.removeAttribute('style'):boardElement.setAttribute('style',boardStyle);}destinations.health?.querySelector('.health-shield')?.classList.remove('shield-forming','shield-restored');overlay.remove();changed.forEach(({el,style,art,artStyle})=>{style===null?el.removeAttribute('style'):el.setAttribute('style',style);if(art)artStyle===null?art.removeAttribute('style'):art.setAttribute('style',artStyle);});}};
+ },clear(){if(kind==='reset'){boardStyle===null?boardElement.removeAttribute('style'):boardElement.setAttribute('style',boardStyle);}destinations.health?.querySelector('.health-shield')?.classList.remove('shield-forming','shield-restored');overlay.remove();changed.forEach(({el,style,art,artStyle})=>{style===null?el.removeAttribute('style'):el.setAttribute('style',style);if(art)artStyle===null?art.removeAttribute('style'):art.setAttribute('style',artStyle);});if(kind==='reset'){boardElement.classList.remove('rewind-active');fitBoard(boardElement);}}};
 }
 
 // A full-health refill becomes a local reward burst rather than flying to the HUD.

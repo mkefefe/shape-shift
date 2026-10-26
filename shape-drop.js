@@ -1,4 +1,4 @@
-import {translate} from './localization.js?v=49496';
+import {translate} from './localization.js?v=49499';
 import {createDropMergeAudio} from './drop-merge-audio.js';
 import {dropArtworkGeometry} from './drop-art-geometry.js';
 import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js';

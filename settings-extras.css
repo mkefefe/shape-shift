@@ -76,12 +76,12 @@ body,button,input,select,textarea{font-family:Nunito,system-ui,sans-serif}
 }
 /* Keep the existing painted gold action buttons and icon navigation. */
 #app dialog :is(.primary,.reward-button,.exit-button,.pause-option,.quest-collect,.shop-buy):not(:disabled),
-:is(#shape-drop,#shape-slice,#games-hub) .drop-action,#board-guide .board-guide-continue{color:var(--ui-gold-ink);text-shadow:0 1px #fff4b0;font-weight:1000}
-#board-guide .board-guide-continue{background:var(--ui-selected);border:2px solid var(--ui-gold-edge);box-shadow:0 2px var(--ui-gold-shadow);border-radius:14px}
-#board-guide .board-guide-copy{color:var(--ui-text);background:linear-gradient(var(--ui-panel),var(--ui-card));border-color:var(--ui-border)}
+:is(#shape-drop,#shape-slice,#games-hub) .drop-action,:is(#board-guide,#endless-coach) .board-guide-continue{color:var(--ui-gold-ink);text-shadow:0 1px #fff4b0;font-weight:1000}
+:is(#board-guide,#endless-coach) .board-guide-continue{background:var(--ui-selected);border:2px solid var(--ui-gold-edge);box-shadow:0 2px var(--ui-gold-shadow);border-radius:14px}
+:is(#board-guide .board-guide-copy,#endless-coach.tutorial-panel){color:var(--ui-text);background:linear-gradient(var(--ui-panel),var(--ui-card));border-color:var(--ui-border)}
 /* The painted border supplies its own fill; backing paint leaks through its transparent corners. */
 :is(#shape-drop,#shape-slice,#games-hub) .drop-panel{color:var(--ui-text);background:transparent;border-color:var(--ui-border)}
-#board-guide .board-guide-title{color:var(--ui-ink);font-weight:1000}
+:is(#board-guide,#endless-coach) .board-guide-title{color:var(--ui-ink);font-weight:1000}
 #app dialog :is(.quest-card,.rank-card,.cosmetic-card,.profile-cosmetic,.level-task-card){color:var(--ui-text);border-color:var(--ui-border)}
 #app dialog .quest-state,#app dialog .achievement-collected{color:var(--ui-ink)}
 #app .quest-progress-fill,#app .quest-card.complete .quest-progress-fill,

@@ -1,4 +1,4 @@
-import {translate} from './localization.js?v=49496';
+import {translate} from './localization.js?v=49499';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';

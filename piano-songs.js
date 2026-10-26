@@ -1,4 +1,4 @@
-import {pianoIcon} from './piano-music.js?v=49496';
+import {pianoIcon} from './piano-music.js?v=49499';
 
 // Original scores, written in four-bar questions and answers. Only the starting
 // song is random: the melody, harmony, and rhythm always belong together.

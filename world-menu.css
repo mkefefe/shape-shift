@@ -840,7 +840,7 @@ body #age-dialog #age-continue{
 }
 #app #over-dialog #continue-ad strong{font-size:25px;line-height:1.15}
 #app #over-dialog #continue-ad span{font-size:14px;line-height:1.2}
-#board-guide .board-guide-continue{width:min(100%,260px);min-height:60px;padding:12px 20px;font-size:22px;touch-action:manipulation}
+:is(#board-guide,#endless-coach) .board-guide-continue{width:min(100%,260px);min-height:60px;padding:12px 20px;font-size:22px;touch-action:manipulation}
 /* Content-sized run results remove the empty portrait panel above/below Continue.
    Top/bottom artwork slices preserve the painted frame rather than stretching it. */
 #app #over-dialog:not(.adventure-results):not(.continue-offer){
@@ -870,3 +870,6 @@ body #age-dialog #age-continue{
 .board-rock.cracked .stone-art{filter:grayscale(1) brightness(.65) contrast(1.4)}
 #level-design{font-size:clamp(11px,3vw,14px);line-height:1.3;margin:4px 0;color:#23495d}
 
+
+/* Moving Rewind cards must not leave a second grid of stationary cutouts. */
+#game>#board.rewind-active::before{-webkit-mask-image:none;mask-image:none}

@@ -1,0 +1,17 @@
+/* Keep the same current shape and choice locations used during the run. */
+#guided-match{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;margin:0 0 10px;color:#07516b;position:relative;z-index:4}
+#guided-match strong{font-size:clamp(18px,5vw,23px);line-height:1.2;max-width:95%}
+#guided-match span{font-size:13px;font-weight:700}
+#guided-match button{font:800 12px Nunito,sans-serif;background:transparent;border:0;color:#376779;padding:7px 12px;min-height:32px}
+#game.guided-match-active .timer-track,#game.guided-match-active .abilities,#game.guided-match-active .boosts,#game.guided-match-active #pause{visibility:hidden!important;pointer-events:none}
+#game.guided-match-active .board-heading{display:none}
+#game.guided-match-active .choice{position:relative;overflow:visible!important}
+#game.guided-match-active .guided-target{outline:4px solid #ffcc36;outline-offset:3px;box-shadow:0 0 20px #ffe559b3}
+.guided-match-hand{position:absolute;width:65px;height:auto;left:12%;top:72%;z-index:8;pointer-events:none;transform:rotate(-90deg);filter:drop-shadow(0 3px 2px #00354d55);animation:guided-point 1s ease-in-out infinite}
+#game.guided-match-active .guided-success{filter:brightness(1.15);box-shadow:0 0 26px #ffe76b}
+@keyframes guided-point{50%{transform:translate(5px,-5px) rotate(-90deg)}}
+@media(prefers-reduced-motion:reduce){.guided-match-hand{animation:none}}
+
+#guided-match{color:#fff3b3;text-shadow:0 2px 3px #001b39;margin-top:8px}#guided-match span{color:#dcf4ff}#guided-match button{color:#d4e7f2;text-decoration:underline}
+#game.guided-match-active #board{width:calc(100% - 24px)!important;max-width:460px!important;gap:18px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#game.guided-match-active #board .choice{width:100%!important;height:100%!important;min-width:0!important;max-width:none!important}

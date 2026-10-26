@@ -1,4 +1,4 @@
-import {STARTUP_ASSETS} from './startup-assets.js?v=49496';
+import {STARTUP_ASSETS} from './startup-assets.js?v=49499';
 // Prioritize the opening screen, then finish the entire verified media inventory.
 export const CORE_STARTUP_ASSETS=[
  'assets/Nunito.ttf','assets/shapes-v2.webp','assets/logo-v2-cut.webp',

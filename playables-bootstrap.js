@@ -1,6 +1,6 @@
-import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=49496';
-import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=49496';
-import {observeDeferredImages} from './deferred-images.js?v=49496';
+import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=49499';
+import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=49499';
+import {observeDeferredImages} from './deferred-images.js?v=49499';
 
 const sdk = window.ytgame;
 const live = Boolean(sdk?.IN_PLAYABLES_ENV);
@@ -108,8 +108,8 @@ async function start() {
     await store.initialize();
     observeDeferredImages();
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
-    await loadScript('audio.js?v=49496');
-    await import('./game.js?v=49496');
+    await loadScript('audio.js?v=49499');
+    await import('./game.js?v=49499');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

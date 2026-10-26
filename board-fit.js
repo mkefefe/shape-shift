@@ -3,7 +3,7 @@ export function squareTrack(width,height,columns,rows,gap=6){
  return Math.max(1,Math.floor(Math.min(210,(width-gap*(columns-1))/columns,(height-gap*(rows-1))/rows)));
 }
 export function fitBoard(board){
-  if(!board.clientWidth||!board.clientHeight)return;
+  if(board.classList.contains('rewind-active')||!board.clientWidth||!board.clientHeight)return;
   const style=getComputedStyle(board),columns=Number(board.dataset.columns)||1;
   const rows=Math.max(Math.ceil(Number(board.dataset.count||1)/columns),...Array.from(board.children).filter(e=>e.style.display!=='none').map(e=>Number(e.style.gridRow)||1));
   const width=board.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);

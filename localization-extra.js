@@ -100,4 +100,33 @@ Tap Shield Crystal to block one mistake without losing a heart.|Toque em Cristal
 5x Multiplier|Multiplicador 5x|Multiplicador 5x|Multiplicateur ×5|5-facher Multiplikator|Moltiplicatore 5x
 Bomb|Bomba|Bomba|Bombe|Bombe|Bomba
 
+Tap the same shape.|Toque na mesma forma.|Toca la misma forma.|Touchez la même forme.|Tippe auf die gleiche Form.|Tocca la stessa forma.
+Same shape — that works!|Mesma forma — acertou!|¡Misma forma, correcto!|Même forme : bravo !|Gleiche Form – richtig!|Stessa forma: giusto!
+Now tap the same color.|Agora toque na mesma cor.|Ahora toca el mismo color.|Touchez maintenant la même couleur.|Tippe jetzt auf die gleiche Farbe.|Ora tocca lo stesso colore.
+Same color works too!|A mesma cor também vale!|¡El mismo color también vale!|La même couleur fonctionne aussi !|Die gleiche Farbe passt auch!|Anche lo stesso colore va bene!
+Your turn: match shape OR color.|Sua vez: combine forma OU cor.|Tu turno: combina forma O color.|À vous : même forme OU couleur.|Du bist dran: gleiche Form ODER Farbe.|Tocca a te: stessa forma O colore.
+You’re ready. Keep matching!|Pronto! Continue combinando!|¡Listo! ¡Sigue combinando!|C’est parti ! Continuez !|Bereit! Kombiniere weiter!|Ci sei! Continua ad abbinare!
+No rush. No lives lost.|Sem pressa. Sem perder vidas.|Sin prisa. No pierdes vidas.|Prenez votre temps. Aucune vie perdue.|Keine Eile. Kein Lebensverlust.|Nessuna fretta. Nessuna vita persa.
+Skip practice|Pular treino|Saltar práctica|Passer l’entraînement|Übung überspringen|Salta l’allenamento
+Try the glowing shape.|Tente a forma brilhante.|Prueba la figura brillante.|Essayez la forme lumineuse.|Probiere die leuchtende Form.|Prova la forma luminosa.
+Match this|Combine com esta|Combina con esta|À associer|Finde eine passende Form|Abbina questa
+Matching shape|Forma que combina|Figura que coincide|Forme correspondante|Passende Form|Forma corrispondente
+Other shape|Outra forma|Otra figura|Autre forme|Andere Form|Altra forma
+
+Tap a matching shape.|Toque em uma forma que combine.|Toca una figura que coincida.|Touchez une forme qui correspond.|Tippe auf eine passende Form.|Tocca una forma corrispondente.
+This time, match the color.|Agora, combine a cor.|Esta vez, combina el color.|Cette fois, associez la couleur.|Wähle diesmal die gleiche Farbe.|Questa volta, abbina il colore.
+Match the shape OR color.|Combine a forma OU a cor.|Combina la forma O el color.|Associez la forme OU la couleur.|Wähle die gleiche Form ODER Farbe.|Abbina la forma O il colore.
+Not a match. Try this one.|Não combina. Tente esta.|No coincide. Prueba esta.|Cela ne correspond pas. Essayez celle-ci.|Das passt nicht. Probiere diese Form.|Non corrisponde. Prova questa.
+Nice match!|Boa combinação!|¡Bien combinado!|Bien joué !|Gut kombiniert!|Ottimo abbinamento!
+Look at your shape above.|Olhe sua forma acima.|Mira tu figura de arriba.|Regardez votre forme au-dessus.|Sieh dir deine Form oben an.|Guarda la tua forma in alto.
+Choose the same shape OR color.|Escolha a mesma forma OU cor.|Elige la misma forma O el mismo color.|Choisissez la même forme OU couleur.|Wähle die gleiche Form ODER Farbe.|Scegli la stessa forma O lo stesso colore.
+No timer for your first seven matches.|Sem limite de tempo nos primeiros sete acertos.|Sin límite de tiempo en tus primeros siete aciertos.|Pas de limite de temps pour vos sept premiers choix corrects.|Kein Zeitlimit für deine ersten sieben Treffer.|Nessun limite di tempo per i primi sette abbinamenti.
+Let’s try|Vamos tentar|Vamos a probar|Essayons|Los geht’s|Proviamo
+Nothing matches this time.|Nada combina desta vez.|Esta vez nada coincide.|Rien ne correspond cette fois.|Diesmal passt nichts.|Questa volta nulla corrisponde.
+Your shape has changed. Look again.|Sua forma mudou. Olhe de novo.|Tu figura ha cambiado. Mira de nuevo.|Votre forme a changé. Regardez à nouveau.|Deine Form hat sich geändert. Schau noch einmal.|La tua forma è cambiata. Guarda di nuovo.
+If neither shape nor color matches, wait.|Se nem a forma nem a cor combinarem, espere.|Si no coincide ni la figura ni el color, espera.|Si ni la forme ni la couleur ne correspondent, attendez.|Wenn weder Form noch Farbe passen, warte.|Se non corrispondono né forma né colore, aspetta.
+Do not tap. Let the timer run out.|Não toque. Deixe o tempo acabar.|No toques. Deja que se agote el tiempo.|Ne touchez pas. Laissez le temps passer.|Tippe nicht. Lass die Zeit ablaufen.|Non toccare. Lascia scadere il tempo.
+Tap to collect.|Toque para coletar.|Toca para recoger.|Touchez pour récupérer.|Tippe zum Einsammeln.|Tocca per raccogliere.
+Your turn. Match the shape OR color.|Sua vez. Combine a forma OU a cor.|Tu turno. Combina la figura O el color.|À vous. Associez la forme OU la couleur.|Du bist dran. Wähle die gleiche Form ODER Farbe.|Tocca a te. Abbina la forma O il colore.
+Neither matches. Wait for the timer.|Nenhuma combina. Espere o tempo acabar.|Ninguna coincide. Espera a que se agote el tiempo.|Aucune ne correspond. Attendez la fin du temps.|Keine passt. Warte, bis die Zeit abläuft.|Nessuna corrisponde. Aspetta che scada il tempo.
 `.trim().split('\n').map(line=>line.split('|').map(cell=>cell.replaceAll('{PIPE}','|')));

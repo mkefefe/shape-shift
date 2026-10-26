@@ -1,0 +1,25 @@
+#endless-coach{color:#fff3b3;text-shadow:0 2px 3px #001b39;font:900 clamp(16px,4.5vw,21px)/1.25 Nunito,sans-serif;text-align:center;margin:0;position:fixed;left:var(--coach-left,50%);top:var(--coach-top,180px);width:var(--coach-width,calc(100vw - 32px));transform:translateX(-50%);z-index:20;pointer-events:none}
+#game.endless-coaching .board-heading{display:none}
+#game.endless-coaching .abilities{visibility:hidden;pointer-events:none}
+#game.endless-coaching .timer-track{opacity:1}
+#game.endless-coaching .coach-target{outline:3px solid #ffcf38;outline-offset:2px;overflow:visible!important}
+.coach-pointer{position:absolute;width:58px;height:auto;left:65%;top:65%;transform:rotate(0deg);z-index:9;pointer-events:none;filter:drop-shadow(0 2px 3px #001b39)}
+
+#endless-coach p{font-size:16px;margin:8px 0}#endless-coach small{display:block;color:#d9efff;font-size:13px;font-weight:700}
+#game.coach-introduction #board{pointer-events:none}#game.coach-introduction #current-sprite{position:relative;overflow:hidden!important;outline-offset:5px;border-radius:12px}#game.coach-introduction .coach-look-pointer{width:52px;left:65%;top:65%}
+
+
+#game.coach-introduction .current{position:relative;overflow:visible}#game.coach-introduction .current .coach-look-pointer{width:52px;transform:rotate(0deg)}
+
+/* Small pointing strokes preserve the fingertip's target and orientation. */
+#game .coach-pointer{--hand-angle:0deg;--hand-retreat-x:-3px;--hand-retreat-y:-5px;animation:coach-point 1.25s ease-in-out infinite;will-change:transform}
+#game.coach-introduction .current .coach-look-pointer{--hand-angle:0deg;--hand-retreat-x:-3px;--hand-retreat-y:-5px}
+@keyframes coach-point{0%,100%{transform:translate(var(--hand-retreat-x),var(--hand-retreat-y)) rotate(var(--hand-angle))}50%{transform:translate(0,0) rotate(var(--hand-angle))}}
+@media(prefers-reduced-motion:reduce){#game .coach-pointer{animation:none;will-change:auto}}
+
+
+#game.coach-wait-lesson #board{visibility:visible;pointer-events:auto}
+#game.endless-coaching .timer-track{position:relative}
+#game.coach-wait-lesson .timer-track .coach-pointer{top:auto!important;bottom:14px;left:30%!important}
+
+#endless-coach.tutorial-panel{position:fixed;margin:0;left:var(--coach-left,50%);top:var(--coach-top,180px);transform:translateX(-50%);max-height:calc(100dvh - var(--coach-top,180px) - 12px);overflow-y:auto;pointer-events:auto}
