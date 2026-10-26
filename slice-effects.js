@@ -1,3 +1,4 @@
+import {shapeMask} from './slice-fragments.js?v=49439-web12';
 // Bounded, local VFX only: particles never change hits, rewards or gameplay.
 export function createSliceBurst(piece,from,to,color,quiet=false,rng=Math.random){
  const angle=Math.atan2(to.y-from.y,to.x-from.x),sparks=[];
@@ -7,9 +8,77 @@ export function createSliceBurst(piece,from,to,color,quiet=false,rng=Math.random
  }
  const dx=to.x-from.x,dy=to.y-from.y,lengthSquared=dx*dx+dy*dy;
  const crossing=lengthSquared?Math.max(0,Math.min(1,((piece.x-from.x)*dx+(piece.y-from.y)*dy)/lengthSquared)):0;
- return {sparks,flash:{x:lengthSquared?from.x+dx*crossing:piece.x,y:lengthSquared?from.y+dy*crossing:piece.y,r:piece.r,angle,color,age:0,life:quiet?.16:.34,quiet}};
+ return {sparks,flash:{x:lengthSquared?from.x+dx*crossing:piece.x,y:lengthSquared?from.y+dy*crossing:piece.y,r:piece.r,angle,color,age:0,life:quiet?.16:.34,quiet,splash:createSliceSplash(piece,from,to,quiet,rng)}};
 }
 const clamp01=n=>Math.max(0,Math.min(1,n));
+
+// Intersect the same rotated mask used by the two visual halves. Separate
+// intervals keep a star's concave gaps dry, and recuts use their remaining mask.
+export function sliceSplashSeam(piece,from,to){
+ const angle=Math.atan2(to.y-from.y,to.x-from.x),c=Math.cos(angle),s=Math.sin(angle),dx=piece.x-from.x,dy=piece.y-from.y;
+ const along=dx*c+dy*s,x=from.x+along*c,y=from.y+along*s,rotation=(piece.angle||0)-angle,rc=Math.cos(rotation),rs=Math.sin(rotation);
+ const centerX=(piece.x-x)*c+(piece.y-y)*s,centerY=-(piece.x-x)*s+(piece.y-y)*c;
+ const mask=(piece.mask||shapeMask(piece.shape??0,piece.r)).map(p=>({x:centerX+p.x*rc-p.y*rs,y:centerY+p.x*rs+p.y*rc}));
+ const crossings=[];
+ for(let i=0;i<mask.length;i++){
+  const a=mask[i],b=mask[(i+1)%mask.length];
+  if((a.y>0)!==(b.y>0))crossings.push(a.x+(b.x-a.x)*(-a.y)/(b.y-a.y));
+ }
+ crossings.sort((a,b)=>a-b);const spans=[];
+ for(let i=0;i+1<crossings.length;i+=2)if(crossings[i+1]-crossings[i]>.05)spans.push([crossings[i],crossings[i+1]]);
+ return {x,y,angle,spans};
+}
+export function createSliceSplash(piece,from,to,quiet=false,rng=Math.random){
+ const seam=sliceSplashSeam(piece,from,to),r=piece.r,total=seam.spans.reduce((sum,[a,b])=>sum+b-a,0),drops=[];
+ const pick=u=>{let d=u*total;for(const [a,b] of seam.spans){if(d<=b-a)return a+d;d-=b-a;}return seam.spans.at(-1)?.[1]||0;};
+ if(total>.05)for(let i=0;i<(quiet?4:10);i++){
+  const side=i%2?1:-1;
+  drops.push({x:pick((i+.3+rng()*.4)/(quiet?4:10)),y:side*r*.025,
+   vx:quiet?0:(rng()-.5)*r*2.2,vy:quiet?0:side*r*(2.4+rng()*2.1),
+   size:r*(.075+rng()*.065),life:quiet?.2:.36+rng()*.16,side});
+ }
+ return {...seam,r,quiet,life:quiet?.2:.52,vx:quiet?0:(piece.vx||0),vy:quiet?0:(piece.depth?(piece.vy||0):(piece.vy||0)*.2)-35,drops};
+}
+// Pure local poses allow bounds/size checks without allocating canvas textures.
+export function sliceDropletPose(splash,drop,age){
+ const t=clamp01(age/drop.life),travel=splash.quiet?0:(1-Math.exp(-age*2.5))/2.5;
+ return {x:drop.x+drop.vx*travel,y:drop.y+drop.vy*travel,
+  radius:drop.size*(1-t*.55),tail:splash.quiet?0:splash.r*.28*Math.sin(Math.PI*t),
+  opacity:(1-t)**.8,angle:Math.atan2(drop.vy,drop.vx)};
+}
+function drawSliceSplash(ctx,f){
+ const p=f.splash,age=f.age;if(!p||age>=p.life||!p.spans.length)return;
+ ctx.save();ctx.translate(p.x+p.vx*age,p.y+p.vy*age+(p.quiet?0:age*age*85));ctx.rotate(p.angle);
+ ctx.fillStyle=f.color;ctx.strokeStyle=f.color;ctx.lineCap='round';
+ if(p.quiet){
+  ctx.globalAlpha=(1-age/p.life)*.7;ctx.lineWidth=Math.max(2,p.r*.12);
+  for(const [a,b] of p.spans){ctx.beginPath();ctx.moveTo(a,0);ctx.lineTo(b,0);ctx.stroke();}
+ }else if(age<.25){
+  const t=age/.25,opening=Math.sin(Math.PI*Math.min(1,t*1.2)/2),fade=(1-t)**.55;
+  // Two soft irregular sheets peel off the real seam toward the separating halves.
+  for(const [a,b] of p.spans)for(const side of [-1,1]){
+   const width=b-a,inner=side*p.r*(.018+t*.12),outer=side*p.r*(.08+opening*.5);
+   ctx.globalAlpha=fade*.68;ctx.beginPath();ctx.moveTo(a,inner);
+   ctx.bezierCurveTo(a+width*.3,inner*.6,a+width*.7,inner*.7,b,inner);
+   ctx.quadraticCurveTo(b+width*.045,outer*.4,b-width*.09,outer*.7);
+   ctx.quadraticCurveTo(b-width*.19,outer*1.25,b-width*.31,outer*.7);
+   ctx.quadraticCurveTo(a+width*.5,outer*.55,a+width*.43,outer*1.13);
+   ctx.quadraticCurveTo(a+width*.36,outer*1.36,a+width*.24,outer*.75);
+   ctx.quadraticCurveTo(a-width*.03,outer*.95,a,inner);ctx.closePath();ctx.fill();
+   ctx.globalAlpha=fade*.58;ctx.strokeStyle='#ffffff';ctx.lineWidth=Math.max(.7,p.r*.025);
+   ctx.beginPath();ctx.moveTo(a+width*.13,outer*.55);ctx.quadraticCurveTo(a+width*.28,outer*.63,a+width*.32,outer*.84);ctx.stroke();
+  }
+ }
+ for(const d of p.drops){
+  if(age>=d.life)continue;const pose=sliceDropletPose(p,d,age),r=pose.radius;
+  ctx.save();ctx.translate(pose.x,pose.y);ctx.rotate(pose.angle);ctx.globalAlpha=pose.opacity*.9;
+  ctx.fillStyle=f.color;ctx.beginPath();ctx.moveTo(-r-pose.tail,0);
+  ctx.bezierCurveTo(-r,-r*.75,r*.8,-r*1.25,r,0);ctx.bezierCurveTo(r*.8,r*1.25,-r,r*.75,-r-pose.tail,0);ctx.closePath();ctx.fill();
+  ctx.globalAlpha=pose.opacity*.7;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.ellipse(r*.13,-r*.27,r*.35,r*.16,-.25,0,Math.PI*2);ctx.fill();ctx.restore();
+ }
+ ctx.restore();
+}
+
 // The slash grows in the swipe direction, then its tail catches up. Its entire
 // footprint stays beside the cut; it does not move the camera or add an overlay.
 export function sliceSlashPose(f){
@@ -37,7 +106,7 @@ export function stepSliceEffects(effects,dt){
  for(const p of effects.sparks){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.exp(-dt*1.1);p.vy+=180*dt;p.angle+=(p.spin||0)*dt;}
  for(const f of effects.flashes)f.age+=dt;
  effects.sparks=effects.sparks.filter(p=>p.age<p.life).slice(-96);
- effects.flashes=effects.flashes.filter(f=>f.age<f.life).slice(-24);
+ effects.flashes=effects.flashes.filter(f=>f.age<Math.max(f.life,f.splash?.life||0)).slice(-24);
  return effects;
 }
 function shard(ctx,r,kind=0){
@@ -48,6 +117,7 @@ function shard(ctx,r,kind=0){
 }
 export function drawSliceEffects(ctx,effects){
  ctx.save();ctx.lineCap='round';
+ for(let i=Math.max(0,effects.flashes.length-12);i<effects.flashes.length;i++)drawSliceSplash(ctx,effects.flashes[i]);
  for(let i=Math.max(0,effects.flashes.length-24);i<effects.flashes.length;i++)drawCutAccent(ctx,effects.flashes[i]);
  for(const p of effects.sparks){
   const t=p.age/p.life,fade=Math.min(1,(1-t)*2.5);ctx.save();ctx.globalAlpha=fade;ctx.translate(p.x,p.y);ctx.rotate(p.angle);

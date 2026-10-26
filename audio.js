@@ -51,6 +51,18 @@
     osc.onended = () => { osc.disconnect(); envelope.disconnect(); };
   }
 
+  // Shared original-game voices. Defaults preserve the surface tap and match cues.
+  function tapPluck(time,from=560,to=680,length=.065,volume=.075){
+    tone(from,time,length,volume,'sine',effectsBus,to);
+  }
+  function matchChime(time,freq=1046,gain=1,rise=1.12,companion=1.5){
+    tone(freq,time,.13,.12*gain,'sine',effectsBus,freq*rise);
+    tone(freq*companion,time+.025,.10,.035*gain,'sine',effectsBus);
+  }
+  function notePhrase(list,time,spacing,length,volume){
+    list.forEach((n,i)=>tone(midi(n),time+i*spacing,length,volume,'sine',effectsBus));
+  }
+
   let noiseBuffer;
   function noise(time, length, volume, cutoff, bus = musicBus) {
     if(bus===effectsBus)volume*=effectGain;
@@ -332,10 +344,32 @@
     musicDuck.gain.linearRampToValueAtTime(1,end);
     duckEnvelope={start:now,from:current,down,hold,end};
   }
+  // Pocket Gravity: 100 BPM, two bars each of C, Am, G, F. Follow the
+  // recording's real offset (including resumes), not time since the last input.
+  const dropChords=[[72,76,79],[72,76,81],[71,74,79],[72,77,81]],dropVoicings=new Map();
+  function dropCue(name,time,variant){
+    const voice=musicVoice?.name==='drop'?musicVoice:null;
+    const position=voice?(voice.offset+Math.max(0,time-voice.startedAt))%voice.source.buffer.duration:musicPositions.drop;
+    const chord=dropChords[Math.floor(position/4.8)%dropChords.length];
+    let pick=variant%3;if(pick===dropVoicings.get(name))pick=(pick+1+variant%2)%3;dropVoicings.set(name,pick);
+    const freq=midi(chord[pick]),next=midi(chord[(pick+1)%3]+(pick===2?12:0));
+    // Small changes in touch and voicing, with exact chord pitches and no detuning.
+    effectPitch=1;effectGain=.94+variant*.0125;
+    switch(name){
+      case 'drop-release': tapPluck(time,freq,freq,.105,.115);break;
+      case 'drop-land': tapPluck(time,freq/2,freq/2,.11,.14);break;
+      case 'drop-touch': tapPluck(time,freq,freq,.085,.08);break;
+      case 'drop-block': tapPluck(time,freq/2,freq/2,.13,.115);tapPluck(time+.04,freq,freq,.075,.028);break;
+      case 'drop-merge-start': matchChime(time,freq,.9,1,next/freq);break;
+      case 'drop-merge-burst': case 'drop-pop': case 'drop-chain':
+        // The same rounded ascending chord as the original bonus, kept compact.
+        notePhrase(chord,time,.045,.18,.115);break;
+    }
+  }
   const lastMiniCue=new Map();
   function play(name) {
     if (!context || !sfx || sfxVolume<=0 || context.state !== 'running') return;
-    if(/^drop-(land|touch|merge-start|merge-burst)$/.test(name)&&(!active||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed))return;
+    if(/^drop-/.test(name)&&(!active||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed))return;
     if(/^(drop-|slice-)/.test(name)){const last=lastMiniCue.get(name)??-100;if(context.currentTime-last<(name==='slice-fall'?.22:.065))return;lastMiniCue.set(name,context.currentTime);}
     // Correct picks vary slightly upward only; other cues retain subtle variation.
     let variant=Math.floor(Math.random()*9);if(variant===previousPitch.get(name))variant=(variant+1+Math.floor(Math.random()*8))%9;previousPitch.set(name,variant);effectPitch=2**(((name==='correct'||name==='match'||/^(special-|rewind-|heart-fill|shield-arrive|skill-points|shield$)/.test(name))?variant*.06:(variant-4)*.2)/12);
@@ -344,9 +378,9 @@
     const now = context.currentTime;
     const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
     // Routine contacts and slicing leave the backing music steady.
-    const steadyDrop=/^drop-(land|touch|merge-start|merge-burst)$/.test(name);
+    const steadyDrop=/^drop-/.test(name);
     if(scene!=='menu'&&!steadyDrop&&!/^slice-(launch|fall|swish|cut|chip)$/.test(name)&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
-    const notes = (list, spacing, length, volume = 0.2) => list.forEach((n, i) => tone(midi(n), now + i * spacing, length, volume, 'sine', effectsBus));
+    const notes = (list, spacing, length, volume = 0.2) => notePhrase(list,now,spacing,length,volume);
     switch (name) {
       case 'victory-transform': victoryCue('transform',now);break;
       case 'victory-gather': victoryCue('gather',now);break;
@@ -359,18 +393,9 @@
       case 'jumper-morph': notes([76,83],.045,.16,.07);softSweep(now,.14,500,1400,.035);break;
       case 'jumper-coin': notes([88,95],.045,.15,.065);break;
       case 'jumper-fall': tone(360,now,.3,.11,'sine',effectsBus,100);softSweep(now,.25,900,170,.05);break;
-      case 'drop-block': tone(150,now,.18,.15,'triangle',effectsBus,65);noise(now,.07,.06,600,effectsBus);break;
-      case 'drop-release': tone(500,now,.13,.13,'sine',effectsBus,210);softSweep(now,.10,900,350,.045);break;
-      // Rounded contact transients: the short falling body gives weight without a beep.
-      case 'drop-land': tone(205,now,.095,.18,'sine',effectsBus,105);softSweep(now,.075,950,350,.15);break;
-      case 'drop-touch': tone(325,now,.065,.10,'sine',effectsBus,185);softSweep(now,.055,1450,650,.09);break;
-      // Joining is a soft upward lift. The separate burst lands with the particle release.
-      case 'drop-merge-start': softSweep(now,.19,450,1400,.17);tone(260,now,.095,.105,'sine',effectsBus,390);break;
-      case 'drop-merge-burst':
-        tone(640,now,.09,.18,'sine',effectsBus,325);softSweep(now,.14,2600,950,.25);
-        tone(1319,now+.022,.065,.048,'sine',effectsBus);tone(1760,now+.048,.045,.026,'sine',effectsBus);break;
-      case 'drop-pop': tone(360,now,.09,.17,'sine',effectsBus,950);tone(1397,now+.035,.18,.065,'sine',effectsBus);break;
-      case 'drop-chain': notes([79,86,91],.045,.17,.09);break;
+      case 'drop-release': case 'drop-land': case 'drop-touch': case 'drop-block':
+      case 'drop-merge-start': case 'drop-merge-burst': case 'drop-pop': case 'drop-chain':
+        dropCue(name,now,variant);break;
       case 'slice-launch': softSweep(now,.19,340,1100,.105);break;
       case 'slice-fall': softSweep(now,.17,850,300,.06);break;
       case 'slice-swish': softSweep(now,.14,1350,650,.15);break;
@@ -378,7 +403,7 @@
       case 'slice-chip': softSweep(now,.085,1550,750,.12);tone(680,now,.045,.055,'sine',effectsBus,340);break;
       case 'slice-bomb': sliceBomb(now);break;
       case 'slice-miss': tone(440,now,.16,.10,'sine',effectsBus,220);tone(196,now+.09,.15,.055,'triangle',effectsBus);break;
-      case 'correct': case 'match': {const f=1046;tone(f,now,.13,.12,'sine',effectsBus,f*1.12);tone(f*1.5,now+.025,.10,.035,'sine',effectsBus);break;}
+      case 'correct': case 'match': matchChime(now);break;
       case 'wrong': case 'error': tone(220, now, 0.18, 0.3, 'sawtooth', effectsBus, 85); tone(165, now + 0.11, 0.22, 0.24, 'square', effectsBus, 55); noise(now, 0.1, 0.13, 550, effectsBus); break;
       case 'rock-crack':
         // Short dry stone snap with small bright chips.
@@ -469,7 +494,7 @@
       case 'over': case 'gameover': notes([77, 74, 69, 62], 0.14, 0.4, 0.16); break;
       case 'start': notes([62, 69, 74], 0.075, 0.22); break;
       case 'map-locked': tone(740,now,.09,.10,'sine',effectsBus);tone(554,now+.095,.15,.08,'triangle',effectsBus);break;
-      case 'surface-tap': tone(560,now,.065,.075,'sine',effectsBus,680);break;
+      case 'surface-tap': tapPluck(now);break;
       case 'leave-result': tone(660,now,.10,.09,'triangle',effectsBus,440);tone(330,now+.065,.14,.045,'sine',effectsBus);break;
       case 'click': tone(720,now,.065,.13,'sine',effectsBus,1040);tone(1440,now+.012,.045,.025,'sine',effectsBus);break;
       case 'avatar': tone(380,now,.12,.13,'sine',effectsBus,900);tone(1100,now+.055,.08,.07,'sine',effectsBus);break;

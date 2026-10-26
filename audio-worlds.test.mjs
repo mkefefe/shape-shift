@@ -18,7 +18,7 @@ function harness(options={}){
  const node=()=>({connections:[],disconnects:0,connect(target){this.connections.push(target);return target;},disconnect(){this.disconnects++;},gain:parameter(),frequency:parameter(),Q:parameter(),playbackRate:parameter(),threshold:parameter(),ratio:parameter(),knee:parameter(),attack:parameter(),release:parameter()});
  class AudioContext{
   constructor(){state.contexts++;state.context=this;this.state='suspended';this.sampleRate=44100;this.currentTime=0;this.destination={};}
-  createOscillator(){const n=node();n.start=()=>{};n.stop=()=>{};state.oscillators.push(n);return n;}
+  createOscillator(){const n=node();n.stops=[];n.start=time=>{n.started=time;};n.stop=time=>n.stops.push(time);state.oscillators.push(n);return n;}
   createGain(){const n=node();state.gains.push(n);return n;}
   createBiquadFilter(){return node();}
   createDynamicsCompressor(){return node();}
@@ -32,7 +32,8 @@ function harness(options={}){
  let serial=0;const window={AudioContext,setTimeout(fn){state.delays.push(fn);return ++serial;},setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
  window.ShapeShiftPlatform={audioAllowed:true,paused:false,setInterval:window.setInterval,clearInterval:window.clearInterval};state.platform=window.ShapeShiftPlatform;
  const fetch=async url=>{state.fetches.push(url);const r=options.fetch?await options.fetch(url):response();return {...r,arrayBuffer:async()=>{const data=await r.arrayBuffer();data.url=url;return data;}};};
- vm.runInNewContext(source,{window,fetch,document:state.document});
+ const math=Object.create(Math);math.random=options.random||Math.random;
+ vm.runInNewContext(source,{window,fetch,document:state.document,Math:math});
  return {audio:window.gameAudio,state,tracks:()=>state.sources.filter(n=>n.loop&&n.startArgs)};
 }
 
@@ -258,24 +259,66 @@ test('Slice cut and chip cues finish promptly without repeated music dips',async
 });
 
 
-test('Drop contact and merge cues are centered, bounded, rate-limited and do not duck music',async()=>{
+const dropCues=['drop-release','drop-land','drop-touch','drop-block','drop-merge-start','drop-merge-burst','drop-pop','drop-chain'];
+test('Drop cues use centered short musical voices, stay rate-limited, and do not duck music',async()=>{
  const {audio,state}=harness();audio.setScene('drop');await audio.start();await flush();
- const cues=['drop-land','drop-touch','drop-merge-start','drop-merge-burst'],duck=state.gains[3],before=duck.gain.ramps.length;
- for(const cue of cues){
-  state.context.currentTime+=1;const start=state.sources.length,tones=state.oscillators.length;
-  audio.play(cue);assert(state.sources.length>start);assert(state.oscillators.length>tones);
-  const count=state.sources.length+state.oscillators.length;audio.play(cue);
-  assert.equal(state.sources.length+state.oscillators.length,count,'simultaneous contacts must not pile up identical cues');
-  for(const source of state.sources.slice(start)){assert(source.stops[0]-state.context.currentTime<=.2);assert.equal(source.loop,undefined);}
+ const duck=state.gains[3],before=duck.gain.ramps.length;
+ for(const cue of dropCues){
+  state.context.currentTime+=1;const sources=state.sources.length,tones=state.oscillators.length;
+  audio.play(cue);const added=state.oscillators.slice(tones);
+  assert(added.length>0&&added.length<=3);assert.equal(state.sources.length,sources,'Drop must not reintroduce noise sweeps');
+  const count=state.oscillators.length;audio.play(cue);
+  assert.equal(state.oscillators.length,count,'simultaneous contacts must not pile up identical cues');
+  for(const voice of added){assert.equal(voice.type,'sine');assert(voice.stops[0]-state.context.currentTime<.3);assert.equal(voice.connections[0].connections[0],state.gains[2]);}
  }
  assert.equal(state.gains[2].channelCount,1);assert.equal(duck.gain.ramps.length,before);
 });
 
-test('new Drop cues respect effects mute, zero volume, platform pause and host audio restriction',async()=>{
- for(const block of [a=>a.audio.setSfx(false),a=>a.audio.setSfxVolume(0),a=>a.state.platform.paused=true,a=>a.state.platform.audioAllowed=false]){
+test('all Drop cues respect effects mute, zero volume, pause and host audio restriction',async()=>{
+ for(const block of [a=>a.audio.setSfx(false),a=>a.audio.setSfxVolume(0),a=>a.audio.pause(),a=>a.state.platform.paused=true,a=>a.state.platform.audioAllowed=false]){
   const h=harness();h.audio.setScene('drop');await h.audio.start();await flush();block(h);
   const count=h.state.sources.length+h.state.oscillators.length;
-  for(const cue of ['drop-land','drop-touch','drop-merge-start','drop-merge-burst'])h.audio.play(cue);
+  for(const cue of dropCues)h.audio.play(cue);
   assert.equal(h.state.sources.length+h.state.oscillators.length,count);
  }
+});
+
+const pitchOf=voice=>69+12*Math.log2(voice.frequency.values[0][0]/440);
+function assertChord(voices,classes){
+ assert(voices.length>0);
+ for(const voice of voices){const pitch=pitchOf(voice);assert(Math.abs(pitch-Math.round(pitch))<.00001,'Drop uses exact musical pitches without random detuning');assert(classes.includes(Math.round(pitch)%12),`pitch ${pitch} must follow current backing chord`);}
+}
+test('Drop tones follow the actual backing chords, loop position, and resumed playback offset',async()=>{
+ const {audio,state}=harness({random:()=>.5});audio.setScene('drop');await audio.start();await flush();
+ for(const [time,chord] of [[.2,[0,4,7]],[4.7,[0,4,7]],[4.8,[0,4,9]],[9.5,[0,4,9]],[9.6,[2,7,11]],[14.3,[2,7,11]],[14.4,[0,5,9]],[19.1,[0,5,9]],[19.2,[0,4,7]],[96.2,[0,4,7]]]){
+  state.context.currentTime=time;
+  for(const cue of dropCues){const start=state.oscillators.length;audio.play(cue);assertChord(state.oscillators.slice(start),chord);}
+ }
+ state.context.currentTime=101.2;audio.pause();state.context.currentTime=200;await audio.resume();await flush();
+ assert(Math.abs(state.sources.at(-1).startArgs[1]-5.2)<.00001);
+ let start=state.oscillators.length;audio.play('drop-merge-burst');assertChord(state.oscillators.slice(start),[0,4,9]);
+ audio.setMusic(false);state.context.currentTime=240;start=state.oscillators.length;audio.play('drop-release');assertChord(state.oscillators.slice(start),[0,4,9]);
+});
+
+test('Drop cues are immediate with unavailable music and vary within a bounded consonant palette',async()=>{
+ const {audio,state}=harness({fetch:()=>({ok:false}),random:()=>.5});audio.setScene('drop');await audio.start();await flush();
+ const frequencies=[];
+ for(let i=0;i<12;i++){
+  state.context.currentTime=30+i*.1;const start=state.oscillators.length;audio.play('drop-release');const added=state.oscillators.slice(start);assertChord(added,[0,4,7]);
+  frequencies.push(added[0].frequency.values[0][0]);
+  const volume=added[0].connections[0].gain.ramps[0][0];assert(volume>=.115*.94&&volume<=.115*1.04);
+ }
+ assert(new Set(frequencies).size>1);for(let i=1;i<frequencies.length;i++)assert.notEqual(frequencies[i],frequencies[i-1]);
+ assert(Math.max(...frequencies)/Math.min(...frequencies)<1.51);
+});
+
+test('shared pluck, match and phrase helpers preserve the original game cue defaults',async()=>{
+ const {audio,state}=harness({random:()=>.5});await audio.start();await flush();
+ audio.play('surface-tap');let voices=state.oscillators.slice(-1);
+ assert.deepEqual(voices[0].frequency.values,[[560,0]]);assert.deepEqual(voices[0].frequency.ramps,[[680,.065]]);
+ assert.deepEqual(voices[0].connections[0].gain.ramps,[[.075,.012],[.0001,.065]]);
+ audio.play('correct');voices=state.oscillators.slice(-2);const originalPitch=2**(.24/12);
+ assert.equal(voices[0].frequency.values[0][0],1046*originalPitch);assert.equal(voices[1].frequency.values[0][0],1046*1.5*originalPitch);
+ assert.deepEqual(voices.map(v=>Math.round(v.stops[0]*1000)),[145,140]);assert.deepEqual(voices.map(v=>v.connections[0].gain.ramps[0][0]),[.12,.035]);
+ audio.play('bonus');voices=state.oscillators.slice(-5);assert.deepEqual(voices.map(pitchOf),[72,76,79,84,88]);assert.deepEqual(voices.map(v=>v.started),[0,.055,.11,.165,.22]);
 });

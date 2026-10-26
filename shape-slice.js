@@ -4,12 +4,12 @@ import {createMiniResults} from './mini-results.js?v=49439-web12';
 import {createMiniContinue} from './mini-continue.js?v=49439-web12';
 import {createHitFeedback} from './mini-hit-feedback.js?v=49439-web12';
 import {sliceViewport} from './slice-viewport.js?v=49439-web12';
-import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js?v=49485';
+import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js?v=49487';
 import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js?v=49439-web12';
 import {miniGameCoins} from './mini-game-rewards.js?v=49439-web12';
 import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=49439-web12';
 import {shapeArtReady,paintMiniShape} from './mini-shape-art.js?v=49482';
-import {cutShape,splitFragment,stepFragments,artworkBox} from './slice-fragments.js?v=49439-web12';
+import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js?v=49439-web12';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
 function loadSliceImage(image,src){
  if(image.complete&&image.naturalWidth)return Promise.resolve(true);
@@ -45,7 +45,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
  function result(){window.gameAudio?.stopPraise();if(!game)return;game.end();dialog.dataset.paused='true';endGesture(true);window.ShapeShiftPlatform.cancelAnimationFrame(raf);if(!saved&&game.lives<=0&&continueOffer.offer({description:'Watch a video to refill your hearts and keep your score.',resume:()=>{game.revive();hitFeedback.reset();lifeLossTime=0;fragments=[];effects={sparks:[],flashes:[]};resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:result}))return;if(!saved)play('over');const xpBefore=getXp(),stored=save();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.sliced,3),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,finish:close});render();
  }
 
- function cutEffect(piece,from,to,color){const burst=createSliceBurst(piece,from,to,color,quiet);effects.sparks.push(...burst.sparks);effects.flashes.push(burst.flash);}
+ function cutEffect(piece,from,to,color){const burst=createSliceBurst(piece,from,to,color,quiet);effects.sparks.push(...burst.sparks);effects.flashes.push(burst.flash);if(effects.sparks.length>96)effects.sparks.splice(0,effects.sparks.length-96);if(effects.flashes.length>24)effects.flashes.splice(0,effects.flashes.length-24);}
  function event(e){if(e.type==='slice')teaching.event('slice');
   if(['slice','miss','hazard'].includes(e.type))onQuestEvent({type:e.type==='slice'?'success':e.type==='end'?'finish':'failure',mode:'slice',time:e.time,failure:['miss','hazard'].includes(e.type),hazard:e.type==='hazard',tile:e.piece?{shape:e.piece.shape,color:e.piece.color,vy:e.piece.vy,r:e.piece.r,wave:e.piece.wave}:null,dx:(e.to?.x||0)-(e.from?.x||0),dy:(e.to?.y||0)-(e.from?.y||0),combo:e.combo});
   if(e.type==='launch'){play('slice-launch');
@@ -113,7 +113,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
     if(distance>.4)swipeSeconds+=elapsed;swipeColor=sliceTrailColor(swipeSeconds);
     motionStamp=sample.timeStamp;motionAt=game.time;motionEnergy=Math.min(1,distance/elapsed/1500);window.gameAudio?.sliceMotion(motionEnergy);
     const oldFragments=[...fragments];game.slice(previous,p);
-    if(!game.over)for(const f of oldFragments){const cut=splitFragment(f,previous,p,stroke);if(cut){fragments=fragments.filter(item=>item!==f);fragments.push(...cut);play('slice-chip');}}
+    if(!game.over)for(const f of oldFragments){const cut=splitFragment(f,previous,p,stroke);if(cut){fragments=fragments.filter(item=>item!==f);fragments.push(...cut);play('slice-chip');cutEffect({...f,r:Math.min(f.r,Math.sqrt(polygonArea(f.mask)/Math.PI))},previous,p,colors[f.color]);}}
     addTrail(sample);previous=p;if(game.over)break;
    }
    if(game.over){endGesture(true);if(!hitFeedback.active&&lifeLossTime===0&&!bombImpactPending(impacts))result();}
