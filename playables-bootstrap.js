@@ -26,7 +26,7 @@ const platform = window.ShapeShiftPlatform = {
   get audioAllowed() { return audioEnabled && !scheduler.paused; },
   storage: store.storage, language: 'en',
   live, showScores: () => renderPersonalScores(document, store.storage, live),
-  requestReward: placement => requestPlatformReward(sdk, placement),
+  requestReward: () => Promise.resolve('unsupported'),
   registerMedia(element) {
     media.add(element); element.muted = !platform.audioAllowed;
     return () => { media.delete(element); playingMedia.delete(element); };
@@ -90,11 +90,8 @@ for (const type of ['pointerdown','pointerup','pointermove','click','keydown','k
     }
   }, {capture: true, passive: false});
 }
-// Only a capability signal for existing reward UI; rewards call YouTube directly.
-window.ShapeShiftAds = live ? {
-  setBannerVisible() {}, setAudience() {}, cancelRewarded() {},
-  showRewarded() { throw Error('Use the Playables reward adapter'); }
-} : undefined;
+// Advertising is exclusive to the native Android edition.
+window.ShapeShiftAds = undefined;
 sdk?.game?.firstFrameReady?.();
 async function loadScript(src) {
   return new Promise((resolve, reject) => {

@@ -2,14 +2,26 @@
 export function initInputFeedback(){
  const selector='button,a[href],[role="button"],input[type="checkbox"],input[type="radio"],input[type="range"],label[for]';
  const pointers=new Map(),releases=new Map(),keys=new Map();
- const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('reduce-motion');
+ const reduced=()=>document.body.classList.contains('reduce-motion');
  const enabled=control=>control&&!control.matches(':disabled,[aria-disabled="true"]')&&(!control.matches('label[for]')||!document.getElementById(control.htmlFor)?.disabled);
  const find=target=>target instanceof Element?target.closest(selector):null;
- const layer=document.createElement('div');layer.id='tap-effects';layer.setAttribute('popover','manual');layer.setAttribute('aria-hidden','true');document.body.append(layer);
+ const layer=document.createElement('div');layer.id='tap-effects';layer.setAttribute('aria-hidden','true');document.body.append(layer);
+ function hideLayer(){
+  if(typeof layer.hidePopover==='function'){try{layer.hidePopover();}catch{}}
+ }
+ function showLayer(){
+  // Older Android WebViews have no Popover API. Never leave their fallback
+  // layer marked as a closed popover, and mount above the active modal.
+  if(typeof layer.showPopover==='function'){
+   try{layer.setAttribute('popover','manual');hideLayer();layer.showPopover();return;}catch{}
+  }
+  layer.removeAttribute('popover');
+  const dialogs=[...document.querySelectorAll('dialog[open]')];
+  (dialogs.at(-1)||document.body).append(layer);
+ }
  function ring(x,y){
   if(!Number.isFinite(x)||!Number.isFinite(y))return;
-  if(layer.showPopover){if(layer.matches(':popover-open'))layer.hidePopover();layer.showPopover();}
-  else (document.querySelector('dialog[open]')||document.body).append(layer);
+  showLayer();
   while(layer.children.length>=8)layer.firstChild.remove();
   const mark=document.createElement('span');mark.className='tap-burst';mark.style.left=x+'px';mark.style.top=y+'px';layer.append(mark);
   const quiet=reduced(),animations=[];
@@ -24,19 +36,19 @@ export function initInputFeedback(){
    {opacity:1,transform:'scale(.12)'},
    {opacity:.85,transform:'scale(.65)',offset:.35},
    {opacity:0,transform:'scale(1.25)'}
-  ],quiet?180:650);
+  ],quiet?180:800);
   if(!quiet){
    const phase=Math.random()*Math.PI*2;
    for(let i=0;i<8;i++){
-    const angle=phase+i*Math.PI/4+(Math.random()-.5)*.65,distance=32+Math.random()*22,dx=Math.cos(angle),dy=Math.sin(angle);
+    const angle=phase+i*Math.PI/4+(Math.random()-.5)*.65,distance=45+Math.random()*27,dx=Math.cos(angle),dy=Math.sin(angle);
     animate('tap-spark',[
      {opacity:0,transform:`translate(${dx*5}px,${dy*5}px) scale(.65)`},
      {opacity:1,transform:`translate(${dx*distance*.45}px,${dy*distance*.45}px) scale(1)`,offset:.22},
      {opacity:0,transform:`translate(${dx*distance}px,${dy*distance}px) scale(.2)`}
-    ],540+(i%3)*55);
+    ],680+(i%3)*60);
    }
   }
-  Promise.all(animations).finally(()=>{mark.remove();if(!layer.childElementCount&&layer.hidePopover&&layer.matches(':popover-open'))layer.hidePopover();});
+  Promise.all(animations).finally(()=>{mark.remove();if(!layer.childElementCount)hideLayer();});
  }
  function press(control){
   if(!enabled(control))return null;
@@ -51,7 +63,7 @@ export function initInputFeedback(){
   for(const point of pointers.values())release(point.control,true);pointers.clear();
   for(const control of keys.values())release(control,true);keys.clear();
   for(const control of releases.keys())release(control,true);
-  layer.replaceChildren();if(layer.hidePopover&&layer.matches(':popover-open'))layer.hidePopover();
+  layer.replaceChildren();hideLayer();
  }
  document.addEventListener('pointerdown',event=>{
   if(event.button!==0)return;
@@ -80,6 +92,6 @@ export function initInputFeedback(){
   }
  }).observe(document.body,{childList:true,subtree:true});
  document.addEventListener('scroll',()=>{for(const point of pointers.values())release(point.control,true);pointers.clear();},{capture:true,passive:true});
- window.addEventListener('unused-blur',clear);document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)clear();});window.addEventListener('unused-androidpause',clear);
+ window.addEventListener('unused-blur',clear);document.addEventListener('visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)clear();});window.addEventListener('androidpause',clear);
  return clear;
 }
