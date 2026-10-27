@@ -29,7 +29,7 @@
 @keyframes drop-mote-float{0%,100%{opacity:0;transform:translate3d(0,12px,0)}35%,65%{opacity:.6}85%{opacity:0;transform:translate3d(12px,-38px,0)}}
 @media(max-height:650px){#shape-drop .drop-play-hud{height:76px}#shape-drop .drop-live-score{font-size:54px}#shape-drop .drop-play-hud .drop-icon-pause{top:8px}#shape-drop .drop-gesture-hint{font-size:11px;min-height:20px;line-height:20px}#shape-drop[data-view='play'] .drop-panel{padding:18px;gap:10px}}
 @media(orientation:landscape) and (max-height:550px){#shape-drop[data-view='play']{padding-top:6px;padding-bottom:6px}#shape-drop .drop-play-hud{position:absolute;left:max(12px,env(safe-area-inset-left));top:12px;width:150px;height:150px;flex-direction:column;justify-content:flex-end;z-index:2}#shape-drop .drop-play-hud .drop-icon-pause{left:47px;top:0}#shape-drop .drop-live-score{max-width:100%;font-size:54px}#shape-drop[data-view='play'] .drop-stage{width:calc(100% - 330px);min-width:180px;flex:1}#shape-drop .drop-gesture-hint{position:absolute;right:14px;top:45%;width:145px;white-space:normal;line-height:1.7;margin:0}}
-@media(prefers-reduced-motion:reduce){#shape-drop .drop-scenery::before,#shape-drop .drop-motes i{animation:none}}
+
 body.reduce-motion #shape-drop .drop-scenery::before,body.reduce-motion #shape-drop .drop-motes i{animation:none}
 
 #shape-drop .mini-run-coins{position:absolute;right:9px;top:33px}
@@ -48,5 +48,17 @@ body.reduce-motion #shape-drop .drop-scenery::before,body.reduce-motion #shape-d
 @keyframes drop-night-firefly{0%,100%{opacity:0;transform:translate(0,10px)}40%,65%{opacity:var(--night)}85%{opacity:0;transform:translate(18px,-45px)}}
 @keyframes drop-night-shine{from{filter:brightness(.75)}to{filter:brightness(1.4)}}
 #shape-drop[data-paused='true'] .drop-night-stars{animation-play-state:paused}
-@media(prefers-reduced-motion:reduce){#shape-drop .drop-night-stars,#shape-drop .drop-motes i{animation:none}}
+
 body.reduce-motion #shape-drop .drop-night-stars,body.reduce-motion #shape-drop .drop-motes i{animation:none}
+/* Water and the original painting share one transform and night tint. */
+#shape-drop .drop-scenery::before{content:none}
+#shape-drop .drop-landscape{position:absolute;inset:-2%;background:url('assets/drop-garden-v491.webp') center 58%/cover no-repeat;animation:drop-garden-drift 24s ease-in-out infinite alternate;filter:brightness(calc(1 - var(--night)*.67)) saturate(calc(1 - var(--night)*.38))}
+#shape-drop .drop-water{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#shape-drop .drop-scenery::after{z-index:1;background:linear-gradient(#030b45e8 0%,#0b2056b8 40%,#10275150 76%,#071d3930);opacity:var(--night);pointer-events:none}
+#shape-drop .drop-night-stars{z-index:2}
+#shape-drop .drop-motes{z-index:3;opacity:calc(.55 + var(--night)*.45)}
+#shape-drop .drop-motes i,#shape-drop .drop-motes i:nth-child(n+9){width:5px;height:5px;background:#fff9b0;box-shadow:0 0 5px 2px #ffec65c9,0 0 13px 4px #ffd23870;animation:drop-golden-firefly 7s ease-in-out infinite;animation-delay:inherit}
+#shape-drop .drop-motes i:nth-child(3n){width:4px;height:4px;animation-duration:9s}
+#shape-drop .drop-motes i:nth-child(4n){animation-duration:11s}
+@keyframes drop-golden-firefly{0%,100%{opacity:.08;transform:translate(0,8px) scale(.65)}25%{opacity:.8;transform:translate(-10px,-7px) scale(1)}52%{opacity:1;transform:translate(7px,-24px) scale(1.1)}76%{opacity:.25;transform:translate(17px,-35px) scale(.75)}}
+#shape-drop[data-paused='true'] .drop-landscape,#shape-drop[data-paused='true'] .drop-motes i{animation-play-state:paused}

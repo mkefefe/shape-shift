@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+import {DROP_WATER} from './drop-water.js';
+test('Drop water masks stay within the painted image and leave the sky untouched',()=>{for(const polygon of DROP_WATER.pools)for(const [x,y] of polygon){assert(x>=0&&x<=512&&y>=540&&y<=768);}for(const [x,y,xx,yy] of DROP_WATER.falls){assert(y>=540&&yy<=768&&xx>=0&&x<=512);}});
+test('water follows the active clock, shares its cached surface, and disposes its layer',()=>{
+ let created=0;const times=[],draws=[];const ctx={drawImage(...args){draws.push(args)},setTransform(){},clearRect(){}};const make=()=>({clientWidth:400,clientHeight:800,append(){},setAttribute(){},getContext:()=>ctx,remove(){this.removed=true}});const context={document:{createElement:make},devicePixelRatio:2,createWaterSurface:()=>{created++;return{left:20,top:540,paint:t=>{times.push(t);return{width:400,height:228}}}}};vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('./drop-water.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context);
+ const first=context.createDropWater({prepend(){}},{});first.step(.04);assert.equal(times.length,1);first.step(0);assert.equal(times.length,1);first.step(.04);assert(times[1]>times[0]);first.dispose();context.createDropWater({prepend(){}},{});assert.equal(created,1);assert(draws.length>=3);
+});
