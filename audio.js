@@ -397,6 +397,7 @@
       case 'slice-fall': softSweep(now,.17,850,300,.06);break;
       case 'slice-swish': softSweep(now,.20,1100,2900,.23);tone(784,now,.18,.055,'sine',effectsBus,880);break;
       case 'slice-cut': softSweep(now,.17,2600,1200,.24);tone(1175,now,.21,.14,'sine',effectsBus);tone(1762,now+.025,.15,.035,'sine',effectsBus);break;
+      case 'slice-combo': notePhrase([84,88,91],now,.035,.13,.08);break;
       case 'slice-chip': softSweep(now,.12,3100,1700,.15);tone(1568,now,.15,.085,'sine',effectsBus);break;
       case 'slice-bomb': sliceBomb(now);break;
       case 'slice-miss': tone(440,now,.16,.10,'sine',effectsBus,220);tone(196,now+.09,.15,.055,'triangle',effectsBus);break;

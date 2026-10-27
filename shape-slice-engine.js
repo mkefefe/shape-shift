@@ -61,7 +61,7 @@ export function sliceWaveLayout(count,bounds,rng=Math.random,previous=-1){
 export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,frame='none',upgrade=0,bounds:initialBounds=SLICE_DEFAULT_BOUNDS}={}){
  let bounds=normalizeSliceBounds(initialBounds);
  const maxLives=maxLivesForFrame(frame,upgrade);
- const game={frame,time:0,score:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1;const missedWaves=new Set();
+ const game={frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1;const missedWaves=new Set(),recuts=new Map();
  const random=()=>clamp(rng(),0,.999999);
  function emit(event){onEvent({...event,time:game.time});}
  function makePiece(options={}){
@@ -102,11 +102,12 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,f
   hits.sort((x,y)=>Number(y.hazard)-Number(x.hazard));const cut=[];
   for(const p of hits){if(game.over)break;game.pieces=game.pieces.filter(x=>x!==p);cut.push(p);
    if(p.hazard){game.stroke.hazard=true;game.stroke.count=0;strike('hazard',p);continue;}
-   const stroke=game.stroke;if(game.time-stroke.lastHit>.35)stroke.count=0;stroke.lastHit=game.time;stroke.count++;game.sliced++;const combo=stroke.hazard?1:stroke.count;game.bestCombo=Math.max(game.bestCombo,combo);const points=frameRewardMultiplier(frame);game.score=game.sliced*points;
-   emit({type:'slice',piece:p,from:{...a},to:{...b},angle:Math.atan2(b.y-a.y,b.x-a.x),points,combo});
+   const stroke=game.stroke;if(game.time-stroke.lastHit>.35)stroke.count=0;stroke.lastHit=game.time;stroke.count++;game.sliced++;const combo=stroke.hazard?1:stroke.count;game.bestCombo=Math.max(game.bestCombo,combo);const basePoints=frameRewardMultiplier(frame),bonus=Math.min(4,Math.max(0,combo-1))*basePoints,points=basePoints+bonus;game.bonusScore+=bonus;game.score+=points;recuts.set(p.id,{left:2,until:game.time+3});
+   emit({type:'slice',piece:p,from:{...a},to:{...b},angle:Math.atan2(b.y-a.y,b.x-a.x),points,bonus,combo});
   }return cut;
  }
- function tick(dt){game.time+=dt;for(const p of game.pieces){const rising=p.vy<0;movePiece(p,dt,bounds);if(rising&&p.vy>=0)emit({type:'fall',piece:p});if(p.y+p.r<bounds.bottom)p.entered=true;}
+ function recut(id){const entry=recuts.get(id);if(game.over||!game.stroke||game.stroke.hazard||!entry||entry.left<=0||game.time>entry.until)return 0;entry.left--;const points=frameRewardMultiplier(frame);game.bonusScore+=points;game.score+=points;return points;}
+ function tick(dt){game.time+=dt;for(const [id,entry] of recuts)if(game.time>entry.until)recuts.delete(id);for(const p of game.pieces){const rising=p.vy<0;movePiece(p,dt,bounds);if(rising&&p.vy>=0)emit({type:'fall',piece:p});if(p.y+p.r<bounds.bottom)p.entered=true;}
   const fallen=game.pieces.filter(p=>departed(p,bounds));game.pieces=game.pieces.filter(p=>!fallen.includes(p));for(const p of fallen){
    if(!p.hazard&&p.entered){game.missed++;if(!missedWaves.has(p.wave)){missedWaves.add(p.wave);strike('miss',p);}}
    if(game.over)return;
@@ -123,10 +124,10 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,f
   for(const p of game.pieces){p.x=updated.left+(p.x-bounds.left)*ratio;p.y+=updated.bottom-bounds.bottom;p.vx*=ratio;}
   bounds=updated;
  }
- return Object.assign(game,{revive(){if(!game.over||game.lives>0)return false;game.over=false;game.lives=game.maxLives;game.pieces=[];game.stroke=null;game.untilWave=2;missedWaves.clear();accumulator=0;return true;},setBounds,spawn,step,slice,beginStroke,endStroke,end,dispose(){game.pieces=[];game.stroke=null;missedWaves.clear();}});
+ return Object.assign(game,{revive(){if(!game.over||game.lives>0)return false;game.over=false;game.lives=game.maxLives;game.pieces=[];game.stroke=null;game.untilWave=2;missedWaves.clear();accumulator=0;return true;},setBounds,spawn,step,slice,recut,beginStroke,endStroke,end,dispose(){recuts.clear();game.pieces=[];game.stroke=null;missedWaves.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const valid=e=>e&&/^shape-slice-[a-f0-9-]{36}$/.test(e.id)&&Number.isSafeInteger(e.sliced)&&e.sliced>=0&&e.sliced<=100000;
 export function sliceProgress(raw){return {best:raw?.scoreVersion===2?safe(raw?.best):0,scoreVersion:2,legacyBest:Math.max(safe(raw?.legacyBest),raw?.scoreVersion===2?0:safe(raw?.best)),sliced:safe(raw?.sliced),bestCombo:safe(raw?.bestCombo),runs:safe(raw?.runs),pending:Array.isArray(raw?.pending)?raw.pending.filter(valid):[]};}
-export function finishSliceProgress(raw,result,id){const p=sliceProgress(raw);if(p.pending.some(e=>e.id===id))return p;return {...p,best:Math.max(p.best,safe(result.sliced)*frameRewardMultiplier(result.frame)),sliced:p.sliced+safe(result.sliced),bestCombo:Math.max(p.bestCombo,safe(result.bestCombo)),runs:p.runs+1,pending:[...p.pending,{id,sliced:safe(result.sliced),rewardVersion:3,xpMultiplier:frameRewardMultiplier(result.frame)}]};}
+export function finishSliceProgress(raw,result,id){const p=sliceProgress(raw);if(p.pending.some(e=>e.id===id))return p;return {...p,best:Math.max(p.best,safe(result.sliced)*frameRewardMultiplier(result.frame)+Math.min(safe(result.bonusScore),safe(result.sliced)*6*frameRewardMultiplier(result.frame))),sliced:p.sliced+safe(result.sliced),bestCombo:Math.max(p.bestCombo,safe(result.bestCombo)),runs:p.runs+1,pending:[...p.pending,{id,sliced:safe(result.sliced),rewardVersion:3,xpMultiplier:frameRewardMultiplier(result.frame)}]};}
 export function claimSliceReward(profile,entry){if(!valid(entry))return profile;const receipts=Array.isArray(profile.sliceRewards)?profile.sliceRewards:[];if(receipts.includes(entry.id))return profile;const coins=profile.coins+miniGameCoins(entry.sliced,entry.rewardVersion??1),xp=profile.xp+Math.min(200,entry.sliced)*(entry.xpMultiplier===2?2:1);if(!Number.isSafeInteger(coins)||!Number.isSafeInteger(xp))return profile;return {...profile,coins,xp,sliceRewards:[...receipts,entry.id]};}
