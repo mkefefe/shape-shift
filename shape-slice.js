@@ -54,7 +54,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   }else if(e.type==='slice'){
    play('slice-cut');
    if(e.bonus)play('slice-combo');fragments.push(...cutShape(e.piece,e.from,e.to,stroke));cutEffect(e.piece,e.from,e.to,colors[e.piece.color]);
-   if(e.bonus)labels=labels.filter(l=>!l.combo);labels.push({x:e.piece.x,y:e.piece.y,age:0,text:'+'+e.points,caption:e.bonus?e.combo+'× COMBO':'',combo:!!e.bonus,color:e.bonus?'#ffe677':'#fff'});notice.textContent=e.bonus?e.combo+' shape combo · +'+e.bonus+' bonus score':'Slice the pieces again!';
+   if(e.bonus)labels=labels.filter(l=>!l.combo);labels.push({x:e.piece.x,y:e.piece.y,age:0,text:'+'+e.points,caption:e.bonus?e.combo+' COMBO':'',combo:!!e.bonus,color:e.bonus?'#ffe677':'#fff'});notice.textContent=e.bonus?e.combo+' shape combo: +'+e.bonus+' bonus score':'Slice the pieces again!';
   }else if(e.type==='hazard'||e.type==='miss'){
    window.gameAudio?.stopPraise();hitFeedback.hit();
    lifeLossReason=lifeLossTime>1&&lifeLossReason!==e.type?'both':e.type;lifeLossCount=lifeLossTime>1?lifeLossCount+1:1;lifeLossTime=1.8;
