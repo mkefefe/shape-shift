@@ -905,7 +905,7 @@ function finish(finalize=false){openingCoach?.close();
  active=false;counting=false;window.ShapeShiftPlatform.cancelAnimationFrame(frame);renderSurvivalClock();
  $('result-survival').hidden=runMode!=='endless';
  $('result-survival').textContent='Survived '+formatSurvivalTime(survivalClock.elapsed());
- if(window.ShapeShiftPlatform.live&&shouldOfferContinue(runMode,state,finalize)){
+ if(window.ShapeShiftAds?.showRewarded&&shouldOfferContinue(runMode,state,finalize)){
   $('adventure-continue').hidden=true;
   analytics.count('ad_offers','continue');continueOfferOpen=true;continueOfferReady=false;continueAdPending=false;
   $('over-dialog').classList.add('continue-offer');

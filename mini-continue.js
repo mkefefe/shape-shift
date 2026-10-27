@@ -29,7 +29,7 @@ export function createMiniContinue({host=window,request=()=>requestReward(host,1
  let used=false,offered=false,busy=false,generation=0,view=null;
  return {reset(){generation++;view?.close();view=null;used=false;offered=false;busy=false;},
  offer({description,resume,finish}){
-  if(!host.ShapeShiftPlatform.live)return false;if(used)return false;if(offered)return true;offered=true;const token=generation;
+  if(!host.ShapeShiftAds?.showRewarded)return false;if(used)return false;if(offered)return true;offered=true;const token=generation;
   view=show({host,description,onWatch:async()=>{
    if(busy||token!==generation)return;busy=true;view.pending();
    let outcome;try{outcome=await request();}catch{outcome='failed';}
