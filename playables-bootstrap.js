@@ -106,7 +106,7 @@ async function start() {
     observeDeferredImages();
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=494109');
-    await import('./game.js?v=49499');
+    await import('./game.js?v=494113');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

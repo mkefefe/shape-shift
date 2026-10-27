@@ -1,3 +1,4 @@
+import {engagement,telemetryChoice,sampleEngagement} from './telemetry.js';
 import {createEndlessCoach} from './endless-coach.js?v=49499';
 let openingCoach=null;
 import {animateQuestRedemption} from './quest-redemption.js?v=49499';
@@ -17,7 +18,7 @@ import {showAdventureVictory} from './adventure-victory.js?v=49499';
 import {initStoryUI} from './story-ui.js?v=49499';
 import {initTouchUI} from './touch-ui.js?v=49499';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49499';
-import {initPianoFlow} from './piano-flow.js?v=49499';
+import {initPianoFlow} from './piano-flow.js?v=494113';
 import {claimPianoReward} from './piano-flow-engine.js?v=49499';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49499';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49499';
@@ -29,15 +30,15 @@ import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=494
 import {rankingLoadMessage} from './leaderboard-cache.js?v=49499';
 import {loadPrivacyContent} from './privacy-content.js?v=49499';
 import {initSettingsExtras} from './settings-extras.js?v=49499';
-import {initShapeSlice} from './shape-slice.js?v=49499';
+import {initShapeSlice} from './shape-slice.js?v=494113';
 import {claimSliceReward} from './shape-slice-engine.js?v=49499';
 import {initGamesHub} from './games-hub.js?v=49499';
-import {initShapeDrop} from './shape-drop.js?v=49499';
+import {initShapeDrop} from './shape-drop.js?v=494113';
 import {claimDropReward} from './shape-drop-engine.js?v=49499';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49499';
 import {fitBoard} from './board-fit.js?v=49499';
 import {analytics} from './analytics.js?v=49499';
-import {ensureTerms} from './terms.js?v=49499';
+import {ensureTerms} from './terms.js?v=494113';
 import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49499';
 import {observeBoard} from './board-fit.js?v=49499';
 observeBoard(document.getElementById('board'));
@@ -147,7 +148,7 @@ document.removeEventListener('click',tapWelcomeAudio,true);
 document.removeEventListener('unused-visibilitychange',welcomeVisibility);
 window.removeEventListener('unused-androidpause',pauseWelcomeAudio);
 window.removeEventListener('unused-androidresume',startWelcomeAudio);
-if(shareGameplayStatistics)analytics.enable();
+await telemetryChoice();
 
 
 
@@ -928,7 +929,7 @@ function finish(finalize=false){openingCoach?.close();
  if(runMode==='adventure'&&modeWon)state=awardVictoryBoard(state,board,true);
  if(runMode==='adventure'&&modeWon&&!completionXpGranted){profile=adventureCompletionReward(profile,true);completionXpGranted=true;saveProfile();flushProfile();}
  trackAchievements({type:'finish',mode:runMode,won:modeWon,level:adventureLevel,elapsed:modeElapsed,stars:runMode==='adventure'?levelObjectives(adventureLevel,{...currentLevelStats(),won:modeWon}).filter(o=>o.done).length:0});
- analytics.endRun(modeWon?'win':'loss',runMode==='adventure'?levelObjectives(adventureLevel,{...currentLevelStats(),won:modeWon}).map((o,i)=>({...o,type:levelTasks(adventureLevel)[i].type})):[],adventureLayout(adventureLevel,board.length).name);
+ engagement.endRun('finished');analytics.endRun(modeWon?'win':'loss',runMode==='adventure'?levelObjectives(adventureLevel,{...currentLevelStats(),won:modeWon}).map((o,i)=>({...o,type:levelTasks(adventureLevel)[i].type})):[],adventureLayout(adventureLevel,board.length).name);
  const previous=best;recordRun();
 
 
@@ -1644,7 +1645,7 @@ async function start(forceTutorial=false,onPrepared=()=>{},beforeTutorial=()=>Pr
 
 
 
- state=applyLoadout(createRun(runRng),profile.equipped.frame,profile.equipped.background,runRng,profile.upgrades[profile.equipped.frame]||0);state.mode=runMode;state.difficulty=endlessDifficulty;analytics.startRun(runMode,endlessDifficulty,adventureLevel);actions.push({type:'loadout',frame:replayFrame(profile.equipped.frame),map:profile.equipped.background,upgrade:profile.upgrades[profile.equipped.frame]||0});for(const name of Object.keys(PRICES))state[name]=boostCharges(name)>0?1:0;
+ state=applyLoadout(createRun(runRng),profile.equipped.frame,profile.equipped.background,runRng,profile.upgrades[profile.equipped.frame]||0);state.mode=runMode;state.difficulty=endlessDifficulty;analytics.startRun(runMode,endlessDifficulty,adventureLevel);engagement.startRun(runMode);actions.push({type:'loadout',frame:replayFrame(profile.equipped.frame),map:profile.equipped.background,upgrade:profile.upgrades[profile.equipped.frame]||0});for(const name of Object.keys(PRICES))state[name]=boostCharges(name)>0?1:0;
  if(runMode==='adventure'){
  state.adventureLevel=adventureLevel;
  const requiredShapes=levelRequirements(adventureLevel).filter(g=>g.type==='collection').map(g=>g.shape);
@@ -2416,7 +2417,7 @@ function recordRun(){
 
 
 
- if(!state||runSaved)return;runSaved=true;analytics.endRun('abandoned');
+ if(!state||runSaved)return;runSaved=true;analytics.endRun('abandoned');engagement.endRun('abandoned');
 
 
 
@@ -3913,8 +3914,8 @@ worldUI=initWorldMenu({getFrame:()=>profile.equipped.frame,openFrames:()=>$('pro
 $('adventure-continue').onclick=async()=>{if(runMode==='endless'){dismissRunScreen();return;}if(runMode!=='adventure'||storyUI.isPlaying())return;const button=$('adventure-continue');button.disabled=true;try{uiSound('leave-result');if(await home(true)===false)return;worldUI?.map();await storyUI.afterResults();}finally{button.disabled=false;}};
 
 // Analytics tracks only fixed counters. Input text and pointer coordinates are never read.
-for(const event of ['pointerdown','keydown'])document.addEventListener(event,()=>analytics.input(),{passive:true});
-window.ShapeShiftPlatform.setInterval(()=>analytics.sample({visible:!window.ShapeShiftPlatform.paused&&!nativeBackground,playing:active&&!paused&&!counting,paused}),1000);
+for(const event of ['pointerdown','pointermove','keydown'])document.addEventListener(event,()=>engagement.input(),{passive:true});
+window.ShapeShiftPlatform.setInterval(()=>sampleEngagement({visible:!window.ShapeShiftPlatform.paused&&!nativeBackground,playing:active&&!paused&&!counting,paused}),1000);
 window.ShapeShiftPlatform.setInterval(()=>analytics.flush(),60000);
 document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)analytics.sessionEnd();else analytics.sessionStart();});
 window.addEventListener('unused-pagehide',()=>analytics.sessionEnd());
@@ -4020,3 +4021,14 @@ prepareStartup();
 window.addEventListener('playables-save',flushProfile);
 
 initLivingMenu({getProfile:()=>profile,commit:next=>{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));profile=next;saveProfile();flushProfile();},sound:uiSound});
+
+// First-party telemetry lifecycle is shared by Android and portal editions.
+const telemetrySettings=document.createElement('button');telemetrySettings.className='secondary';telemetrySettings.textContent='Gameplay statistics';telemetrySettings.onclick=()=>telemetryChoice(true);document.querySelector('#settings-dialog .settings-links')?.append(telemetrySettings);
+ownerCheck.then(p=>{if(p.owner)engagement.setTest(true);}).catch(()=>{});
+if(profile.adminMode||adminRecovery?.adminMode||['localhost','127.0.0.1'].includes(location.hostname))engagement.setTest(true);
+window.ShapeShiftPlatform.setInterval(()=>engagement.flush(),15000);
+document.addEventListener('visibilitychange',()=>document.hidden?engagement.background():engagement.foreground());
+window.addEventListener('pagehide',()=>engagement.background());
+window.addEventListener('androidpause',()=>engagement.background());
+window.addEventListener('androidresume',()=>engagement.foreground());
+window.addEventListener('online',()=>engagement.flush());

@@ -1,3 +1,4 @@
+import {engagement,registerModeState} from './telemetry.js';
 import {translate} from './localization.js?v=49499';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
@@ -54,7 +55,8 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  function settle(){for(const e of [...progress.pending])try{if(reward(e)!==false)persist({...progress,pending:progress.pending.filter(x=>x.id!==e.id)});}catch{}}
 
- function save(){if(!game||saved||!game.started)return true;pendingSave??=finishPianoProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;onQuestEvent({type:'finish',mode:'piano',time:game.time});pendingSave=null;settle();return true;}
+ registerModeState('piano',()=>game&&dialog.open?{playing:!!(game.started&&!game.over&&!game.paused&&!overlay),paused:!!(game.paused||!!overlay)}:null);
+ function save(){if(!game||saved||!game.started)return true;pendingSave??=finishPianoProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;engagement.endRun('finished');onQuestEvent({type:'finish',mode:'piano',time:game.time});pendingSave=null;settle();return true;}
 
  function clearInput(){keyboard.reset();input.reset();damage=0;delete dialog.dataset.pianoError;window.gameAudio?.stopPiano();voices.clear();}
 
@@ -80,7 +82,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const xpBefore=getXp(),stored=save();resultsScreen.show({title:'BEAUTIFULLY PLAYED',score:game.score,best:progress.best,coins:game.coins,elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,finish:close});
  }
 
- function event(e){if(e.type==='miss'){damage=.65;dialog.dataset.pianoError=e.reason==='wrong'?'Wrong strip':'Missed note';}if(e.type==='miss'&&e.damaged===false){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}return;}if(e.type==='complete')teaching.event(e.note?.hold?'held':'tap');if(e.type==='hold'||e.type==='note'&&e.note?.hold)teaching.event('hold');
+ function event(e){if(e.type==='start')engagement.startRun('piano');if(e.type==='miss'){damage=.65;dialog.dataset.pianoError=e.reason==='wrong'?'Wrong strip':'Missed note';}if(e.type==='miss'&&e.damaged===false){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}return;}if(e.type==='complete')teaching.event(e.note?.hold?'held':'tap');if(e.type==='hold'||e.type==='note'&&e.note?.hold)teaching.event('hold');
   if(e.type==='release'&&e.note)e.note.questResumed=true;
   if(['start','complete','miss'].includes(e.type))onQuestEvent({type:e.type==='complete'?'success':e.type==='miss'?'failure':e.type==='end'?'finish':'start',mode:'piano',time:e.time,failure:e.type==='miss',holdSeconds:e.note?.hold?e.note.hold*60/game.bpm:0,tile:e.note?{shape:e.note.shape,color:e.note.color,lane:e.note.lane,pitch:e.note.pitch,hold:e.note.hold,resumed:!!e.note.questResumed}:null});
 

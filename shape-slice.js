@@ -1,3 +1,4 @@
+import {engagement,registerModeState} from './telemetry.js';
 import {translate} from './localization.js?v=49499';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';
@@ -36,7 +37,8 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
  function button(text,fn,cls='drop-action'){const b=el('button',cls,text);b.type='button';b.onclick=()=>{play('click');fn();};return b;}
  function persist(next){try{window.ShapeShiftPlatform.storage.setItem(KEY,JSON.stringify(next));}catch{return false;}progress=next;try{onProgress(next);}catch{}return true;}
  function settle(){let next=progress;for(const entry of progress.pending){try{if(reward(entry)!==false){play('coin-arrive');next={...next,pending:next.pending.filter(e=>e.id!==entry.id)};}}catch{}}if(next!==progress)persist(next);}
- function save(){if(!game||saved)return true;pendingSave??=finishSliceProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;onQuestEvent({type:'finish',mode:'slice',time:game.time});pendingSave=null;settle();return true;}
+ registerModeState('slice',()=>game&&dialog.open?{playing:!!(!game.over&&!paused&&!overlay),paused:!!(paused||!!overlay)}:null);
+ function save(){if(!game||saved)return true;pendingSave??=finishSliceProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;engagement.endRun('finished');onQuestEvent({type:'finish',mode:'slice',time:game.time});pendingSave=null;settle();return true;}
  function stop(){teaching.clear();resultsScreen.reset();continueOffer.reset();lastHud='';paintTime=0;window.gameAudio?.stopPraise();hitFeedback.reset();endGesture(true);version++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);game?.dispose();game=null;pointer=null;previous=null;trail=[];fragments=[];sparks=[];effects={sparks:[],flashes:[]};labels=[];impacts=[];camera={x:0,y:0};lastBombAt=-100;flash=0;lifeLossTime=0;lifeLossCount=0;lifeLossReason='';overlay=null;}
  function close(){if(game&&!save()){result();return;}stop();dialog.close();window.gameAudio?.setScene('menu');onClose();}
  function panel(title){overlay?.remove();overlay=el('div','drop-overlay');const card=el('section','drop-panel');card.append(el('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
@@ -99,7 +101,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   if(token!==version||!dialog.open)return;
   if(!ready){const card=panel('Unable to load');card.append(el('p','','Check your connection and try again.'),button('Retry',start),button('Games',close));return;}
   overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
-  settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});teaching.mount(dialog);onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('slice');last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});teaching.mount(dialog);engagement.startRun('slice');onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('slice');last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const point=e=>{const p=slicePointerPoint(e,canvas.getBoundingClientRect(),transform);return {...p,x:p.x-camera.x/transform.scale,y:p.y-camera.y/transform.scale};};
   const addTrail=e=>{const r=dialog.getBoundingClientRect();trail.push({x:e.clientX-r.left,y:e.clientY-r.top,time:game.time,stroke,color:swipeColor});};
   const overControl=e=>[...dialog.querySelectorAll('button')].some(b=>{const r=b.getBoundingClientRect();return r.width>0&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;});
