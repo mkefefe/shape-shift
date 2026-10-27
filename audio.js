@@ -362,9 +362,17 @@
       case 'drop-land': tapPluck(time,freq/2,freq/2,.11,.14);break;
       case 'drop-touch': tapPluck(time,freq,freq,.085,.08);break;
       case 'drop-block': tapPluck(time,freq/2,freq/2,.13,.115);tapPluck(time+.04,freq,freq,.075,.028);break;
-      case 'drop-merge-start': matchChime(time,freq,.9,1,next/freq);break;
-      case 'drop-merge-burst': case 'drop-pop': case 'drop-chain':
-        // The same rounded ascending chord as the original bonus, kept compact.
+      case 'drop-merge-start':
+        // Bright, rising glass plucks anticipate the .58s visual impact.
+        notePhrase(chord.map(n=>n+12),time,.085,.16,.075);break;
+      case 'drop-merge-burst':
+        // A rounded pop and quick sparkle, centered in both speakers. No bass
+        // layer or downward pitch randomization obscures the colored burst.
+        tone(midi(chord[0]+12),time,.115,.11,'triangle',effectsBus);
+        tone(midi(chord[1]+12),time+.025,.18,.085,'sine',effectsBus);
+        tone(midi(chord[2]+12),time+.065,.22,.07,'sine',effectsBus);
+        tone(midi(chord[0]+24),time+.11,.20,.035,'sine',effectsBus);break;
+      case 'drop-pop': case 'drop-chain':
         notePhrase(chord,time,.045,.18,.115);break;
     }
   }

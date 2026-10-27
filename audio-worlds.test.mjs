@@ -267,10 +267,10 @@ test('Drop cues use centered short musical voices, stay rate-limited, and do not
  for(const cue of dropCues){
   state.context.currentTime+=1;const sources=state.sources.length,tones=state.oscillators.length;
   audio.play(cue);const added=state.oscillators.slice(tones);
-  assert(added.length>0&&added.length<=3);assert.equal(state.sources.length,sources,'Drop must not reintroduce noise sweeps');
+  assert(added.length>0&&added.length<=4);assert.equal(state.sources.length,sources,'Drop must not reintroduce noise sweeps');
   const count=state.oscillators.length;audio.play(cue);
   assert.equal(state.oscillators.length,count,'simultaneous contacts must not pile up identical cues');
-  for(const voice of added){assert.equal(voice.type,'sine');assert(voice.stops[0]-state.context.currentTime<.3);assert.equal(voice.connections[0].connections[0],state.gains[2]);}
+  for(const voice of added){assert(['sine','triangle'].includes(voice.type));assert(voice.stops[0]-state.context.currentTime<.36);assert.equal(voice.connections[0].connections[0],state.gains[2]);}
  }
  assert.equal(state.gains[2].channelCount,1);assert.equal(duck.gain.ramps.length,before);
 });
@@ -323,3 +323,14 @@ test('shared pluck, match and phrase helpers preserve the original game cue defa
  assert.deepEqual(voices.map(v=>Math.round(v.stops[0]*1000)),[145,140]);assert.deepEqual(voices.map(v=>v.connections[0].gain.ramps[0][0]),[.12,.035]);
  audio.play('bonus');voices=state.oscillators.slice(-5);assert.deepEqual(voices.map(pitchOf),[72,76,79,84,88]);assert.deepEqual(voices.map(v=>v.started),[0,.055,.11,.165,.22]);
 });
+
+ test('merge anticipation rises brightly and impact has a short centered sparkle',async()=>{
+ const {audio,state}=harness({random:()=>0});audio.setScene('drop');await audio.start();await flush();
+ let start=state.oscillators.length;audio.play('drop-merge-start');const rise=state.oscillators.slice(start);
+ assert.equal(rise.length,3);assert(rise.every(v=>v.frequency.values[0][0]>=980));
+ assert(rise[0].frequency.values[0][0]<rise[1].frequency.values[0][0]);assert(rise[1].frequency.values[0][0]<rise[2].frequency.values[0][0]);assert(rise.every(v=>v.stops[0]<.58));
+ state.context.currentTime=.58;start=state.oscillators.length;audio.play('drop-merge-burst');const burst=state.oscillators.slice(start);
+ assert.equal(burst.length,4);assert.equal(burst[0].started,.58);assert.equal(burst[0].type,'triangle');
+ assert(burst.every(v=>v.frequency.values[0][0]>=980&&v.frequency.values[0][0]<=2100));assert(burst.every(v=>v.stops[0]<1));
+ assert.equal(state.gains[2].channelCount,1);
+ });
