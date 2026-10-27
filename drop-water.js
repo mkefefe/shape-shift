@@ -1,7 +1,7 @@
 import {createWaterSurface} from './water-surface.js';
 // Half-resolution coordinates in the actual Drop garden painting. Keep masks
 // inset from rocks, banks and lily pads so only painted water refracts.
-export const DROP_WATER={width:512,height:768,falls:[[44,560,55,618,19,23],[81,636,103,676,24,32],[301,548,302,558,7,8],[332,548,330,558,6,8]],pools:[
+export const DROP_WATER={width:512,height:768,fallStrength:.32,falls:[[44,560,55,618,19,23],[81,636,103,676,24,32],[301,548,302,558,7,8],[332,548,330,558,6,8]],pools:[
  [[263,561],[355,561],[358,575],[323,579],[286,573]],
  [[62,687],[119,683],[211,683],[230,687],[270,687],[298,692],[291,704],[324,705],[329,698],[375,704],[387,713],[424,715],[449,723],[447,741],[418,767],[131,767],[115,753],[188,746],[184,736],[168,730],[178,719],[124,714],[119,720],[110,733],[81,730],[58,741],[51,716]]
  ]};

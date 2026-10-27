@@ -88,7 +88,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const tiles=[[0,1,18,73,-12],[2,0,43,79,8],[1,2,66,74,-8],[3,3,80,49,15],[0,2,30,40,5],[2,1,55,18,-17]];
   for(const [shape,color,x,y,angle] of tiles){const s=sprite({shape,color},'drop-preview-piece');s.style.cssText+=`;left:${x}%;top:${y}%;transform:translate(-50%,-50%) rotate(${angle}deg)`;artboard.append(s);}
   artboard.append(make('span','drop-preview-trail'));
-  card.append(artboard,make('p','drop-eyebrow','ENDLESS · PHYSICS'),make('h3','','Shape Drop'),make('p','drop-description','Aim. Drop. Match. Let gravity do the rest.'));
+  card.append(artboard,make('p','drop-eyebrow','ENDLESS Â· PHYSICS'),make('h3','','Shape Drop'),make('p','drop-description','Aim. Drop. Match. Let gravity do the rest.'));
   const rule=make('div','drop-match-example');rule.append(sprite({shape:0,color:1}),make('b','','+'),sprite({shape:0,color:2}),make('span','','Same shape'),sprite({shape:0,color:1}),make('b','','+'),sprite({shape:2,color:1}),make('span','','Same color'));card.append(rule);
   card.append(make('p','drop-copy','Touching shapes clear when their color OR shape matches. Gray chained blocks never match. Keep the pile below the line.'),button('Play Shape Drop',start));
   dialog.append(card,make('p','drop-best-summary','Best score  '+progress.best.toLocaleString()));settleRewards();window.gameAudio?.setScene('menu');
@@ -110,7 +110,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   c.drawImage(stamp,-size/2,-h/2,size,h);
   c.restore();
  }
- function dropHint(){return game.queue[0].bomb?'Drop the bomb to clear nearby shapes':game.queue[0].obstacle?'Locked block · Stays in the pile · Aim carefully':'Tap where you want to drop';}
+ function dropHint(){return game.queue[0].bomb?'Drop the bomb to clear nearby shapes':game.queue[0].obstacle?'Locked block Â· Stays in the pile Â· Aim carefully':'Tap where you want to drop';}
 
  function drawMerge(f){
   drawDropMerge(ctx,f,game.time-f.at,(paint,tile,scale,golden)=>{const crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r,crop.w/crop.h,tile.geometry);drawShape(paint,tile,box.x*scale,box.y*scale,box.width*scale,0,1,golden);},{quiet});
@@ -128,7 +128,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   ctx.strokeStyle=game.danger>0?'#cf4e53':'#76a89b88';ctx.setLineDash([6,8]);ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(6,DROP_LINE);ctx.lineTo(W-6,DROP_LINE);ctx.stroke();ctx.setLineDash([]);
   if(game.danger>0){ctx.fillStyle='#a72e40';ctx.font='900 11px Nunito,sans-serif';ctx.textAlign='center';ctx.fillText(translate('Clear the top!'),W/2,DROP_LINE+20);}
   if(!game.over){
-   if(drag!==null){ctx.save();ctx.strokeStyle='#ffffff';ctx.shadowColor='#164b68';ctx.shadowBlur=3;ctx.setLineDash([4,8]);ctx.lineCap='round';ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(game.aim,52);ctx.lineTo(game.aim,H-8);ctx.stroke();ctx.restore();}
+   if(drag!==null){ctx.save();ctx.strokeStyle='#ffffff';ctx.shadowColor='#164b68';ctx.shadowBlur=3;ctx.setLineDash([4,8]);ctx.lineCap='round';ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(game.aim,52);ctx.lineTo(game.aim,Math.max(52,game.landingY()));ctx.stroke();ctx.restore();}
    const tile=game.queue[0],crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r??DROP_RADIUS,crop.w/crop.h,tile.geometry);
    // Use the same size, pivot and starting height as the falling body.
    ctx.save();ctx.translate(game.aim,dropSpawnY(tile));ctx.rotate(tile.angle||0);
@@ -141,7 +141,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   // Small translucent highlights sit on the front of the glass, below the painted rim.
   ctx.save();ctx.beginPath();ctx.roundRect(0,DROP_LINE,W,H-DROP_LINE,[0,0,12,12]);ctx.clip();
   const sheen=ctx.createLinearGradient(0,0,W,0);sheen.addColorStop(0,'#ffffff00');sheen.addColorStop(.45,'#ffffff00');sheen.addColorStop(.5,'#ffffff0e');sheen.addColorStop(.57,'#ffffff00');sheen.addColorStop(1,'#ffffff00');ctx.fillStyle=sheen;ctx.save();ctx.transform(1,0,-.3,1,90,0);ctx.fillRect(-100,DROP_LINE,W+200,H-DROP_LINE);ctx.restore();
-  ctx.strokeStyle='#e4ffff45';ctx.lineWidth=1.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(8,DROP_LINE+47);ctx.lineTo(8,DROP_LINE+138);ctx.moveTo(W-8,H-132);ctx.lineTo(W-8,H-42);ctx.stroke();ctx.restore();
+  ctx.restore();
   for(const p of framePatches)ctx.drawImage(containerArt,p.sx,p.sy,p.sw,p.sh,p.x,p.y,p.width,p.height);
 
  }
@@ -158,9 +158,9 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const scenery=make('div','drop-scenery');sceneryTint=createSceneryTint(scenery,{garden:true});scenery.setAttribute('aria-hidden','true');const stars=make('div','drop-night-stars');scenery.append(stars);const motes=make('div','drop-motes');for(let i=0;i<24;i++){const mote=make('i');mote.style.cssText=`left:${5+(i*37)%90}%;top:${40+(i*17)%55}%;animation-delay:${-i*1.7}s`;motes.append(mote);}scenery.append(motes);dialog.append(scenery);
   const hud=make('header','drop-play-hud');hudScore=make('strong','drop-live-score','0');hudScore.setAttribute('aria-label','Score');const coins=make('div','mini-run-coins'),coinIcon=make('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';hudCoins=make('strong','','0');coins.append(coinIcon,hudCoins);hud.append(icon('Pause Shape Drop',()=>pause(),'pause'),hudScore,coins);dialog.append(hud);
   const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
-  const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
+  const keys=make('p','drop-keyboard-hint','Hold A / D to move Â· S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
-  const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close,'drop-secondary'));let loadingTimer;
+  const loading=panel('Getting readyâ€¦');loading.setAttribute('role','status');loading.append(button('Games',close,'drop-secondary'));let loadingTimer;
   const ready=await Promise.race([prepareAssets(),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),15000);})]);window.ShapeShiftPlatform.clearTimeout(loadingTimer);
   if(token!==version||!dialog.open)return;if(!ready){const card=panel('Unable to load');card.classList.add('drop-result-panel');card.append(make('p','','Shape Drop could not load. Check your connection and try again.'),button('Retry',start),button('Games',close,'drop-secondary'));return;}
   overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;

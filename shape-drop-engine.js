@@ -49,6 +49,36 @@ export function dropAimBounds(M,tile){
  aimBoundsCache.set(tile,{signature,bounds});return bounds;
 }
 
+// Continuous vertical sweep against the actual convex physics parts. This
+// predicts first contact, including rotated shapes and concave star notches.
+function verticalContact(a,b){
+ let enter=0,exit=Infinity;
+ for(const vertices of [a,b])for(let i=0;i<vertices.length;i++){
+  const v=vertices[i],w=vertices[(i+1)%vertices.length],nx=-(w.y-v.y),ny=w.x-v.x;
+  if(Math.abs(nx)+Math.abs(ny)<1e-9)continue;
+  const pa=a.map(p=>p.x*nx+p.y*ny),pb=b.map(p=>p.x*nx+p.y*ny);
+  const lo=Math.min(...pb)-Math.max(...pa),hi=Math.max(...pb)-Math.min(...pa);
+  if(Math.abs(ny)<1e-9){if(lo>0||hi<0)return Infinity;continue;}
+  enter=Math.max(enter,Math.min(lo/ny,hi/ny));exit=Math.min(exit,Math.max(lo/ny,hi/ny));
+  if(enter>exit)return Infinity;
+ }
+ return exit>=0?enter:Infinity;
+}
+const previewBodies=new WeakMap();
+export function dropLandingY(M,tile,x,pieces,height=DROP_HEIGHT){
+ const signature=[tile.shape,tile.r,tile.angle,!!tile.bomb].join(':');
+ let cached=previewBodies.get(tile);
+ if(!cached||cached.signature!==signature){cached={signature,body:makeDropBody(M,0,0,tile)};previewBodies.set(tile,cached);}
+ const body=cached.body,start=dropSpawnY(tile);M.Body.setPosition(body,{x,y:start});
+ let distance=Math.max(0,height-body.bounds.max.y);
+ const parts=b=>b.parts.length>1?b.parts.slice(1):[b];
+ for(const other of pieces){
+  if(other.drop?.clearAt!=null||other.bounds.max.x<body.bounds.min.x||other.bounds.min.x>body.bounds.max.x)continue;
+  for(const a of parts(body))for(const b of parts(other))distance=Math.min(distance,verticalContact(a.vertices,b.vertices));
+ }
+ return start+Math.max(0,distance);
+}
+
 export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},onImpact=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
  height=Number.isFinite(height)?clamp(height,DROP_HEIGHT,1200):DROP_HEIGHT;
  const engine=M.Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});engine.gravity.y=1.05;
@@ -223,7 +253,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
   game.pieces=game.pieces.filter(b=>!removed.includes(b));for(const b of game.pieces)M.Sleeping.set(b,false);
   game.over=false;game.endReason=null;game.danger=0;game.cooldown=1.5;game.combo=0;accumulator=0;return true;
  }
- return Object.assign(game,{bombAt,revive,step,drop,aimAt:aim,rotate,end,dispose,addPiece:add});
+ return Object.assign(game,{landingY:()=>dropLandingY(M,game.queue[0],game.aim,game.pieces,height),bombAt,revive,step,drop,aimAt:aim,rotate,end,dispose,addPiece:add});
 }
 
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;

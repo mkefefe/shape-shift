@@ -40,6 +40,7 @@ uniform vec2 sceneSize;
 uniform vec2 offset;
 uniform vec2 regionSize;
 uniform float time;
+uniform float fallStrength;
 void main(){
  vec4 m=texture2D(mask,uv);
  if(m.a<.003){gl_FragColor=vec4(0.);return;}
@@ -51,9 +52,9 @@ void main(){
   // becomes transparent before wrapping, so nothing jumps back upstream.
   float phase=fract(time*.58+p.x*.003),other=fract(phase+.5);
   float a=sin(phase*3.14159265);a*=a;
-  float y1=(phase-.5)*14.*m.a,y2=(other-.5)*14.*m.a;
+  float y1=(phase-.5)*14.*m.a*fallStrength,y2=(other-.5)*14.*m.a*fallStrength;
   float slope=m.g*2.-1.;
-  float sway=sin(p.y*.11-time*3.7)*.85*m.a;
+  float sway=sin(p.y*.11-time*3.7)*.85*m.a*fallStrength;
   vec2 d1=vec2(-slope*y1+sway,-y1),d2=vec2(-slope*y2+sway,-y2);
   color=texture2D(source,(p+d1)/sceneSize).rgb*a+texture2D(source,(p+d2)/sceneSize).rgb*(1.-a);
   color*=1.+.035*sin(p.y*.18-time*5.5+p.x*.13)*m.a;
@@ -83,6 +84,7 @@ function gpuSurface(source,scene,region){
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);gl.uniform1i(gl.getUniformLocation(program,name),unit);
  }
  gl.uniform2f(gl.getUniformLocation(program,'sceneSize'),scene.width,scene.height);gl.uniform2f(gl.getUniformLocation(program,'offset'),region.left,region.top);gl.uniform2f(gl.getUniformLocation(program,'regionSize'),region.width,region.height);
+ gl.uniform1f(gl.getUniformLocation(program,'fallStrength'),scene.fallStrength??1);
  const time=gl.getUniformLocation(program,'time');gl.viewport(0,0,canvas.width,canvas.height);
  return {canvas,kind:'webgl',paint(t){gl.uniform1f(time,t/1000);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);return canvas;},lost:()=>gl.isContextLost()};
 }
