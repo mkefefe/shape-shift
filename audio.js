@@ -2,6 +2,18 @@
 (() => {
   'use strict';
   let context, master, musicBus, musicDuck, effectsBus, timer;
+  let lifecycleEpoch=0,suspendTimer=null,suspending=null,masterFade=null;
+  const liveSources=new Set();
+  function audioSource(oscillator=false){
+    const source=oscillator?context.createOscillator():context.createBufferSource();
+    liveSources.add(source);source.addEventListener?.('ended',()=>liveSources.delete(source),{once:true});return source;
+  }
+  function fadeMaster(target,duration){
+    if(!master)return;const now=context.currentTime,f=masterFade;
+    const value=f?f.from+(f.to-f.from)*Math.max(0,Math.min(1,(now-f.start)/f.duration)):master.gain.value;
+    master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(value,now);master.gain.linearRampToValueAtTime(target,now+duration);
+    masterFade={from:value,to:target,start:now,duration};
+  }
   let music = true, sfx = true, active = false;
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
@@ -29,7 +41,7 @@
     compressor.threshold.value = -12;
     compressor.ratio.value = 8;
     compressor.knee.value=9;compressor.attack.value=.001;compressor.release.value=.18;
-    master = context.createGain(); master.gain.value = window.ShapeShiftPlatform.audioAllowed ? 0.52 : 0;
+    master = context.createGain(); master.gain.value = 0;
     musicBus = context.createGain(); musicBus.gain.value = music ? musicLevel()*musicVolume/100 : 0;
     effectsBus = context.createGain(); effectsBus.gain.value = sfx ? SFX_LEVEL*sfxVolume/100 : 0;
     // A centered mono effects bus feeds both output speakers equally.
@@ -40,7 +52,7 @@
 
   function tone(freq, time, length, volume, type = 'sine', bus = musicBus, endFreq) {
     if(bus===effectsBus){volume*=effectGain;freq*=effectPitch;if(endFreq)endFreq*=effectPitch;}
-    const osc = context.createOscillator(), envelope = context.createGain();
+    const osc = audioSource(true), envelope = context.createGain();
     osc.type = type; osc.frequency.setValueAtTime(freq, time);
     if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, time + length);
     envelope.gain.setValueAtTime(0.0001, time);
@@ -73,16 +85,16 @@
       let seed = 43121;
       for (let i = 0; i < data.length; i++) { seed = (seed * 16807) % 2147483647; data[i] = seed / 1073741824 - 1; }
     }
-    const source = context.createBufferSource(), filter = context.createBiquadFilter(), gain = context.createGain();
+    const source = audioSource(), filter = context.createBiquadFilter(), gain = context.createGain();
     source.buffer = noiseBuffer; filter.type = 'highpass'; filter.frequency.value = cutoff;
-    gain.gain.setValueAtTime(volume, time); gain.gain.exponentialRampToValueAtTime(0.0001, time + length);
+    gain.gain.setValueAtTime(.0001,time);gain.gain.linearRampToValueAtTime(volume,time+Math.min(.005,length/4));gain.gain.exponentialRampToValueAtTime(0.0001,time+length);
     source.connect(filter); filter.connect(gain); gain.connect(bus); source.start(time); source.stop(time + length);
     source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
   }
 
   let victorySources=[];
-  function stopVictory(){
-    for(const source of victorySources){try{source.stop();}catch{}}
+  function stopVictory(fade=0){
+    for(const source of victorySources){try{source.stop(context.currentTime+fade);}catch{}}
     victorySources=[];
   }
   const victoryBuffers=new Map(),victoryLoads=new Map();let victorySpark=0,victoryWarm;
@@ -104,7 +116,7 @@
     if(name==='transform'){stopVictory();victorySpark=0;}
     if(name==='spark'){name='spark'+(victorySpark++%4);}
     const buffer=victoryBuffers.get(name);if(!buffer)return;
-    const source=context.createBufferSource();source.buffer=buffer;
+    const source=audioSource();source.buffer=buffer;
     const gain=context.createGain();gain.connect(effectsBus);source.connect(gain);
     // Keep the logo docking swish brief and fade its tail without a click.
     const length=name==='panel'?Math.min(.22,buffer.duration):buffer.duration;
@@ -118,7 +130,7 @@
     volume*=effectGain;
     // Smooth band-limited air rather than a buzzy oscillator or sharp hiss.
     if(!noiseBuffer){noise(time,.001,.0001,1000,effectsBus);}
-    const source=context.createBufferSource(),filter=context.createBiquadFilter(),gain=context.createGain();source.buffer=noiseBuffer;
+    const source=audioSource(),filter=context.createBiquadFilter(),gain=context.createGain();source.buffer=noiseBuffer;
     from*=effectPitch;to*=effectPitch;filter.type='bandpass';filter.Q.value=.65;filter.frequency.setValueAtTime(from,time);filter.frequency.exponentialRampToValueAtTime(to,time+length);
     gain.gain.setValueAtTime(.0001,time);gain.gain.exponentialRampToValueAtTime(volume,time+length*.35);gain.gain.exponentialRampToValueAtTime(.0001,time+length);
     source.connect(filter);filter.connect(gain);gain.connect(effectsBus);source.start(time);source.stop(time+length);source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect();};
@@ -132,7 +144,7 @@
       {delay:.055,length:.75,from:1800,to:240,volume:.15,attack:.075}
     ];
     for(const layer of layers){
-      const start=time+layer.delay,source=context.createBufferSource(),filter=context.createBiquadFilter(),gain=context.createGain();
+      const start=time+layer.delay,source=audioSource(),filter=context.createBiquadFilter(),gain=context.createGain();
       source.buffer=noiseBuffer;filter.type='lowpass';filter.Q.value=.55;
       filter.frequency.setValueAtTime(layer.from*effectPitch,start);filter.frequency.exponentialRampToValueAtTime(layer.to*effectPitch,start+layer.length);
       gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(layer.volume*effectGain,start+layer.attack);gain.gain.exponentialRampToValueAtTime(.0001,start+layer.length);
@@ -158,11 +170,11 @@
         for(let i=0;i<raw.length;i++){seed=(seed*16807)%2147483647;raw[i]=seed/1073741824-1;}
         for(let i=0;i<length;i++){const blend=i<fade?(1-Math.cos(Math.PI*i/fade))/2:1;data[i]=i<fade?raw[length+i]*(1-blend)+raw[i]*blend:raw[i];}
       }
-      const air=context.createBufferSource(),filter=context.createBiquadFilter(),airGain=context.createGain(),gain=context.createGain();
+      const air=audioSource(),filter=context.createBiquadFilter(),airGain=context.createGain(),gain=context.createGain();
       air.buffer=sliceAirBuffer;air.loop=true;filter.type='bandpass';filter.Q.value=.5;filter.frequency.value=1500;airGain.gain.value=.28;gain.gain.value=0;
       air.connect(filter);filter.connect(airGain);airGain.connect(gain);gain.connect(effectsBus);
       const sources=[air],nodes=[air,filter,airGain,gain],tones=[];
-      for(const [ratio,volume] of [[1,.022],[2,.009]]){const osc=context.createOscillator(),level=context.createGain();osc.type='sine';osc.frequency.value=523.25*ratio;level.gain.value=volume;osc.connect(level);level.connect(gain);sources.push(osc);nodes.push(osc,level);tones.push({osc,ratio});}
+      for(const [ratio,volume] of [[1,.022],[2,.009]]){const osc=audioSource(true),level=context.createGain();osc.type='sine';osc.frequency.value=523.25*ratio;level.gain.value=volume;osc.connect(level);level.connect(gain);sources.push(osc);nodes.push(osc,level);tones.push({osc,ratio});}
       sliceVoice={sources,nodes,tones,filter,gain};for(const source of sources)source.start(now);
     }
     sliceVoice.gain.gain.setTargetAtTime(speed<.005?0:.18+Math.sqrt(speed)*.42,now,.055);
@@ -219,7 +231,7 @@
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!Number.isFinite(note)||note<36||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
     const key=pianoKeys.reduce((a,b)=>Math.abs(a-note)<=Math.abs(b-note)?a:b),buffer=pianoBuffers.get(key);if(!buffer)return ()=>{};
     if(pianoVoices.size>=32)pianoVoices.values().next().value.release();
-    const source=context.createBufferSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime,hold=Math.max(.08,Math.min(5,Number(duration)||.35)),volume=(accompaniment?.72:.9)*volumeValue(velocity*100,100)/100;
+    const source=audioSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime,hold=Math.max(.08,Math.min(5,Number(duration)||.35)),volume=(accompaniment?.72:.9)*volumeValue(velocity*100,100)/100;
     source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(volume,now+.008);gain.gain.setValueAtTime(volume,now+hold);gain.gain.exponentialRampToValueAtTime(.0001,now+hold+.48);
     warmth.type='lowpass';warmth.frequency.value=accompaniment?2900:4200;warmth.Q.value=.55;
     source.connect(warmth);warmth.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
@@ -239,7 +251,7 @@
     if(bar%8===7&&step===7&&energy>.85)hits.push(['shaker',.045]);
     for(const [key,volume] of hits){
       const buffer=pianoBuffers.get(key);if(!buffer)continue;
-      const source=context.createBufferSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=volume*Math.max(0,Math.min(1,energy));source.connect(gain);gain.connect(musicBus);
+      const source=audioSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=volume*Math.max(0,Math.min(1,energy));source.connect(gain);gain.connect(musicBus);
       let released=false;const voice={accompaniment:true,release(){if(released)return;released=true;pianoVoices.delete(voice);gain.gain.setTargetAtTime(0,context.currentTime,.01);try{source.stop(context.currentTime+.04);}catch{}}};
       pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();gain.disconnect();};source.start(context.currentTime);source.stop(context.currentTime+Math.min(.4,buffer.duration));
     }
@@ -268,7 +280,9 @@
     else voice.source.stop(now);
   }
   function schedule(){
-    if(!active||context.state!=='running'||!music||musicVolume<=0||window.ShapeShiftPlatform.paused){
+    // A browser audio interruption is temporary: retain the looping voice.
+    if(!active||context.state!=='running'||window.ShapeShiftPlatform.paused)return;
+    if(!music||musicVolume<=0){
       if(musicVoice||musicPending)stopMusicTrack();return;
     }
     if(scene==='piano')return;
@@ -281,7 +295,7 @@
       // Keep the current world's music alive while the next one decodes,
       // then blend between themes. Stale pending loads cannot start a wrong song.
       if(musicVoice)stopMusicTrack(.85);
-      const source=context.createBufferSource(),gain=context.createGain(),now=context.currentTime,fadeIn=scene==='menu'?.85:.3;
+      const source=audioSource(),gain=context.createGain(),now=context.currentTime,fadeIn=scene==='menu'?.85:.3;
       const offset=musicPositions[name]%buffer.duration;
       source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
       gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(1,now+fadeIn);
@@ -295,7 +309,11 @@
   async function start() {
     if (!window.ShapeShiftPlatform.audioAllowed) return;
     if (!setup()) return;
-    try { if (context.state !== 'running') await context.resume(); } catch (_) { return; }
+    const epoch=lifecycleEpoch;
+    if(suspendTimer!==null){window.clearTimeout?.(suspendTimer);suspendTimer=null;}
+    try { if(suspending)await suspending;if(context.state !== 'running') await context.resume(); } catch (_) { return; }
+    if(epoch!==lifecycleEpoch||!window.ShapeShiftPlatform.audioAllowed)return;
+    if(!active)fadeMaster(.52,.16);
     // Warm celebration samples after the first gesture without delaying play.
     // Calling start again retries only failed recordings.
     void prepareVictory();
@@ -479,7 +497,7 @@
       case 'shield': {
         // Preserve the preview timbre, but give its chimes a clear foreground envelope.
         for(const [hz,delay,length,level,type] of [[155,0,.16,.42,'triangle'],[659,.045,.34,.30,'sine'],[988,.095,.45,.24,'sine']]){
-          const at=now+delay,osc=context.createOscillator(),gain=context.createGain();
+          const at=now+delay,osc=audioSource(true),gain=context.createGain();
           osc.type=type;osc.frequency.setValueAtTime(hz,at);
           gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(level,at+.008);
           gain.gain.setValueAtTime(level,at+.035);gain.gain.exponentialRampToValueAtTime(.0001,at+length);
@@ -521,18 +539,31 @@
     const name=praiseClips[text];if(!name||!sfx||sfxVolume<=0||!active||context?.state!=='running')return;
     stopVoice();const epoch=voiceEpoch,buffer=await voiceBuffer(name);
     if(epoch!==voiceEpoch||!buffer||!sfx||sfxVolume<=0||!active||context.state!=='running'||window.ShapeShiftPlatform.paused)return;
-    const source=context.createBufferSource();source.buffer=buffer;source.connect(effectsBus);voiceSource=source;
+    const source=audioSource();source.buffer=buffer;source.connect(effectsBus);voiceSource=source;
     source.onended=()=>{if(voiceSource===source)voiceSource=null;source.disconnect();};duckMusic(buffer.duration);source.start();
   }
-  function stopVoice(){voiceEpoch++;if(voiceSource){try{voiceSource.stop();}catch{}voiceSource=null;}}
+  function stopVoice(fade=0){voiceEpoch++;if(voiceSource){try{voiceSource.stop(context.currentTime+fade);}catch{}voiceSource=null;}}
   function pause() {
-    stopVoice();stopSlice();stopPiano();stopMusicTrack(0);active = false; window.ShapeShiftPlatform.clearInterval(timer);
-    if (context && context.state === 'running') context.suspend().catch(() => {});
+    if(!context)return;
+    const epoch=++lifecycleEpoch;active=false;window.ShapeShiftPlatform.clearInterval(timer);timer=null;
+    musicEpoch++;musicPending=null;
+    fadeMaster(0,.06);
+    // End short and queued effects before suspending; never replay their tails
+    // when the tab returns. The looping music voice keeps its exact position.
+    stopVoice(.065);stopSlice();stopVictory(.065);
+    for(const source of liveSources)if(!source.loop){try{source.stop(context.currentTime+.065);}catch{}}
+    stopPiano();
+    if(suspendTimer!==null)window.clearTimeout?.(suspendTimer);
+    suspendTimer=window.setTimeout(()=>{
+      if(epoch!==lifecycleEpoch||active)return;suspendTimer=null;
+      if(context.state==='running'){
+        const pending=context.suspend().catch(()=>{});suspending=pending;
+        pending.finally(()=>{if(suspending===pending)suspending=null;});
+      }
+    },80);
   }
   function platformAudioChanged(){
-    const allowed=window.ShapeShiftPlatform.audioAllowed;
-    if(master)master.gain.setValueAtTime(allowed?.52:0,context.currentTime);
-    if(!allowed)pause();else start();
+    if(!window.ShapeShiftPlatform.audioAllowed)pause();else void start();
   }
   const resume = start;
   let uiEpoch=0;

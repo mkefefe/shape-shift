@@ -106,7 +106,7 @@ test('each world resumes its own saved playback offset across equipment changes 
  state.context.currentTime=19;audio.setMenuWorld('sunset');await flush();
  state.context.currentTime=25;audio.setMenuWorld('garden');await flush();assert.equal(tracks().at(-1).startArgs[1],12);
  state.context.currentTime=28;audio.setMenuWorld('moon');await flush();assert.equal(tracks().at(-1).startArgs[1],7);
- state.context.currentTime=32;audio.pause();await audio.resume();await flush();assert.equal(tracks().at(-1).startArgs[1],11);
+ state.context.currentTime=32;const continuing=tracks().at(-1);audio.pause();await audio.resume();await flush();assert.equal(tracks().at(-1),continuing);assert.equal(continuing.stops.length,0);
  audio.setMenuWorld('sunset');await flush();assert.equal(tracks().at(-1).startArgs[1],6);
 });
 
@@ -297,4 +297,25 @@ test('shared pluck, match and phrase helpers preserve the original game cue defa
 
 test('merge pop starts at the visual impact and finishes without a low bass tail',async()=>{
  const {audio,state}=harness({random:()=>0});audio.setScene('drop');await audio.start();await flush();state.context.currentTime=.58;const start=state.oscillators.length;audio.play('drop-merge-burst');const burst=state.oscillators.slice(start);assert.equal(burst[0].started,.58);assert(burst.every(v=>v.frequency.values[0][0]>=1175&&v.stops[0]<.85));assert.equal(state.gains[2].channelCount,1);
+});
+
+
+test('temporary context interruptions and late scheduler ticks do not restart music',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();const voice=tracks()[0];
+ state.context.currentTime=8;state.context.state='suspended';for(const tick of state.timers.values())tick();
+ assert.equal(voice.stops.length,0);state.context.state='running';state.context.currentTime=15;
+ for(const tick of state.timers.values())tick();await flush();assert.equal(tracks().length,1);
+});
+test('pause fades output and cancels effects while resume retains the music voice',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=10;audio.play('click');
+ const voice=tracks()[0],effect=state.oscillators.at(-1);audio.pause();
+ assert.deepEqual(state.gains[0].gain.ramps.at(-1),[0,10.06]);assert.equal(voice.stops.length,0);assert.equal(effect.stops.at(-1),10.065);
+ await audio.resume();await flush();assert.equal(tracks().length,1);assert.deepEqual(state.gains[0].gain.ramps.at(-1),[.52,10.16]);
+ // A delayed old pause must not suspend playback after the game has resumed.
+ for(const callback of [...state.delays])callback();await flush();assert.equal(state.context.state,'running');
+});
+test('a resume promise cannot reactivate audio after a newer pause',async()=>{
+ let resolve;const {audio,state,tracks}=harness({resume:()=>new Promise(done=>resolve=done)});
+ const starting=audio.start();audio.pause();state.platform.audioAllowed=false;state.context.state='running';resolve();await starting;await flush();
+ assert.equal(tracks().length,0);assert.equal(state.timers.size,0);
 });
