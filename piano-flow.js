@@ -8,7 +8,7 @@ import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
 import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49499';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 

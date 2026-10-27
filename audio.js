@@ -346,34 +346,21 @@
     musicDuck.gain.linearRampToValueAtTime(1,end);
     duckEnvelope={start:now,from:current,down,hold,end};
   }
-  // Pocket Gravity: 100 BPM, two bars each of C, Am, G, F. Follow the
-  // recording's real offset (including resumes), not time since the last input.
-  const dropChords=[[72,76,79],[72,76,81],[71,74,79],[72,77,81]],dropVoicings=new Map();
+  // Drop uses the same tactile plucks and cheerful match voice as the main
+  // game. Impacts are brief feedback, not a second melody over the soundtrack.
   function dropCue(name,time,variant){
-    const voice=musicVoice?.name==='drop'?musicVoice:null;
-    const position=voice?(voice.offset+Math.max(0,time-voice.startedAt))%voice.source.buffer.duration:musicPositions.drop;
-    const chord=dropChords[Math.floor(position/4.8)%dropChords.length];
-    let pick=variant%3;if(pick===dropVoicings.get(name))pick=(pick+1+variant%2)%3;dropVoicings.set(name,pick);
-    const freq=midi(chord[pick]),next=midi(chord[(pick+1)%3]+(pick===2?12:0));
-    // Small changes in touch and voicing, with exact chord pitches and no detuning.
-    effectPitch=1;effectGain=1.4*(.94+variant*.0125);
+    effectPitch=2**(variant*.045/12);effectGain=1.15*(.97+variant*.0075);
     switch(name){
-      case 'drop-release': tapPluck(time,freq,freq,.105,.115);break;
-      case 'drop-land': tapPluck(time,freq/2,freq/2,.11,.14);break;
-      case 'drop-touch': tapPluck(time,freq,freq,.085,.08);break;
-      case 'drop-block': tapPluck(time,freq/2,freq/2,.13,.115);tapPluck(time+.04,freq,freq,.075,.028);break;
-      case 'drop-merge-start':
-        // Bright, rising glass plucks anticipate the .58s visual impact.
-        notePhrase(chord.map(n=>n+12),time,.085,.16,.075);break;
-      case 'drop-merge-burst':
-        // A rounded pop and quick sparkle, centered in both speakers. No bass
-        // layer or downward pitch randomization obscures the colored burst.
-        tone(midi(chord[0]+12),time,.115,.11,'triangle',effectsBus);
-        tone(midi(chord[1]+12),time+.025,.18,.085,'sine',effectsBus);
-        tone(midi(chord[2]+12),time+.065,.22,.07,'sine',effectsBus);
-        tone(midi(chord[0]+24),time+.11,.20,.035,'sine',effectsBus);break;
-      case 'drop-pop': case 'drop-chain':
-        notePhrase(chord,time,.045,.18,.115);break;
+      case 'drop-release': tapPluck(time);break;
+      case 'drop-land': tapPluck(time,740,880,.075,.085);break;
+      case 'drop-touch': tapPluck(time,880,1046,.055,.045);break;
+      case 'drop-block': tone(740,time,.065,.065,'triangle',effectsBus,880);break;
+      case 'drop-merge-start': matchChime(time,1046,.85);break;
+      case 'drop-merge-burst': case 'drop-pop': case 'drop-chain':
+        // Same rounded match timbre, with Slice-like air around the impact.
+        matchChime(time,1175,1.1,1.08,1.5);
+        tone(2093,time+.055,.16,.035,'sine',effectsBus);
+        noise(time,.035,.018,3200,effectsBus);break;
     }
   }
   const lastMiniCue=new Map();

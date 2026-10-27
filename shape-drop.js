@@ -10,7 +10,7 @@ import {createMiniResults} from './mini-results.js';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {ARTWORK_CROPS} from './artwork-crops.js';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=49499';
 import {miniGameCoins} from './mini-game-rewards.js';
 import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js';
 import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js';
@@ -127,7 +127,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   ctx.strokeStyle=game.danger>0?'#cf4e53':'#76a89b88';ctx.setLineDash([6,8]);ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(6,DROP_LINE);ctx.lineTo(W-6,DROP_LINE);ctx.stroke();ctx.setLineDash([]);
   if(game.danger>0){ctx.fillStyle='#a72e40';ctx.font='900 11px Nunito,sans-serif';ctx.textAlign='center';ctx.fillText(translate('Clear the top!'),W/2,DROP_LINE+20);}
   if(!game.over){
-   if(drag!==null){ctx.strokeStyle='#4f8c8770';ctx.setLineDash([2,9]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(game.aim,52);ctx.lineTo(game.aim,H-8);ctx.stroke();ctx.setLineDash([]);}
+   if(drag!==null){ctx.save();ctx.strokeStyle='#ffffff';ctx.shadowColor='#164b68';ctx.shadowBlur=3;ctx.setLineDash([4,8]);ctx.lineCap='round';ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(game.aim,52);ctx.lineTo(game.aim,H-8);ctx.stroke();ctx.restore();}
    const tile=game.queue[0],crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r??DROP_RADIUS,crop.w/crop.h,tile.geometry);
    // Use the same size, pivot and starting height as the falling body.
    ctx.save();ctx.translate(game.aim,dropSpawnY(tile));ctx.rotate(tile.angle||0);

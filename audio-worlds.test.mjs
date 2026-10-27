@@ -261,17 +261,9 @@ test('Slice cut and chip cues finish promptly without repeated music dips',async
 
 
 const dropCues=['drop-release','drop-land','drop-touch','drop-block','drop-merge-start','drop-merge-burst','drop-pop','drop-chain'];
-test('Drop cues use centered short musical voices, stay rate-limited, and do not duck music',async()=>{
- const {audio,state}=harness();audio.setScene('drop');await audio.start();await flush();
- const duck=state.gains[3],before=duck.gain.ramps.length;
- for(const cue of dropCues){
-  state.context.currentTime+=1;const sources=state.sources.length,tones=state.oscillators.length;
-  audio.play(cue);const added=state.oscillators.slice(tones);
-  assert(added.length>0&&added.length<=4);assert.equal(state.sources.length,sources,'Drop must not reintroduce noise sweeps');
-  const count=state.oscillators.length;audio.play(cue);
-  assert.equal(state.oscillators.length,count,'simultaneous contacts must not pile up identical cues');
-  for(const voice of added){assert(['sine','triangle'].includes(voice.type));assert(voice.stops[0]-state.context.currentTime<.36);assert.equal(voice.connections[0].connections[0],state.gains[2]);}
- }
+test('Drop uses short centered tactile effects with rate limiting and steady music',async()=>{
+ const {audio,state}=harness();audio.setScene('drop');await audio.start();await flush();const duck=state.gains[3],before=duck.gain.ramps.length;
+ for(const cue of dropCues){state.context.currentTime+=1;const first=state.oscillators.length;audio.play(cue);const added=state.oscillators.slice(first);assert(added.length>0&&added.length<=3);const count=state.oscillators.length;audio.play(cue);assert.equal(state.oscillators.length,count);for(const v of added){assert(['sine','triangle'].includes(v.type));assert(v.stops[0]-state.context.currentTime<.3);assert.equal(v.connections[0].connections[0],state.gains[2]);}}
  assert.equal(state.gains[2].channelCount,1);assert.equal(duck.gain.ramps.length,before);
 });
 
@@ -284,35 +276,14 @@ test('all Drop cues respect effects mute, zero volume, pause and host audio rest
  }
 });
 
+test('Drop release and merge share the main game voice with only subtle upward variation',async()=>{
+ const {audio,state}=harness({random:()=>0});audio.setScene('drop');await audio.start();await flush();
+ for(const [cue,frequencies] of [['drop-release',[560]],['drop-merge-start',[1046,1569]],['drop-merge-burst',[1175,1762.5,2093]]]){
+ const first=state.oscillators.length;audio.play(cue);assert.deepEqual(state.oscillators.slice(first).map(v=>v.frequency.values[0][0]),frequencies);}
+ for(let i=0;i<12;i++){state.context.currentTime+=.2;const first=state.oscillators.length;audio.play('drop-merge-start');const f=state.oscillators[first].frequency.values[0][0];assert(f>=1046&&f<1075);}
+});
+
 const pitchOf=voice=>69+12*Math.log2(voice.frequency.values[0][0]/440);
-function assertChord(voices,classes){
- assert(voices.length>0);
- for(const voice of voices){const pitch=pitchOf(voice);assert(Math.abs(pitch-Math.round(pitch))<.00001,'Drop uses exact musical pitches without random detuning');assert(classes.includes(Math.round(pitch)%12),`pitch ${pitch} must follow current backing chord`);}
-}
-test('Drop tones follow the actual backing chords, loop position, and resumed playback offset',async()=>{
- const {audio,state}=harness({random:()=>.5});audio.setScene('drop');await audio.start();await flush();
- for(const [time,chord] of [[.2,[0,4,7]],[4.7,[0,4,7]],[4.8,[0,4,9]],[9.5,[0,4,9]],[9.6,[2,7,11]],[14.3,[2,7,11]],[14.4,[0,5,9]],[19.1,[0,5,9]],[19.2,[0,4,7]],[96.2,[0,4,7]]]){
-  state.context.currentTime=time;
-  for(const cue of dropCues){const start=state.oscillators.length;audio.play(cue);assertChord(state.oscillators.slice(start),chord);}
- }
- state.context.currentTime=101.2;audio.pause();state.context.currentTime=200;await audio.resume();await flush();
- assert(Math.abs(state.sources.at(-1).startArgs[1]-5.2)<.00001);
- let start=state.oscillators.length;audio.play('drop-merge-burst');assertChord(state.oscillators.slice(start),[0,4,9]);
- audio.setMusic(false);state.context.currentTime=240;start=state.oscillators.length;audio.play('drop-release');assertChord(state.oscillators.slice(start),[0,4,9]);
-});
-
-test('Drop cues are immediate with unavailable music and vary within a bounded consonant palette',async()=>{
- const {audio,state}=harness({fetch:()=>({ok:false}),random:()=>.5});audio.setScene('drop');await audio.start();await flush();
- const frequencies=[];
- for(let i=0;i<12;i++){
-  state.context.currentTime=30+i*.1;const start=state.oscillators.length;audio.play('drop-release');const added=state.oscillators.slice(start);assertChord(added,[0,4,7]);
-  frequencies.push(added[0].frequency.values[0][0]);
-  const volume=added[0].connections[0].gain.ramps[0][0];assert(volume>=.115*.94*1.4-1e-9&&volume<=.115*1.04*1.4+1e-9);
- }
- assert(new Set(frequencies).size>1);for(let i=1;i<frequencies.length;i++)assert.notEqual(frequencies[i],frequencies[i-1]);
- assert(Math.max(...frequencies)/Math.min(...frequencies)<1.51);
-});
-
 test('shared pluck, match and phrase helpers preserve the original game cue defaults',async()=>{
  const {audio,state}=harness({random:()=>.5});await audio.start();await flush();
  audio.play('surface-tap');let voices=state.oscillators.slice(-1);
@@ -324,13 +295,6 @@ test('shared pluck, match and phrase helpers preserve the original game cue defa
  audio.play('bonus');voices=state.oscillators.slice(-5);assert.deepEqual(voices.map(pitchOf),[72,76,79,84,88]);assert.deepEqual(voices.map(v=>v.started),[0,.055,.11,.165,.22]);
 });
 
- test('merge anticipation rises brightly and impact has a short centered sparkle',async()=>{
- const {audio,state}=harness({random:()=>0});audio.setScene('drop');await audio.start();await flush();
- let start=state.oscillators.length;audio.play('drop-merge-start');const rise=state.oscillators.slice(start);
- assert.equal(rise.length,3);assert(rise.every(v=>v.frequency.values[0][0]>=980));
- assert(rise[0].frequency.values[0][0]<rise[1].frequency.values[0][0]);assert(rise[1].frequency.values[0][0]<rise[2].frequency.values[0][0]);assert(rise.every(v=>v.stops[0]<.58));
- state.context.currentTime=.58;start=state.oscillators.length;audio.play('drop-merge-burst');const burst=state.oscillators.slice(start);
- assert.equal(burst.length,4);assert.equal(burst[0].started,.58);assert.equal(burst[0].type,'triangle');
- assert(burst.every(v=>v.frequency.values[0][0]>=980&&v.frequency.values[0][0]<=2100));assert(burst.every(v=>v.stops[0]<1));
- assert.equal(state.gains[2].channelCount,1);
- });
+test('merge pop starts at the visual impact and finishes without a low bass tail',async()=>{
+ const {audio,state}=harness({random:()=>0});audio.setScene('drop');await audio.start();await flush();state.context.currentTime=.58;const start=state.oscillators.length;audio.play('drop-merge-burst');const burst=state.oscillators.slice(start);assert.equal(burst[0].started,.58);assert(burst.every(v=>v.frequency.values[0][0]>=1175&&v.stops[0]<.85));assert.equal(state.gains[2].channelCount,1);
+});
