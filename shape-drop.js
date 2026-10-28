@@ -1,5 +1,5 @@
-import {beginModeTransition} from './mode-transition.js?v=494115';
-import {engagement,registerModeState} from './telemetry.js?v=494117';
+import {beginModeTransition} from './mode-transition.js?v=494118';
+import {engagement,registerModeState} from './telemetry.js?v=494118';
 import {createDropWater} from './drop-water.js';
 import {translate} from './localization.js?v=49499';
 import {createDropMergeAudio} from './drop-merge-audio.js';
@@ -91,7 +91,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   const tiles=[[0,1,18,73,-12],[2,0,43,79,8],[1,2,66,74,-8],[3,3,80,49,15],[0,2,30,40,5],[2,1,55,18,-17]];
   for(const [shape,color,x,y,angle] of tiles){const s=sprite({shape,color},'drop-preview-piece');s.style.cssText+=`;left:${x}%;top:${y}%;transform:translate(-50%,-50%) rotate(${angle}deg)`;artboard.append(s);}
   artboard.append(make('span','drop-preview-trail'));
-  card.append(artboard,make('p','drop-eyebrow','ENDLESS Â· PHYSICS'),make('h3','','Shape Drop'),make('p','drop-description','Aim. Drop. Match. Let gravity do the rest.'));
+  card.append(artboard,make('p','drop-eyebrow','ENDLESS · PHYSICS'),make('h3','','Shape Drop'),make('p','drop-description','Aim. Drop. Match. Let gravity do the rest.'));
   const rule=make('div','drop-match-example');rule.append(sprite({shape:0,color:1}),make('b','','+'),sprite({shape:0,color:2}),make('span','','Same shape'),sprite({shape:0,color:1}),make('b','','+'),sprite({shape:2,color:1}),make('span','','Same color'));card.append(rule);
   card.append(make('p','drop-copy','Touching shapes clear when their color OR shape matches. Gray chained blocks never match. Keep the pile below the line.'),button('Play Shape Drop',start));
   dialog.append(card,make('p','drop-best-summary','Best score  '+progress.best.toLocaleString()));settleRewards();window.gameAudio?.setScene('menu');
@@ -113,7 +113,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   c.drawImage(stamp,-size/2,-h/2,size,h);
   c.restore();
  }
- function dropHint(){return game.queue[0].bomb?'Drop the bomb to clear nearby shapes':game.queue[0].obstacle?'Locked block Â· Stays in the pile Â· Aim carefully':'Tap where you want to drop';}
+ function dropHint(){return game.queue[0].bomb?'Drop the bomb to clear nearby shapes':game.queue[0].obstacle?'Locked block · Stays in the pile · Aim carefully':'Tap where you want to drop';}
 
  function drawMerge(f){
   drawDropMerge(ctx,f,game.time-f.at,(paint,tile,scale,golden)=>{const crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r,crop.w/crop.h,tile.geometry);drawShape(paint,tile,box.x*scale,box.y*scale,box.width*scale,0,1,golden);},{quiet});
@@ -156,21 +156,21 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  function showResult(){mergeAudio.reset();keyboard.reset();window.gameAudio?.stopPraise();if(!game)return;window.ShapeShiftPlatform.cancelAnimationFrame(raf);raf=0;paused=false;dialog.dataset.paused='true';if(!saved&&game.over&&game.endReason==='overflow'&&continueOffer.offer({description:'Watch a video to clear the upper pile and keep your score.',resume:()=>{game.revive();hitFeedback.reset();paused=true;resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:showResult}))return;if(!saved)play('over');const xpBefore=getXp(),stored=saveRun();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.cleared),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:showResult,finish:close});render();}
 
  let entering=false;
- async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Drop');try{await prepareRun(gate);}finally{gate.dispose();entering=false;}}
+ async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Drop');try{await gate.covered;if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate.dispose();entering=false;}}
  async function prepareRun(gate){
   window.gameAudio?.start()?.catch(()=>{});
   if(game&&!saveRun())return;stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;runId='shape-drop-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;
   const scenery=make('div','drop-scenery');sceneryTint=createSceneryTint(scenery,{garden:true});scenery.setAttribute('aria-hidden','true');const stars=make('div','drop-night-stars');scenery.append(stars);const motes=make('div','drop-motes');for(let i=0;i<24;i++){const mote=make('i');mote.style.cssText=`left:${5+(i*37)%90}%;top:${40+(i*17)%55}%;animation-delay:${-i*1.7}s`;motes.append(mote);}scenery.append(motes);dialog.append(scenery);
   const hud=make('header','drop-play-hud');hudScore=make('strong','drop-live-score','0');hudScore.setAttribute('aria-label','Score');const coins=make('div','mini-run-coins'),coinIcon=make('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';hudCoins=make('strong','','0');coins.append(coinIcon,hudCoins);hud.append(icon('Pause Shape Drop',()=>pause(),'pause'),hudScore,coins);dialog.append(hud);
   const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
-  const keys=make('p','drop-keyboard-hint','Hold A / D to move Â· S to drop');dialog.append(keys);
+  const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
-  const loading=panel('Getting readyâ€¦');loading.setAttribute('role','status');loading.append(button('Games',close,'drop-secondary'));let loadingTimer;
+  const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close,'drop-secondary'));let loadingTimer;
   const ready=await Promise.race([prepareAssets(),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),15000);})]);window.ShapeShiftPlatform.clearTimeout(loadingTimer);
   if(token!==version||!dialog.open)return;if(!ready){const card=panel('Unable to load');card.classList.add('drop-result-panel');card.append(make('p','','Shape Drop could not load. Check your connection and try again.'),button('Retry',start),button('Games',close,'drop-secondary'));return;}
   overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
   dropWater=createDropWater(scenery,gardenArt);dropWater.step(0);settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),height:layout.worldHeight,geometryFor:tile=>tile.bomb?null:collisionArtwork.get(dropCrop(tile)),autoDrop:false,onImpact:event=>play(event.type==='floor'?'drop-land':'drop-touch'),onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});mergeAudio.merge(game.time);for(const group of event.groups)fx.push({kind:'merge',at:game.time,x:group.reduce((sum,b)=>sum+b.position.x,0)/group.length,y:group.reduce((sum,b)=>sum+b.position.y,0)/group.length,pieces:group.map(b=>({tile:{...b.drop},x:b.position.x,y:b.position.y,angle:b.angle}))});announcement.textContent='Match!  +'+event.score;}});
-  teaching.mount(dialog);engagement.startRun('drop');onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();await gate.reveal();if(token!==version||!dialog.open)return;last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  teaching.mount(dialog);engagement.startRun('drop');onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();await gate.reveal(()=>render());if(token!==version||!dialog.open)return;last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const aim=e=>{if(paused||game.over||!transform)return;const r=canvas.getBoundingClientRect();game.aimAt((e.clientX-r.left-transform.x)/transform.scale);};
   canvas.onpointerdown=e=>{if(e.button!==0||drag!==null||paused||game.over||!transform)return;keyboard.reset();drag=e.pointerId;canvas.setPointerCapture(e.pointerId);aim(e);};canvas.onpointermove=e=>{if(drag===e.pointerId)aim(e);};canvas.onpointerup=e=>{if(drag===e.pointerId){aim(e);drag=null;release();render();}};canvas.onpointercancel=()=>{drag=null;render();};canvas.onlostpointercapture=()=>{drag=null;render();};
  }
@@ -182,5 +182,5 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  const autoPause=()=>{if(dialog.open&&game&&!game.over&&!paused)pause();};document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)autoPause();});window.addEventListener('unused-blur',autoPause);window.addEventListener('shape-shift-pause',autoPause);window.addEventListener('unused-androidpause',autoPause);
  window.addEventListener('unused-pagehide',()=>{if(game&&!saved){game.end();showResult();}});new ResizeObserver(()=>{viewBounds=null;if(game)render();}).observe(dialog);
  try{onProgress(progress);}catch{}
- return {async prepare(){if(!await prepareAssets())throw Error('Shape Drop assets unavailable');},open(){if(dialog.open)return;dialog.showModal();start();play('click');},close};
+ return {async prepare(){if(!await prepareAssets())throw Error('Shape Drop assets unavailable');},open(){if(dialog.open)return;start();play('click');},close};
 }

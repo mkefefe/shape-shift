@@ -31,3 +31,14 @@ export function loadBackgroundAssets({assets=BACKGROUND_ASSETS,fetcher=fetch,
  };
  schedule(pump);return {stop(){stopped=true;controller?.abort();}};
 }
+
+// Finish opening resources before presenting first-run setup.
+export async function prepareOpeningScreen(){
+ const cover=document.getElementById('startup-ready');
+ if(!cover)return;
+ cover.hidden=false;
+ cover.querySelector('p').textContent='Loading game...';
+ const bar=cover.querySelector('progress'),label=cover.querySelector('.startup-percent');
+ await loadStartupAssets((done,total)=>{const value=Math.floor(done/total*100);if(bar)bar.value=value;if(label)label.textContent=value+'%';});
+ await document.fonts.ready;
+}

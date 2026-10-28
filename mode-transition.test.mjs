@@ -14,13 +14,19 @@ test('startup preparation uses its own barrier instead of blocking board readine
  const old=globalThis.document;globalThis.document={documentElement:{classList:{contains:()=>true}},createElement(){throw Error('Unexpected gate');}};
  try{const gate=beginModeTransition('First board');await gate.reveal();gate.dispose();}finally{globalThis.document=old;}
 });
-test('first tutorial and every mode await gate; return to menu does not',async()=>{
+test('destinations paint under the closed gate before reveal',async()=>{
  const read=name=>readFile(new URL(name,import.meta.url),'utf8');const game=await read('game.js');
- assert.match(game,/if\(launch\)\{const firstGate=beginModeTransition\('Your first game'\);try\{await firstGate.reveal\(\);\}finally\{firstGate.dispose\(\);\}\}/);
- assert(game.indexOf('await firstGate.reveal()')<game.indexOf('showFirstLesson',game.indexOf('await firstGate.reveal()')));
- assert.match(game,/nextBoard\(\);await gate.reveal\(\)/);
- for(const name of ['shape-drop.js','shape-slice.js','piano-flow.js'])assert.match(await read(name),/await gate.reveal\(\)/);
+ assert.match(game,/await gate.covered;return await prepareRun/);
+ assert.match(game,/nextBoard\(\);await gameplayScene.prepare\(\);/);
+ assert.match(game,/await firstGate.covered;cover.hidden=true/);
+ assert(game.indexOf('await firstGate.reveal(')<game.indexOf('showFirstLesson?.()'));
+ assert.doesNotMatch(game,/loadBackgroundAssets\(/);
+ for(const name of ['shape-drop.js','shape-slice.js','piano-flow.js']){
+  const source=await read(name);assert.match(source,/await gate.covered;if\(!dialog.open\)dialog.showModal\(\)/);
+  assert.match(source,/await gate.reveal\(\(\)=>/);
+ }
 });
+
 test('approved effects use settings-controlled bus, no separate unmuted context',async()=>{
  const audio=await readFile(new URL('audio.js',import.meta.url),'utf8');assert.match(audio,/function playGate[\s\S]*?sfxVolume<=0/);assert.match(audio,/source.connect\(gain\).connect\(effectsBus\)/);
  const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');assert.match(gate,/observer.disconnect\(\)/);assert.match(gate,/cancelAnimationFrame\(raf\)/);assert.doesNotMatch(gate,/new AudioContext/);

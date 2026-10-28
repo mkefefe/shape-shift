@@ -1,3 +1,4 @@
+import {prepareOpeningScreen} from './startup-loader.js?v=494118';
 import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=49499';
 import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=49499';
 import {observeDeferredImages} from './deferred-images.js?v=49499';
@@ -106,7 +107,8 @@ async function start() {
     observeDeferredImages();
     platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     await loadScript('audio.js?v=494115');
-    await import('./game.js?v=494117');
+  await prepareOpeningScreen();
+    await import('./game.js?v=494118');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';
