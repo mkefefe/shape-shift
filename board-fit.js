@@ -11,25 +11,7 @@ export function fitBoard(board){
   const size=squareTrack(width,height,columns,rows,parseFloat(style.gap)||0);
   board.style.setProperty('--track',size+'px');board.style.setProperty('--cols',columns);board.style.setProperty('--rows',rows);
   board.style.setProperty('--tile-art',Math.min(100,Math.floor(size*.72))+'px');
-  // The tinted surface hugs the grid, not the full flexible layout slot.
-  // Reserve the same border on every side, including sparse Adventure layouts.
-  const gap=parseFloat(style.gap)||0,pad=14;
-  const gridWidth=size*columns+gap*(columns-1),gridHeight=size*rows+gap*(rows-1);
-  const surfaceX=Math.max(0,(board.clientWidth-gridWidth)/2-pad);
-  const surfaceY=Math.max(0,(board.clientHeight-gridHeight)/2-pad);
-  board.style.setProperty('--surface-x',surfaceX+'px');
-  board.style.setProperty('--surface-y',surfaceY+'px');
 
-  // Cut the tint out beneath occupied cards so translucent card art stays unchanged.
-  const bounds=board.getBoundingClientRect();
-  const holes=Array.from(board.children).filter(e=>e.matches('.choice:not(.collected),.board-rock')&&e.style.display!=='none').map(e=>{
-   const radius=parseFloat(getComputedStyle(e).borderTopLeftRadius)||18;
-   // Layout bounds exclude temporary reveal/landing transforms.
-   const r={left:bounds.left+e.offsetLeft,top:bounds.top+e.offsetTop,width:e.offsetWidth,height:e.offsetHeight};
-   return `<rect x="${r.left-bounds.left}" y="${r.top-bounds.top}" width="${r.width}" height="${r.height}" rx="${radius}" fill="black"/>`;
-  }).join('');
-  const mask=`<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}"><defs><mask id="holes"><rect width="100%" height="100%" fill="white"/>${holes}</mask></defs><rect width="100%" height="100%" fill="white" mask="url(#holes)"/></svg>`;
-  board.style.setProperty('--board-tint-mask',`url("data:image/svg+xml,${encodeURIComponent(mask)}")`);
 }
 export function observeBoard(board){
  const fit=()=>fitBoard(board);

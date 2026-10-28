@@ -37,11 +37,11 @@ import {initGamesHub} from './games-hub.js?v=49499';
 import {initShapeDrop} from './shape-drop.js?v=494118';
 import {claimDropReward} from './shape-drop-engine.js?v=49499';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49499';
-import {fitBoard} from './board-fit.js?v=49499';
+import {fitBoard} from './board-fit.js?v=494119';
 import {analytics} from './analytics.js?v=49499';
 import {ensureTerms} from './terms.js?v=494118';
 import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49499';
-import {observeBoard} from './board-fit.js?v=49499';
+import {observeBoard} from './board-fit.js?v=494119';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494118';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49499';
@@ -837,6 +837,7 @@ function nextBoard(){for(const node of $('board').children)node.classList.remove
 
 
  });
+ fitBoard($('board'));
  openingCoach?.paint();
 
 

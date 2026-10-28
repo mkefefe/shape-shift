@@ -873,3 +873,6 @@ body #age-dialog #age-continue{
 
 /* Moving Rewind cards must not leave a second grid of stationary cutouts. */
 #game>#board.rewind-active::before{-webkit-mask-image:none;mask-image:none}
+
+/* Cards sit directly on the world; no secondary board backing or mask. */
+#game>#board::before{content:none;display:none}
