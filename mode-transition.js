@@ -1,5 +1,6 @@
 import {prepareMenuImage} from './menu-preload.js?v=494115';
 export const GATE_TIMING=Object.freeze({close:720,impact:650,turn:2120,turnDuration:1800,settle:200,openDuration:1300});
+export const GATE_ZOOM_FRAMES=Object.freeze([{transform:'scale(1)',offset:0},{transform:'scale(1.035)',offset:.65},{transform:'scale(1)',offset:1}].map(Object.freeze));
 export let transitioning=false;
 const clamp=n=>Math.min(1,Math.max(0,n)),ease=n=>{n=clamp(n);return n*n*(3-2*n);};
 export function gateFrame(ms,releaseAt=Infinity){
@@ -43,8 +44,8 @@ export function beginModeTransition(title){
    if(ms>=f.openAt&&!cues.has('open')){
     sound('open');
     zoomTarget=[...document.querySelectorAll('dialog[open]:not(.mode-curtain)')].at(-1)||document.getElementById('app');
-    // A gentle forward move during opening, then settle imperceptibly to layout.
-    zoomAnimation=zoomTarget?.animate?.([{transform:'scale(.944)'},{transform:'scale(1)'}],{duration:1300,easing:'ease-in-out'});
+    // Move inward from full coverage, then settle; never expose the viewport edges.
+    zoomAnimation=zoomTarget?.animate?.(GATE_ZOOM_FRAMES,{duration:1300,easing:'ease-in-out'});
    }
    cover.dataset.phase=ms<720?'closing':ms<f.turnAt?'waiting':ms<f.openAt?'rotating':'opening';
    if(f.done){dispose();return;}raf=requestAnimationFrame(tick);

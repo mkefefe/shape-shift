@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {gateFrame,GATE_TIMING,beginModeTransition} from './mode-transition.js';
+import {gateFrame,GATE_TIMING,GATE_ZOOM_FRAMES,beginModeTransition} from './mode-transition.js';
 import {readFile} from 'node:fs/promises';
 test('gate holds closed until destination is ready, including slow loads',()=>{
  assert.equal(gateFrame(5000).rotation,0);assert.equal(gateFrame(5000).opening,0);
@@ -36,4 +36,13 @@ test('curtain is isolated from global panel styles and hub stays until covered',
  const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');
  assert.match(gate,/host.attachShadow/);assert.match(gate,/shadow.append\(style,cover\)/);assert.match(gate,/host.remove\(\)/);
  const hub=await readFile(new URL('games-hub.js',import.meta.url),'utf8');assert.doesNotMatch(hub,/close\(\);data.action\(\)/);
+});
+
+test('opening zoom never shrinks below the viewport or snaps at cleanup',()=>{
+ const scales=GATE_ZOOM_FRAMES.map(f=>Number(f.transform.match(/scale\(([^)]+)\)/)[1]));
+ assert.equal(scales[0],1);assert.equal(scales.at(-1),1);assert(Math.max(...scales)>1);
+ for(let i=1;i<scales.length;i++)for(let step=0;step<=100;step++){
+  const scale=scales[i-1]+(scales[i]-scales[i-1])*step/100;
+  assert(scale>=1);for(const [w,h] of [[360,640],[480,784],[1280,720]]){assert(w*scale>=w);assert(h*scale>=h);}
+ }
 });
