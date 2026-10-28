@@ -1,6 +1,6 @@
 import {beginModeTransition,transitioning} from './mode-transition.js?v=494123';
 import {engagement,telemetryChoice,applyWelcomeStatistics,sampleEngagement} from './telemetry.js?v=494118';
-import {createEndlessCoach} from './endless-coach.js?v=49499';
+import {createEndlessCoach} from './endless-coach.js?v=494126';
 let openingCoach=null;
 import {animateQuestRedemption} from './quest-redemption.js?v=49499';
 import {initLivingMenu} from './menu-polish.js?v=49499';

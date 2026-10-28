@@ -1,6 +1,6 @@
 import {beginModeTransition} from './mode-transition.js?v=494123';
 import {engagement,registerModeState} from './telemetry.js?v=494118';
-import {translate} from './localization.js?v=49499';
+import {translate} from './localization.js?v=494126';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';
