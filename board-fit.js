@@ -10,12 +10,14 @@ export function fitBoard(board){
   const height=board.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
   const size=squareTrack(width,height,columns,rows,parseFloat(style.gap)||0);
   board.style.setProperty('--track',size+'px');board.style.setProperty('--cols',columns);board.style.setProperty('--rows',rows);
+  board.style.setProperty('grid-template-columns',`repeat(${columns}, ${size}px)`,'important');
+  board.style.setProperty('grid-template-rows',`repeat(${rows}, ${size}px)`,'important');
   board.style.setProperty('--tile-art',Math.min(100,Math.floor(size*.72))+'px');
 
 }
 export function observeBoard(board){
  const fit=()=>fitBoard(board);
  new ResizeObserver(fit).observe(board);
- new MutationObserver(fit).observe(board,{childList:true,attributes:true,attributeFilter:['data-count','data-columns','data-layout']});
+ new MutationObserver(fit).observe(board,{childList:true,attributes:true,attributeFilter:['data-count','data-columns','data-layout','class']});
  fit();
 }
