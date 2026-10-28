@@ -17,3 +17,7 @@ media={p.relative_to(site).as_posix() for p in site.rglob('*') if p.is_file() an
 assert set(manifest)==media, f'Startup asset coverage mismatch: missing {media-set(manifest)}, stale {set(manifest)-media}'
 (site/'.nojekyll').touch()
 print('Built verified browser release in',site)
+
+# Android media packs have independent compatibility manifests; never add them to web preloads.
+if (root/"android-assets").exists():
+    shutil.copytree(root/"android-assets",site/"android-assets",dirs_exist_ok=True,ignore=shutil.ignore_patterns("baseline.json"))
