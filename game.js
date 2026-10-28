@@ -39,7 +39,7 @@ import {claimDropReward} from './shape-drop-engine.js?v=49499';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49499';
 import {fitBoard} from './board-fit.js?v=494120';
 import {analytics} from './analytics.js?v=49499';
-import {ensureTerms} from './terms.js?v=494118';
+import {ensureTerms} from './terms.js?v=494124';
 import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=494122';
 import {observeBoard} from './board-fit.js?v=494120';
 observeBoard(document.getElementById('board'));

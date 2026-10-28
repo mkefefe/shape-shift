@@ -1,6 +1,6 @@
 #terms-dialog,#app #terms-dialog{width:min(400px,calc(100vw - 24px),calc((100dvh - 20px)*.69));height:min(650px,calc(100dvh - 20px));max-height:calc(100dvh - 20px);background:#dcfaff;border:5px solid #26cddd;border-radius:30px;box-shadow:inset 0 0 0 3px #9ffaff,0 12px 45px #002b5c88;overflow:hidden;padding:0;color:#12465b}
 #terms-dialog .terms-shell{height:100%;display:flex;flex-direction:column;padding:18px 16px 10px;box-sizing:border-box;background:radial-gradient(ellipse at top,#fff9c5,transparent 45%),linear-gradient(140deg,#f3ffff,#b8eff9)}
-#terms-dialog header{text-align:center;flex:none}#terms-dialog .terms-kicker{font-size:10px;font-weight:1000;letter-spacing:2px;color:#087f91;margin:0 0 8px}#terms-dialog h2{font-size:28px;margin:0 0 4px;padding:0}#terms-dialog header>p:last-child{font-size:13px;margin:0 0 12px}#terms-dialog .terms-scroll{overflow-y:auto;min-height:0;overscroll-behavior:contain;scrollbar-width:thin;padding:0 5px}
+#terms-dialog header{text-align:center;flex:none}#terms-dialog .terms-kicker{font-size:10px;font-weight:1000;letter-spacing:2px;color:#087f91;margin:0 0 8px}#terms-dialog h2{font-size:28px;margin:0 0 4px;padding:0}#terms-dialog header>p:last-child{font-size:13px;margin:0 0 12px}#terms-dialog .terms-scroll{flex:1;overflow-y:auto;min-height:0;overscroll-behavior:contain;scrollbar-width:thin;padding:0 5px}
 #terms-dialog p{font-size:13px;line-height:1.45;margin:6px 0;overflow-wrap:anywhere}#terms-dialog a{color:#006578;font-weight:900;text-decoration:underline}#terms-dialog footer{flex:none;text-align:center;padding:8px 4px 0;border-top:1px solid #72ccdd}#terms-dialog footer p{font-size:11px}#terms-dialog .primary{width:230px;max-width:100%;margin:4px auto 0;font-size:19px;min-height:64px}#terms-dialog .terms-exit{background:none;border:0;color:#1d6479;font:800 13px Nunito,sans-serif;min-height:36px;padding:6px 22px;box-shadow:none}
 @media(max-height:640px){#terms-dialog .terms-shell{padding:12px 12px 6px}#terms-dialog h2{font-size:24px}#terms-dialog .primary{min-height:52px;width:195px}#terms-dialog header>p:last-child{display:none}}
 
@@ -15,3 +15,7 @@
 #app #privacy-policy-dialog #privacy-policy-content{flex:1;min-height:0;height:auto;width:100%;padding:0 4px 10px;overflow-y:auto}
 #app #privacy-policy-dialog .dialog-content>.primary{flex:none;margin-top:10px}
 #app #privacy-policy-dialog #privacy-policy-content h2,body #terms-dialog #terms-full-policy h2{font-size:18px;line-height:1.3;text-align:left;margin:20px 0 8px;padding:0;text-shadow:none}
+
+/* Keep initial focus on the heading, without outlining the reading area. */
+#terms-dialog #terms-title:focus{outline:none}
+#terms-dialog footer .welcome-statistics{font-size:12px;line-height:1.4;margin:4px 0 8px;text-align:center}
