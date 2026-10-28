@@ -1,4 +1,4 @@
-import {leaderboardAllowed,audience} from './audience.js?v=49499';
+import {leaderboardAllowed,audience} from './audience.js?v=494117';
 import {LEADERBOARD_URL,saveOnlineProfile} from './leaderboard.js?v=49499';
 const adjectives=['Sunny','Lucky','Swift','Cosmic','Mighty','Jolly','Brave','Bouncy','Golden','Chill','Merry','Electric'];
 const animals=['Fox','Panda','Otter','Dragon','Tiger','Penguin','Koala','Falcon','Lynx','Gecko','Bunny','Bear'];

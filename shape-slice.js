@@ -1,5 +1,5 @@
 import {beginModeTransition} from './mode-transition.js?v=494115';
-import {engagement,registerModeState} from './telemetry.js';
+import {engagement,registerModeState} from './telemetry.js?v=494117';
 import {translate} from './localization.js?v=49499';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';

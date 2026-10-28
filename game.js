@@ -1,5 +1,5 @@
 import {beginModeTransition,transitioning} from './mode-transition.js?v=494115';
-import {engagement,telemetryChoice,sampleEngagement} from './telemetry.js';
+import {engagement,telemetryChoice,applyWelcomeStatistics,sampleEngagement} from './telemetry.js?v=494117';
 import {createEndlessCoach} from './endless-coach.js?v=49499';
 let openingCoach=null;
 import {animateQuestRedemption} from './quest-redemption.js?v=49499';
@@ -39,7 +39,7 @@ import {claimDropReward} from './shape-drop-engine.js?v=49499';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49499';
 import {fitBoard} from './board-fit.js?v=49499';
 import {analytics} from './analytics.js?v=49499';
-import {ensureTerms} from './terms.js?v=494113';
+import {ensureTerms} from './terms.js?v=494117';
 import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=49499';
 import {observeBoard} from './board-fit.js?v=49499';
 observeBoard(document.getElementById('board'));
@@ -62,7 +62,7 @@ import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanki
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=49499';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=494117';
 
 
 
@@ -141,6 +141,9 @@ document.addEventListener('unused-visibilitychange',welcomeVisibility);
 window.addEventListener('unused-androidpause',pauseWelcomeAudio);
 window.addEventListener('unused-androidresume',startWelcomeAudio);
 // Music begins on interaction; it must not compete with first-play downloads.
+const welcomeWasLoading=document.documentElement.classList.contains('startup-loading');
+const welcomeCover=document.getElementById('startup-ready');
+if(welcomeWasLoading){document.documentElement.classList.remove('startup-loading');if(welcomeCover)welcomeCover.hidden=true;}
 const shareGameplayStatistics=await ensureTerms();
 await ensureAudience();
 document.removeEventListener('pointerdown',startWelcomeAudio,true);
@@ -149,7 +152,8 @@ document.removeEventListener('click',tapWelcomeAudio,true);
 document.removeEventListener('unused-visibilitychange',welcomeVisibility);
 window.removeEventListener('unused-androidpause',pauseWelcomeAudio);
 window.removeEventListener('unused-androidresume',startWelcomeAudio);
-await telemetryChoice();
+await applyWelcomeStatistics(shareGameplayStatistics);
+if(welcomeWasLoading){document.documentElement.classList.add('startup-loading');if(welcomeCover)welcomeCover.hidden=false;}
 
 
 
