@@ -128,7 +128,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   if(launching||!canStart())return;
   if(mode==='rush'&&!gamesUnlocked(getPlayerLevel())){sound('map-locked');showMapNotice('Reach player level '+GAMES_UNLOCK_LEVEL+' to unlock Games.');refresh();return;}
   launching=true;cardTaps.reset();menuSwipe.reset();$('play').disabled=true;$('level-play').disabled=true;$('level-play').setAttribute('aria-busy','true');
-  $('level-dialog').close();$('adventure-map').hidden=true;
+  // The game closes this source screen only after the gate is fully covered.
   try{await start(mode,level);}finally{launching=false;$('level-play').disabled=false;$('level-play').removeAttribute('aria-busy');if($('app').dataset.screen==='home')refresh();}
  }
 
