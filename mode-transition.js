@@ -10,16 +10,20 @@ export function beginModeTransition(title){
  // Startup prepares the first board below its own cover; its gate is launched
  // explicitly once setup is complete, before the tutorial is released.
  if(document.documentElement.classList.contains('startup-loading'))return {covered:Promise.resolve(),reveal:async(paint)=>{await paint?.();},dispose(){}};
- const cover=document.createElement('dialog');cover.className='mode-curtain';cover.setAttribute('aria-label','Loading '+title);
+ // Isolate the top-layer curtain from every global dialog/panel rule.
+ const host=document.createElement('div');host.className='mode-transition-host';
+ const shadow=host.attachShadow({mode:'open'}),style=document.createElement('style');
+ style.textContent=':host{display:contents}dialog{position:fixed;inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:hidden;touch-action:none}dialog::backdrop{background:transparent;backdrop-filter:none}canvas{display:block;width:100%;height:100%;pointer-events:none}';
+ const cover=document.createElement('dialog');cover.className='mode-curtain';cover.setAttribute('aria-label','Loading '+title);shadow.append(style,cover);
  const canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');cover.append(canvas);
- cover.oncancel=e=>e.preventDefault();document.body.append(cover);cover.showModal();transitioning=true;
+ cover.oncancel=e=>e.preventDefault();document.body.append(host);cover.showModal();transitioning=true;
  const ctx=canvas.getContext('2d');let disposed=false,ms=0,last=null,raf,releaseAt=Infinity,requested=false,finish,markCovered;
  const covered=new Promise(resolve=>markCovered=resolve);
  const finished=new Promise(resolve=>finish=resolve),sounds=new Map(),cues=new Set();let zoomTarget,zoomAnimation;
  // Destination modes use modal dialogs. Keep the gate above them while they prepare.
  const observer=new MutationObserver(records=>{if(disposed)return;if(records.some(r=>r.target!==cover&&r.target.open&&r.target.tagName==='DIALOG')){cover.close();cover.showModal();}});
  observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
- function dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);for(const stop of sounds.values())stop?.();zoomAnimation?.cancel();cover.close();cover.remove();transitioning=false;markCovered();finish();}
+ function dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);for(const stop of sounds.values())stop?.();zoomAnimation?.cancel();cover.close();host.remove();transitioning=false;markCovered();finish();}
  function visibility(){last=null;if(document.hidden)for(const stop of sounds.values())stop?.();}
  document.addEventListener('visibilitychange',visibility);
  function sound(name){if(cues.has(name))return;cues.add(name);sounds.set(name,window.gameAudio?.playGate?.(name));}

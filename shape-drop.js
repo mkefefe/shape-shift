@@ -1,4 +1,4 @@
-import {beginModeTransition} from './mode-transition.js?v=494118';
+import {beginModeTransition} from './mode-transition.js?v=494122';
 import {engagement,registerModeState} from './telemetry.js?v=494118';
 import {createDropWater} from './drop-water.js';
 import {translate} from './localization.js?v=49499';
@@ -156,7 +156,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  function showResult(){mergeAudio.reset();keyboard.reset();window.gameAudio?.stopPraise();if(!game)return;window.ShapeShiftPlatform.cancelAnimationFrame(raf);raf=0;paused=false;dialog.dataset.paused='true';if(!saved&&game.over&&game.endReason==='overflow'&&continueOffer.offer({description:'Watch a video to clear the upper pile and keep your score.',resume:()=>{game.revive();hitFeedback.reset();paused=true;resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:showResult}))return;if(!saved)play('over');const xpBefore=getXp(),stored=saveRun();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.cleared),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:showResult,finish:close});render();}
 
  let entering=false;
- async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Drop');try{await gate.covered;if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate.dispose();entering=false;}}
+ async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Drop');try{await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate.dispose();entering=false;}}
  async function prepareRun(gate){
   window.gameAudio?.start()?.catch(()=>{});
   if(game&&!saveRun())return;stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;runId='shape-drop-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion')||matchMedia('(prefers-reduced-motion: reduce)').matches;

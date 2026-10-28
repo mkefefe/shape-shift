@@ -22,7 +22,7 @@ test('destinations paint under the closed gate before reveal',async()=>{
  assert(game.indexOf('await firstGate.reveal(')<game.indexOf('showFirstLesson?.()'));
  assert.doesNotMatch(game,/loadBackgroundAssets\(/);
  for(const name of ['shape-drop.js','shape-slice.js','piano-flow.js']){
-  const source=await read(name);assert.match(source,/await gate.covered;if\(!dialog.open\)dialog.showModal\(\)/);
+  const source=await read(name);assert.match(source,/await gate.covered;document.getElementById\('games-hub'\)\?\.close\(\);if\(!dialog.open\)dialog.showModal\(\)/);
   assert.match(source,/await gate.reveal\(\(\)=>/);
  }
 });
@@ -30,4 +30,10 @@ test('destinations paint under the closed gate before reveal',async()=>{
 test('approved effects use settings-controlled bus, no separate unmuted context',async()=>{
  const audio=await readFile(new URL('audio.js',import.meta.url),'utf8');assert.match(audio,/function playGate[\s\S]*?sfxVolume<=0/);assert.match(audio,/source.connect\(gain\).connect\(effectsBus\)/);
  const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');assert.match(gate,/observer.disconnect\(\)/);assert.match(gate,/cancelAnimationFrame\(raf\)/);assert.doesNotMatch(gate,/new AudioContext/);
+});
+
+test('curtain is isolated from global panel styles and hub stays until covered',async()=>{
+ const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');
+ assert.match(gate,/host.attachShadow/);assert.match(gate,/shadow.append\(style,cover\)/);assert.match(gate,/host.remove\(\)/);
+ const hub=await readFile(new URL('games-hub.js',import.meta.url),'utf8');assert.doesNotMatch(hub,/close\(\);data.action\(\)/);
 });

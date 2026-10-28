@@ -30,7 +30,7 @@ export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.ga
    const card=make('button','hub-game hub-'+data.kind);card.type='button';card.setAttribute('aria-label','Open '+data.name);
    const art=make('img','hub-cover');art.src='./assets/hub-'+data.kind+(data.kind==='piano'?'-v292.webp':'-v291.webp');art.decoding='async';art.alt='';art.width=1774;art.height=887;art.draggable=false;
    const copy=make('span','hub-copy');copy.append(make('strong','hub-title',data.name),make('span','hub-description',data.copy));
-   card.append(art,copy);bindLaunchTap(card,()=>{if(!dialog.open)return;sound('click');close();data.action();});list.append(card);
+   card.append(art,copy);bindLaunchTap(card,()=>{if(!dialog.open)return;sound('click');data.action();});list.append(card);
   }
   const hint=make('p','hub-keyboard-hint','W / S select · Space play · Esc back');dialog.append(back,header,list,hint);dialog.showModal();selected=0;highlight();window.gameAudio?.setScene('menu');
  }
