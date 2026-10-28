@@ -8,7 +8,7 @@ import {createMiniResults} from './mini-results.js';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494121';
 
 import {skinArtReady,skinCrop} from './shape-skin-art.js?v=49499';
 

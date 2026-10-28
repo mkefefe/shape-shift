@@ -3,7 +3,7 @@ import {ORIGINAL_SONGS,createSongSequence} from './piano-songs.js';
 import {createPianoGame} from './piano-flow-engine.js';
 const config={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0};
 const advance=(g,seconds)=>{for(let i=0;i<seconds*120;i++)g.step(1/120);};
-test('original songs have complete forms and identical returning choruses',()=>{assert.equal(ORIGINAL_SONGS.length,10);for(const song of ORIGINAL_SONGS){assert.equal(song.beats,176);assert.equal(song.notes.reduce((s,n)=>s+n.duration,0),176);assert(song.notes.every(n=>n.pitch>=48&&n.pitch<=74));const chorus=song.notes.filter(n=>n.section==='Chorus');const half=chorus.length/2;assert.deepEqual(chorus.slice(0,half).map(n=>[n.pitch,n.duration,n.chord]),chorus.slice(half).map(n=>[n.pitch,n.duration,n.chord]));}});
+test('original songs have complete forms and identical returning choruses',()=>{assert.equal(ORIGINAL_SONGS.length,20);for(const song of ORIGINAL_SONGS){assert.equal(song.beats,176);assert.equal(song.notes.reduce((s,n)=>s+n.duration,0),176);assert(song.notes.every(n=>n.pitch>=48&&n.pitch<=74));const chorus=song.notes.filter(n=>n.section==='Chorus');const half=chorus.length/2;assert.deepEqual(chorus.slice(0,half).map(n=>[n.pitch,n.duration,n.chord]),chorus.slice(half).map(n=>[n.pitch,n.duration,n.chord]));}});
 test('distinct songs rotate with their fixed written metadata',()=>{const next=createSongSequence(()=>0);let last;for(let round=0;round<4;round++){const song=ORIGINAL_SONGS[round%ORIGINAL_SONGS.length];for(let beats=0;beats<song.beats;){const n=next();assert.equal(n.songBeat,beats);beats+=n.duration;assert(beats<=song.beats);assert.equal(n.song,song.id);assert.equal(n.bpm,song.bpm);last=n;}}assert.equal(last.round,3);});
 test('backing waits for the first played note instead of performing an unrelated song',()=>{const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,10);assert(!events.some(e=>e.type==='accompaniment'));assert(!events.some(e=>e.type==='note'));assert(g.lives<g.maxLives);});
 test('full songs are playable one-handed through song boundaries without life loss',()=>{const g=createPianoGame(config);g.start();advance(g,3);for(let i=0;i<120*265&&!g.over;i++){if(!g.notes.some(n=>['holding','queued'].includes(n.status))){const n=g.notes.find(n=>['waiting','partial'].includes(n.status));if(n&&n.beat-g.beat<.15){for(const lane of g.pressed)g.release(lane);g.pressStrip(n.lane);}}g.step(1/120);}assert(!g.over);assert.equal(g.lives,g.maxLives);assert(g.songsCompleted>=2);assert(g.hits>0);});
@@ -78,7 +78,7 @@ test('four-bar themes repeat with resolving answers and distinct choruses',()=>{
    assert(notes.every(n=>n.bar===i&&n.phraseBar===i%4));
   }
  }
- assert.equal(new Set(ORIGINAL_SONGS.map(s=>JSON.stringify(shape(s.notes.filter(n=>n.section==='Verse'))))).size,10);
+ assert.equal(new Set(ORIGINAL_SONGS.map(s=>JSON.stringify(shape(s.notes.filter(n=>n.section==='Verse'))))).size,20);
 });
 test('strong beats follow the current harmony and melodies move in singable steps',()=>{
  for(const song of ORIGINAL_SONGS){
@@ -100,19 +100,19 @@ test('arrangements introduce the theme gently and finish on a sustained tonic',(
   assert.equal(final.songBeat+final.duration,176);
  }
 });
-test('randomness chooses only the first song and callers cannot mutate the score',()=>{
+test('randomness chooses songs only at boundaries and callers cannot mutate the score',()=>{
  let calls=0;const next=createSongSequence(()=>{calls++;return .35;});
- for(let i=0;i<ORIGINAL_SONGS[3].notes.length+2;i++)next();assert.equal(calls,1);
+ for(let i=0;i<ORIGINAL_SONGS[7].notes.length+2;i++)next();assert.equal(calls,2);
  const before=JSON.stringify(ORIGINAL_SONGS),note=createSongSequence(()=>0)();
  note.chord[0]=0;note.harmony[0]=0;assert.equal(JSON.stringify(ORIGINAL_SONGS),before);
 });
-test('a full ten-song rotation retains written notes regardless of score',()=>{
+test('a full twenty-song rotation retains written notes regardless of score',()=>{
  const next=createSongSequence(()=>0,{score:()=>999}),again=createSongSequence(()=>0,{score:()=>0});
- for(let round=0;round<11;round++)for(const expected of ORIGINAL_SONGS[round%10].notes){const actual=next();assert.deepEqual(actual,again());assert.equal(actual.pitch,expected.pitch);assert.equal(actual.duration,expected.duration);assert.equal(actual.round,round);}
+ for(let round=0;round<21;round++)for(const expected of ORIGINAL_SONGS[round%20].notes){const actual=next();assert.deepEqual(actual,again());assert.equal(actual.pitch,expected.pitch);assert.equal(actual.duration,expected.duration);assert.equal(actual.round,round);}
 });
-test('all ten arrangements remain playable with individual taps and held notes',()=>{
- for(let song=0;song<10;song++){
-  const g=createPianoGame({...config,rng:()=>song/10+.001});g.start();
+test('all twenty arrangements remain playable with individual taps and held notes',()=>{
+ for(let song=0;song<20;song++){
+  const g=createPianoGame({...config,rng:()=>song/20+.001});g.start();
   for(let i=0;i<120*150&&!g.over;i++){
    if(!g.notes.some(n=>n.status==='holding')){const n=g.notes.find(n=>['waiting','partial'].includes(n.status));if(n&&n.beat-g.beat<-.05){for(const lane of g.pressed)g.release(lane);assert(g.pressStrip(n.lane));}}
    g.step(1/120);
@@ -128,4 +128,16 @@ test('early phrase change switches backing to the actually played chord immediat
  const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,2);assert.deepEqual(backing[0].chord,a.chord);assert.deepEqual(backing[1].chord,b.chord);assert.equal(backing[1].reset,true);assert.equal(backing[1].musicalBeat,2);assert.equal(backing[1].pitch,41);
  events.length=0;advance(g,.7);assert(events.some(e=>e.type==='accompaniment'));assert(events.filter(e=>e.type==='accompaniment').every(e=>e.chord.join()===b.chord.join()));
  g.pause();events.length=0;advance(g,5);assert.equal(events.length,0);
+});
+
+test('shuffle bag plays every song once per cycle with no boundary repeats',()=>{
+ let seed=42;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+ const next=createSongSequence(random),ids=[];
+ for(let cycle=0;cycle<3;cycle++){
+  const bag=[];for(let i=0;i<ORIGINAL_SONGS.length;i++){
+   const first=next(),song=ORIGINAL_SONGS.find(s=>s.id===first.song);bag.push(first.song);ids.push(first.song);
+   for(let j=1;j<song.notes.length;j++)assert.equal(next().song,song.id);
+  }assert.equal(new Set(bag).size,ORIGINAL_SONGS.length);
+ }
+ assert(ids.every((id,i)=>i===0||id!==ids[i-1]));
 });

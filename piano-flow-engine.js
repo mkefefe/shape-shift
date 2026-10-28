@@ -1,4 +1,4 @@
-import {createSongSequence} from './piano-songs.js?v=49499';
+import {createSongSequence} from './piano-songs.js?v=494121';
 import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=49499';
 import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=49499';
 export const PIANO_LANES=3,PIANO_WINDOW=.38;
