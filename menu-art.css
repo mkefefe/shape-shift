@@ -448,3 +448,10 @@ html body dialog::-webkit-scrollbar,html body dialog *::-webkit-scrollbar{displa
 /* The reward action stays below the independently scrolling achievement grid. */
 #achievements-dialog #achievement-collect-all{flex:0 0 64px;align-self:center;width:250px;max-width:100%;min-height:64px;height:64px;margin:4px auto 0;padding:8px 20px;font-size:20px}
 .mode-card.mode-rush.locked{filter:saturate(.35)}
+
+/* Keep welcome content comfortably inside the painted panel rim. */
+body #age-dialog .age-content{box-sizing:border-box;height:calc(100% - 48px);margin:24px 0;padding:12px 24px;gap:8px;justify-content:center}
+body #age-dialog #age-title{padding:0;margin:0;outline:none}
+body #age-dialog #age-private{display:block;margin:0;min-height:44px;padding:6px 12px;background:none;border:0;border-radius:0;box-shadow:none;color:#1d6479;font:800 13px Nunito,sans-serif;text-shadow:none;cursor:pointer}
+body #age-dialog #age-continue{width:min(100%,230px);min-height:60px;margin:2px auto 0;font-size:21px;padding:8px 16px}
+@media(max-height:540px){body #age-dialog .age-content{gap:3px;padding:6px 20px}body #age-dialog #age-continue{min-height:48px;font-size:18px}body #age-dialog .age-step{height:32px;min-height:32px}body #age-dialog .age-picker:after{top:56px}body #age-dialog #age-title{font-size:22px}}
