@@ -22,17 +22,17 @@ test('image preparation shares pending work, retains success and retries failure
  try{const first=prepareMenuImage('test-retained.png');assert.equal(first,prepareMenuImage('test-retained.png'));await assert.rejects(first,/offline/);fail=false;const image=await prepareMenuImage('test-retained.png');assert.equal(await prepareMenuImage('test-retained.png'),image);assert.equal(count,2);}finally{globalThis.Image=original;}
 });
 
-test('every shipped media asset blocks entry, including modes, menus and audio',()=>{
- assert.deepEqual(new Set(FULL_STARTUP_ASSETS),new Set(STARTUP_ASSETS));
+test('shared UI blocks startup while mode media is reserved for background preparation',()=>{
+ assert.deepEqual(new Set([...FULL_STARTUP_ASSETS,...BACKGROUND_ASSETS]),new Set(STARTUP_ASSETS));
  assert.deepEqual(FULL_STARTUP_ASSETS.slice(0,CORE_STARTUP_ASSETS.length),CORE_STARTUP_ASSETS);
- for(const source of ['assets/slice-galaxy-v49476.webp','assets/piano-sky-v281.webp','assets/music/menu-garden-v49458.ogg','assets/achievement-medals-v208.webp','assets/skin-classic-wrapped-v318.webp'])assert(FULL_STARTUP_ASSETS.includes(source));
+ for(const source of ['assets/music/menu-garden-v49458.ogg','assets/achievement-medals-v208.webp','assets/settings-v351.png'])assert(FULL_STARTUP_ASSETS.includes(source));
+ for(const source of ['assets/slice-galaxy-v49476.webp','assets/piano-sky-v281.webp','assets/skin-classic-wrapped-v318.webp','assets/drop-garden-v491.webp']){assert(BACKGROUND_ASSETS.includes(source));assert(!FULL_STARTUP_ASSETS.includes(source));}
  assert.equal(new Set(FULL_STARTUP_ASSETS).size,FULL_STARTUP_ASSETS.length);
- assert.deepEqual(BACKGROUND_ASSETS,[]);
 });
-test('default startup does not resolve while any late menu or mode asset is pending',async()=>{
- let release,finished=false;const waiting=new Promise(resolve=>{release=resolve;}),sources=[],delayed='assets/slice-galaxy-v49476.webp';
+test('startup waits for shared menus without requesting mode-only assets',async()=>{
+ let release,finished=false;const waiting=new Promise(resolve=>{release=resolve;}),sources=[],delayed='assets/settings-v351.png';
  const work=loadStartupAssets(()=>{},{prepareImage:async source=>{sources.push(source);if(source===delayed)await waiting;},fetcher:async source=>{sources.push(source);return {ok:true,arrayBuffer:async()=>new ArrayBuffer(0)};}}).then(()=>{finished=true;});
- await new Promise(resolve=>setImmediate(resolve));assert.equal(finished,false);assert(sources.includes(delayed));release();await work;assert.equal(finished,true);assert.deepEqual(new Set(sources),new Set(FULL_STARTUP_ASSETS));
+ await new Promise(resolve=>setImmediate(resolve));assert.equal(finished,false);assert(sources.includes(delayed));assert(!sources.some(src=>BACKGROUND_ASSETS.includes(src)));release();await work;assert.equal(finished,true);assert.deepEqual(new Set(sources),new Set(FULL_STARTUP_ASSETS));
 });
 test('stalled preparation rejects instead of leaving an endless loading screen',async()=>{
  await assert.rejects(awaitReady(new Promise(()=>{}),'Test artwork',5),/Test artwork timed out/);

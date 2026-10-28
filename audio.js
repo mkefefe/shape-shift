@@ -508,6 +508,8 @@
       }
       case 'level': case 'levelup': notes([74, 77, 81, 86], 0.085, 0.3, 0.18); break;
       case 'over': case 'gameover': notes([77, 74, 69, 62], 0.14, 0.4, 0.16); break;
+      case 'transition-enter': tone(660,now,.28,.10,'sine',effectsBus,1040);tone(880,now+.12,.3,.07,'sine',effectsBus,1320);break;
+      case 'transition-open': notes([79,83,86],.065,.24,.13);break;
       case 'start': notes([62, 69, 74], 0.075, 0.22); break;
       case 'map-locked': tone(740,now,.09,.10,'sine',effectsBus);tone(554,now+.095,.15,.08,'triangle',effectsBus);break;
       case 'surface-tap': tapPluck(now);break;
@@ -578,5 +580,22 @@
     return true;
   }
   async function prepareCommon(){if(!setup())return false;const results=await Promise.all([...Object.keys(musicTracks).map(musicBuffer),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
-  window.gameAudio = Object.freeze({ platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  const gateBuffers=new Map();
+  async function prepareGate(){
+    if(!setup())return;
+    await Promise.all(['enter','impact','turn','open'].map(async name=>{
+      if(gateBuffers.has(name))return;
+      try{const buffer=await context.decodeAudioData(await audioData('assets/audio/gate-'+name+'-v115.wav'));gateBuffers.set(name,buffer);}catch{}
+    }));
+  }
+  function playGate(name){
+    const buffer=gateBuffers.get(name);
+    if(!buffer||!context||!sfx||sfxVolume<=0||context.state!=='running'||window.ShapeShiftPlatform?.audioAllowed===false)return ()=>{};
+    const source=audioSource(),gain=context.createGain();source.buffer=buffer;
+    gain.gain.value=(name==='impact'||name==='turn'?.85:1)*.54;
+    source.connect(gain).connect(effectsBus);source.start();duckMusic(buffer.duration);
+    source.onended=()=>{source.disconnect();gain.disconnect();};
+    return ()=>{try{source.stop();}catch{}};
+  }
+  window.gameAudio = Object.freeze({ prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

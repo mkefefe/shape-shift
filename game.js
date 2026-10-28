@@ -1,3 +1,4 @@
+import {beginModeTransition,transitioning} from './mode-transition.js?v=494115';
 import {engagement,telemetryChoice,sampleEngagement} from './telemetry.js';
 import {createEndlessCoach} from './endless-coach.js?v=49499';
 let openingCoach=null;
@@ -8,7 +9,7 @@ import {bindBoardKeyboard} from './board-keyboard.js?v=49499';
 import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49499';
 import {bindResultKeyboard} from './result-keyboard.js?v=49499';
 import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49499';
-import {loadStartupAssets} from './startup-loader.js?v=49499';
+import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=494115';
 import {firstEndlessLaunch} from './first-endless.js?v=49499';
 import {initMenuReadiness} from './menu-readiness.js?v=49499';
 import {prepareMenuImage,awaitReady} from './menu-preload.js?v=49499';
@@ -18,7 +19,7 @@ import {showAdventureVictory} from './adventure-victory.js?v=49499';
 import {initStoryUI} from './story-ui.js?v=49499';
 import {initTouchUI} from './touch-ui.js?v=49499';
 import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49499';
-import {initPianoFlow} from './piano-flow.js?v=494113';
+import {initPianoFlow} from './piano-flow.js?v=494115';
 import {claimPianoReward} from './piano-flow-engine.js?v=49499';
 import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49499';
 import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49499';
@@ -30,10 +31,10 @@ import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=494
 import {rankingLoadMessage} from './leaderboard-cache.js?v=49499';
 import {loadPrivacyContent} from './privacy-content.js?v=49499';
 import {initSettingsExtras} from './settings-extras.js?v=49499';
-import {initShapeSlice} from './shape-slice.js?v=494113';
+import {initShapeSlice} from './shape-slice.js?v=494115';
 import {claimSliceReward} from './shape-slice-engine.js?v=49499';
 import {initGamesHub} from './games-hub.js?v=49499';
-import {initShapeDrop} from './shape-drop.js?v=494113';
+import {initShapeDrop} from './shape-drop.js?v=494115';
 import {claimDropReward} from './shape-drop-engine.js?v=49499';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49499';
 import {fitBoard} from './board-fit.js?v=49499';
@@ -219,7 +220,7 @@ if(profile.adminMode&&(!ownerPermission.owner||!ownerPermission.adminActive)){
 
 let pendingWalletCoins=0;
 
-let saveTimer;function flushProfile(){window.ShapeShiftPlatform.clearTimeout(saveTimer);store.set('shape-shift-profile-v1',profile);}function saveProfile(){ if(profile.adminMode)profile.coins=ADMIN_COINS;profile=unlockLevelAvatars(profile); $('wallet').textContent=profile.adminMode?'∞':Math.max(0,profile.coins-pendingWalletCoins);window.ShapeShiftPlatform.clearTimeout(saveTimer);saveTimer=window.ShapeShiftPlatform.setTimeout(flushProfile,120);}
+let saveTimer;function flushProfile(){window.ShapeShiftPlatform.clearTimeout(saveTimer);store.set('shape-shift-profile-v1',profile);}function saveProfile(){ if(profile.adminMode)profile.coins=ADMIN_COINS;profile=unlockLevelAvatars(profile); $('wallet').textContent=profile.adminMode?'âˆž':Math.max(0,profile.coins-pendingWalletCoins);window.ShapeShiftPlatform.clearTimeout(saveTimer);saveTimer=window.ShapeShiftPlatform.setTimeout(flushProfile,120);}
 
 
 
@@ -346,7 +347,7 @@ let remaining=0,boardTime=0,last=0,frame=0,transition=0,countdownToken=0,boardSe
 
 
 
-const specialLabels={bomb:'Bomb — blast nearby choices',starburst:'Starburst — clear ordinary tiles',hourglass:'Hourglass — slow three boards',crystal:'Shield crystal — block one hit',reset:'Rewind — return to one tile',heart:'Heart potion — refill all lives'};
+const specialLabels={bomb:'Bomb â€” blast nearby choices',starburst:'Starburst â€” clear ordinary tiles',hourglass:'Hourglass â€” slow three boards',crystal:'Shield crystal â€” block one hit',reset:'Rewind â€” return to one tile',heart:'Heart potion â€” refill all lives'};
 
 
 
@@ -416,7 +417,7 @@ function screen(name){if(name==='home'&&menuReadiness&&!menuReadiness.homeReady(
 
 
 
-function closeDialogs(){document.querySelectorAll('dialog[open]').forEach(d=>d.close());}
+function closeDialogs(){document.querySelectorAll('dialog[open]:not(.mode-curtain)').forEach(d=>d.close());}
 
 
 
@@ -442,7 +443,7 @@ function update(){
 
 
 
- $('color-streak').textContent=runMode!=='endless'&&state.colorStreak>=2?COLORS[state.current.color]+' ×'+state.colorStreak:'';
+ $('color-streak').textContent=runMode!=='endless'&&state.colorStreak>=2?COLORS[state.current.color]+' Ã—'+state.colorStreak:'';
 
 
 
@@ -450,7 +451,7 @@ function update(){
 
 
 
- $('shape-streak').textContent=runMode!=='endless'&&state.shapeStreak>=2?SHAPES[state.current.shape]+' ×'+state.shapeStreak:'';
+ $('shape-streak').textContent=runMode!=='endless'&&state.shapeStreak>=2?SHAPES[state.current.shape]+' Ã—'+state.shapeStreak:'';
 
 
 
@@ -535,7 +536,7 @@ function update(){
 
 
 
-  $(name).setAttribute('aria-label',label+' — '+effect+'. '+boostCharges(name)+' charges. '+(name==='shield'&&state.shieldCooldown>0?state.shieldCooldown+' turns cooldown. ':'')+'Auto refill '+(autoPowers.has(name)?'on':'off'));
+  $(name).setAttribute('aria-label',label+' â€” '+effect+'. '+boostCharges(name)+' charges. '+(name==='shield'&&state.shieldCooldown>0?state.shieldCooldown+' turns cooldown. ':'')+'Auto refill '+(autoPowers.has(name)?'on':'off'));
 
 
 
@@ -543,7 +544,7 @@ function update(){
 
 
 
-  if(!runBoostUnlocked(name))$(name).setAttribute('aria-label',label+' — finish Adventure level '+BOOST_UNLOCK_LEVELS[name]);
+  if(!runBoostUnlocked(name))$(name).setAttribute('aria-label',label+' â€” finish Adventure level '+BOOST_UNLOCK_LEVELS[name]);
   $(name).title=label+': '+(enabled?'Active. Tap to stop. ':'Tap to activate. ')+boostCharges(name)+' charges left.';
 
 
@@ -595,7 +596,7 @@ function timer(){
  const hud=$('mode-hud');hud.hidden=runMode==='endless';
  const goal=runMode==='adventure'?levelPrimaryGoal(adventureLevel):null;
  const status=goal?levelTaskStatus(adventureLevel,currentLevelStats())[0]:null;
- const text=status?status.label+' · '+status.value:'Games · '+Math.ceil(rushRemaining/1000)+'s';
+ const text=status?status.label+' Â· '+status.value:'Games Â· '+Math.ceil(rushRemaining/1000)+'s';
  if(goal?.type==='collection'||goal?.type==='memoryCollected'){
  renderCollectionCounters(hud,levelRequirements(adventureLevel),{...currentLevelStats().collections,memory:currentLevelStats().memoryCollected||0},sprite,String(collectionRun));
  }else if(hud.dataset.content!==text||hud.classList.contains('collection-goal')){
@@ -1239,7 +1240,7 @@ function resolve(index){
 
 
 
- const messages={protected:'Shield saved you. Keep going!',correct:'',pass:'No match on that board. No strike.',wrong:'Wrong choice · one life lost.',miss:'Missed a match · one life lost.'};
+ const messages={protected:'Shield saved you. Keep going!',correct:'',pass:'No match on that board. No strike.',wrong:'Wrong choice Â· one life lost.',miss:'Missed a match Â· one life lost.'};
 
 
 
@@ -1573,6 +1574,11 @@ function ability(name){
 
 
 async function start(forceTutorial=false,onPrepared=()=>{},beforeTutorial=()=>Promise.resolve()){
+ if(counting||active)return;
+ const gate=beginModeTransition(runMode==='adventure'?'Adventure':runMode==='rush'?'Time Rush':'Endless');
+ try{return await prepareRun(forceTutorial,onPrepared,beforeTutorial,gate);}finally{gate.dispose();}
+}
+async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
@@ -1601,7 +1607,7 @@ async function start(forceTutorial=false,onPrepared=()=>{},beforeTutorial=()=>Pr
 
 
 
- active=false;paused=false;counting=true;state=null;screen('game');$('play').disabled=true;$('countdown').hidden=false;$('countdown').querySelector('strong').textContent='...';$('countdown').querySelector('span').textContent='Loading level';$('countdown').querySelector('p').textContent='Getting your shapes ready…';$('game').setAttribute('aria-busy','true');$('board').replaceChildren();
+ active=false;paused=false;counting=true;state=null;screen('game');$('play').disabled=true;$('countdown').hidden=false;$('countdown').querySelector('strong').textContent='...';$('countdown').querySelector('span').textContent='Loading level';$('countdown').querySelector('p').textContent='Getting your shapes readyâ€¦';$('game').setAttribute('aria-busy','true');$('board').replaceChildren();
 
 
 
@@ -1662,7 +1668,7 @@ async function start(forceTutorial=false,onPrepared=()=>{},beforeTutorial=()=>Pr
 
 
 
- nextBoard();$('game').removeAttribute('aria-busy');$('countdown').querySelector('span').textContent='Find your shape';$('countdown').querySelector('p').textContent='Match either. Pick one.';
+ nextBoard();await gate.reveal();if(token!==countdownToken)return;$('game').removeAttribute('aria-busy');$('countdown').querySelector('span').textContent='Find your shape';$('countdown').querySelector('p').textContent='Match either. Pick one.';
 
 
 
@@ -2220,7 +2226,7 @@ $('coins-ad-watch').onclick=async()=>{
 
  coinRewardPending=true;$('coins-ad-watch').disabled=true;$('coins-ad-close').disabled=true;
 
- $('coins-ad-status').textContent='Loading video…';audio()?.pause();
+ $('coins-ad-status').textContent='Loading videoâ€¦';audio()?.pause();
 
  let result;
 
@@ -2269,7 +2275,7 @@ async function continueWithCountdown(){
 
  for(const b of $('board').children)b.disabled=true;
 
- $('feedback').textContent='';const overlay=$('countdown');overlay.querySelector('span').textContent='You’re back!';overlay.querySelector('p').textContent='Lives restored';overlay.hidden=false;
+ $('feedback').textContent='';const overlay=$('countdown');overlay.querySelector('span').textContent='Youâ€™re back!';overlay.querySelector('p').textContent='Lives restored';overlay.hidden=false;
 
  $('health').classList.add('refilling');[...$('health').children].forEach((h,i)=>h.style.setProperty('--heart-delay',(i*140)+'ms'));
 
@@ -2322,7 +2328,7 @@ $('continue-ad').onclick=async()=>{
 
 
 
- $('ad-status').textContent='Loading rewarded ad…';audio()?.pause();
+ $('ad-status').textContent='Loading rewarded adâ€¦';audio()?.pause();
 
 
 
@@ -2801,7 +2807,7 @@ function renderCosmeticShop(){
 
 
 
- b.setAttribute('aria-label',(owned?'Equip ':'Buy ')+item.name+(locked?' — requires level '+item.level:''));
+ b.setAttribute('aria-label',(owned?'Equip ':'Buy ')+item.name+(locked?' â€” requires level '+item.level:''));
 
 
 
@@ -2841,7 +2847,7 @@ function renderCosmeticShop(){
 
 
 
-   if(!next){upgrade.textContent=item.id==='ice'?'Level 3 · Max':'Max upgrade';upgrade.disabled=true;}
+   if(!next){upgrade.textContent=item.id==='ice'?'Level 3 Â· Max':'Max upgrade';upgrade.disabled=true;}
 
 
 
@@ -2853,7 +2859,7 @@ function renderCosmeticShop(){
 
 
 
-    const benefit=document.createElement('small');benefit.textContent='Next: '+next.benefit+' · Lv '+next.level;card.append(benefit);
+    const benefit=document.createElement('small');benefit.textContent='Next: '+next.benefit+' Â· Lv '+next.level;card.append(benefit);
 
 
 
@@ -2949,7 +2955,7 @@ function renderSkinShop(){
   const preview=document.createElement('div');preview.className='skin-preview';
   for(let shape=0;shape<4;shape++)preview.append(skinCanvas({shape,color:shape},skin.id));
   const name=document.createElement('strong');name.textContent=skin.name;
-  const info=document.createElement('small');info.textContent=skin.id==='classic'?'Original shapes':locked?'Unlocks at level '+skin.level:'All shapes · All colors';
+  const info=document.createElement('small');info.textContent=skin.id==='classic'?'Original shapes':locked?'Unlocks at level '+skin.level:'All shapes Â· All colors';
   const button=document.createElement('button');button.className='shop-buy';shopAction(button,equipped?'Equipped':owned?'Equip':locked?'Level '+skin.level:'Buy',!owned&&!locked?skin.price:undefined);button.disabled=equipped;button.setAttribute('aria-disabled',String(equipped||locked));
   button.classList.toggle('unavailable',locked||!owned&&profile.coins<skin.price);
   button.setAttribute('aria-label',equipped?skin.name+' equipped':owned?'Equip '+skin.name:locked?skin.name+' unlocks at level '+skin.level:'Buy '+skin.name+' for '+skin.price+' coins');
@@ -2991,7 +2997,7 @@ function shop(){
 
 
 
- for(const [name,label,description,art] of [['shield','Shield','One hit, then 5 turns to recharge.','shield'],['freeze','×2 time','Twice as much time for 5 rounds.','time'],['boost','×5 rewards','5 times the points and coins for 5 rounds.','boost']]){
+ for(const [name,label,description,art] of [['shield','Shield','One hit, then 5 turns to recharge.','shield'],['freeze','Ã—2 time','Twice as much time for 5 rounds.','time'],['boost','Ã—5 rewards','5 times the points and coins for 5 rounds.','boost']]){
 
 
 
@@ -3023,7 +3029,7 @@ function shop(){
 
 
 
-  const price=boostPrice(profile,name);const button=document.createElement('button');button.className='shop-buy';shopAction(button,boostUnlocked(profile,name)?'Buy':'Locked',boostUnlocked(profile,name)?price:undefined);button.setAttribute('aria-label',boostUnlocked(profile,name)?'Buy '+label+' for '+price+' coins':label+' — unlocks after Adventure level '+BOOST_UNLOCK_LEVELS[name]);if(!boostUnlocked(profile,name))owned.textContent='Finish Adventure '+BOOST_UNLOCK_LEVELS[name];button.classList.toggle('unavailable',profile.coins<price||profile.inventory[name]>=999);
+  const price=boostPrice(profile,name);const button=document.createElement('button');button.className='shop-buy';shopAction(button,boostUnlocked(profile,name)?'Buy':'Locked',boostUnlocked(profile,name)?price:undefined);button.setAttribute('aria-label',boostUnlocked(profile,name)?'Buy '+label+' for '+price+' coins':label+' â€” unlocks after Adventure level '+BOOST_UNLOCK_LEVELS[name]);if(!boostUnlocked(profile,name))owned.textContent='Finish Adventure '+BOOST_UNLOCK_LEVELS[name];button.classList.toggle('unavailable',profile.coins<price||profile.inventory[name]>=999);
 
 
 
@@ -3065,10 +3071,10 @@ function renderPersonalRanking(entries=[],cached=false){
  const dialog=$('leaderboard-dialog'),summary=personalRanking(entries,endlessBests()),identity=getIdentity();
  let footer=$('leaderboard-personal');
  if(!footer){footer=document.createElement('button');footer.id='leaderboard-personal';footer.type='button';footer.className='personal-score-row';dialog.querySelector('.dialog-content').append(footer);}
- const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=summary.rank===null?'—':String(summary.rank);
+ const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=summary.rank===null?'â€”':String(summary.rank);
  const copy=document.createElement('span');copy.className='personal-rank-copy';
  const name=document.createElement('strong');name.className='personal-rank-name';name.textContent=identity.name;
- const hint=document.createElement('small');hint.textContent=summary.listed?(cached?'Last loaded ranking':'Your ranking'):'Personal best · rank unavailable';copy.append(name,hint);
+ const hint=document.createElement('small');hint.textContent=summary.listed?(cached?'Last loaded ranking':'Your ranking'):'Personal best Â· rank unavailable';copy.append(name,hint);
  const score=document.createElement('b');score.className='rank-score';score.textContent=summary.score;
  footer.replaceChildren(rank,leaderboardAvatar(identity),copy,score);footer.disabled=!summary.listed;footer.hidden=summary.listed&&summary.rank<=3;
  footer.setAttribute('aria-label',summary.listed?'Your rank '+summary.rank+', '+identity.name+', '+summary.score+' points. Jump to your entry.':identity.name+', personal best '+summary.score+' points. Global rank unavailable.');
@@ -3088,7 +3094,7 @@ async function rankings(silent=false){
 
 
 
- if(!silent&&!lastRankingsSnapshot)$('leaderboard-status').textContent='Loading rankings…';
+ if(!silent&&!lastRankingsSnapshot)$('leaderboard-status').textContent='Loading rankingsâ€¦';
 
 
 
@@ -3284,7 +3290,7 @@ function renderProfileCosmetics(){
 
 
 
-   const button=document.createElement('button');button.type='button';button.className='profile-cosmetic'+(owned?'':' locked');button.setAttribute('aria-pressed',String(selected));button.setAttribute('aria-label',item.name+(owned?'':' — locked'));
+   const button=document.createElement('button');button.type='button';button.className='profile-cosmetic'+(owned?'':' locked');button.setAttribute('aria-pressed',String(selected));button.setAttribute('aria-label',item.name+(owned?'':' â€” locked'));
 
 
 
@@ -3296,7 +3302,7 @@ function renderProfileCosmetics(){
 
 
 
-   const name=document.createElement('strong');name.textContent=item.name;const status=document.createElement('small');status.textContent=!owned?'Locked':(selected?'Selected':'Owned')+(item.id==='ice'?' · Level '+(1+(profile.upgrades.ice||0))+' of 3':'');button.append(name,status);
+   const name=document.createElement('strong');name.textContent=item.name;const status=document.createElement('small');status.textContent=!owned?'Locked':(selected?'Selected':'Owned')+(item.id==='ice'?' Â· Level '+(1+(profile.upgrades.ice||0))+' of 3':'');button.append(name,status);
 
 
 
@@ -3304,7 +3310,7 @@ function renderProfileCosmetics(){
 
 
 
-    if(!owned){showProfileNotice(playerLevel(profile)<item.level?'Locked · Reach level '+item.level+' to unlock '+item.name+'.':'Locked · Buy '+item.name+' in the shop.');return;}
+    if(!owned){showProfileNotice(playerLevel(profile)<item.level?'Locked Â· Reach level '+item.level+' to unlock '+item.name+'.':'Locked Â· Buy '+item.name+' in the shop.');return;}
 
 
 
@@ -3333,11 +3339,11 @@ function renderProfileSkins(){
  for(const skin of SHAPE_SKINS){
   const owned=profile.ownedSkins.includes(skin.id),selected=profile.equipped.skin===skin.id,levelLocked=!skinUnlocked(profile,skin.id);
   const button=document.createElement('button');button.type='button';button.className='profile-cosmetic profile-skin'+(owned?'':' locked');
-  button.setAttribute('aria-pressed',String(selected));button.setAttribute('aria-label',skin.name+' skin'+(owned?'':' — locked'));
+  button.setAttribute('aria-pressed',String(selected));button.setAttribute('aria-label',skin.name+' skin'+(owned?'':' â€” locked'));
   const preview=document.createElement('span');preview.className='skin-preview';
   for(let shape=0;shape<4;shape++)preview.append(skinCanvas({shape,color:shape},skin.id));
   const name=document.createElement('strong');name.textContent=skin.name;
-  const status=document.createElement('small');status.textContent=selected?'Selected':owned?'Owned':levelLocked?'Unlocks at level '+skin.level:'Buy in shop · '+skin.price+' coins';
+  const status=document.createElement('small');status.textContent=selected?'Selected':owned?'Owned':levelLocked?'Unlocks at level '+skin.level:'Buy in shop Â· '+skin.price+' coins';
   button.append(preview,name,status);
   button.onclick=()=>{
    if(levelLocked){showProfileNotice('Reach player level '+skin.level+' to unlock '+skin.name+'.');return;}
@@ -3380,7 +3386,7 @@ function showProfileNotice(message){
 }
 $('profile-dialog').addEventListener('close',clearProfileNotice);
 
-function previewAvatar(){for(const b of $('avatar-presets').querySelectorAll('[data-avatar]')){const owned=profile.ownedAvatars.includes(+b.dataset.avatar);b.classList.toggle('avatar-locked',!owned);b.setAttribute('aria-label',AVATARS[+b.dataset.avatar].name+' avatar'+(owned?'':' — locked'));}$('profile-preview').replaceChildren(avatarElement(draftAvatar,undefined,draftCosmetics?.frame||profile.equipped.frame));for(const b of $('avatar-presets').querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.avatar!==undefined&&+b.dataset.avatar===draftAvatar));}
+function previewAvatar(){for(const b of $('avatar-presets').querySelectorAll('[data-avatar]')){const owned=profile.ownedAvatars.includes(+b.dataset.avatar);b.classList.toggle('avatar-locked',!owned);b.setAttribute('aria-label',AVATARS[+b.dataset.avatar].name+' avatar'+(owned?'':' â€” locked'));}$('profile-preview').replaceChildren(avatarElement(draftAvatar,undefined,draftCosmetics?.frame||profile.equipped.frame));for(const b of $('avatar-presets').querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.avatar!==undefined&&+b.dataset.avatar===draftAvatar));}
 
 
 
@@ -3778,7 +3784,7 @@ function syncRankingSettings(){$('rankings-enable-open').hidden=leaderboardAllow
 function openSettings(){$('privacy-status').textContent='';syncRankingSettings();$('settings-dialog').showModal();}
 $('settings-dialog').addEventListener('close',()=>{$('privacy-status').textContent='';});
 $('rankings-enable-open').onclick=()=>{$('rankings-enable-status').textContent='';$('rankings-enable-dialog').showModal();};
-$('rankings-enable-confirm').onclick=async()=>{const button=$('rankings-enable-confirm');button.disabled=true;$('rankings-enable-status').textContent='Connecting…';resetRankedSession();window.ShapeShiftPlatform.storage.removeItem('shape-shift-online-disabled');try{await saveOnlineProfile(getIdentity());profile.pending=[];saveProfile();flushProfile();$('rankings-enable-dialog').close();syncRankingSettings();renderPublicPlayerId();$('privacy-status').textContent='Leaderboard uploads are on. Finish a new Endless run to post a score.';}catch{window.ShapeShiftPlatform.storage.setItem('shape-shift-online-disabled','1');$('rankings-enable-status').textContent='Could not connect. Uploads are still off. Please try again.';}finally{button.disabled=false;}};
+$('rankings-enable-confirm').onclick=async()=>{const button=$('rankings-enable-confirm');button.disabled=true;$('rankings-enable-status').textContent='Connectingâ€¦';resetRankedSession();window.ShapeShiftPlatform.storage.removeItem('shape-shift-online-disabled');try{await saveOnlineProfile(getIdentity());profile.pending=[];saveProfile();flushProfile();$('rankings-enable-dialog').close();syncRankingSettings();renderPublicPlayerId();$('privacy-status').textContent='Leaderboard uploads are on. Finish a new Endless run to post a score.';}catch{window.ShapeShiftPlatform.storage.setItem('shape-shift-online-disabled','1');$('rankings-enable-status').textContent='Could not connect. Uploads are still off. Please try again.';}finally{button.disabled=false;}};
 $('delete-profile-open').onclick=()=>{$('delete-profile-status').textContent='';$('delete-profile-dialog').showModal();};
 
 
@@ -3994,13 +4000,13 @@ menuReadiness=initMenuReadiness({getProfile:()=>profile,skinSources:SHAPE_SKINS.
 async function prepareStartup(){
  const cover=document.getElementById('startup-ready');if(!cover)return;
  cover.hidden=false;document.documentElement.classList.add('startup-loading');document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;
- cover.classList.remove('startup-finished');cover.querySelector('p').textContent='Loading your world…';const bar=cover.querySelector('progress'),percent=cover.querySelector('.startup-percent');bar.value=0;percent.textContent='0%';
+ cover.classList.remove('startup-finished');cover.querySelector('p').textContent='Loading your worldâ€¦';const bar=cover.querySelector('progress'),percent=cover.querySelector('.startup-percent');bar.value=0;percent.textContent='0%';
  try{
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
-  cover.querySelector('p').textContent='Getting ready to play…';
+  cover.querySelector('p').textContent='Getting ready to playâ€¦';
   await Promise.all([awaitReady(document.fonts.ready,'Font preparation'),effectArtReady,skinArtReady.then(values=>{if(values.some(ready=>!ready))throw Error('Current shape artwork unavailable');})]);
   await menuReadiness.prepareAll();bar.value=95;percent.textContent='95%';
-  await Promise.all([shapeDrop.prepare(),shapeSlice.prepare()]);
+
   let launch,showFirstLesson;const firstScreenVisible=new Promise(resolve=>{showFirstLesson=resolve;});
   if(firstEndless.pending){
    runMode='endless';let prepared;const boardReady=new Promise(resolve=>prepared=resolve);launch=start(true,prepared,()=>firstScreenVisible);
@@ -4011,7 +4017,10 @@ async function prepareStartup(){
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   cover.hidden=true;document.documentElement.classList.remove('startup-loading');document.getElementById('app').inert=false;
-  window.ShapeShiftPlatform.ready();showFirstLesson();
+  window.ShapeShiftPlatform.ready();
+  if(launch){const firstGate=beginModeTransition('Your first game');try{await firstGate.reveal();}finally{firstGate.dispose();}}
+  showFirstLesson();
+  loadBackgroundAssets({paused:()=>document.hidden||transitioning||active||counting});
   if(launch)await launch;else await storyUI.onFirstOpen();
   window.ShapeShiftReminders?.requestFirstLaunch?.();
  }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}
