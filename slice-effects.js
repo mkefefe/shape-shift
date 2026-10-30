@@ -1,4 +1,4 @@
-import {shapeMask} from './slice-fragments.js?v=494198';
+import {shapeMask} from './slice-fragments.js?v=494200';
 // Bounded, local VFX only: particles never change hits, rewards or gameplay.
 export function createSliceBurst(piece,from,to,color,quiet=false,rng=Math.random){
  const angle=Math.atan2(to.y-from.y,to.x-from.x),sparks=[];

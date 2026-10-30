@@ -1,17 +1,17 @@
-import {beginModeTransition} from './mode-transition.js?v=494198';
-import {engagement,registerModeState} from './telemetry.js?v=494198';
-import {translate} from './localization.js?v=494198';
+import {beginModeTransition} from './mode-transition.js?v=494200';
+import {engagement,registerModeState} from './telemetry.js?v=494200';
+import {translate} from './localization.js?v=494200';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice} from './mode-practice.js?v=494198';
-import {createMiniResults} from './mini-results.js?v=494198';
+import {createModePractice} from './mode-practice.js?v=494200';
+import {createMiniResults} from './mini-results.js?v=494200';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494198';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494200';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494198';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494200';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 
@@ -63,6 +63,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  function save(){if(!game||saved||!game.started||game.practice)return true;pendingSave??=finishPianoProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;engagement.endRun('finished');onQuestEvent({type:'finish',mode:'piano',time:game.time});pendingSave=null;settle();return true;}
 
  function clearInput(){keyboard.reset();input.reset();damage=0;delete dialog.dataset.pianoError;window.gameAudio?.stopPiano();voices.clear();}
+ window.addEventListener('shape-shift-input-reset',clearInput);
 
  function stop(){practice.clear();teaching.clear();resultsScreen.reset();continueOffer.reset();window.gameAudio?.stopPraise();hitFeedback.reset();epoch++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);clearInput();game?.dispose();game=null;particles=[];reveals=[];glows.fill(0);holdGlows.fill(0);}
 

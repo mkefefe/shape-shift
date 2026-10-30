@@ -48,8 +48,8 @@ export function bindMenuSwipe(surface,{enabled=()=>true,modeAt=()=>-1,width=()=>
  surface.addEventListener('lostpointercapture',interrupted);
  surface.addEventListener('dragstart',event=>event.preventDefault());
  surface.addEventListener('click',event=>{if(suppressClick){event.preventDefault();event.stopPropagation();suppressClick=false;}},true);
- for(const event of ['unused-blur','resize','unused-pagehide','unused-androidpause','unused-androidresume'])host.addEventListener(event,reset);
- surface.ownerDocument.addEventListener('unused-visibilitychange',reset);
+ for(const event of ['blur','resize','pagehide','androidpause','androidresume','shape-shift-input-reset'])host.addEventListener(event,reset);
+ surface.ownerDocument.addEventListener('visibilitychange',reset);
  return {reset};
 }
 
@@ -71,6 +71,7 @@ function launchClickGate(doc){
  let gate=launchClickGates.get(doc);if(gate)return gate;
  gate={blocked:false};launchClickGates.set(doc,gate);
  doc.addEventListener('pointerdown',()=>{gate.blocked=false;},true);
+ doc.defaultView.addEventListener('shape-shift-input-reset',()=>{gate.blocked=false;});
  doc.addEventListener('click',event=>{
   if(gate.blocked&&event.detail!==0){event.preventDefault();event.stopImmediatePropagation();}
  },true);
@@ -83,8 +84,8 @@ export function bindLaunchTap(button,action){
   press=null;
   host.removeEventListener('pointermove',move);host.removeEventListener('pointerup',up);
   host.removeEventListener('pointercancel',cancel);
-  for(const name of ['unused-blur','unused-pagehide','unused-androidpause'])host.removeEventListener(name,cancel);
-  doc.removeEventListener('unused-visibilitychange',cancel);
+  for(const name of ['blur','pagehide','androidpause','shape-shift-input-reset'])host.removeEventListener(name,cancel);
+  doc.removeEventListener('visibilitychange',cancel);
  };
  const cancel=()=>{consumeClick=true;clear();};
  const move=event=>{if(press?.id===event.pointerId&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>12)cancel();};
@@ -102,8 +103,8 @@ export function bindLaunchTap(button,action){
   press={id:event.pointerId,x:event.clientX,y:event.clientY,rect:button.getBoundingClientRect()};
   host.addEventListener('pointermove',move);host.addEventListener('pointerup',up);
   host.addEventListener('pointercancel',cancel);
-  for(const name of ['unused-blur','unused-pagehide','unused-androidpause'])host.addEventListener(name,cancel);
-  doc.addEventListener('unused-visibilitychange',cancel);
+  for(const name of ['blur','pagehide','androidpause','shape-shift-input-reset'])host.addEventListener(name,cancel);
+  doc.addEventListener('visibilitychange',cancel);
  });
  button.addEventListener('click',event=>{
   if(consumeClick&&event.detail!==0){event.preventDefault();event.stopImmediatePropagation();return;}

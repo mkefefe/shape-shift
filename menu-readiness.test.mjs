@@ -120,3 +120,36 @@ test('full startup prepares hidden home and menu DOM images before first tutoria
  const restore=setGlobal('Image',class{async decode(){}});
  try{const menus=initMenuReadiness({root,getProfile:()=>({equipped:{background:'garden'}}),prepareSkins:async()=>{skinCalls++;}});const work=menus.prepareAll().then(()=>{finished=true;});await settle();assert.equal(finished,false);assert.equal(dialog.open,false);assert.equal(image.loading,'eager');assert.equal(image.src,'assets/startup-dialog.webp');gate.resolve();await work;assert.equal(decoded,true);assert.equal(menus.homeReady(),true);assert(skinCalls>0);dialog.showModal();assert.equal(dialog.open,true);}finally{restore();}
 });
+
+test('leaderboard opens without waiting for slow or failed player portraits',async()=>{
+ let portraitDecodes=0;const requested=[];
+ const portrait={dataset:{},loading:'lazy',getAttribute:()=> 'https://scores.example/slow-photo',closest:()=>({}),decode:async()=>{portraitDecodes++;throw Error('portrait unavailable');}};
+ const dialog=node('dialog');dialog.id='leaderboard-dialog';dialog.querySelectorAll=()=>[portrait];
+ const root={querySelector:()=>({querySelectorAll:()=>[]}),getElementById:id=>id===dialog.id?dialog:null};
+ const restore=setGlobal('Image',class{set src(value){requested.push(value);}async decode(){}});
+ try{
+  const menus=initMenuReadiness({root,getProfile:()=>({equipped:{}})});await menus.prepareAll();dialog.showModal();
+  assert.equal(dialog.open,true);assert.equal(portraitDecodes,0);assert.equal(requested.includes('https://scores.example/slow-photo'),false);
+ }finally{restore();}
+});
+
+test('menu images replaced during asset loading are promoted before hidden decoding',async()=>{
+ let decoded=false;
+ const replacement={dataset:{src:'assets/new-menu-image.webp'},loading:'lazy',getAttribute:()=>null,async decode(){assert.equal(this.loading,'eager');assert.equal(this.src,'assets/new-menu-image.webp');decoded=true;}};
+ let image={dataset:{src:'assets/old-menu-image.webp'},loading:'lazy',getAttribute:()=>null,decode:async()=>{throw Error('stale image decoded');}};
+ const dialog=node('dialog');dialog.id='settings-dialog';dialog.querySelectorAll=()=>[image];
+ const root={querySelector:()=>({querySelectorAll:()=>[]}),getElementById:id=>id===dialog.id?dialog:null};
+ const restore=setGlobal('Image',class{set src(value){this.source=value;}async decode(){if(this.source==='assets/old-menu-image.webp')image=replacement;}});
+ try{const menus=initMenuReadiness({root,getProfile:()=>({equipped:{}})});await menus.prepareAll();assert.equal(decoded,true);}finally{restore();}
+});
+
+test('Back on the real destination loader cannot open the pending leaderboard later',async()=>{
+ const env=mockDocument(),restore=setGlobal('document',env.doc),gate=deferred(),dialog=node('dialog');
+ try{
+  bindPreparedDialog(dialog,{sources:()=>['avatar.webp'],assets:createAssetReadiness(()=>gate.promise)});
+  dialog.showModal();await settle();env.buttons()[1].onclick();await settle();
+  assert.equal(dialog.open,false);gate.resolve();await settle();assert.equal(dialog.showCount,0);
+  dialog.showModal();await settle();assert.equal(dialog.open,true);
+ }finally{restore();}
+});
+

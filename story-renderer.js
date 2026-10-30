@@ -1,7 +1,7 @@
 // Color Beacon: a deterministic, lightweight story timeline shared by the game
 // and exported previews. Painted art stays at native proportions throughout.
-import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494198';
-export {STORY_RESTORATION} from './story-restoration.js?v=494198';
+import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494200';
+export {STORY_RESTORATION} from './story-restoration.js?v=494200';
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},

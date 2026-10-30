@@ -48,6 +48,7 @@ export function bindPianoKeyboard({host,dialog,active,press,release,pause}){
   row?.querySelectorAll('kbd')[keys.indexOf(key)]?.classList.remove('pressed');
  });
  host.addEventListener('blur',()=>{reset();if(dialog.open)pause();});
+ host.addEventListener('shape-shift-input-reset',reset);
  media.addEventListener('change',sync);
  return {reset,mount(){
   reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold the key for long notes.');

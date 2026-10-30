@@ -1,6 +1,6 @@
-import {practiceKey} from './mode-practice.js?v=494198';
-import {engagement,registerModeState} from './telemetry.js?v=494198';
-import {createBattleRewards} from './battle-rewards.js?v=494198';
+import {practiceKey} from './mode-practice.js?v=494200';
+import {engagement,registerModeState} from './telemetry.js?v=494200';
+import {createBattleRewards} from './battle-rewards.js?v=494200';
 // Battle is a separate, lazily loaded screen. Existing mode state stays untouched.
 export function initBattleMenu({storage,getSettings=()=>({}),getAccess=()=>({unlocked:true}),onLocked=()=>{},sound=()=>{},onOpen=()=>{},onClose=()=>{},onReward=()=>false}){
  const sharedRewards=createBattleRewards({storage,onReward,enabled:()=>getSettings().admin!==true});let rewardRunId=null;

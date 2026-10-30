@@ -3,7 +3,10 @@ export function loadDestination(title,prepare,{signal}={}){
  if(signal?.aborted)return Promise.resolve(false);
  const dialog=document.createElement('dialog'),content=document.createElement('div');
  content.className='dialog-content';const heading=document.createElement('h2'),message=document.createElement('p'),retry=document.createElement('button'),back=document.createElement('button');
- heading.textContent=title;heading.hidden=true;dialog.setAttribute('style','border:1px solid #b0ecff55;border-image:none;border-radius:20px;background:#073953ee;color:white;width:min(280px,85vw);height:auto;min-height:0;padding:18px;text-align:center;box-shadow:0 8px 30px #001b3766');message.setAttribute('role','status');retry.className='primary';retry.textContent='Try again';back.className='secondary';back.textContent='Back';content.append(heading,message,retry,back);dialog.append(content);document.body.append(dialog);
+ dialog.className='destination-loading';dialog.setAttribute('aria-label','Loading '+title);
+ // This transient status card must not inherit a full-height portrait menu.
+ content.setAttribute('style','height:auto;max-height:calc(100dvh - 72px);margin:0;padding:0;overflow:auto');
+ heading.textContent=title;heading.hidden=true;dialog.setAttribute('style','border:1px solid #b0ecff55;border-image:none;border-radius:20px;background:#073953ee;color:white;width:min(280px,85vw);height:fit-content;min-height:0;max-height:calc(100dvh - 24px);padding:18px;text-align:center;box-shadow:0 8px 30px #001b3766');message.setAttribute('role','status');retry.className='primary';retry.textContent='Try again';back.className='secondary';back.textContent='Back';content.append(heading,message,retry,back);dialog.append(content);document.body.append(dialog);
  return new Promise(resolve=>{let closed=false;const nativeClose=dialog.close.bind(dialog);const show=()=>{if(!closed&&!dialog.open)dialog.showModal();};const pending=setTimeout(show,900);
   const abort=()=>finish(false);
   const finish=value=>{if(closed)return;closed=true;clearTimeout(pending);signal?.removeEventListener('abort',abort);nativeClose();dialog.remove();resolve(value);};

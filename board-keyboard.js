@@ -17,6 +17,7 @@ export function bindBoardKeyboard(root,{enabled,suspended=()=>false,doc=document
  function move(code){using=true;const items=paint();if(!items.length)return;const positions=items.map(el=>{return {x:el.offsetLeft+el.offsetWidth/2,y:el.offsetTop+el.offsetHeight/2};});index=directionalChoice(positions,index,code);paint();items[index].focus({preventScroll:true});}
  host.addEventListener('keyup',event=>{if(event.code===held)stop();});
  host.addEventListener('blur',stop);
+ host.addEventListener('shape-shift-input-reset',stop);
  host.addEventListener('shape-shift-pause',stop);
  host.addEventListener('shape-shift-guide-start',()=>{guiding=true;stop();paint();});
  host.addEventListener('shape-shift-guide-end',()=>{guiding=false;paint();});

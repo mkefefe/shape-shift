@@ -1,4 +1,4 @@
-import {playerLevel} from './economy.js?v=494198';
+import {playerLevel} from './economy.js?v=494200';
 
 // Each entry is ONE gameplay challenge, not a bundle of unrelated objectives.
 // Four mastery stages deliberately revisit skills at a higher difficulty.

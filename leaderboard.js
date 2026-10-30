@@ -1,5 +1,5 @@
-import {publicRankings} from './leaderboard-cache.js?v=494198';
-import {leaderboardAllowed} from './audience.js?v=494198';
+import {publicRankings} from './leaderboard-cache.js?v=494200';
+import {leaderboardAllowed} from './audience.js?v=494200';
 // Public endpoint is enabled only after the score service is published for all players.
 export const LEADERBOARD_URL='https://shape-shift-test-scores.mkplaycraftstudio.workers.dev';
 const key='shape-shift-player-token';
@@ -8,7 +8,7 @@ function token(){let value=window.ShapeShiftPlatform.storage.getItem(key);if(!va
 async function call(path,body,timeout=6000){
  if(!leaderboardAllowed()&&path!=='/api/delete'&&path!=='/api/leaderboard')throw Error('Online features are unavailable with these privacy settings.');
  if(!LEADERBOARD_URL)throw Error('Online leaderboard is not connected yet.');
- if(window.ShapeShiftPlatform.live)throw Error('Cloud rankings are available in the browser edition only.');const epoch=sessionEpoch,credential=body?token():null;const controller=new AbortController();inFlight.add(controller);const timer=window.ShapeShiftPlatform.setTimeout(()=>controller.abort(),timeout);
+ if(window.ShapeShiftPlatform.live&&!window.ShapeShiftPlatform.cloudRankings)throw Error('Cloud rankings are unavailable on this platform.');const epoch=sessionEpoch,credential=body?token():null;const controller=new AbortController();inFlight.add(controller);const timer=window.ShapeShiftPlatform.setTimeout(()=>controller.abort(),timeout);
  try{const request=()=>{if(epoch!==sessionEpoch)throw Error('Ranking session changed.');return fetch(LEADERBOARD_URL+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','Authorization':'Bearer '+credential}:undefined,body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit'});};let r=await request();if(r.status===503&&path!=='/api/run'){await r.text();r=await request();}if(r.status===429&&path==='/api/profile'){await r.text();await new Promise(resolve=>window.ShapeShiftPlatform.setTimeout(resolve,1600));r=await request();}if(!r.ok){const error=Error('Leaderboard is temporarily unavailable.');error.status=r.status;throw error;}return await r.json();}finally{window.ShapeShiftPlatform.clearTimeout(timer);inFlight.delete(controller);}
 }
 // Each rules version binds the difficulty on the server before play begins.

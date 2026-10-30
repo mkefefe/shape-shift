@@ -1,5 +1,5 @@
-import {BASE_EXTRA} from './localization-base-extra.js?v=494198';
-import {EXTRA_ROWS} from './localization-extra.js?v=494198';
+import {BASE_EXTRA} from './localization-base-extra.js?v=494200';
+import {EXTRA_ROWS} from './localization-extra.js?v=494200';
 export const LANGUAGES={de:'Deutsch',it:'Italiano',en:'English',es:'Español',fr:'Français',pt:'Português',ur:'اردو'};
 // English is the source language. Missing phrases deliberately retain readable English.
 const rows=[

@@ -1,23 +1,23 @@
-import {beginModeTransition} from './mode-transition.js?v=494198';
-import {engagement,registerModeState} from './telemetry.js?v=494198';
+import {beginModeTransition} from './mode-transition.js?v=494200';
+import {engagement,registerModeState} from './telemetry.js?v=494200';
 import {createDropWater} from './drop-water.js';
-import {translate} from './localization.js?v=494198';
+import {translate} from './localization.js?v=494200';
 import {createDropMergeAudio} from './drop-merge-audio.js';
 import {dropArtworkGeometry} from './drop-art-geometry.js';
-import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494198';
+import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494200';
 import {createSceneryTint} from './scenery-progress.js';
 import {bindDropKeyboard} from './drop-keyboard.js';
 import {dropBombFeedback} from './bomb-feedback.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice} from './mode-practice.js?v=494198';
-import {createMiniResults} from './mini-results.js?v=494198';
+import {createModePractice} from './mode-practice.js?v=494200';
+import {createMiniResults} from './mini-results.js?v=494200';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {ARTWORK_CROPS} from './artwork-crops.js';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494198';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494200';
 import {miniGameCoins} from './mini-game-rewards.js';
 import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js';
-import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494198';
+import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494200';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image(),obstacleArt=new Image(),bombArt=new Image(),gardenArt=new Image(),imageLoads=new WeakMap();
 function loadDropImage(image,src){
@@ -189,6 +189,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  }
  function tick(now){if(!game||!dialog.open)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;if(!paused&&!window.ShapeShiftPlatform.paused){keyboard.step(dt);const drops=game.drops;game.step(hitFeedback.step(dt));mergeAudio.step(game.time);if(!game.over){sceneryTint.step(dt,game.score,quiet);dropWater?.step(dt);}if(game.drops!==drops){play('drop-release');}game.events.length=0;fx=fx.filter(f=>game.time-f.at<(f.kind==='merge'?DROP_MERGE_DURATION:.8)).slice(-80);if(game.time-game.lastClear>1.8){const hint=game.danger>0?'Clear the top before it fills!':dropHint();if(announcement.textContent!==hint)announcement.textContent=hint;}update();paintElapsed+=dt;if(paintElapsed>=1/60){paintElapsed%=1/60;render();}if(game.over&&!hitFeedback.active){showResult();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
  const keyboard=bindDropKeyboard(dialog,{active:()=>dialog.open&&game&&!game.over&&!paused&&!window.ShapeShiftPlatform.paused&&!overlay&&drag===null&&dialog.contains(document.activeElement),move:dx=>game.aimAt(game.aim+dx),drop:release});
+ window.addEventListener('shape-shift-input-reset',()=>{keyboard.reset();const id=drag;drag=null;if(id!==null&&canvas?.hasPointerCapture(id))canvas.releasePointerCapture(id);});
  dialog.addEventListener('keydown',e=>{if(!game||game.over)return;if(e.key==='Escape'||(e.key===' '&&e.target.closest('button')))return;if(['ArrowLeft','ArrowRight','ArrowUp',' ','p','P'].includes(e.key)){e.preventDefault();if(e.key.toLowerCase()==='p'){if(paused)resume();else pause();}else if(!paused){if(e.key===' ')release();else if(e.key==='ArrowUp')game.rotate();else game.aimAt(game.aim+(e.key==='ArrowLeft'?-14:14));render();}}});
  dialog.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('button,a,input,select,textarea'))play('surface-tap');});
  dialog.addEventListener('cancel',e=>{e.preventDefault();if(game&&!game.over){if(paused)resume();else pause();}else close();});

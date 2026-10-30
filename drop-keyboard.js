@@ -12,6 +12,7 @@ export function bindDropKeyboard(dialog,{active,move,drop,host=window}){
  host.addEventListener('keyup',event=>held.delete(event.code));
  host.addEventListener('blur',reset);
  host.addEventListener('shape-shift-pause',reset);
+ host.addEventListener('shape-shift-input-reset',reset);
  dialog.addEventListener('focusout',reset);
  dialog.ownerDocument.addEventListener('visibilitychange',reset);
  return {reset,step(dt){

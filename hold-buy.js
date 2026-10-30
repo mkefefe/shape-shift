@@ -2,6 +2,7 @@
 export function enableHoldBuying(dialog,{delay=450,interval=220}={}){
  let hold=null,timer=null,suppressClick=false;
  const stop=()=>{window.ShapeShiftPlatform.clearTimeout(timer);timer=null;hold=null;};
+ const reset=()=>{stop();suppressClick=false;};
  const buttonAtPointer=()=>{
   if(!hold||!dialog.open||window.ShapeShiftPlatform.paused)return null;
   const button=document.elementFromPoint(hold.x,hold.y)?.closest('[data-repeat-buy]');
@@ -32,7 +33,8 @@ export function enableHoldBuying(dialog,{delay=450,interval=220}={}){
  },true);
  dialog.addEventListener('contextmenu',event=>{if(event.target.closest('[data-repeat-buy]'))event.preventDefault();});
  dialog.addEventListener('close',stop);dialog.addEventListener('cancel',stop);
- dialog.addEventListener('scroll',stop,true);window.addEventListener('unused-blur',stop);
+ dialog.addEventListener('scroll',stop,true);window.addEventListener('blur',reset);
+ window.addEventListener('shape-shift-input-reset',reset);
  document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)stop();});
  return stop;
 }

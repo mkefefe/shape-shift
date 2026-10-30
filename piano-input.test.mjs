@@ -158,6 +158,13 @@ test('blur releases the physical key and pauses; resume accepts the same key aga
  k.dispatch('keyup','d');assert.equal(a.status,'partial');
 });
 
+test('ad input reset releases a held piano key without adding a second pause menu',()=>{
+ const a=note(900,3,2,1),f=fixture([a]),k=keyboardFixture(f);
+ k.dispatch('keydown','d');advance(f,2.2);const credited=a.heldBeats;
+ k.dispatch('shape-shift-input-reset');assert.equal(k.pauses,0);assert.equal(f.game.pressed.size,0);
+ assert.equal(a.status,'partial');k.dispatch('keydown','d');advance(f,2.4);assert(a.heldBeats>credited);
+});
+
 test('keyboard respects dialog/editable focus and modifiers while physical key codes stay usable',()=>{
  const a=note(900,2,0),f=fixture([a]),k=keyboardFixture(f);
  for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{target:{closest:()=>({})}}]){

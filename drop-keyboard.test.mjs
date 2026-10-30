@@ -21,7 +21,7 @@ test('opposite directions cancel and S drops once per physical press',()=>{
  f.key('KeyS');f.key('KeyS','keydown',true);assert.equal(f.drops,1);f.key('KeyS','keyup');f.key('KeyS');assert.equal(f.drops,2);
 });
 test('focus loss and pause clear held movement; inactive inputs cannot drop',()=>{
- const f=fixture();for(const [target,name] of [[f.host,'blur'],[f.host,'shape-shift-pause'],[f.dialog,'focusout'],[f.dialog.ownerDocument,'visibilitychange']]){
+ const f=fixture();for(const [target,name] of [[f.host,'blur'],[f.host,'shape-shift-pause'],[f.host,'shape-shift-input-reset'],[f.dialog,'focusout'],[f.dialog.ownerDocument,'visibilitychange']]){
   f.key('KeyA');target.dispatchEvent(new Event(name));f.keys.step(.05);assert.equal(f.x,160);
  }
  f.key('KeyD');f.active=false;f.keys.step(.05);f.key('KeyS');f.active=true;f.keys.step(.05);assert.equal(f.x,160);assert.equal(f.drops,0);

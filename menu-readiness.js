@@ -1,5 +1,5 @@
-import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494198';
-import {loadDestination} from './destination-loader.js?v=494198';
+import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494200';
+import {loadDestination} from './destination-loader.js?v=494200';
 
 // A cached download is not necessarily decoded. Hold each destination until its
 // artwork can actually be painted, including the first visit after loading.
@@ -44,6 +44,12 @@ const images=(root,promote=false)=>[...root.querySelectorAll('img')].map(image=>
  return image.dataset.src||image.currentSrc||image.getAttribute('src');
 }).filter(Boolean);
 
+// Scores are useful before remote player portraits arrive. In particular, newly
+// fetched rows must not hold a hidden leaderboard behind their lazy image decode.
+const dialogImages=dialog=>[...dialog.querySelectorAll('img')].filter(image=>
+ dialog.id!=='leaderboard-dialog'||!image.closest?.('#leaderboard-rows,#leaderboard-personal'));
+const promoteImage=image=>{if(image.dataset.src){image.src=image.dataset.src;delete image.dataset.src;}image.loading='eager';};
+
 export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async()=>{},idle=()=>true,root=document}){
  const assets=createAssetReadiness();let homeRequest=null,homeController;
  const homeRoots=()=>['#home','.topbar','#profile-open'].map(selector=>root.querySelector(selector)).filter(Boolean);
@@ -57,7 +63,7 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
   await Promise.all(homeImages().map(async image=>{await decodeMenuImage(image);decodedHomeImages.add(image);}));
  };
  const menuSources=dialog=>{
-  const id=dialog.id,list=[...COMMON,...images(dialog,true)];
+  const id=dialog.id,list=[...COMMON,...dialogImages(dialog).map(image=>{promoteImage(image);return image.currentSrc||image.getAttribute('src')||image.src;}).filter(Boolean)];
   if(/profile|shop/.test(id))list.push('assets/avatars-v7.webp','assets/worlds-v12.webp','assets/delivery-v144/home-world-v101.webp','assets/garden-v2.webp',...frames(),...skinSources);
   if(/leaderboard/.test(id))list.push('assets/avatars-v7.webp',...frames());
   if(/achievements/.test(id))list.push('assets/achievement-medals-v208.webp');
@@ -65,7 +71,11 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
  };
  const dialogs=['settings-dialog','shop-dialog','profile-dialog','leaderboard-dialog','quests-dialog','achievements-dialog','xp-help-dialog','coin-help-dialog','coins-ad-dialog'].map(id=>root.getElementById(id)).filter(Boolean);
  const decodedDialogImages=new WeakSet();
- const preparedDialogs=dialogs.map(dialog=>bindPreparedDialog(dialog,{assets,sources:()=>menuSources(dialog),extra:()=>/profile|shop/.test(dialog.id)?prepareSkins():Promise.resolve(),paintReady:()=>[...dialog.querySelectorAll('img')].every(image=>decodedDialogImages.has(image)),paint:()=>Promise.all([...dialog.querySelectorAll('img')].map(async image=>{await decodeMenuImage(image);decodedDialogImages.add(image);} ))}));
+ const preparedDialogs=dialogs.map(dialog=>bindPreparedDialog(dialog,{assets,sources:()=>menuSources(dialog),extra:()=>/profile|shop/.test(dialog.id)?prepareSkins():Promise.resolve(),paintReady:()=>dialogImages(dialog).every(image=>decodedDialogImages.has(image)),paint:()=>Promise.all(dialogImages(dialog).map(async image=>{
+  // Rendering the menu may have replaced its images while assets were loading.
+  // Promote the actual nodes being decoded, not just the earlier source list.
+  promoteImage(image);await decodeMenuImage(image);decodedDialogImages.add(image);
+ } ))}));
  return {
   homeReady:()=>assets.has(homeSources())&&homeImages().every(image=>decodedHomeImages.has(image)),
   prepareHome,

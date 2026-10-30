@@ -1,17 +1,17 @@
-import {beginModeTransition} from './mode-transition.js?v=494198';
-import {engagement,registerModeState} from './telemetry.js?v=494198';
-import {translate} from './localization.js?v=494198';
+import {beginModeTransition} from './mode-transition.js?v=494200';
+import {engagement,registerModeState} from './telemetry.js?v=494200';
+import {translate} from './localization.js?v=494200';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice} from './mode-practice.js?v=494198';
-import {createMiniResults} from './mini-results.js?v=494198';
+import {createModePractice} from './mode-practice.js?v=494200';
+import {createMiniResults} from './mini-results.js?v=494200';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {sliceViewport} from './slice-viewport.js';
 import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js';
 import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js';
 import {miniGameCoins} from './mini-game-rewards.js';
-import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494198';
+import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494200';
 import {shapeArtReady,paintMiniShape} from './mini-shape-art.js';
 import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
@@ -139,6 +139,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   dialog.onpointercancel=()=>endGesture(true);dialog.onlostpointercapture=()=>{if(pointer!==null)endGesture(true);};
 
  }
+ window.addEventListener('shape-shift-input-reset',()=>endGesture(true));
  dialog.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('button,a,input,select,textarea'))play('surface-tap');});
  dialog.addEventListener('cancel',e=>{e.preventDefault();if(game&&!game.over){if(paused)resume();else pause();}else close();});dialog.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='p'&&game&&!game.over){e.preventDefault();paused?resume():pause();}});
  const autoPause=()=>{if(dialog.open)pause();};window.addEventListener('unused-blur',autoPause);window.addEventListener('androidpause',autoPause);document.addEventListener('visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)autoPause();});window.addEventListener('pagehide',()=>{if(game&&!saved){game.end();save();}});new ResizeObserver(()=>{if(game){endGesture(true);render();}}).observe(dialog);
