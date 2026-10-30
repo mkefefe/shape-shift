@@ -1,4 +1,4 @@
-import {fitBoard} from './board-fit.js?v=494120';
+import {fitBoard} from './board-fit.js?v=494198';
 export const SPECIAL_DESTINATIONS=Object.freeze({heart:'health',crystal:'shield',hourglass:'timer',reset:'board'});
 export const effectDuration=reduced=>reduced?400:1050;
 const clamp=x=>Math.max(0,Math.min(1,x));
@@ -83,11 +83,11 @@ export function createSpecialEffect(kind,boardElement,index,destinations,reduced
 
 
  }else{
- const art=source.querySelector('.sprite,.special');if(art){flyer=document.createElement('span');flyer.className='special-flying-art';flyer.style.backgroundImage="url('assets/specials-v13.webp')";flyer.style.backgroundSize='500% auto';flyer.style.backgroundPosition='calc('+art.style.getPropertyValue('--special')+' * 25%) center';flyer.style.backgroundRepeat='no-repeat';flyer.style.setProperty('--special',art.style.getPropertyValue('--special'));overlay.append(flyer);}
+ const art=source.querySelector('.sprite,.special');if(art){flyer=document.createElement('span');flyer.className='special-flying-art';flyer.style.backgroundImage="url('assets/delivery-v144/specials-v13.webp')";flyer.style.backgroundSize='500% auto';flyer.style.backgroundPosition='calc('+art.style.getPropertyValue('--special')+' * 25%) center';flyer.style.backgroundRepeat='no-repeat';flyer.style.setProperty('--special',art.style.getPropertyValue('--special'));overlay.append(flyer);}
  for(let i=0;i<5;i++){const dot=document.createElement('i');dot.className='special-trail';overlay.append(dot);trails.push(dot);}
  }
  planRewind(changed);
- if(kind==='crystal'&&flyer){flyer.classList.add('shield-flying-art');flyer.style.backgroundImage="url('assets/abilities-v4.webp')";flyer.style.backgroundSize='300% 100%';flyer.style.backgroundPosition='right center';}
+ if(kind==='crystal'&&flyer){flyer.classList.add('shield-flying-art');flyer.style.backgroundImage="url('assets/delivery-v144/abilities-v4.webp')";flyer.style.backgroundSize='300% 100%';flyer.style.backgroundPosition='right center';}
  const timing=rewindTiming(changed,reduced);
  const duration=kind==='reset'?timing.duration:effectDuration(reduced);let mergedCue=false,shieldArrived=false,mergeStage=0;
  const ringAt=(x,y,p)=>{ring.style.left=x+'px';ring.style.top=y+'px';ring.style.opacity=String(Math.sin(clamp(p)*Math.PI));ring.style.transform='translate(-50%,-50%) scale('+(0.6+p*2)+')';};

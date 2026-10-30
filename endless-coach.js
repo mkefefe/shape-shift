@@ -14,7 +14,7 @@ export function createEndlessCoach({doc=document,complete=()=>{},resetTimer=()=>
  function clear(){doc.querySelectorAll('.coach-pointer').forEach(n=>n.remove());doc.querySelectorAll('.coach-target').forEach(n=>n.classList.remove('coach-target'));}
  function point(target,top=false,from=null){
   if(!target)return;target.classList.add('coach-target');
-  const hand=doc.createElement('img');hand.src='assets/ability-hand-v169.webp';hand.className='coach-pointer'+(top?' coach-look-pointer':'');hand.alt='';hand.setAttribute('aria-hidden','true');
+  const hand=doc.createElement('img');hand.src='assets/delivery-v144/ability-hand-v169.webp';hand.className='coach-pointer'+(top?' coach-look-pointer':'');hand.alt='';hand.setAttribute('aria-hidden','true');
   const anchor=top?target:target.querySelector('.sprite')||target,host=top?target.parentElement:target;
   const rect=anchor.getBoundingClientRect(),box=host.getBoundingClientRect(),size=top?52:58;
   hand.style.left=((rect.left-box.left+rect.width*.35-size*.9)/box.width*100)+'%';hand.style.top=((rect.top-box.top+rect.height*.35-size*.85)/box.height*100)+'%';host.append(hand);

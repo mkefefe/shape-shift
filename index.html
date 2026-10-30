@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Shape Shift</title>
 
-<link rel="stylesheet" href="browser-cursor.css?v=49499">
+<link rel="stylesheet" href="browser-cursor.css?v=494198">
 <style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#063d5d}
-.backdrop{position:fixed;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);object-fit:cover;filter:blur(18px) brightness(.42);pointer-events:none;user-select:none}
+.backdrop{position:fixed;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);object-fit:cover;filter:blur(.3px) brightness(.55);pointer-events:none;user-select:none}
 main{position:relative;display:flex;justify-content:center;align-items:center;width:100%;height:100dvh}
 iframe{display:block;width:100%;height:100%;border:0;background:#063d5d;box-shadow:0 0 48px #001d40;isolation:isolate}
 @media(min-width:600px){iframe{width:min(480px,62.5dvh);height:100dvh}}
@@ -15,4 +15,4 @@ iframe{display:block;width:100%;height:100%;border:0;background:#063d5d;box-shad
  #keyboard-help .keyboard-help-context{margin:5px 0 20px;color:#bfe5ef;font-size:12px}#keyboard-help dl{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:14px 12px;margin:0}#keyboard-help dt,#keyboard-help dd{margin:0}#keyboard-help dd{font-size:12px}#keyboard-help kbd{display:inline-block;padding:5px 7px;min-width:22px;box-sizing:border-box;border-radius:6px;background:#14566c;border:1px solid #80bbcd;color:#fff;text-align:center;font:700 12px/1.2 system-ui,sans-serif;white-space:nowrap}
  #keyboard-help-toggle{padding:12px 18px}#keyboard-help button:focus-visible,#keyboard-help-toggle:focus-visible{outline:3px solid #ffe383;outline-offset:4px}
 }
-</style><link rel="stylesheet" href="mode-transition.css?v=494122"></head><body><img class="backdrop" data-src="assets/home-world-v101.webp" alt="" aria-hidden="true"><main><iframe src="game-frame.html?v=494126" title="Shape Shift game" allow="autoplay" onload="this.contentWindow.focus()"></iframe></main><script type="module" src="shell-keyboard.js?v=49499"></script><script>addEventListener('message',e=>{if(e.source===document.querySelector('iframe').contentWindow&&e.data==='shape-shift-ready'){const bg=document.querySelector('.backdrop');bg.src=bg.dataset.src;}},{once:false});</script></body></html>
+</style><link rel="stylesheet" href="mode-transition.css?v=494198"><link rel="stylesheet" href="guided-match.css?v=494198"></head><body><img class="backdrop" data-src="assets/delivery-v144/home-world-v101.webp" alt="" aria-hidden="true"><main><iframe src="game-frame.html?v=494198" title="Shape Shift game" allow="autoplay" onload="this.contentWindow.focus()"></iframe></main><script type="module" src="shell-keyboard.js?v=494198"></script><script>addEventListener('message',e=>{if(e.source===document.querySelector('iframe').contentWindow&&e.data==='shape-shift-ready'){const bg=document.querySelector('.backdrop');bg.src=bg.dataset.src;}},{once:false});</script></body></html>

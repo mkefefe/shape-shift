@@ -10,8 +10,15 @@
 .guided-match-hand{position:absolute;width:65px;height:auto;left:12%;top:72%;z-index:8;pointer-events:none;transform:rotate(-90deg);filter:drop-shadow(0 3px 2px #00354d55);animation:guided-point 1s ease-in-out infinite}
 #game.guided-match-active .guided-success{filter:brightness(1.15);box-shadow:0 0 26px #ffe76b}
 @keyframes guided-point{50%{transform:translate(5px,-5px) rotate(-90deg)}}
-@media(prefers-reduced-motion:reduce){.guided-match-hand{animation:none}}
+
 
 #guided-match{color:#fff3b3;text-shadow:0 2px 3px #001b39;margin-top:8px}#guided-match span{color:#dcf4ff}#guided-match button{color:#d4e7f2;text-decoration:underline}
-#game.guided-match-active #board{width:calc(100% - 24px)!important;max-width:460px!important;gap:18px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#game.guided-match-active #board{width:calc(100% - 24px)!important;max-width:460px!important;align-self:center;gap:18px!important}
 #game.guided-match-active #board .choice{width:100%!important;height:100%!important;min-width:0!important;max-width:none!important}
+/* Hidden run controls must not squeeze the practice cards out on short screens. */
+@media(max-height:520px){
+ #game.guided-match-active .timer-track,#game.guided-match-active .abilities{display:none!important}
+ #game.guided-match-active #guided-match{margin:4px 0;gap:2px;flex-shrink:0}
+ #game.guided-match-active #guided-match strong{font-size:16px}
+ #game.guided-match-active .guided-match-hand{width:clamp(34px,16vw,52px)}
+}

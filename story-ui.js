@@ -1,14 +1,10 @@
-import {createBeaconController} from './beacon-controller.js?v=49499';
-export {CHARGE_KEY,createBeaconController} from './beacon-controller.js?v=49499';
-import {showStoryScene} from './story-scene.js?v=49499';
+import {createBeaconController} from './beacon-controller.js?v=494198';
+export {CHARGE_KEY,createBeaconController} from './beacon-controller.js?v=494198';
+import {showStoryScene} from './story-scene.js?v=494198';
 
-// The ending is an earned full-screen scene, never a map menu or charge shop.
+// Adventure completion records the clear; island celebrations belong exclusively
+// to the shared restoration screen, never to a level-100 credits sequence.
 export function initStoryUI({document,...options}){
  const controller=createBeaconController({...options,showScene:settings=>showStoryScene({document,...settings})});
- const present=async()=>{
-  if(controller.isPlaying()||!controller.summary().ready)return;
-  controller.takeMilestoneNotice();
-  return controller.charge();
- };
- return {...controller,refresh:()=>{},afterResults:present,onFirstOpen:present};
+ return {...controller,summary:()=>({...controller.summary(),ready:null}),refresh:()=>{},afterResults:async()=>{},onFirstOpen:async()=>{}};
 }

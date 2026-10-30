@@ -1,5 +1,5 @@
-import {requestReward} from './rewarded.js?v=49499';
-import {startResultCountdown} from './countdown.js?v=49499';
+import {requestReward} from './rewarded.js?v=494198';
+import {startResultCountdown} from './countdown.js?v=494198';
 
 // Borrow the actual Endless/Adventure dialog, never a second mini-game panel.
 export function showSharedContinue({host,description,onWatch,onFinish}){
@@ -9,12 +9,12 @@ export function showSharedContinue({host,description,onWatch,onFinish}){
  const countdown=doc.getElementById('result-return-countdown'),next=doc.getElementById('adventure-continue');
  const oldClass=dialog.className;
  const snapshots=[watch,status,title,hint,countdown,next].map(node=>({node,text:node===watch?null:node.textContent,hidden:node.hidden,disabled:node.disabled}));
- let busy=false,ready=false,closed=false;
+ let busy=false,ready=true,closed=false;
  dialog.classList.remove('adventure-results','victory-result','victory-arriving');dialog.classList.add('continue-offer');
  title.textContent='KEEP GOING?';watch.hidden=false;watch.disabled=!host.ShapeShiftAds;next.hidden=true;
  status.textContent=host.ShapeShiftAds?description:'Continue is available in the Android app.';
- hint.textContent='';countdown.hidden=false;
- const cancelTimer=startResultCountdown(n=>countdown.textContent=String(n),()=>{ready=true;countdown.hidden=true;hint.textContent='Tap anywhere else to finish your run.';},{visible:()=>!window.ShapeShiftPlatform.paused&&dialog.open&&!busy});
+ hint.textContent='Tap anywhere else to see your results.';countdown.hidden=true;
+ const cancelTimer=()=>{};
  function click(e){e.stopImmediatePropagation();e.preventDefault();if(busy)return;if(watch.contains(e.target)){if(!watch.disabled){host.gameAudio?.ui('click');onWatch();}}else if(ready){host.gameAudio?.ui('click');onFinish();}}
  function cancel(e){e.stopImmediatePropagation();e.preventDefault();if(ready&&!busy)onFinish();}
  dialog.addEventListener('click',click,true);dialog.addEventListener('cancel',cancel,true);

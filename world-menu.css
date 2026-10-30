@@ -1,5 +1,5 @@
 /* Mode selection: raster artwork uses proportional crops, never stretched. */
-#app[data-screen=home],#app[data-screen=map]{background:#2aa8e5 url('assets/home-world-v101.webp') center/cover no-repeat;padding:0;min-height:100dvh;height:100dvh;max-height:1100px;margin:0 auto;border-radius:0}
+#app[data-screen=home],#app[data-screen=map]{background:#2aa8e5 url('assets/delivery-v144/home-world-v101.webp') center/cover no-repeat;padding:0;min-height:100dvh;height:100dvh;max-height:1100px;margin:0 auto;border-radius:0}
 #app[data-screen=home] .topbar{height:0;padding:0}
 #home{position:relative;height:100%;min-height:0!important;padding:72px 0 92px;display:flex;flex-direction:column;align-items:center;gap:5px;overflow:hidden}
 #home h1{width:72%;max-width:330px;margin:0 auto;height:22%;min-height:86px;align-self:center;flex-shrink:1}
@@ -44,7 +44,7 @@
 #mode-dots button{width:15px;height:15px;padding:0;border:1px solid #c6f8ff;border-radius:50%;background:#6bc8e5;min-height:0}
 #mode-dots button.selected{background:#ffd044;border-color:#fff4a4}
 #home .home-actions{margin:0;padding:0;width:76%;max-width:350px;display:flex;flex-direction:column;gap:3px}
-#home .home-actions .primary{background:transparent url('assets/action-v45.webp') center/contain no-repeat;border:0;border-radius:0;box-shadow:none;aspect-ratio:3;min-height:50px;padding:8px;color:#714600;font:1000 clamp(21px,6vw,30px) Nunito}
+#home .home-actions .primary{background:transparent url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;border:0;border-radius:0;box-shadow:none;aspect-ratio:3;min-height:50px;padding:8px;color:#714600;font:1000 clamp(21px,6vw,30px) Nunito}
 #home .home-actions .secondary{align-self:center;width:70%;min-height:40px;padding:6px;background:#c8f8ffe8;border:2px solid #58d8ef;border-radius:24px;color:#07567a;font:1000 18px Nunito;box-shadow:0 3px 0 #188eb7}
 #app[data-screen=map] .topbar{display:none}
 #adventure-map{height:100%;position:relative;background:#28bcec;overflow:hidden}
@@ -104,7 +104,7 @@
 #app[data-screen=home] #achievements-open:after{content:'Achievements';font:1000 12px Nunito;color:white;text-shadow:0 2px 3px #064965}
 #home #home-level{bottom:91px;width:130px;min-height:28px;font-size:11px;padding:2px}
 #mode-prev,#mode-next{display:none!important}
-#home .home-actions .secondary{background:transparent url('assets/action-v45.webp') center/contain no-repeat;border:0;box-shadow:none;border-radius:0;color:#724600;width:78%;min-height:46px}
+#home .home-actions .secondary{background:transparent url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;border:0;box-shadow:none;border-radius:0;color:#724600;width:78%;min-height:46px}
 #shop-dialog .dialog-content{padding-top:22px!important}
 #shop-dialog h2{margin-top:0!important}
 #shop-dialog #avatar-items .cosmetic-card{padding:6px 4px;gap:3px}
@@ -120,9 +120,9 @@
 #map-levels .level-node.next{filter:drop-shadow(0 0 9px #fffbc2)}
 #map-levels .level-stars{top:53px}
 .map-header{position:sticky;top:0;margin-bottom:-120px;height:120px;padding:6px;left:auto;right:auto;z-index:4;background:linear-gradient(#81ce4b,transparent)}
-.map-header>div{padding:8px}.map-header button{background:url('assets/action-v45.webp') center/contain no-repeat;border:0;box-shadow:none;color:#714600;font-size:27px}
+.map-header>div{padding:8px}.map-header button{background:url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;border:0;box-shadow:none;color:#714600;font-size:27px}
 .map-footer{position:sticky;bottom:8px;left:auto;right:auto;width:88%;margin:-62px auto 8px;z-index:4}
-.map-footer button{background:url('assets/action-v45.webp') center/contain no-repeat;border:0;box-shadow:none;color:#714600;font-size:27px}
+.map-footer button{background:url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;border:0;box-shadow:none;color:#714600;font-size:27px}
 #adventure-map:after{display:none}
 #level-objectives,.result-objectives{list-style:none;padding:0;margin:10px 0;text-align:center;font-weight:900;font-size:14px;line-height:1.5}
 #level-objectives li,.result-objectives li{padding:5px 3px;border-bottom:1px solid #78cbd955}
@@ -485,7 +485,7 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 }
 #over-dialog.continue-offer::before,#over-dialog.continue-offer::after{
  content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;
- background-image:url('assets/menu-panel-v240.webp');background-size:100% auto;background-repeat:no-repeat;
+ background-image:url('assets/delivery-v144/menu-panel-v240.webp');background-size:100% auto;background-repeat:no-repeat;
 }
 #over-dialog.continue-offer::before{top:0;background-position:center top}
 #over-dialog.continue-offer::after{bottom:0;background-position:center bottom}
@@ -535,7 +535,7 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 }
 #difficulty-dialog::before,#difficulty-dialog::after{
  content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;
- background:url('assets/menu-panel-v240.webp') center top/100% auto no-repeat;
+ background:url('assets/delivery-v144/menu-panel-v240.webp') center top/100% auto no-repeat;
 }
 #difficulty-dialog::before{top:0}
 #difficulty-dialog::after{bottom:0;background-position:center bottom}
@@ -609,7 +609,7 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 
 /* Compact first-run practice; crop the unused panel middle, never stretch its art. */
 #app #tutorial-dialog{width:min(370px,calc(100vw - 24px));height:fit-content;min-height:0;max-height:calc(100dvh - 24px);background:transparent;isolation:isolate;border-radius:24px}
-#tutorial-dialog::before,#tutorial-dialog::after{content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;background:url('assets/menu-panel-v240.webp') center top/100% auto no-repeat}
+#tutorial-dialog::before,#tutorial-dialog::after{content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;background:url('assets/delivery-v144/menu-panel-v240.webp') center top/100% auto no-repeat}
 #tutorial-dialog::before{top:0}#tutorial-dialog::after{bottom:0;background-position:center bottom}
 #app #tutorial-dialog .dialog-content{height:auto;max-height:calc(100dvh - 24px);padding:24px 24px 28px;overflow-y:auto}
 #tutorial-dialog #tutorial-step{margin:0 0 7px}
@@ -721,11 +721,11 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 @keyframes daily-countdown-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 #quest-save-error{margin:0;text-align:center;font-size:12px;color:#9b3344}
 @media(max-height:650px){#quests-dialog .dialog-content{padding:12px 10px;gap:6px}#quests-dialog h2{margin:2px 40px 5px;font-size:23px}#quests-dialog #quest-list{gap:7px}#quests-dialog .quest-card{padding:7px 8px;gap:6px}#quests-dialog .quest-card h3{font-size:14px}#quests-dialog .quest-progress{height:36px;min-height:36px}#quests-dialog .quest-progress strong{font-size:18px}#quests-dialog #quests-collect-all{height:44px;min-height:44px;max-height:44px;flex-basis:44px}}
-@media(prefers-reduced-motion:reduce){.daily-quest-empty{animation:none}#quests-dialog .quest-card.quest-redeeming::after{animation:none;background:#5ce69d55}}
+
 
 /* Compact coin panels crop only the empty middle of the painted frame. */
 #app #coin-help-dialog,#app #coins-ad-dialog{width:min(380px,calc(100vw - 24px));height:fit-content;min-height:0;max-height:calc(100dvh - 24px);background:transparent;border-radius:24px;isolation:isolate;overflow:clip}
-#coin-help-dialog::before,#coin-help-dialog::after,#coins-ad-dialog::before,#coins-ad-dialog::after{content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;background:url('assets/menu-panel-v240.webp') center top/100% auto no-repeat}
+#coin-help-dialog::before,#coin-help-dialog::after,#coins-ad-dialog::before,#coins-ad-dialog::after{content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;background:url('assets/delivery-v144/menu-panel-v240.webp') center top/100% auto no-repeat}
 #coin-help-dialog::after,#coins-ad-dialog::after{bottom:0;background-position:center bottom}
 #coin-help-dialog::before,#coins-ad-dialog::before{top:0}
 #app #coin-help-dialog .dialog-content{display:flex;flex-direction:column;gap:12px;height:auto;margin:0;padding:22px 22px 20px;overflow:clip;overscroll-behavior:none}
@@ -803,7 +803,7 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 
 
 /* One continuous frame avoids a seam between independently cropped halves. */
-#app #tutorial-dialog{background:url("assets/menu-panel-v240.webp") center/100% 100% no-repeat}
+#app #tutorial-dialog{background:url("assets/delivery-v144/menu-panel-v240.webp") center/100% 100% no-repeat}
 #tutorial-dialog::before,#tutorial-dialog::after{content:none}
 
 .reward-objectives li.reward-failed{background:#f4d4db;border-color:#d98191;opacity:.65;transition:background .15s,opacity .2s}
@@ -850,7 +850,7 @@ body #age-dialog #age-continue{
 #over-dialog:not(.adventure-results):not(.continue-offer)::before,
 #over-dialog:not(.adventure-results):not(.continue-offer)::after{
  content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;
- background:url('assets/menu-panel-v240.webp') center top/100% auto no-repeat;
+ background:url('assets/delivery-v144/menu-panel-v240.webp') center top/100% auto no-repeat;
 }
 #over-dialog:not(.adventure-results):not(.continue-offer)::before{top:0}
 #over-dialog:not(.adventure-results):not(.continue-offer)::after{bottom:0;background-position:center bottom}
@@ -876,3 +876,20 @@ body #age-dialog #age-continue{
 
 /* Cards sit directly on the world; no secondary board backing or mask. */
 #game>#board::before{content:none;display:none}
+
+/* Intrinsic rows prevent the fourth shop section collapsing boost cards. */
+#shop-dialog #shop-items{display:flex;flex-direction:column;gap:9px;max-height:none;height:auto;flex:none;overflow:visible;padding-bottom:10px}#shop-dialog #shop-items[hidden]{display:none}#shop-dialog #shop-items .shop-item{flex:none;min-height:76px;height:auto;display:grid;grid-template-columns:46px minmax(0,1fr) 100px;align-items:center;padding:8px}
+#battle-power-shop{flex:none;width:100%;padding:12px;border:1px solid #64c6d9;border-radius:18px;background:#d6f7fa80;text-align:center;box-sizing:border-box}#battle-power-shop h3{font-size:17px;margin:0 0 10px;color:#07566d}.battle-upgrade-row{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:10px;align-items:center}.battle-upgrade-row strong{font-size:14px}.battle-upgrade-row small{font-size:11px}.battle-upgrade-meter{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;height:22px;margin:9px 0 5px}.battle-upgrade-meter i{background:#accfd6;border:1px solid #6394a5;border-radius:4px}.battle-upgrade-meter i.filled{background:linear-gradient(#fff4a4,#ffc32f);border-color:#df9a16}.battle-upgrade-meter i.new-segment{animation:battleUpgradeFill .65s ease-out both;transform-origin:bottom}@keyframes battleUpgradeFill{from{transform:scaleY(.05);filter:brightness(1.8)}to{transform:scaleY(1);filter:brightness(1)}}
+
+#battle-power-shop{padding:9px 8px}.battle-upgrade-row{grid-template-columns:46px minmax(0,1fr) 100px;gap:6px}.battle-power-icon{width:46px;height:46px;object-fit:contain}.battle-upgrade-row h3{font-size:14px;margin:0 0 4px}.battle-damage-number{display:flex;align-items:center;justify-content:center;gap:4px}.battle-damage-number img{width:19px;height:19px;object-fit:contain;filter:grayscale(1)}.battle-upgrade-meter{height:16px;gap:2px;margin:6px 0 1px}.battle-upgrade-meter i{border-radius:3px}
+
+/* Let remembered artwork read clearly before collecting it. */
+.choice.memory-correct>.sprite{animation-delay:650ms!important}
+:is(#board-guide,#endless-coach) .board-guide-continue,#tutorial-next,#boost-lesson-dialog button.primary{border:3px solid #725013;box-shadow:0 3px 0 #49340f,inset 0 1px 0 #fff3ba}
+
+/* Soft-focus scenery preserves sharp artwork and labels in the foreground. */
+html body #app[data-screen="home"]::before{content:'';position:absolute;inset:-3px;z-index:-1;pointer-events:none;background:inherit;filter:blur(.3px)}
+html body #app[data-screen="home"] #living-water{filter:none}
+html body #home .mode-card{isolation:isolate}
+html body #home .mode-card::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:inherit;filter:blur(.3px)}
+html body #home .mode-card[data-position="0"]{border-color:#ffe878;box-shadow:0 0 16px #ffd55270,inset 0 0 0 2px #eaa42b}

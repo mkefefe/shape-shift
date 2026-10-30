@@ -24,7 +24,7 @@ body { overscroll-behavior: none; }
 
 /* Render compact panels as one continuous bitmap, with no join at 50% height. */
 #app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog) {
-  background:transparent url('assets/menu-panel-v240.webp') center/100% 100% no-repeat !important;
+  background:transparent url('assets/delivery-v144/menu-panel-v240.webp') center/100% 100% no-repeat !important;
 }
 #app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::before,
 #app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::after {
@@ -45,7 +45,7 @@ body { overscroll-behavior: none; }
 
 /* The frame supplies the viewport for every game and full-screen dialog. */
 html,body{overflow:hidden;}
-#app,#app[data-screen=home],#app[data-screen=map],#app[data-screen=game]{width:100%;max-width:100%;height:100dvh;min-height:0;max-height:100dvh;margin:0 auto;}
+#app,#app[data-screen=home],#app[data-screen=map],#app[data-screen=game]{width:100%;max-width:480px;height:100dvh;min-height:0;max-height:100dvh;margin:0 auto;}
 
 
 #piano-flow .piano-key-labels{position:absolute;bottom:23px;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:580px;display:grid;grid-template-columns:repeat(4,1fr);z-index:3;pointer-events:none;text-align:center;color:white;font:900 14px Nunito,sans-serif;}
@@ -61,9 +61,9 @@ html,body{overflow:hidden;}
 #story-library .beacon-status{font-size:13px;color:#075a75;}
 
 /* Dedicated high-resolution raster ability art; avoid atlas-edge sampling. */
-#freeze .power-art,.power-art[data-ability="freeze"]{background-image:url('browser-time-hd1.png');background-position:center;background-size:contain}
-#shield .power-art,.power-art[data-ability="shield"],.health-shield{background-image:url('browser-shield-hd1.png');background-position:center;background-size:contain}
-#boost .power-art,.power-art.boost-art{background-image:url('browser-boost-hd1.png');background-position:center;background-size:contain}
+#freeze .power-art,.power-art[data-ability="freeze"]{background-image:url('assets/delivery-v144/browser-time-hd1.webp');background-position:center;background-size:contain}
+#shield .power-art,.power-art[data-ability="shield"],.health-shield{background-image:url('assets/delivery-v144/browser-shield-hd1.webp');background-position:center;background-size:contain}
+#boost .power-art,.power-art.boost-art{background-image:url('assets/delivery-v144/browser-boost-hd1.webp');background-position:center;background-size:contain}
 .power-art,.health-shield{image-rendering:auto;background-repeat:no-repeat}
 #shield-charges{letter-spacing:0;font-size:10px;white-space:nowrap}
 

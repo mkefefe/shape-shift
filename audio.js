@@ -1,7 +1,7 @@
 /* Shape Shift — recorded-piano music and procedural game sound effects. */
 (() => {
   'use strict';
-  let context, master, musicBus, musicDuck, effectsBus, timer;
+  let context, master, musicBus, musicDuck, musicTone, musicBody, musicPresence, effectsBus, timer;
   let lifecycleEpoch=0,suspendTimer=null,suspending=null,masterFade=null;
   const liveSources=new Set();
   function audioSource(oscillator=false){
@@ -18,7 +18,7 @@
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
   // Slider percentages scale the mix: effects sit in front of the recorded bed.
-  const MUSIC_LEVEL=.55,PIANO_MUSIC_LEVEL=1.5,SFX_LEVEL=2;
+  const MUSIC_LEVEL=.55,PIANO_MUSIC_LEVEL=.95,SFX_LEVEL=2;
   const musicLevel=()=>scene==='piano'?PIANO_MUSIC_LEVEL:MUSIC_LEVEL;
   const volumeValue=(value,fallback)=>Number.isFinite(Number(value))?Math.max(0,Math.min(100,Number(value))):fallback;
   let effectPitch=1,effectGain=1;const previousPitch=new Map();
@@ -46,7 +46,12 @@
     effectsBus = context.createGain(); effectsBus.gain.value = sfx ? SFX_LEVEL*sfxVolume/100 : 0;
     // A centered mono effects bus feeds both output speakers equally.
     effectsBus.channelCount=1;effectsBus.channelCountMode='explicit';effectsBus.channelInterpretation='speakers';
-    musicDuck=context.createGain();musicDuck.gain.value=1;musicBus.connect(musicDuck);musicDuck.connect(master); effectsBus.connect(master); master.connect(compressor); compressor.connect(context.destination);
+    musicDuck=context.createGain();musicDuck.gain.value=1;
+    musicTone=context.createBiquadFilter();musicTone.type='lowpass';musicTone.frequency.value=4300;musicTone.Q.value=.55;
+    musicBody=context.createBiquadFilter();musicBody.type='lowshelf';musicBody.frequency.value=220;musicBody.gain.value=0;
+    musicPresence=context.createBiquadFilter();musicPresence.type='peaking';musicPresence.frequency.value=1800;musicPresence.Q.value=.7;musicPresence.gain.value=1.8;
+    musicPresence.connect(musicDuck);
+    musicBus.connect(musicPresence);musicTone.connect(musicBody);musicBody.connect(musicDuck);musicDuck.connect(master); effectsBus.connect(master); master.connect(compressor); compressor.connect(context.destination);
     return true;
   }
 
@@ -216,16 +221,16 @@
   }
   async function preparePiano(){
     if(!setup())return false;
-    const ready=await Promise.all([...pianoKeys,'kick','clap','shaker'].map(key=>{
+    const ready=await Promise.all([...pianoKeys,'kick'].map(key=>{
       if(pianoBuffers.has(key))return true;
       const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':'assets/music/pop-'+key+'-v322.ogg';
       if(!pianoLoads.has(key))pianoLoads.set(key,audioData(url).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
       return pianoLoads.get(key);
     }));return ready.every(Boolean);
   }
-  function stopPiano(accompaniment){
+  function stopPiano(accompaniment,preserveRoom=false){
     for(const voice of [...pianoVoices])if(accompaniment===undefined||voice.accompaniment===accompaniment)voice.release();
-    for(const [kind,room] of pianoRooms)if(accompaniment===undefined||kind===accompaniment){room.convolver.disconnect();room.wet.disconnect();pianoRooms.delete(kind);}
+    for(const [kind,room] of pianoRooms)if(!preserveRoom&&(accompaniment===undefined||kind===accompaniment)){room.convolver.disconnect();room.wet.disconnect();pianoRooms.delete(kind);}
   }
   function pianoNote(note,duration=.35,accompaniment=false,velocity=1){
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!Number.isFinite(note)||note<36||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
@@ -243,12 +248,8 @@
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!music||musicVolume<=0||!Number.isInteger(pulse)||pulse<0)return;
     const step=pulse%8,bar=Math.floor(pulse/8);
     const hits=[];
-    // A restrained pulse leaves the player's melody in front. Sparse intros
-    // gain a little percussion in the chorus rather than sounding equally loud.
-    if(energy>.6||step%2===0)hits.push(['shaker',step%2?.065:.095]);
-    if(step===0||step===4&&energy>.6)hits.push(['kick',step===0?.46:.34]);
-    if((step===2||step===6)&&energy>.6)hits.push(['clap',.19]);
-    if(bar%8===7&&step===7&&energy>.85)hits.push(['shaker',.045]);
+    // Keep only a soft low pulse. No snap, clap, snare or shaker layer.
+    if(step===0||step===4&&energy>.6)hits.push(['kick',step===0?.23:.17]);
     for(const [key,volume] of hits){
       const buffer=pianoBuffers.get(key);if(!buffer)continue;
       const source=audioSource(),gain=context.createGain();source.buffer=buffer;gain.gain.value=volume*Math.max(0,Math.min(1,energy));source.connect(gain);gain.connect(musicBus);
@@ -257,10 +258,47 @@
     }
   }
 
-  const musicTracks={'menu-garden':'assets/music/menu-garden-v49458.ogg','menu-moon':'assets/music/menu-moon-v49458.ogg','menu-sunset':'assets/music/menu-sunset-v49458.ogg',game:'assets/music/groove-game-v49431.ogg',slice:'assets/music/groove-slice-v49431.ogg',drop:'assets/music/groove-drop-v49431.ogg'};
-  const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
+  // Endless and Adventure use the original gameplay recording; Slice and Drop share the world theme.
+  const musicTracks={'menu-garden':'assets/music/menu-garden-sync-v184.ogg','menu-moon':'assets/music/menu-moon-sync-v184.ogg','menu-sunset':'assets/music/menu-sunset-sync-v184.ogg',game:'assets/music/groove-game-v494154.ogg'};
+  const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4;
+  let runMusicWorld='garden',musicMood=null;
+  const musicTrack=()=>scene==='game'||scene==='adventure'?'game':'menu-'+(scene==='menu'?menuWorld:runMusicWorld);
+  const musicMixes={menu:[4300,0],adventure:[4700,.6],game:[6500,1.8],slice:[6200,1.4],drop:[5200,1.1],piano:[20000,0]};
+  function updateMusicMix(){
+    if(!musicTone||musicMood===scene)return;
+    // The original gameplay recording is uncoloured; menu melodies bypass the low-pass filter.
+    const original=scene==='game'||scene==='adventure';
+    musicBus.disconnect();musicBus.connect(original?musicDuck:scene==='menu'?musicPresence:musicTone);
+    if(original||scene==='menu'){musicMood=scene;return;}
+    const now=context.currentTime,position=musicVoice?musicPosition(musicVoice,now):0;
+    const at=musicVoice&&scene!=='piano'?now+Math.ceil((position+.06)/MUSIC_BAR)*MUSIC_BAR-position:now;
+    const [brightness,body]=musicMixes[scene]||musicMixes.menu;
+    for(const [param,target] of [[musicTone.frequency,brightness],[musicBody.gain,body]]){
+      const current=param.value;param.cancelScheduledValues(now);param.setValueAtTime(current,now);param.setValueAtTime(current,at);param.linearRampToValueAtTime(target,at+MUSIC_BEAT*2);
+    }
+    musicMood=scene;
+  }
   const musicBuffers=new Map(),musicRetry=new Map(),musicPositions=Object.fromEntries(Object.keys(musicTracks).map(key=>[key,0]));
-  let musicVoice=null,musicEpoch=0,musicPending=null;
+  let musicVoice=null,musicEpoch=0,musicPending=null,musicTransition=null;
+  const musicPosition=(voice,time)=>(voice.offset+Math.max(0,time-voice.startedAt))%voice.source.buffer.duration;
+  const voiceLevel=(voice,time)=>Math.min(1,Math.max(0,(time-voice.startedAt)/voice.fadeIn));
+  // Web Audio schedules both tracks against the same sample clock. The game
+  // never waits for the musical boundary; only the backing-track handoff does.
+  function settleMusicTransition(cancel=false){
+    const t=musicTransition;if(!t)return;const now=context.currentTime;
+    if(!cancel&&now<t.end)return;
+    musicTransition=null;
+    if(cancel&&now<t.start){
+      try{t.to.source.stop(now);}catch{}
+      const level=now<t.fadeAt?t.fromLevel:t.fromLevel*Math.max(0,1-(now-t.fadeAt)/(t.end-t.fadeAt));
+      t.from.gain.gain.cancelScheduledValues(now);t.from.gain.gain.setValueAtTime(level,now);t.from.gain.gain.linearRampToValueAtTime(1,now+.06);
+      musicVoice=t.from;
+    }else{
+      musicPositions[t.from.name]=musicPosition(t.from,t.start);
+      try{t.from.source.stop(now);}catch{}
+      musicVoice=t.to;
+    }
+  }
   function musicBuffer(name){
     if(!musicBuffers.has(name)){
       const request=audioData(musicTracks[name])
@@ -270,7 +308,7 @@
     return musicBuffers.get(name);
   }
   function stopMusicTrack(fade=.12){
-    musicEpoch++;musicPending=null;
+    musicEpoch++;musicPending=null;settleMusicTransition(true);
     if(!musicVoice)return;
     const voice=musicVoice;musicVoice=null;const now=context.currentTime;
     musicPositions[voice.name]=(voice.offset+Math.max(0,now-voice.startedAt))%voice.source.buffer.duration;
@@ -286,23 +324,33 @@
       if(musicVoice||musicPending)stopMusicTrack();return;
     }
     if(scene==='piano')return;
+    settleMusicTransition();updateMusicMix();
     const name=musicTrack();
     if(musicVoice?.name===name||musicPending===name||context.currentTime<(musicRetry.get(name)||0))return;
     const epoch=musicEpoch;musicPending=name;
     musicBuffer(name).then(buffer=>{
       if(epoch!==musicEpoch)return;musicPending=null;
       if(!buffer||!active||!music||musicVolume<=0||window.ShapeShiftPlatform.paused||context.state!=='running'||musicTrack()!==name)return;
-      // Keep the current world's music alive while the next one decodes,
-      // then blend between themes. Stale pending loads cannot start a wrong song.
-      if(musicVoice)stopMusicTrack(.85);
-      const source=audioSource(),gain=context.createGain(),now=context.currentTime,fadeIn=scene==='menu'?.85:.3;
-      const offset=musicPositions[name]%buffer.duration;
+      const now=context.currentTime,from=musicVoice;
+      // Join at the next bar, allowing 60 ms of scheduling lead time.
+      const position=from?musicPosition(from,now):0;
+      const start=from?now+Math.ceil((position+.06)/MUSIC_BAR)*MUSIC_BAR-position:now;
+      const offset=from?Math.floor((musicPositions[name]+.00001)/MUSIC_BAR)*MUSIC_BAR%buffer.duration:musicPositions[name]%buffer.duration;
+      const fadeIn=from?.035:(scene==='menu'?.85:.3);
+      const source=audioSource(),gain=context.createGain();
       source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
-      gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(1,now+fadeIn);
+      gain.gain.setValueAtTime(0,now);gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(1,start+fadeIn);
       source.connect(gain);gain.connect(musicBus);
-      const voice={name,source,gain,offset,startedAt:now,fadeIn};musicVoice=voice;
+      const voice={name,source,gain,offset,startedAt:start,fadeIn};musicVoice=voice;
       source.onended=()=>{source.disconnect();gain.disconnect();if(musicVoice===voice)musicVoice=null;};
-      source.start(now,offset);
+      if(from){
+        const fadeAt=Math.max(now,start-MUSIC_BEAT/4),end=start+MUSIC_BEAT/4,fromLevel=voiceLevel(from,now);
+        from.gain.gain.cancelScheduledValues(now);from.gain.gain.setValueAtTime(fromLevel,now);
+        from.gain.gain.linearRampToValueAtTime(1,fadeAt);from.gain.gain.linearRampToValueAtTime(0,end);
+        musicTransition={from,to:voice,start,fadeAt,end,fromLevel:1};
+      }
+      source.start(start,offset);
+
     });
   }
 
@@ -324,18 +372,20 @@
 
   function setMenuWorld(value){
     const next=['garden','moon','sunset'].includes(value)?value:'garden';if(menuWorld===next)return;menuWorld=next;
-    if(scene==='menu'&&context){musicEpoch++;musicPending=null;schedule();}
+    if(scene==='menu'&&context){settleMusicTransition(true);musicEpoch++;musicPending=null;schedule();}
   }
   function setScene(value,{preservePraise=false}={}) {
-    const target=['menu','game','slice','drop','piano'].includes(value)?value:'menu';
-    if(target===scene)return;if(!preservePraise)stopVoice();stopSlice();stopPiano();
+    const target=['menu','game','adventure','slice','drop','piano'].includes(value)?value:'menu';
+    if(target===scene)return;settleMusicTransition(true);if(!preservePraise)stopVoice();stopSlice();stopPiano();
+    if(scene==='menu'&&target!=='menu'&&target!=='piano')runMusicWorld=menuWorld;
     if(target==='piano')stopMusicTrack(.2);scene=target;if(context){
+      if(target==='piano')updateMusicMix();
       musicBus.gain.setTargetAtTime(music?musicLevel()*musicVolume/100:0,context.currentTime,.08);
       duckEnvelope=null;musicDuck.gain.cancelScheduledValues(context.currentTime);musicDuck.gain.setTargetAtTime(1,context.currentTime,.08);schedule();
     }
   }
   function setMusic(value) {
-    music = Boolean(value);if(!music||musicVolume<=0)stopPiano(true);
+    music = Boolean(value);if(!music||musicVolume<=0){stopPiano(true);}
     if (musicBus) musicBus.gain.setTargetAtTime(music ? musicLevel()*musicVolume/100 : 0, context.currentTime, 0.08);
     if(context){if(!music||musicVolume<=0)stopMusicTrack();else schedule();}
   }
@@ -388,10 +438,11 @@
     if(/^(drop-|slice-)/.test(name)){const last=lastMiniCue.get(name)??-100;if(context.currentTime-last<(name==='slice-fall'?.22:.065))return;lastMiniCue.set(name,context.currentTime);}
     // Correct picks vary slightly upward only; other cues retain subtle variation.
     let variant=Math.floor(Math.random()*9);if(variant===previousPitch.get(name))variant=(variant+1+Math.floor(Math.random()*8))%9;previousPitch.set(name,variant);effectPitch=2**(((name==='correct'||name==='match'||/^(special-|rewind-|heart-fill|shield-arrive|skill-points|shield$)/.test(name))?variant*.06:(variant-4)*.2)/12);
+    if(/^slice-(combo|shred)/.test(name))effectPitch=2**(variant*.035/12);
     if(['quest-complete','quest-collect','quest-wallet','coin-arrive'].includes(name))effectPitch=2**((variant-4)*.045/12);
     effectGain=/^(special-|rewind-|heart-fill|shield-arrive|skill-points)/.test(name)?1.7:1;
     const now = context.currentTime;
-    const duckLengths={'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
+    const duckLengths={'slice-combo':.28,'slice-combo-big':.36,'slice-combo-max':.42,'slice-shred':.32,'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
     // Routine contacts and slicing leave the backing music steady.
     const steadyDrop=/^drop-/.test(name);
     if(scene!=='menu'&&!steadyDrop&&!/^slice-(launch|fall|swish|cut|chip)$/.test(name)&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
@@ -415,7 +466,24 @@
       case 'slice-fall': softSweep(now,.17,850,300,.06);break;
       case 'slice-swish': softSweep(now,.20,1100,2900,.23);tone(784,now,.18,.055,'sine',effectsBus,880);break;
       case 'slice-cut': softSweep(now,.17,2600,1200,.24);tone(1175,now,.21,.14,'sine',effectsBus);tone(1762,now+.025,.15,.035,'sine',effectsBus);break;
-      case 'slice-combo': notePhrase([84,88,91],now,.035,.13,.08);break;
+      // Callout accents begin with the label, above the short cutting texture.
+      // Rounded chimes share the main game's match voice; no spoken praise.
+      case 'slice-combo':
+        matchChime(now,1046,1.4,1.06,1.5);
+        tone(1318,now+.065,.19,.12,'sine',effectsBus);break;
+      case 'slice-combo-big':
+        matchChime(now,1175,1.45,1.06,1.5);
+        tone(1568,now+.055,.20,.13,'sine',effectsBus);
+        tone(2093,now+.11,.16,.045,'sine',effectsBus);break;
+      case 'slice-combo-max':
+        matchChime(now,1318,1.5,1.05,1.5);
+        tone(1760,now+.055,.22,.14,'sine',effectsBus);
+        tone(2093,now+.115,.24,.08,'sine',effectsBus);break;
+      case 'slice-shred':
+        softSweep(now,.095,1900,3400,.075);
+        tone(1397,now,.105,.17,'sine',effectsBus,1568);
+        tone(1760,now+.045,.17,.11,'sine',effectsBus);
+        tone(2093,now+.09,.13,.04,'sine',effectsBus);break;
       case 'slice-chip': softSweep(now,.12,3100,1700,.15);tone(1568,now,.15,.085,'sine',effectsBus);break;
       case 'slice-bomb': sliceBomb(now);break;
       case 'slice-miss': tone(440,now,.16,.10,'sine',effectsBus,220);tone(196,now+.09,.15,.055,'triangle',effectsBus);break;
@@ -552,7 +620,7 @@
     fadeMaster(0,.06);
     // End short and queued effects before suspending; never replay their tails
     // when the tab returns. The looping music voice keeps its exact position.
-    stopVoice(.065);stopSlice();stopVictory(.065);
+    stopVoice(.065);stopSlice();stopVictory(.065);settleMusicTransition(true);
     for(const source of liveSources)if(!source.loop){try{source.stop(context.currentTime+.065);}catch{}}
     stopPiano();
     if(suspendTimer!==null)window.clearTimeout?.(suspendTimer);
@@ -576,7 +644,7 @@
     if(!window.ShapeShiftPlatform.audioAllowed||(!music&&!sfx))return true;
     if(!setup())return true;
     void start().catch(()=>{});
-    if(music&&musicVolume>0&&musicTracks[track])void musicBuffer(track);
+    if(music&&musicVolume>0&&track!=='piano')void musicBuffer(musicTracks[track]?track:musicTrack());
     return true;
   }
   async function prepareCommon(){if(!setup())return false;const results=await Promise.all([...Object.keys(musicTracks).map(musicBuffer),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
@@ -588,12 +656,12 @@
       try{const buffer=await context.decodeAudioData(await audioData('assets/audio/gate-'+name+'-v115.wav'));gateBuffers.set(name,buffer);}catch{}
     }));
   }
-  function playGate(name){
+  function playGate(name,duration){
     const buffer=gateBuffers.get(name);
     if(!buffer||!context||!sfx||sfxVolume<=0||context.state!=='running'||window.ShapeShiftPlatform?.audioAllowed===false)return ()=>{};
     const source=audioSource(),gain=context.createGain();source.buffer=buffer;
     gain.gain.value=(name==='impact'||name==='turn'?.85:1)*.54;
-    source.connect(gain).connect(effectsBus);source.start();duckMusic(buffer.duration);
+    source.connect(gain).connect(effectsBus);const length=Math.min(buffer.duration,duration||buffer.duration);if(length<buffer.duration){gain.gain.setValueAtTime(gain.gain.value,context.currentTime+Math.max(0,length-.08));gain.gain.linearRampToValueAtTime(0,context.currentTime+length);}source.start();source.stop(context.currentTime+length);duckMusic(length);
     source.onended=()=>{source.disconnect();gain.disconnect();};
     return ()=>{try{source.stop();}catch{}};
   }

@@ -126,7 +126,7 @@ test('early phrase change switches backing to the actually played chord immediat
  const base=g.notes[0];const a={...base,id:800,lane:0,hold:0,beat:3,end:3,status:'waiting',bar:0,chord:[48,52,55]},b={...base,id:801,lane:1,hold:0,beat:6,end:6,status:'waiting',bar:1,chord:[53,57,60]};g.notes=[a,b];
  assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(1));g.release(1);
  const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,2);assert.deepEqual(backing[0].chord,a.chord);assert.deepEqual(backing[1].chord,b.chord);assert.equal(backing[1].reset,true);assert.equal(backing[1].musicalBeat,2);assert.equal(backing[1].pitch,41);
- events.length=0;advance(g,.7);assert(events.some(e=>e.type==='accompaniment'));assert(events.filter(e=>e.type==='accompaniment').every(e=>e.chord.join()===b.chord.join()));
+ events.length=0;advance(g,.7);assert(!events.some(e=>e.type==='accompaniment'),'waiting never starts a separate backing pulse');
  g.pause();events.length=0;advance(g,5);assert.equal(events.length,0);
 });
 

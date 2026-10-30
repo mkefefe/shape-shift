@@ -20,7 +20,7 @@
   position:absolute;z-index:2;top:max(12px,env(safe-area-inset-top,0px));
   right:max(12px,env(safe-area-inset-right,0px));
   width:112px;height:48px;min-width:112px;min-height:48px;margin:0;padding:8px 16px;
-  border:0;border-radius:0;background:transparent url('assets/action-v45.webp') center/contain no-repeat;
+  border:0;border-radius:0;background:transparent url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;
   color:#684200;box-shadow:none;text-shadow:0 1px #fff4b0;
   font:900 16px/1 BeaconStory,Nunito,sans-serif;cursor:pointer;touch-action:manipulation;
   transition:filter 90ms ease,transform 90ms ease;-webkit-tap-highlight-color:transparent;
@@ -28,7 +28,7 @@
 #story-scene .story-scene-skip:active{filter:brightness(.86);transform:scale(.96)}
 #story-scene .story-scene-skip:focus{outline:none}
 #story-scene .story-scene-skip:focus-visible{outline:3px solid #fff6b1;outline-offset:1px;border-radius:16px}
-#story-scene .story-scene-sound{position:absolute;bottom:max(36px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:220px;min-height:64px;border:0;background:transparent url('assets/action-v45.webp') center/100% 100% no-repeat;color:#684200;font:900 22px BeaconStory,Nunito,sans-serif;cursor:pointer}
+#story-scene .story-scene-sound{position:absolute;bottom:max(36px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:220px;min-height:64px;border:0;background:transparent url('assets/delivery-v144/action-v45.webp') center/100% 100% no-repeat;color:#684200;font:900 22px BeaconStory,Nunito,sans-serif;cursor:pointer}
 #story-scene .story-scene-sound[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#story-scene .story-scene-skip{transition:none}}
 

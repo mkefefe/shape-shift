@@ -1,12 +1,13 @@
-import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS} from './startup-plan.js?v=494115';
-import {prepareMenuImage} from './menu-preload.js?v=49499';
+import {markStartup} from './experience-metrics.js';
+import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS} from './startup-plan.js?v=494198';
+import {prepareMenuImage} from './menu-preload.js?v=494198';
 const loaded=new Set();
 export async function loadStartupAssets(progress,{fetcher=fetch,prepareImage=prepareMenuImage,assets=FULL_STARTUP_ASSETS}={}){
  let cursor=0,complete=0;
  async function worker(){while(cursor<assets.length){
   const src=assets[cursor++];
   if(!loaded.has(src)){
-   if(/\.(webp|png|jpe?g|svg|gif)(\?|$)/i.test(src))await prepareImage(src);
+   if(/\.(webp|png|jpe?g|svg|gif)(\?|$)/i.test(src))await prepareImage(src).catch(error=>{throw new Error('Could not decode '+src+': '+error.message);});
    else{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);try{const response=await fetcher(src,{signal:controller.signal});if(!response.ok)throw Error('Could not load '+src);await response.arrayBuffer();}finally{clearTimeout(timer);}}
    loaded.add(src);
   }
@@ -39,6 +40,6 @@ export async function prepareOpeningScreen(){
  cover.hidden=false;
  cover.querySelector('p').textContent='Loading game...';
  const bar=cover.querySelector('progress'),label=cover.querySelector('.startup-percent');
- await loadStartupAssets((done,total)=>{const value=Math.floor(done/total*100);if(bar)bar.value=value;if(label)label.textContent=value+'%';});
- await document.fonts.ready;
+ await loadStartupAssets((done,total)=>{const value=Math.floor(done/total*100);if(bar)bar.value=value;if(label)label.textContent=value+'%';},{assets:OPENING_ASSETS});
+ await document.fonts.ready;markStartup('opening_ready');
 }

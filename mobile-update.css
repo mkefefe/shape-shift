@@ -9,7 +9,7 @@
 #story-library .beacon-status{font-size:13px;color:#075a75;}
 /* Render compact panels as one continuous bitmap, with no join at 50% height. */
 #app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog) {
-  background:transparent url('assets/menu-panel-v240.webp') center/100% 100% no-repeat !important;
+  background:transparent url('assets/delivery-v144/menu-panel-v240.webp') center/100% 100% no-repeat !important;
 }
 #app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::before,
 #app :is(#settings-dialog,#over-dialog:not(.adventure-results),#difficulty-dialog,#tutorial-dialog,#coin-help-dialog,#coins-ad-dialog)::after {

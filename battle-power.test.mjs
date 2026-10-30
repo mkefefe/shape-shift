@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {buyBattlePower,battleDamage,battlePowerLevel,BATTLE_POWER_PRICES} from './battle-power.js';
+test('ten permanent upgrades deduct exact costs and cap at 30 damage',()=>{let p={coins:30000};for(let i=0;i<10;i++){const before=p.coins;p=buyBattlePower(p);assert.equal(p.coins,before-BATTLE_POWER_PRICES[i]);assert.equal(battleDamage(p),12+2*i);}assert.equal(battlePowerLevel(p),10);assert.equal(buyBattlePower(p),p);});
+test('insufficient funds cannot change profile or damage',()=>{const p={coins:199};assert.equal(buyBattlePower(p),p);assert.equal(battleDamage(p),10);});

@@ -1,10 +1,10 @@
-import {loadStartupAssets} from './startup-loader.js?v=494118';
-import {loadDestination} from './destination-loader.js?v=49499';
-import {starTasks} from './adventure-star-tasks.js?v=49499';
-import {COSMETICS} from './economy.js?v=49499';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=49499';
-import {rewardMarkup} from './adventure-rewards.js?v=49499';
-export const GAMES_UNLOCK_LEVEL=1;
+import {loadStartupAssets} from './startup-loader.js?v=494198';
+import {loadDestination} from './destination-loader.js?v=494198';
+import {starTasks} from './adventure-star-tasks.js?v=494198';
+import {COSMETICS} from './economy.js?v=494198';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494198';
+import {rewardMarkup} from './adventure-rewards.js?v=494198';
+export const GAMES_UNLOCK_LEVEL=20;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
 export function adventureFrameRequirement(level){return COSMETICS.find(c=>c.id===({40:'ice',60:'blossom',80:'cosmic'})[level])||null;}
@@ -13,6 +13,7 @@ export const WORLD_NAMES=['Sunny Beginnings','Waterfall Way','Crystal Crossing',
 export function levelSpec(level){const n=Math.max(1,Math.min(100,Math.floor(Number(level)||1)));return {level:n,world:Math.floor((n-1)/10),target:8+Math.floor((n-1)*.55),maxChoices:n<4?4:n<11?6:n<26?9:n<51?12:16,timeBonus:Math.max(0,650-(n-1)*8)};}
 export function normalizeAdventure(value={}){return {cleared:Array.from({length:100},(_,i)=>value?.cleared?.[i]===true||Number(value?.stars?.[i])>0),lightning:Array.from({length:100},(_,i)=>value?.lightning?.[i]===true&&Number(value?.stars?.[i])>=3),stars:Array.from({length:100},(_,i)=>Math.max(0,Math.min(3,Math.floor(Number(value?.stars?.[i])||0)))),rushBest:Math.max(0,Math.floor(Number(value?.rushBest)||0))};}
 export function unlockedLevel(progress){const i=progress.cleared.findIndex(n=>!n);return i<0?100:i+1;}
+export function adventureLaunchLevel(requested,progress,admin=false){const unlocked=unlockedLevel(progress),value=Number(requested);return Math.max(1,Math.min(admin?100:unlocked,Number.isFinite(value)?Math.floor(value):unlocked));}
 export function completeLevel(progress,level,strikes){if(level>unlockedLevel(progress)||level<1||level>100)return progress;const next=normalizeAdventure(progress);next.cleared[level-1]=true;next.stars[level-1]=Math.max(next.stars[level-1],Math.max(1,3-Math.min(2,strikes)));return next;}
 export function carouselPosition(index,selected){return index-selected;}
 export function memoryLevelGoals(level){
@@ -66,14 +67,16 @@ function objectiveMet(task,stats){const value=starTaskValue(task,stats);if(value
 export function levelObjectives(level,stats={}){return levelTasks(level).map(task=>({label:task.label,done:!!stats.won&&objectiveMet(task,stats)}));}
 export function saveObjectiveStars(progress,level,count){if(level>unlockedLevel(progress)||level<1||level>100||count<0)return progress;const next=normalizeAdventure(progress);next.cleared[level-1]=true;next.stars[level-1]=Math.max(next.stars[level-1],Math.min(3,count));return next;}
 export function starTotal(progress){return progress.stars.reduce((a,b)=>a+b,0);}
-export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,setDifficulty,getPlayerLevel=()=>1,getFrame=()=>'none',openFrames=()=>{},canStart=()=>true,isAdmin=()=>false,onAdventureComplete=()=>{},drawShape}){
+export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,setDifficulty,getPlayerLevel=()=>1,getGamesAccess=null,getFrame=()=>'none',openFrames=()=>{},canStart=()=>true,isAdmin=()=>false,onAdventureComplete=()=>{},drawShape}){
  const $=id=>document.getElementById(id);
+ const gamesAccess=()=>getGamesAccess?.()||{unlocked:gamesUnlocked(getPlayerLevel()),requirement:'Unlocks at level '+GAMES_UNLOCK_LEVEL};
  const top=document.querySelector('.home-tools:not(.home-extras)'),bottom=document.createElement('nav');bottom.className='home-bottom';bottom.setAttribute('aria-label','Profile');$('home').append(bottom);bottom.append($('profile-open'));top.append($('leaderboard-open'),$('achievements-open'),$('shop-open'));
  const walletGroup=document.createElement('div');walletGroup.className='home-wallet-group';$('home').append(walletGroup);walletGroup.append($('coin-help-open'),$('coins-ad-open'));document.querySelector('.home-extras').hidden=true;$('mode-prev').hidden=true;$('mode-next').hidden=true;
 
  let progress;try{progress=normalizeAdventure(JSON.parse(window.ShapeShiftPlatform.storage.getItem('shape-shift-adventure-v1')));}catch{progress=normalizeAdventure();}
  let launching=false;
- let selected=1,level=unlockedLevel(progress);const cardTaps=createModeCardTap();
+ let selected=0,level=unlockedLevel(progress);const cardTaps=createModeCardTap();
+ const tagline=$('home').querySelector('.tagline');if(tagline)tagline.textContent='Every match brings color back.';
  const save=()=>{try{window.ShapeShiftPlatform.storage.setItem('shape-shift-adventure-v1',JSON.stringify(progress));}catch{}};
  const stars=n=>Array.from({length:3},(_,i)=>`<span class="map-star ${i<n?'earned':''}"><img src="assets/stars-v101.webp" alt=""></span>`).join('');
  function refresh(){
@@ -81,10 +84,10 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   names.forEach((name,i)=>{
    let b=$('mode-cards').children[i],dot=$('mode-dots').children[i];
    if(!b){b=document.createElement('button');b.className='mode-card mode-'+MODES[i];b.setAttribute('aria-label',name+' mode');b.innerHTML=`<strong>${name}</strong><em></em><small></small>`;b.onclick=e=>{if(e.detail!==0||window.ShapeShiftPlatform.now()-lastPointerTap<600)return;if(i!==selected)select(i);else launchCard(i);};$('mode-cards').append(b);dot=document.createElement('button');dot.setAttribute('aria-label','Select '+name);dot.onclick=()=>select(i);$('mode-dots').append(dot);}
-   b.dataset.position=carouselPosition(i,selected);b.setAttribute('aria-pressed',String(i===selected));b.querySelector('em').textContent=i===0?starTotal(progress)+' / '+(progress.stars.length*3):'';b.querySelector('em').hidden=i!==0;b.querySelector('em').setAttribute('aria-label',i===0?starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned':'');b.querySelector('small').textContent=i===1?'Best: '+getBest():i===0?'Level '+unlockedLevel(progress):(gamesUnlocked(getPlayerLevel())?'3 endless games':'Unlocks at level '+GAMES_UNLOCK_LEVEL);b.classList.toggle('locked',i===2&&!gamesUnlocked(getPlayerLevel()));b.setAttribute('aria-label',name+' mode'+(i===2&&!gamesUnlocked(getPlayerLevel())?', locked until player level '+GAMES_UNLOCK_LEVEL:''));dot.classList.toggle('selected',i===selected);dot.setAttribute('aria-pressed',String(i===selected));
+   b.dataset.position=carouselPosition(i,selected);b.setAttribute('aria-pressed',String(i===selected));b.querySelector('em').textContent=i===0?starTotal(progress)+' / '+(progress.stars.length*3):'';b.querySelector('em').hidden=i!==0;b.querySelector('em').setAttribute('aria-label',i===0?starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned':'');b.querySelector('small').textContent=i===1?'Best: '+getBest():i===0?'Continue \u00b7 Level '+unlockedLevel(progress):(gamesAccess().unlocked?'3 endless games':gamesAccess().requirement);b.classList.toggle('locked',i===2&&!gamesAccess().unlocked);b.setAttribute('aria-label',name+' mode'+(i===2&&!gamesAccess().unlocked?', '+gamesAccess().requirement:''));dot.classList.toggle('selected',i===selected);dot.setAttribute('aria-pressed',String(i===selected));
   });
   $('map-star-total').textContent=starTotal(progress)+' / '+(progress.stars.length*3);$('map-stars').setAttribute('aria-label',starTotal(progress)+' of '+(progress.stars.length*3)+' stars earned');
-  const locked=selected===2&&!gamesUnlocked(getPlayerLevel());$('play').textContent=locked?'Level '+GAMES_UNLOCK_LEVEL:'Play';$('play').disabled=locked||launching;$('play').setAttribute('aria-label',locked?'Games unlocks at player level '+GAMES_UNLOCK_LEVEL:'Play '+names[selected]);$('view-map').hidden=selected!==0;$('view-map').textContent='View Map';
+  const locked=selected===2&&!gamesAccess().unlocked;$('play').textContent=locked?'Locked':'Play';$('play').disabled=locked||launching;$('play').setAttribute('aria-label',locked?gamesAccess().requirement:'Play '+names[selected]);$('view-map').hidden=selected!==0;$('view-map').textContent='View Map';
  }
  function select(i){cardTaps.reset();lastTapPoint=null;selected=Math.max(0,Math.min(2,i));sound('click');refresh();}
  $('mode-prev').onclick=()=>select(selected-1);$('mode-next').onclick=()=>select(selected+1);
@@ -121,12 +124,14 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   $('play').focus({preventScroll:true});
  },true);
  carousel.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();select(selected+(e.key==='ArrowRight'?1:-1));}});
- function launchCard(i){cardTaps.reset();if(i===0)level=unlockedLevel(progress);startMode(MODES[i]);}
- function playSelected(){if(launching||!canStart())return;cardTaps.reset();if(selected===0)openLevel(unlockedLevel(progress));else startMode(MODES[selected]);}
+ function playAdventure(n=unlockedLevel(progress)){if(launching||!canStart())return;level=adventureLaunchLevel(n,progress,isAdmin());return startMode('adventure');}
+ function playMode(mode){if(mode==='adventure')return playAdventure();if(mode==='games')mode='rush';if(mode==='endless'||mode==='rush')return startMode(mode);}
+ function launchCard(i){cardTaps.reset();return playMode(MODES[i]);}
+ function playSelected(){if(launching||!canStart())return;cardTaps.reset();return playMode(MODES[selected]);}
  bindLaunchTap($('play'),playSelected);
  async function startMode(mode){
   if(launching||!canStart())return;
-  if(mode==='rush'&&!gamesUnlocked(getPlayerLevel())){sound('map-locked');showMapNotice('Reach player level '+GAMES_UNLOCK_LEVEL+' to unlock Games.');refresh();return;}
+  if(mode==='rush'&&!gamesAccess().unlocked){sound('map-locked');showMapNotice(gamesAccess().requirement);refresh();return;}
   launching=true;cardTaps.reset();menuSwipe.reset();$('play').disabled=true;$('level-play').disabled=true;$('level-play').setAttribute('aria-busy','true');
   // The game closes this source screen only after the gate is fully covered.
   try{await start(mode,level);}finally{launching=false;$('level-play').disabled=false;$('level-play').removeAttribute('aria-busy');if($('app').dataset.screen==='home')refresh();}
@@ -209,7 +214,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  new ResizeObserver(()=>{if($('adventure-map').hidden)return;const width=$('adventure-map').clientWidth;if(width&&width!==mapWidth){const ratio=$('adventure-map').scrollTop/Math.max(1,mapWidth);sizeMap();$('adventure-map').scrollTop=ratio*width;paintMap();}}).observe($('adventure-map'));
  $('view-map').onclick=()=>{if(selected===0)map();};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
  document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-shop-tab]').forEach(t=>{const on=t===b;t.setAttribute('aria-selected',String(on));$(t.dataset.shopTab).hidden=!on;});sound('click');});
- refresh();return {refresh,map,openLevel,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
+ refresh();return {refresh,map,openLevel,playAdventure,playMode,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
 }
 
 // Two measured path-center anchors per square raster tile. Odd tiles mirror vertically.

@@ -29,7 +29,7 @@ body[data-language=ur] #settings-dialog span,body[data-language=ur] #settings-di
 }
 #settings-dialog::before,#settings-dialog::after{
  content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;
- background:url('assets/menu-panel-v240.webp') center top/100% auto no-repeat;
+ background:url('assets/delivery-v144/menu-panel-v240.webp') center top/100% auto no-repeat;
 }
 #settings-dialog::before{top:0}
 #settings-dialog::after{bottom:0;background-position:center bottom}
@@ -138,9 +138,9 @@ body,button,input,select,textarea{font-family:Nunito,system-ui,sans-serif}
 #app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress){inset:0;width:100%;height:100%;margin:0;padding:0;border:0}
 #app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-webkit-progress-value{
  border-image:none;border:0;border-radius:0 18px 18px 0;box-shadow:none;
- background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
+ background:#f5c638 url('assets/delivery-v144/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
 }
 #app :is(#result-xp-bar,.xp-help-meter) :is(#level-progress,#xp-help-progress)::-moz-progress-bar{
  border-image:none;border:0;border-radius:0 18px 18px 0;box-shadow:none;
- background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
+ background:#f5c638 url('assets/delivery-v144/xp-gold-painted-v335.webp') center/150% 620% no-repeat;
 }

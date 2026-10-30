@@ -1,6 +1,6 @@
-import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=49499';
-import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=49499';
-import {onlineAllowed} from './audience.js?v=494125';
+import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=494198';
+import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=494198';
+import {onlineAllowed} from './audience.js?v=494198';
 const key='shape-shift-achievements-v1';let saved;try{saved=JSON.parse(window.ShapeShiftPlatform.storage.getItem(key));}catch{}
 let state=achievementState(saved),notify=()=>{},noticeTimer,hooks={},tab='endless',selected=null,collecting=false;
 const $=id=>document.getElementById(id),claimed=id=>(hooks.getProfile?.().achievementClaims||[]).includes(id);
@@ -19,7 +19,7 @@ const shapeCenters=[[-3.11,-5.662],[0.08,-4.705],[1.834,-5.024],[4.067,-3.589],[
 const medalPositions=[[-1.934,-4.006],[-100.276,-2.901],[-200.138,-3.453],[-298.481,-3.867],[-2.21,-102.072],[-99.862,-101.657],[-200,-101.519],[-299.033,-101.243],[-1.796,-193.785],[-99.724,-193.785],[-200,-193.785],[-299.586,-193.785]];
 function art(award){
  const match=/^(color|shape)([0-3])$/.exec(award.art);
- if(match){const color=match[1]==='color'?Number(match[2]):1,shape=match[1]==='shape'?Number(match[2]):2,[dx,dy]=shapeCenters[color*4+shape];const wrap=document.createElement('span');wrap.className='achievement-medal achievement-shape-art';wrap.setAttribute('aria-hidden','true');const img=document.createElement('img');img.src='assets/shapes-v2.webp';img.alt='';img.style.left=(-shape*100+dx)+'%';img.style.top=(-color*100+dy)+'%';wrap.append(img);return wrap;}
+ if(match){const color=match[1]==='color'?Number(match[2]):1,shape=match[1]==='shape'?Number(match[2]):2,[dx,dy]=shapeCenters[color*4+shape];const wrap=document.createElement('span');wrap.className='achievement-medal achievement-shape-art';wrap.setAttribute('aria-hidden','true');const img=document.createElement('img');img.src='assets/delivery-v144/shapes-v2.webp';img.alt='';img.style.left=(-shape*100+dx)+'%';img.style.top=(-color*100+dy)+'%';wrap.append(img);return wrap;}
  if(award.art==='coin'){const img=document.createElement('img');img.alt='';img.className='achievement-medal';img.src='assets/coin-v10.webp';return img;}
  const index=({sliceBest:1,sliceCount:0,sliceCombo:5,dropBest:1,dropCleared:0,dropChain:5,picks:0,best:1,streakBest:2,runs:3,wins:4,highest:4,perfectWins:5,fastWins:6,memory:7,shapeLocks:8,colorLocks:9,colorChanges:10,colorChainBest:10,shapeChainBest:0,maxBoard:11,easyRuns:3,normalRuns:3,hardRuns:2,extremeRuns:2})[award.stat]??0;
  const wrap=document.createElement('span');wrap.className='achievement-medal achievement-atlas-art';wrap.setAttribute('aria-hidden','true');const img=document.createElement('img');img.src='assets/achievement-medals-v208.webp';img.alt='';img.style.left=medalPositions[index][0]+'%';img.style.top=medalPositions[index][1]+'%';
@@ -60,7 +60,8 @@ export function initAchievements(onAward,options={}){
  $('achievement-list').before(tabs);
  const badge=document.createElement('span');badge.id='achievement-badge';badge.className='nav-badge';badge.hidden=true;$('achievements-open').append(badge);
  const list=$('achievement-list'),wrap=document.createElement('div');wrap.id='achievement-grid-wrap';list.before(wrap);wrap.append(list);
- const collectAll=document.createElement('button');collectAll.id='achievement-collect-all';collectAll.className='primary';collectAll.textContent='Collect all';collectAll.hidden=true;wrap.after(collectAll);
+ const collectAll=document.createElement('button');collectAll.id='achievement-collect-all';collectAll.className='primary';collectAll.textContent='Collect all';collectAll.hidden=true;
+ const claimArea=document.createElement('div');claimArea.id='achievement-claim-area';claimArea.append(collectAll);wrap.append(claimArea);
  collectAll.onclick=async()=>{
   if(collecting||!ready(tab).length)return;
   const mode=tab;collecting=true;collectAll.disabled=true;collectAll.textContent='Collecting…';$('achievement-status').textContent='';
@@ -76,5 +77,5 @@ export function initAchievements(onAward,options={}){
  popup.addEventListener('click',e=>{if(e.target!==popup)return;const r=popup.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom){hooks.sound?.('close');popup.close();}});
  $('achievements-dialog').addEventListener('close',()=>{if(popup.open)popup.close();});
  $('achievements-open').onclick=()=>{tab='endless';selected=null;$('achievement-list').scrollTop=0;$('achievement-grid-wrap').scrollTop=0;$('achievements-dialog').querySelector('.dialog-content').scrollTop=0;renderAchievements();$('achievements-dialog').showModal();$('achievement-tabs').firstElementChild.focus({preventScroll:true});$('achievement-list').scrollTop=0;$('achievement-grid-wrap').scrollTop=0;$('achievements-dialog').querySelector('.dialog-content').scrollTop=0;syncAchievements();};$('google-achievements').onclick=()=>window.ShapeShiftGames?.show();
- window.addEventListener('playgamesstatus',event=>{$('achievement-status').textContent=event.detail;});window.addEventListener('playgamesconnected',syncAchievements);window.addEventListener('unused-androidresume',syncAchievements);syncAchievements();
+ window.addEventListener('playgamesstatus',event=>{$('achievement-status').textContent=event.detail;});window.addEventListener('playgamesconnected',syncAchievements);window.addEventListener('androidresume',syncAchievements);syncAchievements();
 }

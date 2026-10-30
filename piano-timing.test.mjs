@@ -98,7 +98,7 @@ test('late taps remain forgiving and a held key cannot collect the next short no
  assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
 });
 
-test('the quieter backing follows played bar changes with one pulse per beat',()=>{
+test('the quieter backing follows performed strong beats without an independent pulse',()=>{
  const events=[],g=createPianoGame({...options,onEvent:e=>events.push(e)});g.start();
  for(let i=0;i<360;i++)g.step(1/120);
  until(g,1.99);assert.equal(events.filter(e=>e.type==='accompaniment').length,0);
@@ -109,14 +109,14 @@ test('the quieter backing follows played bar changes with one pulse per beat',()
   }
   g.step(1/240);
  }
- const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,5);
+ const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,3);
  for(const [i,e] of backing.entries()){
-  assert.equal(e.pulse,(i%4)*2);if(i>0&&!e.reset)assert(Math.abs(e.musicalBeat-backing[i-1].musicalBeat-1)<.02);
+  assert.equal(e.pulse,(i%2)*4);assert(events.some(n=>n.type==='note'&&n.beat===e.beat),'harmony begins on an actual played note');
   assert.equal(e.pitches.length,1);assert(e.velocity>0&&e.velocity<=.8);
  }
  const root=chord=>chord[0]>=48?chord[0]-12:chord[0];
  assert.equal(backing[0].pitch,root(ORIGINAL_SONGS[0].notes[0].chord));
- assert.equal(backing[4].pitch,root(ORIGINAL_SONGS[0].notes.find(n=>n.songBeat===4).chord));
+ assert.equal(backing[2].pitch,root(ORIGINAL_SONGS[0].notes.find(n=>n.songBeat===4).chord));
  assert.equal(g.lives,g.maxLives);
 });
 
@@ -158,4 +158,15 @@ test('hold completion has repeat protection and does not consume the next note',
 });
 test('a valid next note on the same strip is still immediately playable',()=>{
  const a=note(900,4,0),b=note(901,4.5,0),{g}=fixture([a,b]);assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(0));assert.equal(g.hits,2);
+});
+
+test('irregular early taps bring their harmony with them; waiting adds no off-beat notes',()=>{
+ const a={...note(900,4,0),chord:[48,52,55],song:'test',bar:0,songBeat:0};
+ const b={...note(901,6,1),chord:[48,52,55],song:'test',bar:0,songBeat:2};
+ const {g,events}=fixture([a,b],2);
+ g.pressStrip(0);g.release(0);until(g,3.25);
+ assert.equal(events.filter(e=>e.type==='accompaniment').length,1);
+ g.pressStrip(1);g.release(1);until(g,4.5);
+ const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,2);
+ for(const e of backing)assert(events.some(n=>n.type==='note'&&n.beat===e.beat));
 });

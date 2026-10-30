@@ -1,7 +1,7 @@
 // Fly the picked raster shape into the wallet; persistence does not wait for animation.
 export const COIN_FLIGHT_MS=720;
 export function coinFlightPoint(from,to,t){t=Math.max(0,Math.min(1,t));const p=t*t*(3-2*t);return {x:from.x+(to.x-from.x)*p,y:from.y+(to.y-from.y)*p-Math.sin(t*Math.PI)*30};}
-export function createCoinFlight(source,target,reduced=false){
+export function createCoinFlight(source,target,reduced=false,revealMs=0){
  const art=source?.querySelector('.sprite');
  if(!art||!target)return null;
  const a=art.getBoundingClientRect(),b=target.getBoundingClientRect();
@@ -10,10 +10,13 @@ export function createCoinFlight(source,target,reduced=false){
  const copy=art.cloneNode(true);copy.removeAttribute('id');
  Object.assign(copy.style,{width:a.width+'px',height:a.height+'px',transform:'none',animation:'none',visibility:'visible'});
  flight.append(copy);flight.style.width=a.width+'px';flight.style.height=a.height+'px';document.body.append(flight);
- const visibility=art.style.visibility;art.style.visibility='hidden';
+ const visibility=art.style.visibility;if(!revealMs)art.style.visibility='hidden';
  const endScale=Math.min(1,Math.max(b.width,b.height)/Math.max(a.width,a.height));
- return {duration:reduced?180:COIN_FLIGHT_MS,elapsed:0,draw(elapsed){
-  const t=Math.max(0,Math.min(1,elapsed/this.duration)),p=reduced?to:coinFlightPoint(from,to,t);
+ const travelMs=reduced?180:COIN_FLIGHT_MS;
+ return {duration:revealMs+travelMs,elapsed:0,draw(elapsed){
+  if(elapsed<revealMs){flight.style.opacity='0';return;}
+  art.style.visibility='hidden';
+  const t=Math.max(0,Math.min(1,(elapsed-revealMs)/travelMs)),p=reduced?to:coinFlightPoint(from,to,t);
   // Keep the complete gem visible on its journey, then dissolve into the counter.
   const shrink=Math.max(0,(t-.38)/.62),scale=1+(endScale-1)*shrink;
   flight.style.left=p.x+'px';flight.style.top=p.y+'px';flight.style.opacity=String(t>.9?(1-t)/.1:1);

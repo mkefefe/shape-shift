@@ -1,4 +1,4 @@
-import {CORE_STARTUP_ASSETS,FULL_STARTUP_ASSETS,BACKGROUND_ASSETS} from './startup-plan.js';
+import {CORE_STARTUP_ASSETS,FULL_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS,HOME_STARTUP_ASSETS} from './startup-plan.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js';
@@ -25,12 +25,12 @@ test('image preparation shares pending work, retains success and retries failure
 test('shared UI blocks startup while mode media is reserved for background preparation',()=>{
  assert.deepEqual(new Set([...FULL_STARTUP_ASSETS,...BACKGROUND_ASSETS]),new Set(STARTUP_ASSETS));
  assert.deepEqual(FULL_STARTUP_ASSETS.slice(0,CORE_STARTUP_ASSETS.length),CORE_STARTUP_ASSETS);
- for(const source of ['assets/music/menu-garden-v49458.ogg','assets/achievement-medals-v208.webp','assets/settings-v351.png'])assert(FULL_STARTUP_ASSETS.includes(source));
+ for(const source of ['assets/delivery-v144/settings-v351.webp','assets/delivery-v144/quests-v351.webp','assets/pause-v30.webp'])assert(FULL_STARTUP_ASSETS.includes(source));
  for(const source of ['assets/slice-galaxy-v49476.webp','assets/piano-sky-v281.webp','assets/skin-classic-wrapped-v318.webp','assets/drop-garden-v491.webp']){assert(BACKGROUND_ASSETS.includes(source));assert(!FULL_STARTUP_ASSETS.includes(source));}
  assert.equal(new Set(FULL_STARTUP_ASSETS).size,FULL_STARTUP_ASSETS.length);
 });
 test('startup waits for shared menus without requesting mode-only assets',async()=>{
- let release,finished=false;const waiting=new Promise(resolve=>{release=resolve;}),sources=[],delayed='assets/settings-v351.png';
+ let release,finished=false;const waiting=new Promise(resolve=>{release=resolve;}),sources=[],delayed='assets/delivery-v144/settings-v351.webp';
  const work=loadStartupAssets(()=>{},{prepareImage:async source=>{sources.push(source);if(source===delayed)await waiting;},fetcher:async source=>{sources.push(source);return {ok:true,arrayBuffer:async()=>new ArrayBuffer(0)};}}).then(()=>{finished=true;});
  await new Promise(resolve=>setImmediate(resolve));assert.equal(finished,false);assert(sources.includes(delayed));assert(!sources.some(src=>BACKGROUND_ASSETS.includes(src)));release();await work;assert.equal(finished,true);assert.deepEqual(new Set(sources),new Set(FULL_STARTUP_ASSETS));
 });
@@ -55,4 +55,12 @@ test('hidden menu images do not download behind startup; visible images load whe
  const root={documentElement:{classList:{contains:()=>starting}},querySelectorAll:()=>image.dataset.src?[image]:[]};
  globalThis.MutationObserver=class{constructor(callback){notify=callback;}observe(){}};globalThis.requestAnimationFrame=fn=>fn();
  try{observeDeferredImages(root);visible=true;notify();assert.equal(image.src,undefined);starting=false;visible=false;notify();assert.equal(image.src,undefined);visible=true;notify();assert.equal(image.src,'menu.webp');assert.equal(image.dataset.src,undefined);}finally{globalThis.MutationObserver=originalObserver;globalThis.requestAnimationFrame=originalRaf;}
+});
+
+test('opening and first game exclude the shop, map, music library and unused skins',()=>{
+ assert(OPENING_ASSETS.length<=5);
+ for(const asset of ['assets/delivery-v144/home-world-v101.webp','assets/adventure-map-v101.webp','assets/mode-cards-v101.webp']){
+  assert(!FULL_STARTUP_ASSETS.includes(asset));assert(HOME_STARTUP_ASSETS.includes(asset));
+ }
+ assert(!FULL_STARTUP_ASSETS.some(src=>src.includes('/music/')||src.includes('skin-')));
 });

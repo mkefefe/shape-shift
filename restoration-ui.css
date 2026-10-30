@@ -1,0 +1,87 @@
+/* Existing painted menu surfaces and island artwork keep native proportions. */
+html body #home.has-restoration-goal h1{height:18%;min-height:62px}
+html body #home #restoration-goal{position:relative;z-index:2;flex:none;display:grid;grid-template-columns:44px minmax(0,1fr) 36px;align-items:center;gap:7px;width:min(300px,82%);height:60px;min-height:60px;padding:4px 10px 5px;border:1px solid #b7f5f2b8;border-radius:18px;background:#074f6cd9;box-shadow:0 3px 0 #063e6070,inset 0 1px #d7fbff36;color:#fff8d9;text-align:center;cursor:pointer;touch-action:manipulation}
+#restoration-goal canvas{width:44px;height:44px;object-fit:contain;opacity:0;transition:opacity .2s}#restoration-goal.art-ready canvas{opacity:1}
+#restoration-goal .restoration-goal-copy{display:flex;flex-direction:column;gap:2px;min-width:0}#restoration-goal strong{font:1000 14px/1.15 Nunito,sans-serif}#restoration-goal small{font:800 10px/1.15 Nunito,sans-serif;color:#c8f3ef;display:flex;justify-content:center;flex-wrap:wrap;column-gap:5px;row-gap:0;white-space:normal}#restoration-goal .restoration-goal-xp{color:#ffe69c;white-space:nowrap}#restoration-goal b{font:1000 14px Nunito,sans-serif;color:#ffe69c}
+.restoration-mini-track{display:block;width:100%;height:5px;overflow:hidden;border-radius:5px;background:#063953}.restoration-mini-track i{display:block;height:100%;border-radius:inherit;background:#ffe075 url('assets/delivery-v144/xp-gold-painted-v335.webp') center/150% 620% no-repeat;transition:width .4s}
+#restoration-goal:focus{outline:none}#restoration-goal:focus-visible{outline:3px solid #fff2a6;outline-offset:3px}#restoration-goal:active{filter:brightness(1.1)}
+/* Keep the original painted frame at its native 2:3 ratio. Everything inside
+   scales together, so the four mode choices never wrap into another row. */
+html body #app #restoration-dialog{--panel-width:min(410px,calc(100vw - 16px),calc((100dvh - 16px)*2/3));width:var(--panel-width);height:calc(var(--panel-width)*1.5);max-height:none;max-width:none;padding:0;border:0;overflow:hidden;background:transparent url('assets/delivery-v144/menu-panel-v240.webp') center/contain no-repeat;border-radius:24px;color:#07566d;container-type:size}
+html body #restoration-dialog::before,html body #restoration-dialog::after{display:none}
+html body #restoration-dialog:focus{outline:none}
+html body #restoration-dialog>.restoration-content{height:100%;display:flex;flex-direction:column;align-items:center;gap:1.5cqw;padding:10cqw 6.5cqw 5cqw;overflow:hidden;text-align:center;box-sizing:border-box}
+html body #restoration-dialog h2{flex:none;width:100%;margin:0;padding:0 3cqw;font:1000 7cqw/1.12 Nunito,sans-serif;color:#07566d;text-shadow:0 2px #fff}
+html body #restoration-dialog .restoration-earned{flex:none;margin:0;color:#087f77;font:1000 3.2cqw/1.1 Nunito,sans-serif}
+html body #restoration-dialog [hidden]{display:none!important}
+html body #restoration-dialog .restoration-art{position:relative;flex:1;min-height:19cqw;width:100%;overflow:hidden;border:4px solid #087896;border-radius:4cqw;background-position:center;background-size:cover;box-shadow:0 0 0 2px #a5f7fc,0 4px 0 #075b7b66,inset 0 0 22px #2b9fb92b;background-color:#b5eff2}
+html body #restoration-dialog .restoration-art canvas{display:block;width:100%;height:100%;object-fit:contain}
+html body #restoration-dialog .restoration-percent{position:absolute;right:2cqw;bottom:2cqw;padding:1cqw 2.3cqw;border:1px solid #ffe58e;border-radius:6cqw;background:#075570e8;color:#fff1aa;font:1000 3cqw/1.2 Nunito,sans-serif;box-shadow:0 2px 3px #063b5766}
+html body #restoration-dialog .restoration-art.unavailable:after{content:'Your progress is saved';position:absolute;inset:0;display:grid;place-items:center;color:#07566d;font:900 15px Nunito}
+html body #restoration-dialog .restoration-next{flex:none;max-width:100%;margin:0;font:1000 4.3cqw/1.15 Nunito,sans-serif;color:#07566d}
+html body #restoration-dialog .restoration-meter,html body #restoration-dialog .restoration-task-meter{position:relative;flex:none;width:100%;height:5.5cqw;min-height:5.5cqw;border:2px solid #075570;border-radius:5cqw;overflow:hidden;background:#acd6e0;box-shadow:0 2px 0 #074e6426}
+#restoration-dialog .restoration-meter>i,#restoration-dialog .restoration-task-meter>i{display:block;height:100%;width:0;background:#f5c638 url('assets/delivery-v144/xp-gold-painted-v335.webp') center/150% 620% no-repeat;border-radius:inherit;transition:width .35s}
+#restoration-dialog .restoration-meter>strong,#restoration-dialog .restoration-task-meter>b{position:absolute;inset:0;display:grid;place-items:center;font:1000 2.9cqw/1 Nunito,sans-serif;color:#064c67;text-shadow:0 1px #fff9}
+html body #restoration-dialog .restoration-modes{flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.8cqw;width:100%;margin:1cqw 0 0}
+html body #restoration-dialog .restoration-modes button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-width:0;height:11.5cqw;min-height:44px;margin:0;padding:1cqw .4cqw;border:2px solid #379bb1;border-radius:3cqw;background:#075975;box-shadow:0 2px 0 #043950,inset 0 1px #e5feff77;color:#edfdff;font:1000 3cqw/1.2 Nunito,sans-serif;text-shadow:0 1px #043950;cursor:pointer;touch-action:manipulation}
+html body #restoration-dialog .restoration-modes button[aria-pressed=true]{border-color:#ffdf62;background:#0a7690;box-shadow:0 2px 0 #87601c,0 0 0 1px #fff3be,inset 0 0 8px #fff4a866;color:#fff5b8}
+html body #restoration-dialog .restoration-mode-required{display:none;position:absolute;right:-1cqw;top:-1.5cqw;width:4cqw;height:4cqw;border:1px solid #fff7bc;border-radius:50%;background:#ffcf42;box-shadow:0 1px 3px #07557066}
+html body #restoration-dialog .required .restoration-mode-required{display:block}
+html body #restoration-dialog .restoration-task{flex:none;width:100%;min-height:22cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1cqw;padding:1cqw 0;color:#07566d}
+html body #restoration-dialog .restoration-task-heading{font:1000 2.8cqw/1.1 Nunito,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#147f94}
+html body #restoration-dialog .restoration-task-title{font:1000 3.9cqw/1.2 Nunito,sans-serif;max-width:100%;text-wrap:balance}
+html body #restoration-dialog .restoration-task-note{font:800 2.8cqw/1.2 Nunito,sans-serif;margin:0;max-width:94%;text-wrap:balance;color:#276a80}
+html body #restoration-dialog .restoration-task-meter{width:88%;height:5cqw;min-height:5cqw}
+html body #restoration-dialog .is-complete .restoration-task-heading{color:#137752}
+html body #restoration-dialog .restoration-continue{flex:none;width:61cqw;height:20.33cqw;min-height:0;aspect-ratio:3;margin:-1cqw 0 0;padding:2cqw 3cqw;border:0;border-radius:0;background:transparent url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;box-shadow:none;color:#684200;font:1000 4cqw/1.1 Nunito,sans-serif;text-shadow:0 1px #fff4b0;cursor:pointer}
+html body #restoration-dialog button:focus{outline:none}
+html body #restoration-dialog button:focus-visible{outline:3px solid #007eaa;outline-offset:2px}
+html body #restoration-dialog>.close{position:absolute;right:1.8cqw;top:1.8cqw;width:12cqw;height:12cqw;min-width:40px;min-height:40px;padding:0;background:none;border:0;border-radius:50%;z-index:3}
+#restoration-dialog>.close img{display:block;width:100%;height:100%;object-fit:contain}
+/* Result entry uses the same gold-rimmed blue surface as the home island card. */
+html body #app #over-dialog .mini-restoration-link{display:grid;grid-template-columns:36px minmax(0,1fr) 40px;align-items:center;gap:6px;order:6;flex:none;width:min(264px,100%);min-height:54px;margin:5px auto;padding:5px 9px;border:2px solid #f3d36b;border-radius:16px;background:#07536dec;box-shadow:0 3px 0 #093f5b77,inset 0 1px #e6fcff80;color:#fff8d9;font-family:Nunito,sans-serif;touch-action:manipulation;cursor:pointer}
+#over-dialog .mini-restoration-art{height:36px;width:36px;background: url('assets/story-beacon/island.webp') center/contain no-repeat}
+#over-dialog .mini-restoration-copy{display:flex;flex-direction:column;gap:2px;align-items:center;min-width:0}
+#over-dialog .mini-restoration-copy strong{font:1000 13px/1.15 Nunito,sans-serif;color:#fff2b1}
+#over-dialog .mini-restoration-copy small{font:900 10px/1.1 Nunito,sans-serif;color:#cef5fa}
+#over-dialog .mini-restoration-link>b{font:1000 16px/1 Nunito,sans-serif;color:#ffe69c}
+#over-dialog .mini-restoration-link:focus{outline:none}#over-dialog .mini-restoration-link:focus-visible{outline:3px solid #078da7;outline-offset:2px}
+@media(max-width:360px),(max-height:650px){html body #home #restoration-goal{height:54px;min-height:54px;grid-template-columns:34px minmax(0,1fr) 32px;padding:3px 8px;gap:4px}#restoration-goal canvas{width:34px;height:34px}#restoration-goal strong{font-size:12px}#restoration-goal small{font-size:9px}#restoration-goal b{font-size:12px}}
+@media(min-width:600px) and (max-height:500px){html body #home #restoration-goal{grid-column:1;grid-row:1;align-self:center;justify-self:center;width:84%;height:48px;min-height:48px;margin-top:45px}html body #home.has-restoration-goal h1{height:80px;min-height:0}}
+
+/* Make room for shared progress inside the original painted results frame. */
+@media(max-width:360px),(max-height:600px){
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) .result-content{gap:2px;padding:10px 18px}
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) .reward-star-slots{margin:3px 0 4px}
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) .reward-star{width:44px;height:44px;background-size:265.47px 199.1px;background-position:-222.2px -107.8px}
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) .reward-star.earned{background-position:0 -56.47px}
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) #final-score{margin:2px 0;font-size:30px}
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) #result-progress{margin:2px 0}
+ #app #over-dialog.adventure-results .mini-restoration-link{min-height:38px;margin:3px auto;padding:3px 10px}
+ #app #over-dialog.adventure-results:has(.mini-restoration-link) .result-home-hint{margin:3px auto 0;font-size:10px;line-height:1.2}
+}
+
+html body #home.has-restoration-goal>.tagline{max-width:calc(100% - 72px);white-space:normal;text-align:center;line-height:1.2;margin:0 auto}
+@media(max-width:599px){
+ html body #home.has-restoration-goal>.home-actions{width:calc(100% - 176px);max-width:280px}
+ html body #home.has-restoration-goal .home-actions #play{width:100%;height:auto;min-height:52px;aspect-ratio:3;padding:6px 8px;font-size:clamp(21px,5vw,28px)}
+ html body #home.has-restoration-goal .home-actions #view-map{width:100%;font-size:15px}
+}
+
+#restoration-dialog .restoration-modes button.locked{filter:grayscale(.85);opacity:.72}
+#restoration-dialog .restoration-mode-required{display:block;font-size:9px;line-height:1.2;min-height:11px}
+#restoration-dialog .restoration-modes button.complete{border-color:#67dca4}
+#restoration-dialog .restoration-continue:disabled{filter:grayscale(.8);opacity:.65}
+
+html body #restoration-dialog .restoration-mode-required{display:block;position:static;width:auto;height:auto;min-height:11px;font-size:9px;line-height:1.2;border:0;border-radius:0;background:none;box-shadow:none;color:inherit}
+
+/* The painting expands over the existing window without reflowing its controls. */
+html body #restoration-dialog .restoration-celebration{position:absolute;z-index:5;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#aad8ee url('assets/story-beacon/sky.webp') center/cover;border:4px solid #f2d57e;border-radius:22px;box-sizing:border-box;box-shadow:inset 0 0 32px #07557044;pointer-events:none}
+html body #restoration-dialog .restoration-celebration canvas{width:100%;height:100%;object-fit:contain;min-height:0}
+html body #restoration-dialog .restoration-celebration strong{position:absolute;bottom:8%;left:5%;right:5%;text-align:center;color:#fff7d3;font:1000 6cqw/1.15 Nunito,sans-serif;text-shadow:0 2px 4px #06425d,0 1px 8px #06425d;padding:3cqw;background:#075570b8;border-radius:3cqw}
+html body #restoration-dialog.is-restoring>.close{z-index:6}
+html body #restoration-dialog.is-restoring .restoration-content{visibility:hidden}
+html body #restoration-dialog .restoration-celebration.is-complete{box-shadow:inset 0 0 55px #fff3ac88}
+
+/* The restored film retains its original aspect ratio and quiet dark margins. */
+html body #restoration-dialog .restoration-celebration{background:#102d43}

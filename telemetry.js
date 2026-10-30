@@ -1,6 +1,7 @@
-import {analyticsAgeGroup,audience} from './audience.js?v=494125';
+import {attachStartupMetrics} from './experience-metrics.js';
+import {analyticsAgeGroup,audience} from './audience.js?v=494198';
 import {createEngagement,deviceContext,AGE_GROUPS} from './engagement.js';
-import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494118';
+import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494198';
 const endpoint='https://shape-shift-scores.fluffy-stone-5231.chatgpt.site/api/engagement';
 export const CONSENT_KEY='shape-shift-analytics-choice-v2';
 // Deliberately device-local, never the portals' cloud-synced progress store.
@@ -12,7 +13,7 @@ const providers=new Map();
 export function registerModeState(mode,read){providers.set(mode,read);}
 export function sampleEngagement(main){for(const read of providers.values()){const state=read();if(state){engagement.sample({...state,visible:main.visible});return;}}engagement.sample(main);}
 export async function telemetryChoice(review=false){
- const previous=choice();if(previous&&!review){if(previous.enabled&&audience()==='adult')engagement.enable();return;}
+ const previous=choice();if(previous&&!review){if(previous.enabled&&audience()==='adult'){engagement.enable();attachStartupMetrics((name,ms)=>engagement.milestone(name,ms));}return;}
  const wasLoading=document.documentElement.classList.contains('startup-loading'),cover=document.getElementById('startup-ready');
  if(wasLoading){document.documentElement.classList.remove('startup-loading');if(cover)cover.hidden=true;}
  const d=document.createElement('dialog');d.className='telemetry-dialog';d.style.cssText='max-height:90dvh;overflow:auto;color:#153f56;background:#e9fbff;border:3px solid #40b9d2;border-radius:24px';d.setAttribute('aria-label','Gameplay statistics');
@@ -20,7 +21,7 @@ export async function telemetryChoice(review=false){
  document.body.append(d);d.querySelector('#analytics-testing').checked=!!engagement.snapshot()?.test;
  if(audience()!=='adult'){d.querySelector('#analytics-yes').disabled=true;d.querySelector('#analytics-status').textContent='Statistics sharing is off for protected or unstated ages.';}
  d.addEventListener('cancel',e=>e.preventDefault());d.showModal();
- await new Promise(resolve=>{async function finish(enabled){enabled=enabled&&audience()==='adult';for(const b of d.querySelectorAll('button'))b.disabled=true;if(!enabled&&engagement.identity()){await engagement.disable({retainIdentity:true});try{const r=await fetch(endpoint,{method:'DELETE',credentials:'omit',referrerPolicy:'no-referrer',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(8000),body:JSON.stringify({install:engagement.identity()})});if(!r.ok)throw Error();}catch{d.querySelector('#analytics-status').textContent='Could not delete previous statistics. Collection is stopped. Reopen this setting to retry deletion.';await engagement.disable({retainIdentity:true});storage.setItem(CONSENT_KEY,JSON.stringify({enabled:false,age:'unknown'}));for(const b of d.querySelectorAll('button'))b.disabled=false;const leave=d.querySelector('#analytics-no');leave.textContent='Continue without sharing';leave.onclick=()=>{d.close();d.remove();resolve();};return;}}storage.setItem('shape-shift-statistics',enabled?'yes':'no');storage.setItem(CONSENT_KEY,JSON.stringify({enabled,age:enabled?(previous?.age||analyticsAgeGroup()):'unknown'}));if(enabled){engagement.enable();if(d.querySelector('#analytics-testing').checked)engagement.setTest(true);}else await engagement.disable();d.close();d.remove();resolve();}d.querySelector('#analytics-yes').onclick=()=>finish(true);d.querySelector('#analytics-no').onclick=()=>finish(false);});
+ await new Promise(resolve=>{async function finish(enabled){enabled=enabled&&audience()==='adult';for(const b of d.querySelectorAll('button'))b.disabled=true;if(!enabled&&engagement.identity()){await engagement.disable({retainIdentity:true});try{const r=await fetch(endpoint,{method:'DELETE',credentials:'omit',referrerPolicy:'no-referrer',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(8000),body:JSON.stringify({install:engagement.identity()})});if(!r.ok)throw Error();}catch{d.querySelector('#analytics-status').textContent='Could not delete previous statistics. Collection is stopped. Reopen this setting to retry deletion.';await engagement.disable({retainIdentity:true});storage.setItem(CONSENT_KEY,JSON.stringify({enabled:false,age:'unknown'}));for(const b of d.querySelectorAll('button'))b.disabled=false;const leave=d.querySelector('#analytics-no');leave.textContent='Continue without sharing';leave.onclick=()=>{d.close();d.remove();resolve();};return;}}storage.setItem('shape-shift-statistics',enabled?'yes':'no');storage.setItem(CONSENT_KEY,JSON.stringify({enabled,age:enabled?(previous?.age||analyticsAgeGroup()):'unknown'}));if(enabled){{engagement.enable();attachStartupMetrics((name,ms)=>engagement.milestone(name,ms));}if(d.querySelector('#analytics-testing').checked)engagement.setTest(true);}else await engagement.disable();d.close();d.remove();resolve();}d.querySelector('#analytics-yes').onclick=()=>finish(true);d.querySelector('#analytics-no').onclick=()=>finish(false);});
  if(wasLoading){document.documentElement.classList.add('startup-loading');if(cover)cover.hidden=false;}
 }
 
@@ -31,5 +32,5 @@ export async function applyWelcomeStatistics(agreed){
  const enabled=agreed===true&&audience()==='adult'&&prior?.enabled!==false;
  const age=enabled?(analyticsAgeGroup()!=='unknown'?analyticsAgeGroup():prior?.age||'unknown'):'unknown';
  storage.setItem(CONSENT_KEY,JSON.stringify({enabled,age}));
- if(enabled)engagement.enable();else await engagement.disable({retainIdentity:!!engagement.identity()});
+ if(enabled){engagement.enable();attachStartupMetrics((name,ms)=>engagement.milestone(name,ms));}else await engagement.disable({retainIdentity:!!engagement.identity()});
 }

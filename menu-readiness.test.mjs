@@ -61,7 +61,7 @@ test('a failed extra preparation is not bypassed when reopening cached artwork',
 });
 
 test('destination loader waits for preparation and removes itself on success',async()=>{
- const env=mockDocument(),restore=setGlobal('document',env.doc),gate=deferred();try{let complete=false;const result=loadDestination('Shop',()=>gate.promise).then(v=>{complete=true;return v;});await settle();assert.equal(complete,false);assert.equal(env.dialog().open,true);gate.resolve();assert.equal(await result,true);assert.equal(env.dialog().isConnected,false);}finally{restore();}
+ const env=mockDocument(),restore=setGlobal('document',env.doc),gate=deferred();try{let complete=false;const result=loadDestination('Shop',()=>gate.promise).then(v=>{complete=true;return v;});await settle();assert.equal(complete,false);assert.equal(env.dialog().open,false);gate.resolve();assert.equal(await result,true);assert.equal(env.dialog().isConnected,false);}finally{restore();}
 });
 
 test('destination loader exposes retry after failure and succeeds on retry',async()=>{
@@ -69,7 +69,7 @@ test('destination loader exposes retry after failure and succeeds on retry',asyn
 });
 
 test('Back, Escape and abort cancel loading; late completion cannot reopen it',async()=>{
- for(const cancel of ['back','escape','abort']){const env=mockDocument(),restore=setGlobal('document',env.doc),gate=deferred(),controller=new AbortController();try{const result=loadDestination('Shop',()=>gate.promise,{signal:controller.signal});if(cancel==='back')env.buttons()[1].onclick();else if(cancel==='escape')env.dialog().dispatch('cancel',{preventDefault(){}});else controller.abort();assert.equal(await result,false);gate.resolve();await settle();assert.equal(env.dialog().showCount,1);assert.equal(env.dialog().isConnected,false);}finally{restore();}}
+ for(const cancel of ['back','escape','abort']){const env=mockDocument(),restore=setGlobal('document',env.doc),gate=deferred(),controller=new AbortController();try{const result=loadDestination('Shop',()=>gate.promise,{signal:controller.signal});if(cancel==='back')env.buttons()[1].onclick();else if(cancel==='escape')env.dialog().dispatch('cancel',{preventDefault(){}});else controller.abort();assert.equal(await result,false);gate.resolve();await settle();assert.equal(env.dialog().showCount,0);assert.equal(env.dialog().isConnected,false);}finally{restore();}}
 });
 
 test('programmatic close resolves cancellation and cannot strand the next screen',async()=>{
@@ -84,7 +84,7 @@ test('home readiness prepares selected world and frame density, then promotes im
  const sources=[],image={dataset:{src:'assets/test-deferred-home.webp'},loading:'lazy',getAttribute:()=>null,decode:async()=>{}};let world='garden';
  const root={querySelector:selector=>({querySelectorAll:()=>selector==='#home'?[image]:[]}),getElementById:()=>null};
  const restoreImage=setGlobal('Image',class{set src(value){sources.push(value);}async decode(){}}),restoreDpr=setGlobal('devicePixelRatio',2.5);
- try{const menus=initMenuReadiness({root,getProfile:()=>({equipped:{background:world,frame:'ice'}})});assert.equal(menus.homeReady(),false);await menus.prepareHome();assert.equal(menus.homeReady(),true);assert.ok(sources.includes('assets/home-world-v101.webp'));assert.ok(sources.includes('assets/avatar-frame-ice-3x-v49462.webp'));assert.equal(sources.some(src=>src.includes('avatar-frame-gold')),false);assert.equal(image.src,'assets/test-deferred-home.webp');assert.equal(image.loading,'eager');world='moon';assert.equal(menus.homeReady(),false);await menus.prepareHome();assert.ok(sources.includes('assets/worlds-v12.webp'));assert.equal(menus.homeReady(),true);}finally{restoreImage();restoreDpr();}
+ try{const menus=initMenuReadiness({root,getProfile:()=>({equipped:{background:world,frame:'ice'}})});assert.equal(menus.homeReady(),false);await menus.prepareHome();assert.equal(menus.homeReady(),true);assert.ok(sources.includes('assets/delivery-v144/home-world-v101.webp'));assert.ok(sources.includes('assets/avatar-frame-ice-3x-v49462.webp'));assert.equal(sources.some(src=>src.includes('avatar-frame-gold')),false);assert.equal(image.src,'assets/test-deferred-home.webp');assert.equal(image.loading,'eager');world='moon';assert.equal(menus.homeReady(),false);await menus.prepareHome();assert.ok(sources.includes('assets/worlds-v12.webp'));assert.equal(menus.homeReady(),true);}finally{restoreImage();restoreDpr();}
 });
 
 test('home waits for actual floating avatar decode, even with complete cached image metadata',async()=>{

@@ -1,5 +1,5 @@
-import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=49499';
-import {loadDestination} from './destination-loader.js?v=49499';
+import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494198';
+import {loadDestination} from './destination-loader.js?v=494198';
 
 // A cached download is not necessarily decoded. Hold each destination until its
 // artwork can actually be painted, including the first visit after loading.
@@ -36,8 +36,8 @@ export function bindPreparedDialog(dialog,{sources,assets,extra=async()=>{},pain
  return {prepare};
 }
 
-const HOME_ART=['assets/mode-cards-v101.webp','assets/avatars-v7.webp','assets/settings-v351.png','assets/quests-v351.png','browser-shop-hd1.png','browser-leaderboard-hd1.png','assets/achievements-v350.png','assets/xp-gold-painted-v335.webp'];
-const COMMON=['assets/menu-panel-v240.webp','assets/action-v45.webp','assets/close-v45.webp','assets/coin-v10.webp','assets/xp-gold-painted-v335.webp'];
+const HOME_ART=['assets/mode-cards-v101.webp','assets/avatars-v7.webp','assets/delivery-v144/settings-v351.webp','assets/delivery-v144/quests-v351.webp','assets/delivery-v144/browser-shop-hd1.webp','assets/delivery-v144/browser-leaderboard-hd1.webp','assets/delivery-v144/achievements-v350.webp','assets/delivery-v144/xp-gold-painted-v335.webp'];
+const COMMON=['assets/delivery-v144/menu-panel-v240.webp','assets/delivery-v144/action-v45.webp','assets/close-v45.webp','assets/coin-v10.webp','assets/delivery-v144/xp-gold-painted-v335.webp'];
 const frames=()=>['gold','ice','blossom','cosmic'].map(name=>`assets/avatar-frame-${name}-${Math.min(4,Math.max(1,Math.ceil(globalThis.devicePixelRatio||1)))}x-v49462.webp`);
 const images=(root,promote=false)=>[...root.querySelectorAll('img')].map(image=>{
  if(promote){if(image.dataset.src){image.src=image.dataset.src;delete image.dataset.src;}image.loading='eager';}
@@ -49,7 +49,7 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
  const homeRoots=()=>['#home','.topbar','#profile-open'].map(selector=>root.querySelector(selector)).filter(Boolean);
  const homeImages=()=>[...new Set(homeRoots().flatMap(node=>[...node.querySelectorAll('img')]))];
  const decodedHomeImages=new WeakSet();
- const homeSources=()=>{const profile=getProfile(),world=profile.equipped?.background||'garden',frame=profile.equipped?.frame;return [...HOME_ART,...COMMON,world==='garden'?'assets/home-world-v101.webp':'assets/worlds-v12.webp',...frames().filter(src=>src.includes('-'+frame+'-')),...homeRoots().flatMap(node=>images(node))];};
+ const homeSources=()=>{const profile=getProfile(),world=profile.equipped?.background||'garden',frame=profile.equipped?.frame;return [...HOME_ART,...COMMON,world==='garden'?'assets/delivery-v144/home-world-v101.webp':'assets/worlds-v12.webp',...frames().filter(src=>src.includes('-'+frame+'-')),...homeRoots().flatMap(node=>images(node))];};
  const prepareHome=async()=>{
   await assets.prepare(homeSources());homeRoots().forEach(node=>images(node,true));
   // Decode the actual lazy DOM nodes too, including the floating profile avatar
@@ -58,7 +58,7 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
  };
  const menuSources=dialog=>{
   const id=dialog.id,list=[...COMMON,...images(dialog,true)];
-  if(/profile|shop/.test(id))list.push('assets/avatars-v7.webp','assets/worlds-v12.webp','assets/home-world-v101.webp','assets/garden-v2.webp',...frames(),...skinSources);
+  if(/profile|shop/.test(id))list.push('assets/avatars-v7.webp','assets/worlds-v12.webp','assets/delivery-v144/home-world-v101.webp','assets/garden-v2.webp',...frames(),...skinSources);
   if(/leaderboard/.test(id))list.push('assets/avatars-v7.webp',...frames());
   if(/achievements/.test(id))list.push('assets/achievement-medals-v208.webp');
   return list;

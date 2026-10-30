@@ -1,16 +1,17 @@
-import {beginModeTransition} from './mode-transition.js?v=494123';
-import {engagement,registerModeState} from './telemetry.js?v=494118';
-import {translate} from './localization.js?v=494126';
+import {beginModeTransition} from './mode-transition.js?v=494198';
+import {engagement,registerModeState} from './telemetry.js?v=494198';
+import {translate} from './localization.js?v=494198';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createMiniResults} from './mini-results.js';
+import {createModePractice} from './mode-practice.js?v=494198';
+import {createMiniResults} from './mini-results.js?v=494198';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {sliceViewport} from './slice-viewport.js';
 import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js';
 import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js';
 import {miniGameCoins} from './mini-game-rewards.js';
-import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js';
+import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494198';
 import {shapeArtReady,paintMiniShape} from './mini-shape-art.js';
 import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
@@ -24,8 +25,10 @@ function loadSliceImage(image,src){
 }
 async function prepareAssets(){return (await Promise.all([shapeArtReady,loadSliceImage(bomb,'assets/slice-bomb-v239.webp'),loadSliceImage(galaxy,'assets/slice-galaxy-v49476.webp')])).every(Boolean);}
 const KEY='shape-shift-slice-v1',colors=['#ff5878','#49ceff','#6bff89','#ffe56c'];
-export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
+export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent:reportQuest=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
  const teaching=createMiniTutorial('slice');
+ const practice=createModePractice('slice',{onComplete:()=>{void start();}});
+ const onQuestEvent=event=>{if(!practice.active)reportQuest(event);};
  const dialog=document.createElement('dialog');dialog.id='shape-slice';dialog.setAttribute('aria-label','Shape Slice');document.body.append(dialog);
  let progress;try{progress=sliceProgress(JSON.parse(window.ShapeShiftPlatform.storage.getItem(KEY)));}catch{progress=sliceProgress();}
  let sceneryTint;
@@ -39,24 +42,24 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
  function persist(next){try{window.ShapeShiftPlatform.storage.setItem(KEY,JSON.stringify(next));}catch{return false;}progress=next;try{onProgress(next);}catch{}return true;}
  function settle(){let next=progress;for(const entry of progress.pending){try{if(reward(entry)!==false){play('coin-arrive');next={...next,pending:next.pending.filter(e=>e.id!==entry.id)};}}catch{}}if(next!==progress)persist(next);}
  registerModeState('slice',()=>game&&dialog.open?{playing:!!(!game.over&&!paused&&!overlay),paused:!!(paused||!!overlay)}:null);
- function save(){if(!game||saved)return true;pendingSave??=finishSliceProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;engagement.endRun('finished');onQuestEvent({type:'finish',mode:'slice',time:game.time});pendingSave=null;settle();return true;}
- function stop(){teaching.clear();resultsScreen.reset();continueOffer.reset();lastHud='';paintTime=0;window.gameAudio?.stopPraise();hitFeedback.reset();endGesture(true);version++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);game?.dispose();game=null;pointer=null;previous=null;trail=[];fragments=[];sparks=[];effects={sparks:[],flashes:[]};labels=[];impacts=[];camera={x:0,y:0};lastBombAt=-100;flash=0;lifeLossTime=0;lifeLossCount=0;lifeLossReason='';overlay=null;}
+ function save(){if(!game||saved||game.practice)return true;pendingSave??=finishSliceProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;engagement.endRun('finished');onQuestEvent({type:'finish',mode:'slice',time:game.time});pendingSave=null;settle();return true;}
+ function stop(){practice.clear();teaching.clear();resultsScreen.reset();continueOffer.reset();lastHud='';paintTime=0;window.gameAudio?.stopPraise();hitFeedback.reset();endGesture(true);version++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);game?.dispose();game=null;pointer=null;previous=null;trail=[];fragments=[];sparks=[];effects={sparks:[],flashes:[]};labels=[];impacts=[];camera={x:0,y:0};lastBombAt=-100;flash=0;lifeLossTime=0;lifeLossCount=0;lifeLossReason='';overlay=null;}
  function close(){if(game&&!save()){result();return;}stop();dialog.close();window.gameAudio?.setScene('menu');onClose();}
  function panel(title){overlay?.remove();overlay=el('div','drop-overlay');const card=el('section','drop-panel');card.append(el('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
  function endGesture(clear=false){motionEnergy=0;motionStamp=null;window.gameAudio?.stopSlice();const id=pointer;pointer=null;previous=null;game?.endStroke();if(id!==null&&dialog.hasPointerCapture(id))dialog.releasePointerCapture(id);if(clear){trail=[];renderTrail();}}
  function pause(){if(!game||game.over||paused)return;paused=true;window.gameAudio?.stopPraise();dialog.dataset.paused='true';endGesture(true);const card=panel('Paused');card.classList.add('drop-pause-panel');card.append(button('Resume',resume),button('End run',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
  function resume(){if(!game||game.over)return;overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;paused=false;dialog.dataset.paused='false';last=window.ShapeShiftPlatform.now();canvas.focus();}
- function result(){window.gameAudio?.stopPraise();if(!game)return;game.end();dialog.dataset.paused='true';endGesture(true);window.ShapeShiftPlatform.cancelAnimationFrame(raf);if(!saved&&game.lives<=0&&continueOffer.offer({description:'Watch a video to refill your hearts and keep your score.',resume:()=>{game.revive();hitFeedback.reset();lifeLossTime=0;fragments=[];effects={sparks:[],flashes:[]};resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:result}))return;if(!saved)play('over');const xpBefore=getXp(),stored=save();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.sliced,3),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,finish:close});render();
+ function result(){window.gameAudio?.stopPraise();if(!game)return;game.end();dialog.dataset.paused='true';endGesture(true);window.ShapeShiftPlatform.cancelAnimationFrame(raf);if(!saved&&game.lives<=0&&continueOffer.offer({description:'Watch a video to refill your hearts and keep your score.',resume:()=>{game.revive();hitFeedback.reset();lifeLossTime=0;fragments=[];effects={sparks:[],flashes:[]};resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:result}))return;if(!saved)play('over');const xpBefore=getXp(),stored=save();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.sliced,3),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,restart:start,finish:close});render();
  }
 
  function cutEffect(piece,from,to,color){const burst=createSliceBurst(piece,from,to,color,quiet);effects.sparks.push(...burst.sparks);effects.flashes.push(burst.flash);if(effects.sparks.length>96)effects.sparks.splice(0,effects.sparks.length-96);if(effects.flashes.length>24)effects.flashes.splice(0,effects.flashes.length-24);}
- function event(e){if(e.type==='slice')teaching.event('slice');
+ function event(e){if(e.type==='practice-miss')return;if(practice.active&&e.type==='slice'){if(game.sliced>=1)practice.finish();else practice.guide('Nice! Swipe through the next shape.',practicePoint,'swipe');}if(e.type==='slice')teaching.event('slice');
   if(['slice','miss','hazard'].includes(e.type))onQuestEvent({type:e.type==='slice'?'success':e.type==='end'?'finish':'failure',mode:'slice',time:e.time,failure:['miss','hazard'].includes(e.type),hazard:e.type==='hazard',tile:e.piece?{shape:e.piece.shape,color:e.piece.color,vy:e.piece.vy,r:e.piece.r,wave:e.piece.wave}:null,dx:(e.to?.x||0)-(e.from?.x||0),dy:(e.to?.y||0)-(e.from?.y||0),combo:e.combo});
   if(e.type==='launch'){play('slice-launch');
   }else if(e.type==='fall'){play('slice-fall');
   }else if(e.type==='slice'){
    play('slice-cut');
-   if(e.bonus)play('slice-combo');fragments.push(...cutShape(e.piece,e.from,e.to,stroke));cutEffect(e.piece,e.from,e.to,colors[e.piece.color]);
+   if(e.bonus)play(e.combo>=5?'slice-combo-max':e.combo>=3?'slice-combo-big':'slice-combo');fragments.push(...cutShape(e.piece,e.from,e.to,stroke));cutEffect(e.piece,e.from,e.to,colors[e.piece.color]);
    if(e.bonus)labels=labels.filter(l=>!l.combo);labels.push({x:e.piece.x,y:e.piece.y,age:0,text:'+'+e.points,caption:e.bonus?e.combo+' COMBO':'',combo:!!e.bonus,color:e.bonus?'#ffe677':'#fff'});notice.textContent=e.bonus?e.combo+' shape combo: +'+e.bonus+' bonus score':'Slice the pieces again!';
   }else if(e.type==='hazard'||e.type==='miss'){
    window.gameAudio?.stopPraise();hitFeedback.hit();
@@ -68,12 +71,12 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   }
  }
  let lastHud='',paintTime=0;
- function update(){const key=[game.score,game.sliced,game.lives,game.maxLives,progress.best].join(':');if(key===lastHud)return;lastHud=key;scoreText.textContent=game.score.toLocaleString();coinText.textContent=miniGameCoins(game.sliced,3).toLocaleString();coinText.parentElement.setAttribute('aria-label',miniGameCoins(game.sliced,3)+' coins earned this run');bestText.textContent=Math.max(game.score,progress.best).toLocaleString();if(livesText.dataset.count!==String(game.lives)){livesText.dataset.count=game.lives;livesText.style.setProperty('--heart-count',game.maxLives);livesText.replaceChildren(...Array.from({length:game.maxLives},(_,i)=>{const heart=el('i','heart'+(i>=game.lives?' empty':''));heart.setAttribute('aria-hidden','true');return heart;}));livesText.setAttribute('aria-label',game.lives+' of '+game.maxLives+' hearts left');}canvas.setAttribute('aria-label',`Shape Slice playfield. Score ${game.score}. ${game.lives} of ${game.maxLives} hearts left. Swipe through shapes, avoid bombs.`);}
+ function update(){const key=[game.score,game.sliced,game.lives,game.maxLives,progress.best].join(':');if(key===lastHud)return;lastHud=key;scoreText.textContent=game.score.toLocaleString();coinText.textContent=(game.practice?0:miniGameCoins(game.sliced,3)).toLocaleString();coinText.parentElement.setAttribute('aria-label',(game.practice?0:miniGameCoins(game.sliced,3))+' coins earned this run');bestText.textContent=(game.practice?progress.best:Math.max(game.score,progress.best)).toLocaleString();if(livesText.dataset.count!==String(game.lives)){livesText.dataset.count=game.lives;livesText.style.setProperty('--heart-count',game.maxLives);livesText.replaceChildren(...Array.from({length:game.maxLives},(_,i)=>{const heart=el('i','heart'+(i>=game.lives?' empty':''));heart.setAttribute('aria-hidden','true');return heart;}));livesText.setAttribute('aria-label',game.lives+' of '+game.maxLives+' hearts left');}canvas.setAttribute('aria-label',`Shape Slice playfield. Score ${game.score}. ${game.lives} of ${game.maxLives} hearts left. Swipe through shapes, avoid bombs.`);}
  function hazard(p){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle*.25);/* Sprite sphere is centered at (600,775); preserve its native proportions. */const size=p.r*2/890;ctx.drawImage(bomb,-600*size,-775*size,1280*size,1280*size);ctx.restore();}
  function paintShape(p){const box=artworkBox(p.shape,p.r);ctx.translate(0,box.y);paintMiniShape(ctx,p,box.width);}
  function render(){if(!game||!ctx)return;const box=canvas.getBoundingClientRect();if(!box.width||!box.height)return;const dpr=Math.min(2,devicePixelRatio||1);if(canvas.width!==Math.round(box.width*dpr)||canvas.height!==Math.round(box.height*dpr)){canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,box.width,box.height);transform=sliceViewport(box.width,box.height);const {x,y,scale,bounds}=transform;game.setBounds(bounds);camera=bombCameraOffset(impacts);const scenery=dialog.querySelector('.slice-scenery');if(scenery)scenery.style.transform=`translate(${camera.x}px,${camera.y}px)`;const hud=dialog.querySelector('.slice-play-hud');if(hud)hud.style.transform=`translate(${camera.x}px,${camera.y}px)`;livesText.classList.toggle('slice-bomb-damage',impacts.some(p=>p.age<.4));livesText.classList.toggle('slice-life-damage',lifeLossTime>0);ctx.translate(x+camera.x,y+camera.y);ctx.scale(scale,scale);
   ctx.save(); // The canvas itself clips at the real display edges; no inner arena clip.
-  if(game.time<3){ctx.fillStyle='#c6f8ffbb';ctx.textAlign='center';ctx.font='900 18px Nunito,sans-serif';ctx.fillText(translate('SWIPE TO SLICE'),W/2,H*.4);ctx.font='700 12px Nunito,sans-serif';ctx.fillText(translate('Shapes launch from below'),W/2,H*.4+24);}
+  if(!game.practice&&game.time<3){ctx.fillStyle='#c6f8ffbb';ctx.textAlign='center';ctx.font='900 18px Nunito,sans-serif';ctx.fillText(translate('SWIPE TO SLICE'),W/2,H*.4);ctx.font='700 12px Nunito,sans-serif';ctx.fillText(translate('Shapes launch from below'),W/2,H*.4+24);}
   for(const p of game.pieces){if(p.hazard){hazard(p);continue;}ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.shadowColor=colors[p.color];ctx.shadowBlur=quiet?0:8;paintShape(p);ctx.restore();}
   for(const f of fragments){ctx.save();ctx.globalAlpha=1;ctx.translate(f.x,f.y);ctx.rotate(f.angle);ctx.beginPath();f.mask.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.save();ctx.clip();ctx.translate(f.artX,f.artY);paintShape(f);ctx.restore();
    // The polygon is only a clipping mask; drawing its edge exposes a false outline.
@@ -90,8 +93,12 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   trailCtx.setTransform(dpr,0,0,dpr,0,0);trailCtx.clearRect(0,0,box.width,box.height);
   if(game&&!paused&&!game.over)drawSliceTrail(trailCtx,trail,game.time,quiet);
  }
- function tick(now){if(!game||!dialog.open)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;if(!paused&&!window.ShapeShiftPlatform.paused){game.step(hitFeedback.step(dt));if(!game.over)sceneryTint.step(dt,game.score,quiet);lifeLossTime=Math.max(0,lifeLossTime-dt);lifeNotice.hidden=lifeLossTime===0;if(pointer!==null){if(game.time-motionAt>.06)motionEnergy*=Math.exp(-dt*15);window.gameAudio?.sliceMotion(motionEnergy);}fragments=stepFragments(fragments,dt,transform?.bounds);stepSliceEffects(effects,dt);impacts=stepBombImpacts(impacts,dt);for(const p of sparks){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;}for(const l of labels)l.age+=dt;sparks=sparks.filter(p=>p.age<.5).slice(-150);labels=labels.filter(l=>l.age<(l.combo?1.1:.85)).slice(-20);trail=trail.filter(p=>game.time-p.time<SLICE_TRAIL_LIFETIME).slice(-320);flash=Math.max(0,flash-dt);paintTime+=dt;if(paintTime>=1/60){paintTime%=1/60;update();render();}if(game.over&&!hitFeedback.active&&lifeLossTime===0&&!bombImpactPending(impacts)){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
+ function tick(now){if(!game||!dialog.open)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;if(!paused&&!window.ShapeShiftPlatform.paused){if(!practice.finished)game.step(hitFeedback.step(dt));if(!game.over)sceneryTint.step(dt,game.score,quiet);lifeLossTime=Math.max(0,lifeLossTime-dt);lifeNotice.hidden=lifeLossTime===0;if(pointer!==null){if(game.time-motionAt>.06)motionEnergy*=Math.exp(-dt*15);window.gameAudio?.sliceMotion(motionEnergy);}fragments=stepFragments(fragments,dt,transform?.bounds);stepSliceEffects(effects,dt);impacts=stepBombImpacts(impacts,dt);for(const p of sparks){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;}for(const l of labels)l.age+=dt;sparks=sparks.filter(p=>p.age<.5).slice(-150);labels=labels.filter(l=>l.age<(l.combo?1.1:.85)).slice(-20);trail=trail.filter(p=>game.time-p.time<SLICE_TRAIL_LIFETIME).slice(-320);flash=Math.max(0,flash-dt);paintTime+=dt;if(paintTime>=1/60){paintTime%=1/60;update();render();}if(game.over&&!hitFeedback.active&&lifeLossTime===0&&!bombImpactPending(impacts)){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
  let entering=false;
+
+ function practicePoint(){const p=game.pieces.find(p=>!p.hazard);if(!p||!transform||!p.practiceSettled)return null;const r=canvas.getBoundingClientRect();return {x:r.left+transform.x+p.x*transform.scale,y:r.top+transform.y+p.y*transform.scale};}
+ function startPractice(){if(!practice.active)return;const b=transform.bounds;game.spawn({x:(b.left+b.right)/2,y:b.bottom+38,vx:0,vy:-Math.sqrt(2*620*(b.bottom+38-(b.top+b.bottom)/2)),shape:0,color:1,angle:0,spin:0,r:33});practice.mount(dialog);practice.guide('Swipe through the shape.',practicePoint,'swipe');render();}
+
  async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Slice');try{await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate.dispose();entering=false;}}
  async function prepareRun(gate){if(game&&!save())return;const audioReady=window.gameAudio?.prepareGameStart('slice')?.catch(()=>false)??Promise.resolve(true);stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;swipeSeconds=0;swipeColor=sliceTrailColor(0);runId='shape-slice-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion');
   const scenery=el('div','slice-scenery');sceneryTint=createSceneryTint(scenery,{garden:false,strength:.075});scenery.setAttribute('aria-hidden','true');scenery.append(el('div','slice-stars slice-stars-far'),el('div','slice-stars slice-stars-mid'),el('div','slice-stars slice-stars-near'));dialog.append(scenery);
@@ -104,7 +111,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
   if(token!==version||!dialog.open)return;
   if(!ready){const card=panel('Unable to load');card.append(el('p','','Check your connection and try again.'),button('Retry',start),button('Games',close));return;}
   overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
-  settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});teaching.mount(dialog);engagement.startRun('slice');onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('slice');await gate.reveal(()=>render());if(token!==version||!dialog.open)return;last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,practice:practice.active,autoSpawn:!practice.active,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});if(!practice.active)engagement.startRun('slice');onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('slice');await gate.reveal(()=>render());if(token!==version||!dialog.open)return;startPractice();canvas.focus();last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const point=e=>{const p=slicePointerPoint(e,canvas.getBoundingClientRect(),transform);return {...p,x:p.x-camera.x/transform.scale,y:p.y-camera.y/transform.scale};};
   const addTrail=e=>{const r=dialog.getBoundingClientRect();trail.push({x:e.clientX-r.left,y:e.clientY-r.top,time:game.time,stroke,color:swipeColor});};
   const overControl=e=>[...dialog.querySelectorAll('button')].some(b=>{const r=b.getBoundingClientRect();return r.width>0&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;});
@@ -119,7 +126,7 @@ export function initShapeSlice({sound=name=>window.gameAudio?.ui(name),getXp=()=
     if(distance>.4)swipeSeconds+=elapsed;swipeColor=sliceTrailColor(swipeSeconds);
     motionStamp=sample.timeStamp;motionAt=game.time;motionEnergy=Math.min(1,distance/elapsed/1500);window.gameAudio?.sliceMotion(motionEnergy);
     const oldFragments=[...fragments];game.slice(previous,p);
-    if(!game.over)for(const f of oldFragments){const cut=splitFragment(f,previous,p,stroke);if(cut){fragments=fragments.filter(item=>item!==f);fragments.push(...cut);play('slice-chip');const extra=game.recut(f.id);if(extra)labels.push({x:f.x,y:f.y,age:0,text:'+'+extra,caption:'SHRED',combo:true,color:'#8ffff1'});cutEffect({...f,r:Math.min(f.r,Math.sqrt(polygonArea(f.mask)/Math.PI))},previous,p,colors[f.color]);}}
+    if(!game.over)for(const f of oldFragments){const cut=splitFragment(f,previous,p,stroke);if(cut){fragments=fragments.filter(item=>item!==f);fragments.push(...cut);play('slice-chip');const extra=game.recut(f.id);if(extra){play('slice-shred');labels.push({x:f.x,y:f.y,age:0,text:'+'+extra,caption:'SHRED',combo:true,color:'#8ffff1'});}cutEffect({...f,r:Math.min(f.r,Math.sqrt(polygonArea(f.mask)/Math.PI))},previous,p,colors[f.color]);}}
     addTrail(sample);previous=p;if(game.over)break;
    }
    if(game.over){endGesture(true);if(!hitFeedback.active&&lifeLossTime===0&&!bombImpactPending(impacts))result();}

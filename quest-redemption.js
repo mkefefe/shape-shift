@@ -42,7 +42,7 @@ export async function animateQuestRedemption(cards,{reduced=false,sound=()=>{}}=
      animations.push(spark.animate([{opacity:0,transform:'translate(0,0) scale(.4)'},{opacity:1,offset:.22},{opacity:.8,offset:.55},{opacity:0,transform:`translate(${dx}px,${dy}px) scale(.2)`}],{duration:650,delay:100+i%5*35,easing:'ease-out',fill:'both'}));
     }
    }
-   animations.push(card.animate([{opacity:1,transform:'scale(1)'},{opacity:1,transform:'scale(1)',offset:.74},{opacity:0,transform:reduced?'scale(1)':'translateY(-8px) scale(.95)'}],{duration:reduced?180:1230,easing:'ease-in-out',fill:'forwards'}));
+   animations.push(card.animate([{opacity:1,transform:'scale(1)'},{opacity:1,transform:'scale(1)',offset:.74},{opacity:0,transform:reduced?'scale(1)':'translateY(-8px)'}],{duration:reduced?180:1230,easing:'ease-in-out',fill:'forwards'}));
   }
   await Promise.all(animations.map(animation=>animation.finished.catch(()=>{})));
  }finally{

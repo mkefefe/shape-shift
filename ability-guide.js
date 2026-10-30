@@ -1,4 +1,4 @@
-import {prepareMenuImage} from './menu-preload.js?v=49499';
+import {prepareMenuImage} from './menu-preload.js?v=494198';
 export const BOOST_LESSONS={
  shield:['Shield','Blocks one mistake. Wait 5 completed turns before another shield equips automatically. Tap again to stop.'],
  freeze:['Double Time','Tap for twice as much time for 5 rounds. Combines with Time Crystal for 4x time. Uses another when it ends. Tap again to stop only this boost.'],
@@ -23,11 +23,12 @@ let open=false;
 export const abilityGuideOpen=()=>open;
 export function showBoardGuide(target,lesson,onTap,options={}){
  if(open||!target?.isConnected)return;open=true;
+ window.dispatchEvent(new Event('shape-shift-guide-start'));
  let phase='intro',noticeTimer,advanceTimer,advancing=false,ignoreClickUntil=0;
  const previousFocus=document.activeElement;
  const focus=options.focus?.isConnected?options.focus:target;
  const layer=document.createElement('div');layer.id='board-guide';layer.dataset.phase=phase;
- const hand=document.createElement('img');hand.src='assets/ability-hand-v169.webp';hand.alt='';hand.className='board-guide-hand';
+ const hand=document.createElement('img');hand.src='assets/delivery-v144/ability-hand-v169.webp';hand.alt='';hand.className='board-guide-hand';
  const copy=document.createElement('div');copy.className='board-guide-copy';copy.setAttribute('role','status');
  const message=document.createElement('p');message.textContent=lesson[1]+(options.shortcut?' Shortcut: '+options.shortcut+'.':'');
  const next=document.createElement('button');next.className='primary board-guide-continue';next.textContent='Continue';
@@ -62,7 +63,7 @@ export function showBoardGuide(target,lesson,onTap,options={}){
  };
  const observer=new ResizeObserver(position);observer.observe(target);observer.observe(copy);
 
- const cleanup=()=>{open=false;window.ShapeShiftPlatform.clearTimeout(noticeTimer);window.ShapeShiftPlatform.clearTimeout(advanceTimer);observer.disconnect();layer.remove();focus.classList.remove('live-guide-focus');target.classList.remove('live-guide-target');window.removeEventListener('resize',position);document.removeEventListener('pointerdown',pointer,true);document.removeEventListener('click',click,true);document.removeEventListener('keydown',keys,true);if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});};
+ const cleanup=()=>{open=false;window.ShapeShiftPlatform.clearTimeout(noticeTimer);window.ShapeShiftPlatform.clearTimeout(advanceTimer);observer.disconnect();layer.remove();focus.classList.remove('live-guide-focus');target.classList.remove('live-guide-target');window.removeEventListener('resize',position);document.removeEventListener('pointerdown',pointer,true);document.removeEventListener('click',click,true);document.removeEventListener('keydown',keys,true);if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});window.dispatchEvent(new Event('shape-shift-guide-end'));};
  const advance=()=>{if(advancing)return;advancing=true;next.classList.add('input-pressed');window.gameAudio?.ui('click');advanceTimer=window.ShapeShiftPlatform.setTimeout(()=>{phase='practice';layer.dataset.phase=phase;copy.hidden=true;focus.classList.remove('live-guide-focus');target.classList.add('live-guide-target');position();target.focus({preventScroll:true});},120);};
  const wrong=()=>{if(phase!=='practice')return;message.textContent=options.wrong||'Tap the glowing card.';next.hidden=true;copy.hidden=false;position();window.ShapeShiftPlatform.clearTimeout(noticeTimer);noticeTimer=window.ShapeShiftPlatform.setTimeout(()=>{copy.hidden=true;},1600);};
  const activate=()=>{cleanup();onTap();};
@@ -77,8 +78,8 @@ export async function showAbilityGuide(target,lesson,onTap){
  if(open||!target||!lesson)return;open=true;
  const specialKey=Object.keys(SPECIAL_LESSONS).find(key=>SPECIAL_LESSONS[key][0]===lesson[0]);
  const boostKey=Object.keys(BOOST_LESSONS).find(key=>BOOST_LESSONS[key][0]===lesson[0]);
- const abilityImages={freeze:'browser-time-hd1.png',shield:'browser-shield-hd1.png',boost:'browser-boost-hd1.png'};
- const sheet=boostKey?[abilityImages[boostKey],1,0]:specialKey==='bomb'?['assets/slice-bomb-v239.webp',1,0]:specialKey?['assets/specials-v13.webp',5,['starburst','hourglass','crystal','reset','heart'].indexOf(specialKey)]:boostKey==='boost'?['assets/health-boost-v5.webp',2,1]:['assets/abilities-v4.webp',3,boostKey==='shield'?2:0];
+ const abilityImages={freeze:'assets/delivery-v144/browser-time-hd1.webp',shield:'assets/delivery-v144/browser-shield-hd1.webp',boost:'assets/delivery-v144/browser-boost-hd1.webp'};
+ const sheet=boostKey?[abilityImages[boostKey],1,0]:specialKey==='bomb'?['assets/slice-bomb-v239.webp',1,0]:specialKey?['assets/delivery-v144/specials-v13.webp',5,['starburst','hourglass','crystal','reset','heart'].indexOf(specialKey)]:boostKey==='boost'?['assets/delivery-v144/health-boost-v5.webp',2,1]:['assets/delivery-v144/abilities-v4.webp',3,boostKey==='shield'?2:0];
  try{
  const art=await prepareMenuImage(sheet[0]);
  target.querySelectorAll('.guide-art-fallback').forEach(label=>label.remove());

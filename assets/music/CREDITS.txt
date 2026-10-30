@@ -37,3 +37,33 @@ Original chord-following piano melodies with A/A-variation/B/A phrasing, rolled 
 4.94.54 original chill-pop world menu arrangements:
 Sunbeam Shuffle (Sunny Garden, 100 BPM, C major, 32 bars), Starlight Bounce (Moonlit Forest, 94 BPM, F major, 32 bars), Golden Coast Groove (Sunset Islands, 104 BPM, D major, 32 bars).
 Original connected piano hooks, major/add6/add9 chord progressions, syncopated plucked bass, clear kick/snare-clap/shaker grooves, small bell answers, and short room reflections. Recorded piano notes use the Salamander samples credited above, pitch shifted, trimmed, filtered, sequenced, and mixed with a mono-compatible center. Bass, bells, and percussion are synthesized original voices. Instrument tails wrap across each stereo Ogg Vorbis loop. No commercial melody or recording was imported.
+
+Preview 179: "Garden Walk" (Adventure, 84 BPM), an original 32-bar sampled-piano arrangement.
+Uses the Alexander Holm Salamander recordings credited above; pitch-shifted, low-pass filtered,
+sequenced with gentle release envelopes and a narrow stereo field. No percussion.
+Piano Flow now follows performed strong beats with quiet piano-only accompaniment;
+no kick, clap, snare or shaker is triggered by the current game arrangement.
+
+Preview 182: "Bright Steps" (Endless, 128 BPM), an original 64-bar arrangement.
+Recorded piano uses Alexander Holm's Salamander samples credited above (CC BY 3.0),
+pitch-shifted, filtered and sequenced with original rounded synthesized bass and kick.
+No snare, clap or shaker. Eight sections with changing melody, density and piano answers.
+Loop tails wrap across the boundary. Adventure now uses groove-game-v494154.ogg;
+Garden Walk v179 is retired from active playback.
+
+Preview 183: "Lift" (Endless, 116 BPM), an original 64-bar piano-led arrangement.
+Uses the credited Alexander Holm Salamander recordings, pitch shifted, filtered and
+sequenced; no synthesized kick, clap, snare or shaker in this revision.
+The short piano transition phrase is original, made from the same licensed samples.
+It is transposed for the destination menu theme and mixed through the music volume bus.
+
+Preview 184: synchronized editions of the active menu and gameplay recordings.
+All seven tracks share 110 BPM, four beats per bar. FFmpeg WSOLA time stretching
+preserves pitch; arrangements and the original sample attributions remain unchanged.
+No added transition melody. Theme changes are scheduled at a bar boundary with a short tail overlap.
+
+Preview 185: continuous world-theme music for menu, Adventure, Endless, Shape Slice
+and Shape Drop. These modes share the selected world's existing recorded performance;
+mode changes automate low-pass brightness and a subtle low shelf on the next bar.
+No new melody, no track restart, no pitch changes and no added transition notes.
+Piano Flow's interactive notes and Battle's separate soundtrack remain independent.

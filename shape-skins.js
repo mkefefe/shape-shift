@@ -1,6 +1,6 @@
-import {playerLevel} from './economy.js?v=49499';
+import {playerLevel} from './economy.js?v=494198';
 export const SHAPE_SKINS=Object.freeze([
- {id:'classic',level:1,name:'Classic',price:0,art:'assets/shapes-v2.webp',chainedArt:'assets/skin-classic-wrapped-v318.webp'},
+ {id:'classic',level:1,name:'Classic',price:0,art:'assets/delivery-v144/shapes-v2.webp',chainedArt:'assets/skin-classic-wrapped-v318.webp'},
  {id:'candy',level:5,name:'Candy Swirl',price:300,art:'assets/skin-candy-v273.webp',chainedArt:'assets/skin-candy-wrapped-v318.webp'},
  {id:'crystal',level:15,name:'Cartoon Pop',price:700,art:'assets/skin-cartoon-v315.webp',chainedArt:'assets/skin-cartoon-wrapped-v318.webp'},
  {id:'robots',level:30,name:'Tiny Bots',price:1200,art:'assets/skin-robots-v272.webp',chainedArt:'assets/skin-robots-wrapped-v318.webp'},

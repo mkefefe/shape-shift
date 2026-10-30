@@ -14,7 +14,7 @@ export function showAdventureVictory({document,points=[],level,sound,stopSound=(
  const dialog=document.createElement('dialog');dialog.id='adventure-victory';dialog.setAttribute('aria-labelledby','victory-title');
  const glow=document.createElement('div');glow.className='victory-glow';glow.setAttribute('aria-hidden','true');dialog.append(glow);
  const title=document.createElement('h2');title.id='victory-title';title.textContent='Level '+level+' complete!';
- const logo=document.createElement('img');logo.className='victory-logo';logo.src='assets/logo-v2-cut.webp';logo.alt='Shape Shift';logo.draggable=false;dialog.append(logo,title);
+ const logo=document.createElement('img');logo.className='victory-logo';logo.src='assets/delivery-v144/logo-v2-cut.webp';logo.alt='Shape Shift';logo.draggable=false;dialog.append(logo,title);
  const pieces=[],orbs=[],choices=[];
  {
   for(const [index,choice] of [...document.querySelectorAll('#board .choice')].entries()){

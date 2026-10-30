@@ -1,7 +1,7 @@
 // Color Beacon: a deterministic, lightweight story timeline shared by the game
 // and exported previews. Painted art stays at native proportions throughout.
-import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=49499';
-export {STORY_RESTORATION} from './story-restoration.js?v=49499';
+import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494198';
+export {STORY_RESTORATION} from './story-restoration.js?v=494198';
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},
@@ -101,17 +101,17 @@ export function drawStoryIsland(ctx,a,percent=0){
  ctx.restore();ctx.restore();
 }
 
-export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
+export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
  const config=STORY_SCENES[sceneId];if(!config)throw new Error('Unknown story chapter');
  let t=Math.max(0,Math.min(config.duration,seconds));if(sceneId==='credits'){sceneId='ending';t+=13;}
  const finale=sceneId==='ending',intro=sceneId==='intro';
  const chapter={garden:1,river:2,village:3,sky:4}[sceneId]||0;
  const level={garden:10,river:25,village:50,sky:75}[sceneId]||0;
- const rise=finale?ease(t,2.7,7.2):ease(t,1,3.2);
+ const rise=restorationPhase?ease(t,2.4,4.7):finale?ease(t,2.7,7.2):ease(t,1,3.2);
  // The one finale begins with the whole island uncolored. The sky brightens
  // with the outward color wave, rather than inheriting a previous chapter.
- const skyPower=finale?mix(.035,1,ease(t,4.5,8)):sceneId==='sky'?mix(.035,.65,rise):.035;
- const credit=finale?ease(t,11.5,13):0;
+ const skyPower=restorationPhase ? .15+.85*(restorationPhase.index+rise)/4:finale?mix(.035,1,ease(t,4.5,8)):sceneId==='sky'?mix(.035,.65,rise):.035;
+ const credit=finale&&!suppressCredits?ease(t,11.5,13):0;
  ctx.save();ctx.scale(ctx.canvas.width/720,ctx.canvas.height/1280);ctx.imageSmoothingQuality='high';
  ctx.fillStyle='#102d43';ctx.fillRect(0,0,720,1280);
  ctx.globalAlpha=.16+skyPower*.84;ctx.drawImage(a.sky,0,0,720,1280);ctx.globalAlpha=1;
@@ -130,10 +130,11 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
  const islandDock=reduced&&finale?1:credit;
  const iw=mix(700,500,islandDock),ix=(720-iw)/2,iy=mix(410,750,islandDock),u=iw/a.island.width;
  const lamp={x:ix+620*u,y:iy+294*u,rx:104*u,ry:108*u};
- const focus=chapter&&!reduced?Math.sin(ease(t,0,4.4)*Math.PI)*.035:0;
+ const focus=chapter&&!reduced&&!restorationPhase?Math.sin(ease(t,0,4.4)*Math.PI)*.035:0;
  ctx.save();ctx.translate(360,800);ctx.scale(1+focus,1+focus);ctx.translate(-360,-800);
- const before=intro||finale?0:{garden:0,river:10,village:40,sky:70}[sceneId];
- const after=a.restorationStage(finale?100:level);
+ const before=restorationPhase?restorationPhase.index*25:intro||finale?0:{garden:0,river:10,village:40,sky:70}[sceneId];
+ const after=a.restorationStage(restorationPhase?(restorationPhase.index+1)*25:finale?100:level);
+ const destination=restorationPhase?{x:ix+restorationPhase.target.x*iw,y:iy+restorationPhase.target.y*iw}:lamp;
  ctx.drawImage(a.restorationStage(before),ix,iy,iw,iw);
  if(!intro&&rise>=1){
   // Settled districts are cached: avoid a full-screen offscreen clear and
@@ -142,10 +143,10 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
  }else if(!intro&&rise>0){
   const q=a.reveal.getContext('2d');q.clearRect(0,0,720,1280);q.globalCompositeOperation='source-over';q.drawImage(after,ix,iy,iw,iw);
   if(finale&&reduced){q.globalCompositeOperation='destination-in';q.globalAlpha=rise;q.fillStyle='#fff';q.fillRect(0,0,720,1280);q.globalAlpha=1;q.globalCompositeOperation='source-over';}
-  else if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(lamp.x,lamp.y,Math.max(0,radius-140),lamp.x,lamp.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
+  else if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(destination.x,destination.y,Math.max(0,radius-140),destination.x,destination.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
   ctx.drawImage(a.reveal,0,0);
  }
- const fill=intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
+ const fill=restorationPhase?(restorationPhase.index+ease(t,1.4,1.9))/4:intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
  ctx.save();ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();
  const glass=ctx.createRadialGradient(lamp.x-20,lamp.y-20,0,lamp.x,lamp.y,100*u*2);glass.addColorStop(0,'#254e67');glass.addColorStop(1,'#102e43');ctx.fillStyle=glass;ctx.fillRect(lamp.x-80,lamp.y-80,160,160);
  const waterTop=lamp.y+lamp.ry-2-lamp.ry*1.9*fill;
@@ -153,17 +154,25 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
  const liquid=ctx.createLinearGradient(0,lamp.y-lamp.ry,0,lamp.y+lamp.ry);liquid.addColorStop(0,'#ffe69e');liquid.addColorStop(.3,'#b8edb4');liquid.addColorStop(.65,'#86dcee');liquid.addColorStop(1,'#e3a2c0');ctx.fillStyle=liquid;ctx.fill();
  ctx.fillStyle='#ffffff4a';ctx.beginPath();ctx.ellipse(lamp.x-23*u*1.8,lamp.y-24*u*1.8,7*u*1.8,21*u*1.8,.55,0,Math.PI*2);ctx.fill();ctx.restore();
  glow(lamp.x,lamp.y,150+rise*80,4,.14+fill*.3);
+ // After the shapes reach the beacon, a traveling spark leads the light to
+ // the next district. Color expands from that landing point, not the tower.
+ if(restorationPhase&&t>=1.6&&t<3.1){
+  const p=ease(t,1.6,2.4),bend=-80,at=u=>({x:mix(lamp.x,destination.x,u),y:mix(lamp.y,destination.y,u)+Math.sin(u*Math.PI)*bend});
+  for(let j=10;j>=0;j--){const u=Math.max(0,p-j*.025),v=at(u);glow(v.x,v.y,12+(10-j)*1.6,restorationPhase.shape,(1-j/12)*(1-ease(t,2.4,3.1)));}
+  const v=at(p);glow(v.x,v.y,42,restorationPhase.shape,1-ease(t,2.4,3.1));
+ }
+ if(restorationPhase&&!reduced)particles(destination.x,destination.y,t-2.4,restorationPhase.shape,20,110);
  // Water and cottage lights wake only after the complete island is colored.
- const active=finale?ease(t,7.2,8):chapter>1?1:0;
+ const active=restorationPhase?0:finale?ease(t,7.2,8):chapter>1?1:0;
  if(active){
   if(chapter>=2||finale){ctx.save();ctx.lineCap='round';for(let i=0;i<8;i++){const p=(ambientTime*.62+i*.137)%1;ctx.globalAlpha=active*Math.sin(p*Math.PI)*.28;ctx.strokeStyle='#e4ffff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(ix+(604+i%3*28)*u,iy+(883+p*166)*u);ctx.lineTo(ix+(604+i%3*28)*u,iy+(910+p*166)*u);ctx.stroke();}ctx.restore();}
   if(chapter>=3||finale)for(const [x,y]of[[402,500],[855,474],[923,623],[300,567]])glow(ix+x*u,iy+y*u,45*u*1.8,4,active*.47);
  }
- if(chapter===1||finale){for(let i=0;i<3;i++){const born=finale?7.5:1.3,age=t-born-i*.18;if(age<0)continue;const xx=ix+(250+i*330)*u+Math.sin(ambientTime*1.4+i)*12,yy=iy+(760-i%2*90)*u-(reduced?0:Math.min(90,age*18));ctx.save();ctx.translate(xx,yy);ctx.scale(reduced?1:.3+.7*Math.abs(Math.sin(t*7+i)),1);shape(i,-5,0,18,ease(age,0,.4));shape(i,5,0,18,ease(age,0,.4));ctx.restore();}}
+ if((chapter===1&&!restorationPhase)||finale){for(let i=0;i<3;i++){const born=finale?7.5:1.3,age=t-born-i*.18;if(age<0)continue;const xx=ix+(250+i*330)*u+Math.sin(ambientTime*1.4+i)*12,yy=iy+(760-i%2*90)*u-(reduced?0:Math.min(90,age*18));ctx.save();ctx.translate(xx,yy);ctx.scale(reduced?1:.3+.7*Math.abs(Math.sin(t*7+i)),1);shape(i,-5,0,18,ease(age,0,.4));shape(i,5,0,18,ease(age,0,.4));ctx.restore();}}
  ctx.restore();
  // A readable match-to-beacon action links the story directly to the game.
  const hit=intro?3.2:finale?1.3:.7,age=t-hit;
- if(t<hit){const p=ease(t,Math.max(0,hit-1.1),hit),gap=mix(160,23,p),index=intro?0:finale?3:(chapter-1);shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
+ if(t<hit){const p=ease(t,Math.max(0,hit-1.1),hit),gap=mix(160,23,p),index=restorationPhase?restorationPhase.shape:intro?0:finale?shapeIndex:(chapter-1);shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
  if(age>=0&&age<.9){const p=ease(age,0,.9),x=360+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(360+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));}
  if(!reduced)particles(lamp.x,lamp.y,age-.7,4,14,100);
  // Lanterns celebrate only after the whole island and sky are restored.
@@ -177,21 +186,21 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false}={}){
   text('100 levels. One bright adventure.',360,1157,29,ease(t,5.6,6.3));
   text('Every first clear adds a spark.',360,1200,26,ease(t,6,6.7),'#c9e5e5');
  }else if(!finale){
-  text(`CHAPTER · ${level} / 100`,360,147,22,ease(t,0,.35),'#bde6e8');
-  text(config.title,360,203,42,ease(t,.12,.6));
+  text(restorationPhase?restorationTitle:`CHAPTER · ${level} / 100`,360,147,22,ease(t,0,.35),'#bde6e8');
+  text(restorationPhase?restorationPhase.title:config.title,360,203,42,ease(t,.12,.6));
   const line={garden:'The garden wakes.',river:'The river runs again.',village:'Every window finds its light.',sky:'Even the sky remembers.'}[sceneId];
-  text(line,360,1155,30,ease(t,2.4,3.2),'#ffe3a0');text(`${level}% of the beacon restored`,360,1200,24,ease(t,2.7,3.3),'#c9e5e5');
+  if(!restorationPhase){text(line,360,1155,30,ease(t,2.4,3.2),'#ffe3a0');text(`${level}% of the beacon restored`,360,1200,24,ease(t,2.7,3.3),'#c9e5e5');}
  }else{
   const headline=ease(t,0,.55)*(1-ease(t,10.3,11.3));text('One spark.',360,160,42,headline*(1-ease(t,2.4,3.2)));text('Color comes home.',360,160,44,headline*ease(t,3.1,4));
-  text('100 / 100',360,219,25,headline,'#ffe3a0');
+  text(restorationTitle||'100 / 100',360,219,25,headline,'#ffe3a0');
   text('You brought this world to life.',360,1195,29,ease(t,7.5,8.3)*(1-ease(t,10.2,11.2)),'#fff2ca');
-  if(t>=12.5){
+  if(t>=12.5&&!suppressCredits){
    const p=clamp((t-13)/9),y=reduced?300:mix(580,-150,p),alpha=ease(t,12.5,13.5)*(1-ease(t,21.4,22.2));
    image(a.logo,360,y,380,380*a.logo.height/a.logo.width,alpha);
    const creditText=(str,yy,size,color)=>text(str,360,yy,size,alpha*(1-ease(yy,700,805)),color);
    creditText('CREATED BY',y+187,24,'#c9e5e5');creditText('MK',y+263,73);
    creditText('A little world.',y+410,31);creditText('A little brighter.',y+452,31,'#ffe3a0');
-   const thanks=ease(t,21.7,22.6);image(a.logo,360,235,370,370*a.logo.height/a.logo.width,thanks);text('Thank you for playing.',360,450,37,thanks);text('Your adventure is complete.',360,505,28,thanks,'#ffe3a0');
+   const thanks=ease(t,21.7,22.6);image(a.logo,360,235,370,370*a.logo.height/a.logo.width,thanks);text('Thank you for playing.',360,450,37,thanks);text(finalIsland?'Every island is full of color.':restorationTitle?'Another island awaits.':'Your adventure is complete.',360,505,28,thanks,'#ffe3a0');
   }
  }
  ctx.restore();

@@ -1,4 +1,4 @@
-import {createSceneryProgress,sceneryPalette} from './scenery-progress.js?v=49499';
+import {createSceneryProgress,sceneryPalette} from './scenery-progress.js?v=494198';
 // Gameplay-only scenery. Uses the game's clock so pause, ads and slow-time stay in sync.
 export function createGameplayScene(app){
  const canvas=document.createElement('canvas');canvas.id='gameplay-scene';canvas.setAttribute('aria-hidden','true');app.prepend(canvas);

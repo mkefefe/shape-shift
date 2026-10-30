@@ -1,96 +1,96 @@
-import {beginModeTransition,transitioning} from './mode-transition.js?v=494123';
-import {engagement,telemetryChoice,applyWelcomeStatistics,sampleEngagement} from './telemetry.js?v=494118';
-import {createEndlessCoach} from './endless-coach.js?v=494126';
-let openingCoach=null;
-import {animateQuestRedemption} from './quest-redemption.js?v=49499';
-import {initLivingMenu} from './menu-polish.js?v=49499';
-import {bindPauseKeyboard} from './pause-keyboard.js?v=49499';
-import {bindBoardKeyboard} from './board-keyboard.js?v=49499';
-import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=49499';
-import {bindResultKeyboard} from './result-keyboard.js?v=49499';
-import {bombFeedback,bombDebris} from './bomb-feedback.js?v=49499';
-import {loadStartupAssets} from './startup-loader.js?v=494118';
-import {firstEndlessLaunch} from './first-endless.js?v=49499';
-import {initMenuReadiness} from './menu-readiness.js?v=49499';
-import {prepareMenuImage,awaitReady} from './menu-preload.js?v=49499';
-import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=49499';
-import {praiseDirector} from './praise-feedback.js?v=49499';
-import {showAdventureVictory} from './adventure-victory.js?v=49499';
-import {initStoryUI} from './story-ui.js?v=49499';
-import {initTouchUI} from './touch-ui.js?v=49499';
-import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=49499';
-import {initPianoFlow} from './piano-flow.js?v=494123';
-import {claimPianoReward} from './piano-flow-engine.js?v=494121';
-import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=49499';
-import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=49499';
-import {initInputFeedback} from './input-feedback.js?v=494104';
-import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=49499';
-import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=49499';
-import {enableHoldBuying} from './hold-buy.js?v=49499';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=49499';
-import {rankingLoadMessage} from './leaderboard-cache.js?v=49499';
-import {loadPrivacyContent} from './privacy-content.js?v=49499';
-import {initSettingsExtras} from './settings-extras.js?v=49499';
-import {initShapeSlice} from './shape-slice.js?v=494123';
-import {claimSliceReward} from './shape-slice-engine.js?v=49499';
-import {initGamesHub} from './games-hub.js?v=494122';
-import {initShapeDrop} from './shape-drop.js?v=494123';
-import {claimDropReward} from './shape-drop-engine.js?v=49499';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=49499';
-import {fitBoard} from './board-fit.js?v=494120';
-import {analytics} from './analytics.js?v=49499';
-import {ensureTerms} from './terms.js?v=494124';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=494122';
-import {observeBoard} from './board-fit.js?v=494120';
+import {markStartup} from './experience-metrics.js';
+import {battleDamage} from './battle-power.js?v=494198';
+import {initBattleMenu} from './battle-menu.js?v=494198';
+import {beginModeTransition,transitioning} from './mode-transition.js?v=494198';
+import {engagement,telemetryChoice,applyWelcomeStatistics,sampleEngagement} from './telemetry.js?v=494198';
+import {createEndlessCoach} from './endless-coach.js?v=494198';
+let openingCoach=null,firstLossRecorded=false;
+import {animateQuestRedemption} from './quest-redemption.js?v=494198';
+import {initLivingMenu} from './menu-polish.js?v=494198';
+import {bindPauseKeyboard} from './pause-keyboard.js?v=494198';
+import {bindBoardKeyboard} from './board-keyboard.js?v=494198';
+import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=494198';
+import {bindResultKeyboard} from './result-keyboard.js?v=494198';
+import {bombFeedback,bombDebris} from './bomb-feedback.js?v=494198';
+import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=494198';
+import {HOME_STARTUP_ASSETS} from './startup-plan.js?v=494198';
+import {firstEndlessLaunch as firstJourneyLaunch} from './first-endless.js?v=494198';
+import {RESTORATION_KEY,migrateRestoration,restorationSummary,claimRestoration} from './world-restoration.js?v=494198';
+import {creditRestoration,creditBattleReward} from './world-rewards.js?v=494198';
+import {initRestorationUI} from './restoration-ui.js?v=494198';
+import {initMenuReadiness} from './menu-readiness.js?v=494198';
+import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494198';
+import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=494198';
+import {praiseDirector} from './praise-feedback.js?v=494198';
+import {showAdventureVictory} from './adventure-victory.js?v=494198';
+import {initStoryUI} from './story-ui.js?v=494198';
+import {initTouchUI} from './touch-ui.js?v=494198';
+import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=494198';
+import {initPianoFlow} from './piano-flow.js?v=494198';
+import {claimPianoReward} from './piano-flow-engine.js?v=494198';
+import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=494198';
+import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=494198';
+import {initInputFeedback} from './input-feedback.js?v=494198';
+import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=494198';
+import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=494198';
+import {enableHoldBuying} from './hold-buy.js?v=494198';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=494198';
+import {rankingLoadMessage} from './leaderboard-cache.js?v=494198';
+import {loadPrivacyContent} from './privacy-content.js?v=494198';
+import {initSettingsExtras} from './settings-extras.js?v=494198';
+import {initShapeSlice} from './shape-slice.js?v=494198';
+import {claimSliceReward} from './shape-slice-engine.js?v=494198';
+import {initGamesHub} from './games-hub.js?v=494198';
+import {initShapeDrop} from './shape-drop.js?v=494198';
+import {claimDropReward} from './shape-drop-engine.js?v=494198';
+import {normalizeMiniQuestEvent} from './mini-quest-events.js?v=494198';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=494198';
+import {fitBoard} from './board-fit.js?v=494198';
+import {analytics} from './analytics.js?v=494198';
+import {ensureTerms} from './terms.js?v=494198';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=494198';
+import {observeBoard} from './board-fit.js?v=494198';
 observeBoard(document.getElementById('board'));
-import {createGameplayScene} from './gameplay-scene.js?v=494118';
-import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=49499';
-import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=49499';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=494122';
-import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=49499';
-import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=49499';
+import {createGameplayScene} from './gameplay-scene.js?v=494198';
+import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=494198';
+import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494198';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=494198';
+import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494198';
+import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494198';
 
-import {createCoinFlight,showQuestReward} from './coin-flight.js?v=49499';
-import {earnsMatchCoin} from './economy.js?v=49499';
+import {createCoinFlight,showQuestReward} from './coin-flight.js?v=494198';
+import {earnsMatchCoin} from './economy.js?v=494198';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=49499';
-import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=49499';
-
-
-
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=49499';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=494198';
+import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=494198';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=494125';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=494198';
 
 
 
-import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=494120';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=494198';
 
 
 
-import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=49499';
+import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=494198';
 
 
 
-import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=49499';
+import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=494198';
 
 
 
-import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=49499';
+import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=494198';
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=49499';
+import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=494198';
 
 
 
-
-
-
-
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=49499';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=494198';
 
 
 
@@ -98,7 +98,7 @@ import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECI
 
 
 
-import {requestReward} from './rewarded.js?v=49499';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=494198';
 
 
 
@@ -106,7 +106,7 @@ import {requestReward} from './rewarded.js?v=49499';
 
 
 
-import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=49499';
+import {requestReward} from './rewarded.js?v=494198';
 
 
 
@@ -114,7 +114,15 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=49499';
+import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=494198';
+
+
+
+
+
+
+
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=494198';
 
 
 
@@ -137,9 +145,9 @@ const welcomeVisibility=()=>window.ShapeShiftPlatform.paused?pauseWelcomeAudio()
 document.addEventListener('pointerdown',startWelcomeAudio,{capture:true,passive:true});
 document.addEventListener('keydown',startWelcomeAudio,{capture:true});
 document.addEventListener('click',tapWelcomeAudio,true);
-document.addEventListener('unused-visibilitychange',welcomeVisibility);
-window.addEventListener('unused-androidpause',pauseWelcomeAudio);
-window.addEventListener('unused-androidresume',startWelcomeAudio);
+document.addEventListener('visibilitychange',welcomeVisibility);
+window.addEventListener('androidpause',pauseWelcomeAudio);
+window.addEventListener('androidresume',startWelcomeAudio);
 // Music begins on interaction; it must not compete with first-play downloads.
 const welcomeWasLoading=document.documentElement.classList.contains('startup-loading');
 const welcomeCover=document.getElementById('startup-ready');
@@ -149,10 +157,10 @@ await ensureAudience();
 document.removeEventListener('pointerdown',startWelcomeAudio,true);
 document.removeEventListener('keydown',startWelcomeAudio,true);
 document.removeEventListener('click',tapWelcomeAudio,true);
-document.removeEventListener('unused-visibilitychange',welcomeVisibility);
-window.removeEventListener('unused-androidpause',pauseWelcomeAudio);
-window.removeEventListener('unused-androidresume',startWelcomeAudio);
-await applyWelcomeStatistics(shareGameplayStatistics);
+document.removeEventListener('visibilitychange',welcomeVisibility);
+window.removeEventListener('androidpause',pauseWelcomeAudio);
+window.removeEventListener('androidresume',startWelcomeAudio);
+await applyWelcomeStatistics(shareGameplayStatistics);markStartup('welcome_complete');
 if(welcomeWasLoading){document.documentElement.classList.add('startup-loading');if(welcomeCover)welcomeCover.hidden=false;}
 
 
@@ -173,7 +181,7 @@ $('choose-photo').hidden=!onlineAllowed();$('profile-name').readOnly=false;
 
 
 
-const effectArtReady={then(resolve,reject){return Promise.all(['assets/specials-v13.webp','assets/health-boost-v5.webp','assets/abilities-v4.webp'].map(prepareMenuImage)).then(resolve,reject);}};
+const effectArtReady={then(resolve,reject){return Promise.all(['assets/delivery-v144/specials-v13.webp','assets/delivery-v144/health-boost-v5.webp','assets/delivery-v144/abilities-v4.webp'].map(prepareMenuImage)).then(resolve,reject);}};
 
 const audio=()=>window.gameAudio;
 
@@ -191,7 +199,7 @@ const store={get(key,fallback){try{return JSON.parse(window.ShapeShiftPlatform.s
 
 
 
-const firstEndless=firstEndlessLaunch(window.ShapeShiftPlatform.storage);
+const firstJourney=firstJourneyLaunch(window.ShapeShiftPlatform.storage);
 try{resetProgressOnce(window.ShapeShiftPlatform.storage);}catch{}
 
 
@@ -222,9 +230,27 @@ if(profile.adminMode&&(!ownerPermission.owner||!ownerPermission.adminActive)){
 
 
 
+let restorationUI=null,runWorldXp=0;
+profile={...profile,worldRestoration:migrateRestoration(profile.worldRestoration??store.get(RESTORATION_KEY,null),{adventure:store.get('shape-shift-adventure-v1',{}),story:store.get('shape-shift-color-beacon-v1',{}),admin:profile.adminMode===true})};
+const worldSummary=()=>restorationSummary(profile.worldRestoration,{playerLevel:playerLevel(profile)});
+// Wallet, XP and restoration are committed together. A failed write leaves the
+// previous in-memory profile intact so a pending reward can safely retry.
+function commitReward(next){
+ try{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));}catch{return false;}
+ profile=next;saveProfile();flushProfile();restorationUI?.refresh();return true;
+}
+function checkpointWorld(firstAdventureWin=false){
+ const earned=Math.max(0,(profile.xp||0)-runStartXp);
+ const reward=creditRestoration(profile,{mode:runMode,xp:Math.max(0,earned-runWorldXp),receipt:'main:'+runId+':xp:'+earned,firstAdventureWin});
+ profile=reward.profile;runWorldXp=earned;restorationUI?.refresh();return reward.result;
+}
+function commitMiniReward(next,mode,id){
+ const reward=creditRestoration(next,{mode,xp:Math.max(0,(next.xp||0)-(profile.xp||0)),receipt:mode+':'+id});
+ return commitReward(reward.profile);
+}
 let pendingWalletCoins=0;
 
-let saveTimer;function flushProfile(){window.ShapeShiftPlatform.clearTimeout(saveTimer);store.set('shape-shift-profile-v1',profile);}function saveProfile(){ if(profile.adminMode)profile.coins=ADMIN_COINS;profile=unlockLevelAvatars(profile); $('wallet').textContent=profile.adminMode?'âˆž':Math.max(0,profile.coins-pendingWalletCoins);window.ShapeShiftPlatform.clearTimeout(saveTimer);saveTimer=window.ShapeShiftPlatform.setTimeout(flushProfile,120);}
+let saveTimer;function flushProfile(){window.ShapeShiftPlatform.clearTimeout(saveTimer);store.set('shape-shift-profile-v1',profile);}function saveProfile(){ window.dispatchEvent(new Event('shape-shift-profile-updated'));if(profile.adminMode)profile.coins=ADMIN_COINS;profile=unlockLevelAvatars(profile); $('wallet').textContent=profile.adminMode?'∞':Math.max(0,profile.coins-pendingWalletCoins);window.ShapeShiftPlatform.clearTimeout(saveTimer);saveTimer=window.ShapeShiftPlatform.setTimeout(flushProfile,120);}
 
 
 
@@ -289,10 +315,10 @@ function paintMemory(button,tile){
 }
 function paintAdventureMechanic(){
  const bar=$('adventure-mechanic');if(bar)bar.hidden=true;
- renderColorChangeCue(state.current,modePicks-lastWheelPick,runMode==='adventure'&&adventureMechanics(adventureLevel).wheel);
+ renderColorChangeCue(state.current,modePicks-lastWheelPick,runMode==='adventure'&&!openingCoach?.active&&adventureMechanics(adventureLevel).wheel);
 }
 function prepareAdventureMechanic(keepRound){
- if(runMode!=='adventure'){state.matchRule=null;paintAdventureMechanic();return;}
+ if(runMode!=='adventure'||openingCoach?.active){state.matchRule=null;paintAdventureMechanic();return;}
  const config=adventureMechanics(adventureLevel);
  if(!keepRound&&!state.sweepBoard&&!state.sweepPending){
  state.matchRule=adventureRule(adventureLevel,modePicks);
@@ -382,7 +408,7 @@ function sprite(el,tile){
  if(tile.special){el.replaceChildren();el.classList.add('special-art');el.style.setProperty('--special',SPECIALS.indexOf(tile.special));return;}
  const chained=el.dataset.shapeLocked==='true';
  if(chained||skinIsReady(activeSkin())){el.classList.add('skinned');el.replaceChildren(skinCanvas(tile,activeSkin(),{chained}));}
- else{const [dx,dy]=centers[tile.color*4+tile.shape];el.style.setProperty('--dx',dx+'%');el.style.setProperty('--dy',dy+'%');const image=document.createElement('img');image.src='assets/shapes-v2.webp';image.alt='';image.draggable=false;image.style.left=(-(tile.shape*100)+dx)+'%';image.style.top=(-(tile.color*100)+dy)+'%';el.replaceChildren(image);}
+ else{const [dx,dy]=centers[tile.color*4+tile.shape];el.style.setProperty('--dx',dx+'%');el.style.setProperty('--dy',dy+'%');const image=document.createElement('img');image.src='assets/delivery-v144/shapes-v2.webp';image.alt='';image.draggable=false;image.style.left=(-(tile.shape*100)+dx)+'%';image.style.top=(-(tile.color*100)+dy)+'%';el.replaceChildren(image);}
 }
 
 
@@ -413,7 +439,7 @@ function uiSound(name='click'){audio()?.ui(name).catch(()=>{});}
 
 
 let menuReadiness;
-function screen(name){if(name==='home'&&menuReadiness&&!menuReadiness.homeReady())return menuReadiness.openHome(()=>screen(name));if(name!=='home')menuReadiness?.cancelHome();if(name!=='game')clearFloatingPoints();audio()?.setScene(name==='game'?'game':'menu');$('app').dataset.screen=name;$('app').dataset.mode=runMode;gameplayScene.scene(name==='game'?runMode:null,adventureLevel);$('home').hidden=name!=='home';$('adventure-map').hidden=name!=='map';if(name==='home'){worldUI?.refresh();if(!profile.adminMode)prepareRankedRun(endlessDifficulty);}$('game').hidden=name!=='game';$('home-best').textContent=best;applyCosmetics();window.scrollTo({top:0,left:0,behavior:'instant'});}
+function screen(name){if(name==='home'&&menuReadiness&&!menuReadiness.homeReady())return menuReadiness.openHome(()=>screen(name));if(name!=='home')menuReadiness?.cancelHome();if(name!=='game')clearFloatingPoints();audio()?.setScene(name==='game'?(runMode==='adventure'?'adventure':'game'):'menu');$('app').dataset.screen=name;$('app').dataset.mode=runMode;gameplayScene.scene(name==='game'?runMode:null,adventureLevel);$('home').hidden=name!=='home';$('adventure-map').hidden=name!=='map';if(name==='home'){worldUI?.refresh();restorationUI?.refresh();if(!profile.adminMode)prepareRankedRun(endlessDifficulty);}$('game').hidden=name!=='game';$('home-best').textContent=best;applyCosmetics();window.scrollTo({top:0,left:0,behavior:'instant'});}
 
 
 
@@ -597,7 +623,7 @@ function timer(){
 
 
 
- const hud=$('mode-hud');hud.hidden=runMode==='endless';
+ const hud=$('mode-hud');hud.hidden=runMode==='endless'||!!openingCoach?.active;
  const goal=runMode==='adventure'?levelPrimaryGoal(adventureLevel):null;
  const status=goal?levelTaskStatus(adventureLevel,currentLevelStats())[0]:null;
  const text=status?status.label+' · '+status.value:'Games · '+Math.ceil(rushRemaining/1000)+'s';
@@ -667,7 +693,7 @@ function nextBoard(){for(const node of $('board').children)node.classList.remove
   boardTime=duration(state)+(runMode==='adventure'?levelSpec(adventureLevel).timeBonus:0);remaining=boardTime;
   for(const i of changed){const button=$('board').children[i];if(!button)continue;
    const art=document.createElement('span');art.className='sprite';art.setAttribute('aria-hidden','true');sprite(art,board[i]);
-   button.replaceChildren(art);button.disabled=false;button.removeAttribute('aria-hidden');button.classList.remove('collected','picked-tile','memory-open');
+   button.replaceChildren(art);button.disabled=false;button.removeAttribute('aria-hidden');button.classList.remove('collected','picked-tile','memory-open','memory-correct');
    button.setAttribute('aria-label',tileName(board[i])+', choice '+(i+1));paintMemory(button,board[i]);
   }
   for(const [i,button] of [...$('board').querySelectorAll('button.choice')].entries())button.disabled=!!board[i].collected;
@@ -708,13 +734,13 @@ function nextBoard(){for(const node of $('board').children)node.classList.remove
 
 
  let capacity=boardSize(state);
- if(runMode==='adventure'&&!keepRound&&!state.sweepBoard&&!state.sweepPending){
+ if(runMode==='adventure'&&!openingCoach?.active&&!keepRound&&!state.sweepBoard&&!state.sweepPending){
   const baseCount=adventureDesign(adventureLevel)?.size??Math.min(capacity,levelSpec(adventureLevel).maxChoices);
   if(!rockLayout||rewindReveal||rockLayout.baseCount!==baseCount)rockLayout=createRockLayout(adventureLevel,baseCount);
   capacity=rockLayout.cells.length;
  }
  board=openingCoach?.active?openingCoach.board(state):makeBoard(state,runRng,capacity);
- if(runMode==='adventure'){
+ if(runMode==='adventure'&&!openingCoach?.active){
  board=ensureStarPickup(adventureLevel,currentLevelStats(),state,board);
  board=collectionBoard(adventureLevel,state,board,runRng,currentLevelStats());
  if(!state.sweepBoard&&!state.sweepPending){
@@ -723,6 +749,8 @@ function nextBoard(){for(const node of $('board').children)node.classList.remove
  board=collectionBoard(adventureLevel,state,board,runRng,currentLevelStats());
   board=ensureAdventureMatch(state,board);
   board=ensureStarChoice(adventureLevel,currentLevelStats(),state,board);
+  // Teach the level mechanic before introducing special pickups.
+  if(pendingAdventureLesson())board=board.map(tile=>tile.special?{shape:state.current.shape,color:Math.floor(runRng()*4)}:tile);
  }
  }
 
@@ -891,10 +919,9 @@ function dismissRunScreen(){
   if(!continueOfferReady)return;
   continueOfferOpen=false;uiSound('leave-result');finish(true);return;
  }
- if(runMode==='adventure')return;
  uiSound('leave-result');home();
 }
-function finish(finalize=false){openingCoach?.close();
+function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.resultMode=runMode;
  if(!(runMode==='adventure'&&modeWon))audio()?.stopPraise();
  if(cancelVictory)return;
  $('adventure-continue').hidden=runMode!=='adventure';
@@ -914,28 +941,25 @@ function finish(finalize=false){openingCoach?.close();
  $('result-survival').textContent='Survived '+formatSurvivalTime(survivalClock.elapsed());
  if(window.ShapeShiftAds?.showRewarded&&shouldOfferContinue(runMode,state,finalize)){
   $('adventure-continue').hidden=true;
-  analytics.count('ad_offers','continue');continueOfferOpen=true;continueOfferReady=false;continueAdPending=false;
+  analytics.count('ad_offers','continue');continueOfferOpen=true;continueOfferReady=true;continueAdPending=false;
   $('over-dialog').classList.add('continue-offer');
   $('over-dialog').classList.remove('adventure-results');
   $('record').textContent='KEEP GOING?';
   $('continue-ad').hidden=false;$('continue-ad').disabled=!window.ShapeShiftAds;
   $('ad-status').textContent=window.ShapeShiftAds?'Watch a video to refill your lives.':'Continue is available in the Android app.';
-  document.querySelector('.result-home-hint').textContent='';
-  $('result-return-countdown').hidden=false;
+  document.querySelector('.result-home-hint').textContent='Tap anywhere else to see your results.';
+  $('result-return-countdown').hidden=true;
   audio()?.setScene('menu');if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});sound('over');
-  cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent=String(n);},()=>{
-   continueOfferReady=true;$('result-return-countdown').hidden=true;
-   document.querySelector('.result-home-hint').textContent='Tap anywhere else to finish your run.';
-  },{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!continueAdPending});
+
   return;
  }
  continueOfferOpen=false;$('over-dialog').classList.remove('continue-offer');
- document.querySelector('.result-home-hint').textContent='';
- $('adventure-continue').hidden=runMode!=='adventure'&&runMode!=='endless';$('adventure-continue').textContent='Continue';
+ document.querySelector('.result-home-hint').textContent='Tap anywhere else for the main menu.';
+ $('adventure-continue').hidden=runMode!=='adventure'&&runMode!=='endless';$('adventure-continue').textContent=runMode==='adventure'&&modeWon?'Next level':'Retry';
  if(runMode==='adventure'&&modeWon)state=awardVictoryBoard(state,board,true);
  if(runMode==='adventure'&&modeWon&&!completionXpGranted){profile=adventureCompletionReward(profile,true);completionXpGranted=true;saveProfile();flushProfile();}
  trackAchievements({type:'finish',mode:runMode,won:modeWon,level:adventureLevel,elapsed:modeElapsed,stars:runMode==='adventure'?levelObjectives(adventureLevel,{...currentLevelStats(),won:modeWon}).filter(o=>o.done).length:0});
- engagement.endRun('finished');analytics.endRun(modeWon?'win':'loss',runMode==='adventure'?levelObjectives(adventureLevel,{...currentLevelStats(),won:modeWon}).map((o,i)=>({...o,type:levelTasks(adventureLevel)[i].type})):[],adventureLayout(adventureLevel,board.length).name);
+ if(!modeWon&&!firstLossRecorded){engagement.event('first_loss');firstLossRecorded=true;}engagement.endRun('finished');analytics.endRun(modeWon?'win':'loss',runMode==='adventure'?levelObjectives(adventureLevel,{...currentLevelStats(),won:modeWon}).map((o,i)=>({...o,type:levelTasks(adventureLevel)[i].type})):[],adventureLayout(adventureLevel,board.length).name);
  const previous=best;recordRun();
 
 
@@ -1003,7 +1027,7 @@ function finish(finalize=false){openingCoach?.close();
 
 
  const stars=worldUI?.finish(runMode,modeWon,state,currentLevelStats());syncAdventureBoosts();$('adventure-result').hidden=runMode!=='adventure';$('adventure-result').classList.remove('rewards-revealed','rewards-settled');$('adventure-result').innerHTML=stars||'';document.querySelector('#over-dialog .best-line').hidden=runMode!=='endless';
- if(runMode!=='endless'){$('record').textContent=runMode==='adventure'?(modeWon?'LEVEL '+adventureLevel+' COMPLETE':'LEVEL '+adventureLevel):(modeWon?'GAME COMPLETE':'GAME OVER');$('continue-ad').hidden=true;$('ad-status').textContent=runMode==='adventure'?(modeWon?(adventureLevel===100?'Adventure complete. Continue to your island.':'Next level unlocked on your map.'):'Try again from the Adventure map.'):'Best: '+worldUI.rushBest();}
+ if(runMode!=='endless'){$('record').textContent=runMode==='adventure'?(modeWon?'LEVEL '+adventureLevel+' COMPLETE':'LEVEL '+adventureLevel):(modeWon?'GAME COMPLETE':'GAME OVER');$('continue-ad').hidden=true;$('ad-status').textContent=runMode==='adventure'?(modeWon?(adventureLevel===100?'Adventure complete. Continue to your island.':''):'Try again.'):'Best: '+worldUI.rushBest();}
 
 
  if(runMode==='endless')$('ad-status').textContent='';
@@ -1020,10 +1044,10 @@ function finish(finalize=false){openingCoach?.close();
   lastXpGain=xp.gained;
  },cue=>sound(cue),{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open,reduced:prefs.motion});
 
- if(runMode==='rush'){$('result-return-countdown').hidden=false;cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent='Main menu in '+n+'s';},()=>{uiSound('leave-result');home();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open});}
+ if(runMode==='rush'){$('result-return-countdown').hidden=false;cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent='Main menu in '+n+'s';},()=>{uiSound('leave-result');home();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!restorationUI?.isOpen()});}
  };
  const startResultRewards=()=>{
-  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{if(modeWon&&storyUI.summary().ready){void (async()=>{if(await home(true)===false)return;worldUI?.map();await storyUI.afterResults();})();}else tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground});
+  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{if(modeWon&&storyUI.summary().ready){void (async()=>{if(await home(true)===false)return;worldUI?.map();await storyUI.afterResults();})();}else tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&!restorationUI?.isOpen()});
   else tally();
  };
  const presentResults=(animateRewards=true)=>{
@@ -1032,8 +1056,8 @@ function finish(finalize=false){openingCoach?.close();
   if(animateRewards)startResultRewards();
  };
  if(runMode==='adventure'&&modeWon){
-  cancelVictory=showAdventureVictory({document,points:state.victoryPoints,level:adventureLevel,drawShape:sprite,sound,stopSound:()=>audio()?.stopVictory?.(),
-   visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground,reduced:prefs.motion||matchMedia('(prefers-reduced-motion: reduce)').matches,
+   cancelVictory=showAdventureVictory({document,points:state.victoryPoints,level:adventureLevel,drawShape:sprite,sound,stopSound:()=>audio()?.stopVictory?.(),
+   visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground,reduced:prefs.motion,
    reveal:()=>presentResults(false),done:()=>{cancelVictory=null;startResultRewards();}});
  }else presentResults();
 
@@ -1169,7 +1193,7 @@ function resolve(index){
  const b=$('board').children[index];b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:220});sound('click');return;
  }
  }
- if(openingCoach?.active&&!openingCoach.accept(index))return;
+ if(openingCoach?.active&&!openingCoach.accept(index))return;markStartup('first_pick');
  const correctAnswers=correctChoiceIndices(state,board);locked=true;modeTurns++;const oldScore=state.score;const oldStrikes=state.strikes;const praisePreviousColor=state.current.color;const questBefore={...state.current};const questTile=index===null?null:board[index];
 
 
@@ -1192,7 +1216,7 @@ function resolve(index){
  state=index===null?expire(state,board):choose(state,board,index);
  const missedMemory=runMode==='adventure'&&index!==null&&settleMemoryGuess(memoryCards,index,questTile,state.outcome);
  if(runMode==='adventure'){
- if(index!==null&&questTile?.memory&&state.outcome==='correct'){$('board').children[index]?.classList.add('memory-open');}
+ if(index!==null&&questTile?.memory&&state.outcome==='correct'){$('board').children[index]?.classList.add('memory-open','memory-correct');}
 
  }
 
@@ -1214,9 +1238,9 @@ function resolve(index){
  if(runMode==='adventure'&&state.specialEffect==='starburst'&&index!==null)levelPickStats=trackLevelCollection(levelPickStats,board.filter(tile=>!tile.memory));
  if(earnsMatchCoin(state,questTile)){
 
-  const earnedCoins=matchCoinReward(state);analytics.count('coins_earned','match',earnedCoins);profile=earnCoin(profile,state);modePicks++;runCoins+=earnedCoins;
+  const earnedCoins=matchCoinReward(state);analytics.count('coins_earned','match',earnedCoins);profile=earnCoin(profile,state);checkpointWorld();modePicks++;runCoins+=earnedCoins;
 
-  const coin=createCoinFlight($('board').children[index],document.querySelector('.run-coins img'),prefs.motion);
+  const coin=createCoinFlight($('board').children[index],document.querySelector('.run-coins img'),prefs.motion,questTile.memory?650:0);
 
   if(coin){coin.coins=earnedCoins;coinFlights.push(coin);coin.draw(0);}
 
@@ -1342,7 +1366,7 @@ function resolve(index){
   $('board').classList.remove('success');update();return;
  }
  if(missedMemory){burstEffect?.clear();burstElapsed=0;burstEffect=createMemoryMissReveal($('board').children[index],tileName(questTile));burstEffect.draw(0);}
- transition=burstEffect?burstEffect.duration:state.over?400:state.specialEffect==='bomb'?120:state.specialEffect?650:state.outcome==='correct'?(prefs.motion?180:460):220;if(['adventure','endless'].includes(runMode)&&['wrong','miss','protected'].includes(state.outcome)){
+ transition=questTile?.memory&&state.outcome==='correct'?1400:burstEffect?burstEffect.duration:state.over?400:state.specialEffect==='bomb'?120:state.specialEffect?650:state.outcome==='correct'?(prefs.motion?180:460):220;if(['adventure','endless'].includes(runMode)&&['wrong','miss','protected'].includes(state.outcome)){
   for(const index of correctAnswers)$('board').children[index]?.classList.add(prefs.motion?'correct-answer-still':'correct-answer-pulse');
   transition=Math.max(transition,900);
   if(burstEffect)burstEffect.duration=Math.max(burstEffect.duration,900);
@@ -1397,7 +1421,7 @@ function tick(now){
  if(memoryPeek){memoryPeek.elapsed+=dt;if(memoryPeek.elapsed>=1300){const b=$('board').children[memoryPeek.index];b?.classList.remove('memory-open');if(b)paintMemory(b,board[memoryPeek.index]);memoryPeek=null;}}
  else mechanicHold=Math.max(0,mechanicHold-dt);
  }frame=window.ShapeShiftPlatform.requestAnimationFrame(tick);return;}
- const frameMs=now-last;if(frameMs>0&&frameMs<1000)analytics.count('frames',frameMs<20?'under-20ms':frameMs<34?'20-34ms':frameMs<50?'34-50ms':'50ms-plus');let delta=frameDelta(now,last);last=now;gameplayScene.tick(delta,{score:state.score,reduced:prefs.motion||matchMedia('(prefers-reduced-motion: reduce)').matches,duration:boardTime,slow:state.slow,slowRate:timeSlowRate(state),locked});if(runMode==='adventure'&&!rockFills.length)modeElapsed+=delta;
+ const frameMs=now-last;if(frameMs>0&&frameMs<1000)analytics.count('frames',frameMs<20?'under-20ms':frameMs<34?'20-34ms':frameMs<50?'34-50ms':'50ms-plus');let delta=frameDelta(now,last);last=now;gameplayScene.tick(delta,{score:state.score,reduced:prefs.motion,duration:boardTime,slow:state.slow,slowRate:timeSlowRate(state),locked});if(runMode==='adventure'&&!rockFills.length)modeElapsed+=delta;
 
 
 
@@ -1415,7 +1439,7 @@ function tick(now){
    [...$('board').querySelectorAll('button.choice')].forEach((b,i)=>b.disabled=!!board[i].collected);fitBoard($('board'));update();
   }
  }
- else if(locked){if(burstEffect){burstElapsed+=delta;burstEffect.draw(burstElapsed);transition=Math.max(0,burstEffect.duration-burstElapsed);}else transition-=delta;if(transition<=0){if(state.over||(runMode==='adventure'&&levelComplete(adventureLevel,currentLevelStats()))||(runMode==='rush'&&rushRemaining<=0)){modeWon=!state.over;finish();return;}nextBoard();}}
+ else if(locked){if(burstEffect){burstElapsed+=delta;burstEffect.draw(burstElapsed);transition=Math.max(0,burstEffect.duration-burstElapsed);}else transition-=delta;if(transition<=0){if(state.over||(runMode==='adventure'&&!openingCoach?.active&&levelComplete(adventureLevel,currentLevelStats()))||(runMode==='rush'&&rushRemaining<=0)){modeWon=!state.over;finish();return;}nextBoard();}}
 
 
 
@@ -1578,10 +1602,11 @@ function ability(name){
 
 
 
+let startingRun=false;
 async function start(forceTutorial=false,onPrepared=()=>{},beforeTutorial=()=>Promise.resolve()){
- if(counting||active)return;
- const gate=beginModeTransition(runMode==='adventure'?'Adventure':runMode==='rush'?'Time Rush':'Endless');
- try{await gate.covered;return await prepareRun(forceTutorial,onPrepared,beforeTutorial,gate);}finally{gate.dispose();}
+ if(counting||active||startingRun)return;startingRun=true;
+ const gate=beginModeTransition(runMode==='adventure'?'Adventure':runMode==='rush'?'Time Rush':'Endless',{preparingStartup:forceTutorial&&document.documentElement.classList.contains('startup-loading')});
+ try{await gate.covered;return await prepareRun(forceTutorial,onPrepared,beforeTutorial,gate);}finally{gate.dispose();startingRun=false;}
 }
 async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
@@ -1596,7 +1621,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
- if(counting||active)return;openingCoach?.close();openingCoach=runMode==='endless'&&(forceTutorial===true||!store.get(TUTORIAL_KEY,false))?createEndlessCoach({resetTimer:()=>{remaining=boardTime;timer();},complete:()=>{store.set(TUTORIAL_KEY,true);firstEndless.complete();}}):null;const token=++countdownToken;counting=true;$('play').disabled=true;$('run-load-error')?.remove();try{collectionRun++;survivalClock.reset();renderSurvivalClock();colorFlip=null;runStartXp=profile.xp||0;syncAdventureBoosts();runBoostLevel=profile.adventureCompleted||0;completionXpGranted=false;modePicks=0;modeTurns=0;runCoins=0;rushRemaining=60000;modeWon=false;modeElapsed=0;modeWrong=0;levelPickStats={};starBoosts={};if(runMode==='adventure')for(const task of levelTasks(adventureLevel))if(task.type==='ability')for(const name of task.ability==='all'?['shield','freeze','boost']:[task.ability])starBoosts[name]=1;rockLayout=null;memoryCards=new Map();memoryPeek=null;memoryLesson=null;mechanicHold=0;lastWheelPick=0;wheelTurns=0;lastMatchRule=null;rockFills=[];rockFillElapsed=0;praiseRun.startRun();praiseAnimation?.cancel();if($('streak-praise'))$('streak-praise').hidden=true;clearCoinFlights();trackAchievements({type:'runStart',mode:runMode,difficulty:endlessDifficulty});uiSound('start');autoPowers.clear();audio()?.start();syncIdentity().catch(()=>{});
+ if(counting||active)return;openingCoach?.close();openingCoach=['endless','adventure'].includes(runMode)&&(forceTutorial===true||!store.get(TUTORIAL_KEY,false))?createEndlessCoach({resetTimer:()=>{remaining=boardTime;timer();},complete:()=>{markStartup('tutorial_complete');store.set(TUTORIAL_KEY,true);firstJourney.complete();}}):null;const token=++countdownToken;counting=true;$('play').disabled=true;$('run-load-error')?.remove();try{collectionRun++;survivalClock.reset();renderSurvivalClock();colorFlip=null;runStartXp=profile.xp||0;runWorldXp=0;syncAdventureBoosts();runBoostLevel=profile.adventureCompleted||0;completionXpGranted=false;modePicks=0;modeTurns=0;runCoins=0;rushRemaining=60000;modeWon=false;modeElapsed=0;modeWrong=0;levelPickStats={};starBoosts={};if(runMode==='adventure')for(const task of levelTasks(adventureLevel))if(task.type==='ability')for(const name of task.ability==='all'?['shield','freeze','boost']:[task.ability])starBoosts[name]=1;rockLayout=null;memoryCards=new Map();memoryPeek=null;memoryLesson=null;mechanicHold=0;lastWheelPick=0;wheelTurns=0;lastMatchRule=null;rockFills=[];rockFillElapsed=0;praiseRun.startRun();praiseAnimation?.cancel();if($('streak-praise'))$('streak-praise').hidden=true;clearCoinFlights();trackAchievements({type:'runStart',mode:runMode,difficulty:endlessDifficulty});uiSound('start');autoPowers.clear();audio()?.start();syncIdentity().catch(()=>{});
 
 
 
@@ -1694,23 +1719,6 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
-
-
-
- if(!openingCoach&&(forceTutorial===true||!store.get(TUTORIAL_KEY,false))){
-
-
-
-  $('countdown').hidden=true;onPrepared();await beforeTutorial();if(token!==countdownToken)return;
-  const completed=await new Promise(resolve=>{tutorialCompletion=resolve;openTutorial(true);});
-
-
-
-  if(!completed||token!==countdownToken)return;
-
-
-
- }
 
 
 
@@ -1830,7 +1838,7 @@ function resume(){
 
 
 
- if(!active)return;audio()?.setScene('game');paused=false;$('pause-dialog').close();last=window.ShapeShiftPlatform.now();update();audio()?.resume();frame=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+ if(!active)return;audio()?.setScene(runMode==='adventure'?'adventure':'game');paused=false;$('pause-dialog').close();last=window.ShapeShiftPlatform.now();update();audio()?.resume();frame=window.ShapeShiftPlatform.requestAnimationFrame(tick);
 
 
 
@@ -1847,7 +1855,7 @@ function resume(){
 
 
 function home(skipOffer=false){
- if(menuReadiness&&!menuReadiness.homeReady())return menuReadiness.openHome(()=>home(skipOffer));
+ if(menuReadiness&&!menuReadiness.homeReady()){if(active&&!paused)pause();return menuReadiness.openHome(()=>home(skipOffer));}
 
  stopResultCountdown();
 
@@ -2142,7 +2150,7 @@ document.addEventListener('keydown',e=>{
 
 
 
-document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused){survivalClock.setRunning(false);pause();audio()?.pause();flushProfile();}else if($('app').dataset.storyActive!=='true')audio()?.start();});
+document.addEventListener('visibilitychange',()=>{if(window.ShapeShiftPlatform.paused){survivalClock.setRunning(false);pause();audio()?.pause();flushProfile();}else if($('app').dataset.storyActive!=='true')audio()?.start();});
 
 
 
@@ -2150,7 +2158,7 @@ document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPla
 
 
 
-window.addEventListener('unused-pagehide',flushProfile);
+window.addEventListener('pagehide',flushProfile);
 
 
 
@@ -2158,7 +2166,7 @@ window.addEventListener('unused-pagehide',flushProfile);
 
 
 
-window.addEventListener('unused-androidpause',()=>{nativeBackground=true;survivalClock.setRunning(false);pause();audio()?.pause();flushProfile();});
+window.addEventListener('androidpause',()=>{nativeBackground=true;survivalClock.setRunning(false);pause();audio()?.pause();flushProfile();});
 
 
 
@@ -2166,7 +2174,7 @@ window.addEventListener('unused-androidpause',()=>{nativeBackground=true;surviva
 
 
 
-window.addEventListener('unused-androidresume',()=>{nativeBackground=false;if($('app').dataset.storyActive!=='true')audio()?.start();});
+window.addEventListener('androidresume',()=>{nativeBackground=false;if($('app').dataset.storyActive!=='true')audio()?.start();});
 
 
 
@@ -2292,7 +2300,7 @@ async function continueWithCountdown(){
 
  active=true;paused=false;locked=false;last=window.ShapeShiftPlatform.now();for(const [i,b] of [...$('board').querySelectorAll('button.choice')].entries())b.disabled=!!board[i].collected;
 
- audio()?.setScene('game');uiSound('start');update();frame=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+ audio()?.setScene(runMode==='adventure'?'adventure':'game');uiSound('start');update();frame=window.ShapeShiftPlatform.requestAnimationFrame(tick);
 
 }
 
@@ -2432,6 +2440,7 @@ function recordRun(){
 
 
 
+ checkpointWorld(runMode==='adventure'&&modeWon);
  const loadout=actions.find(a=>a.type==='loadout');profile=trackQuestProgress(profile,{type:'finish',difficulty:endlessDifficulty,time:survivalClock.elapsed()/1000,picks:state.picks,mode:runMode,won:modeWon,score:state.score,loadout:{frame:state.frame,background:loadout?.map}});updateQuestBadge();
 
 
@@ -3085,7 +3094,7 @@ function renderPersonalRanking(entries=[],cached=false){
  footer.setAttribute('aria-label',summary.listed?'Your rank '+summary.rank+', '+identity.name+', '+summary.score+' points. Jump to your entry.':identity.name+', personal best '+summary.score+' points. Global rank unavailable.');
  footer.onclick=()=>{
   const row=$('leaderboard-rows').querySelector('.rank-you');if(!row)return;
-  row.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  row.scrollIntoView({block:'center',behavior:'smooth'});
   row.focus({preventScroll:true});
  };
 }
@@ -3197,7 +3206,7 @@ $('leaderboard-open').onclick=()=>{
 };$('leaderboard-reload').onclick=()=>rankings();
 $('leaderboard-reload').hidden=true;$('leaderboard-reload').textContent='Retry';
 window.ShapeShiftPlatform.setInterval(()=>{if(!window.ShapeShiftPlatform.paused&&$('leaderboard-dialog').open)rankings(true);},30000);
-document.addEventListener('unused-visibilitychange',()=>{if(!window.ShapeShiftPlatform.paused&&$('leaderboard-dialog').open)rankings(true);});
+document.addEventListener('visibilitychange',()=>{if(!window.ShapeShiftPlatform.paused&&$('leaderboard-dialog').open)rankings(true);});
 
 
 
@@ -3221,7 +3230,7 @@ saveProfile();flushScores();applyPrefs();screen('home');renderHomeIdentity();
 
 
 
-const shapePreload=new Image();shapePreload.src='assets/shapes-v2.webp';
+const shapePreload=new Image();shapePreload.src='assets/delivery-v144/shapes-v2.webp';
 
 
 
@@ -3681,7 +3690,7 @@ async function collectQuestRewards(quests,next,source,all){
  $('quest-save-error')?.remove();questClaiming=true;pendingWalletCoins+=reward;profile=next;saveProfile();flushProfile();updateQuestBadge();
  analytics.count('claims',all?'all':'single',quests.length);analytics.count('coins_earned','quest',reward);
  for(const card of cards){const status=card.querySelector('.quest-completed-label');if(status)status.textContent='Collected!';trackAchievements({type:'quest'});}
- const reduced=prefs.motion||window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const reduced=prefs.motion;
  let delivered=0;
  showQuestReward({getBoundingClientRect:()=>origin},$('coin-help-open'),reward,oldBalance,reduced,{rewards,onCollect:()=>uiSound('quest-collect'),onArrive:amount=>{delivered+=amount;pendingWalletCoins=Math.max(0,pendingWalletCoins-amount);saveProfile();uiSound('quest-wallet');}}).catch(()=>{}).finally(()=>{pendingWalletCoins=Math.max(0,pendingWalletCoins-(reward-delivered));saveProfile();});
  try{
@@ -3763,7 +3772,7 @@ function renderLesson(){
 
 
 
- lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/ability-hand-v169.webp';hand.alt='';hand.setAttribute('aria-hidden','true');hand.style.setProperty('--hand-angle','-90deg');hand.style.setProperty('--hand-left',index===0?'38%':'50%');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
+ lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/delivery-v144/ability-hand-v169.webp';hand.alt='';hand.setAttribute('aria-hidden','true');hand.style.setProperty('--hand-angle','-90deg');hand.style.setProperty('--hand-left',index===0?'38%':'50%');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
 
 
 
@@ -3771,7 +3780,7 @@ function renderLesson(){
 
 
 
-$('tutorial-next').onclick=()=>{if(lessonIndex<LESSONS.length){lessonIndex++;renderLesson();return;}if(tutorialFromSettings){closeTutorialReplay();return;}store.set(TUTORIAL_KEY,true);firstEndless.complete();$('tutorial-dialog').close();if(tutorialStartsRun){const complete=tutorialCompletion;tutorialCompletion=null;complete?.(true);}else if(tutorialReturnPaused)$('pause-dialog').showModal();};
+$('tutorial-next').onclick=()=>{if(lessonIndex<LESSONS.length){lessonIndex++;renderLesson();return;}if(tutorialFromSettings){closeTutorialReplay();return;}store.set(TUTORIAL_KEY,true);firstJourney.complete();$('tutorial-dialog').close();if(tutorialStartsRun){const complete=tutorialCompletion;tutorialCompletion=null;complete?.(true);}else if(tutorialReturnPaused)$('pause-dialog').showModal();};
 
 
 
@@ -3897,51 +3906,74 @@ for(const dialog of document.querySelectorAll('dialog'))bannerObserver.observe(d
 syncMenuBanner();
 
 let gamesHub;
-function miniQuestEvent(event){trackAchievements({...event,game:event.mode,mode:'games'});profile=trackQuestProgress(profile,event);saveProfile();updateQuestBadge();}
+function miniQuestEvent(event){trackAchievements({...event,game:event.mode,mode:'games'});const questEvent=normalizeMiniQuestEvent(event);if(!questEvent)return;profile=trackQuestProgress(profile,questEvent);saveProfile();updateQuestBadge();}
 const shapeDrop=initShapeDrop({getLoadout:()=>({frame:profile.equipped.frame}),getXp:()=>profile.xp,onQuestEvent:miniQuestEvent,sound:uiSound,onClose:()=>gamesHub?.open(),onProgress:progress=>trackAchievements({type:'dropHistory',mode:'games',...progress}),reward:entry=>{
  const next=claimDropReward(profile,entry);if(next===profile)return profile.dropRewards?.includes(entry.id)===true;
- try{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));}catch{return false;}
- profile=next;saveProfile();flushProfile();return true;
+ return commitMiniReward(next,'drop',entry.id);
 }});
 const shapeSlice=initShapeSlice({getXp:()=>profile.xp,onQuestEvent:miniQuestEvent,sound:uiSound,getLoadout:()=>({frame:profile.equipped.frame,upgrade:profile.upgrades[profile.equipped.frame]||0}),onClose:()=>gamesHub?.open(),onProgress:progress=>trackAchievements({type:'sliceHistory',mode:'games',...progress}),reward:entry=>{
  const next=claimSliceReward(profile,entry);if(next===profile)return profile.sliceRewards?.includes(entry.id)===true;
- try{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));}catch{return false;}
- profile=next;saveProfile();flushProfile();return true;
+ return commitMiniReward(next,'slice',entry.id);
 }});
 const pianoFlow=initPianoFlow({onProgress:progress=>trackAchievements({type:'pianoHistory',mode:'games',...progress}),getXp:()=>profile.xp,onQuestEvent:miniQuestEvent,sound:uiSound,getLoadout:()=>({frame:profile.equipped.frame,upgrade:profile.upgrades[profile.equipped.frame]||0}),onClose:()=>gamesHub?.open(),reward:entry=>{
  const next=claimPianoReward(profile,entry);if(next===profile)return profile.pianoRewards?.includes(entry.id)===true;
- try{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));}catch{return false;}
- profile=next;saveProfile();flushProfile();return true;
+ return commitMiniReward(next,'piano',entry.id);
 }});
 gamesHub=initGamesHub({openPiano:()=>pianoFlow.open(),openDrop:()=>shapeDrop.open(),openSlice:()=>shapeSlice.open(),sound:uiSound});
 for(const id of ['shape-drop','shape-slice','piano-flow','games-hub'])bannerObserver.observe(document.getElementById(id),{attributes:true,attributeFilter:['open']});
+const battleMenu=initBattleMenu({getAccess:()=>worldSummary().access.battle,storage:window.ShapeShiftPlatform.storage,getSettings:()=>({...prefs,damage:battleDamage(profile),skin:profile.equipped.skin,admin:profile.adminMode===true}),sound:uiSound,onReward:reward=>{const credited=creditBattleReward(profile,reward);if(!credited.accepted)return false;if(credited.profile===profile)return true;return commitReward(credited.profile);},onOpen:()=>{$('app').dataset.storyActive='true';audio()?.pause();syncMenuBanner();},onClose:()=>{delete $('app').dataset.storyActive;if(!window.ShapeShiftPlatform.paused&&!nativeBackground)audio()?.start();syncMenuBanner();}});
+bannerObserver.observe(battleMenu.dialog,{attributes:true,attributeFilter:['open']});
 const storyUI=initStoryUI({document,storage:window.ShapeShiftPlatform.storage,adventure:store.get('shape-shift-adventure-v1',{}),admin:profile.adminMode===true,adminBackup:store.get('shape-shift-admin-map-backup-v1',null),sound:uiSound,
- settings:()=>({reduced:prefs.motion||matchMedia('(prefers-reduced-motion: reduce)').matches,effectsVolume:prefs.sfx?prefs.sfxVolume/100:0,volume:Math.max(prefs.music?prefs.musicVolume/100:0,prefs.sfx?prefs.sfxVolume/100:0)}),
+ settings:()=>({reduced:prefs.motion,effectsVolume:prefs.sfx?prefs.sfxVolume/100:0,volume:Math.max(prefs.music?prefs.musicVolume/100:0,prefs.sfx?prefs.sfxVolume/100:0)}),
  beforeScene:()=>{$('app').dataset.storyActive='true';audio()?.pause();syncMenuBanner();},
  afterScene:()=>{delete $('app').dataset.storyActive;if(!window.ShapeShiftPlatform.paused&&!nativeBackground)audio()?.start();syncMenuBanner();}
 });
-worldUI=initWorldMenu({getFrame:()=>profile.equipped.frame,openFrames:()=>$('profile-open').click(),drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);}});
+worldUI=initWorldMenu({getGamesAccess:()=>worldSummary().access.games,getFrame:()=>profile.equipped.frame,openFrames:()=>$('profile-open').click(),drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);}});
 
-$('adventure-continue').onclick=async()=>{if(runMode==='endless'){dismissRunScreen();return;}if(runMode!=='adventure'||storyUI.isPlaying())return;const button=$('adventure-continue');button.disabled=true;try{uiSound('leave-result');if(await home(true)===false)return;worldUI?.map();await storyUI.afterResults();}finally{button.disabled=false;}};
+async function continueAdventureJourney(){
+ if(counting||active||continueAdPending||storyUI.isPlaying())return;
+ const resultOpen=$('over-dialog').open&&$('over-dialog').dataset.resultMode==='adventure';
+ const next=resultOpen?Math.min(100,adventureLevel+(modeWon?1:0)):undefined;
+ $('over-dialog').dispatchEvent(new Event('restoration:leave-mode'));
+ stopResultCountdown();restorationUI?.close();closeDialogs();uiSound('start');
+ if(resultOpen&&modeWon&&adventureLevel===100){if(await home(true)===false)return;await storyUI.afterResults();return;}
+ return worldUI.playAdventure(next);
+}
+restorationUI=initRestorationUI({getSummary:worldSummary,getAudioSettings:()=>prefs,sound:uiSound,onClaim:id=>{
+ const result=claimRestoration(profile.worldRestoration,id,{playerLevel:playerLevel(profile)});if(!result.claimed)return result;
+ profile={...profile,worldRestoration:result.state};saveProfile();flushProfile();return result;
+},onAdventure:continueAdventureJourney,onMode:async mode=>{
+ if(counting||active)return;if(mode==='adventure')return continueAdventureJourney();
+ stopResultCountdown();$('over-dialog').dispatchEvent(new Event('restoration:leave-mode'));if(await home(true)===false)return;
+ if(mode==='battle'){$('battle-open').click();return;}await worldUI.playMode(mode==='games'?'rush':mode);
+}});
+window.ShapeShiftRestoration={summary:worldSummary,show:()=>restorationUI.show()};
+bannerObserver.observe($('restoration-dialog'),{attributes:true,attributeFilter:['open']});
+$('adventure-continue').onclick=async()=>{if(runMode==='endless'){if(continueAdPending)return;stopResultCountdown();engagement.event('retry');uiSound('start');await start();return;}if(runMode==='adventure')await continueAdventureJourney();};
 
 // Analytics tracks only fixed counters. Input text and pointer coordinates are never read.
 for(const event of ['pointerdown','pointermove','keydown'])document.addEventListener(event,()=>engagement.input(),{passive:true});
 window.ShapeShiftPlatform.setInterval(()=>sampleEngagement({visible:!window.ShapeShiftPlatform.paused&&!nativeBackground,playing:active&&!paused&&!counting,paused}),1000);
 window.ShapeShiftPlatform.setInterval(()=>analytics.flush(),60000);
-document.addEventListener('unused-visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)analytics.sessionEnd();else analytics.sessionStart();});
-window.addEventListener('unused-pagehide',()=>analytics.sessionEnd());
-window.addEventListener('unused-androidpause',()=>analytics.sessionEnd());
-window.addEventListener('unused-androidresume',()=>analytics.sessionStart());
+document.addEventListener('visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)analytics.sessionEnd();else analytics.sessionStart();});
+window.addEventListener('pagehide',()=>analytics.sessionEnd());
+window.addEventListener('androidpause',()=>analytics.sessionEnd());
+window.addEventListener('androidresume',()=>analytics.sessionStart());
 document.querySelectorAll('[data-shop-tab]').forEach(b=>b.addEventListener('click',()=>analytics.count('shop',({'shop-items':'boosts','skin-items':'skins','frame-items':'frames','background-items':'worlds'})[b.dataset.shopTab])));
 
 $('terms-open').onclick=()=>ensureTerms(true);
 
 function syncAdventureBoosts(){if(!worldUI)return;profile=grantAdventureBoosts(profile,worldUI.completed());saveProfile();}
 function tutorialBoardReady(){
- return active&&!paused&&!locked&&!counting&&!memoryPeek&&mechanicHold<=0&&!colorFlip&&!burstEffect&&!rockFills.length&&!coinFlights.length&&!window.ShapeShiftPlatform.paused&&!nativeBackground&&!document.querySelector('dialog[open]');
+ return !openingCoach?.active&&active&&!paused&&!locked&&!counting&&!memoryPeek&&mechanicHold<=0&&!colorFlip&&!burstEffect&&!rockFills.length&&!coinFlights.length&&!window.ShapeShiftPlatform.paused&&!nativeBackground&&!document.querySelector('dialog[open]');
+}
+function pendingAdventureLesson(){
+ if(runMode!=='adventure')return false;
+ const config=adventureMechanics(adventureLevel);
+ return !!(memoryLesson || state.matchRule&&!store.get('adventure-live-v2-'+state.matchRule,false) || config.memory&&!store.get('adventure-live-v2-memory',false) || config.wheel&&!store.get('adventure-live-v2-wheel',false));
 }
 function maybeAbilityGuide(){
- if(!tutorialBoardReady())return false;
+ if(!tutorialBoardReady()||pendingAdventureLesson())return false;
  for(const name of ['shield','freeze','boost']){
   const key='ability-practice-v1-'+name;
   if(runBoostUnlocked(name)&&profile.inventory[name]>0&&!store.get(key,false)){
@@ -4001,20 +4033,20 @@ adminEnter.onclick=async()=>{await enableAdminMode();adminEnter.hidden=!!profile
 ownerCheck.then(permission=>{ownerPermission=permission;adminEnter.hidden=!permission.owner||profile.adminMode;});
 
 menuReadiness=initMenuReadiness({getProfile:()=>profile,skinSources:SHAPE_SKINS.map(s=>s.art),prepareSkins:async()=>{const ready=await Promise.all(SHAPE_SKINS.map(s=>ensureSkinArt(s.id)));if(ready.some(value=>!value))throw Error('Shape previews unavailable');},idle:()=>!document.hidden&&!transitioning&&!window.ShapeShiftPlatform.paused&&!active&&!counting&&!document.querySelector('dialog[open]')});
-// Keep every screen and first-run lesson behind the full asset/readiness barrier.
+// Shared UI and the first lesson are ready at entry; other modes prepare on demand.
 async function prepareStartup(){
  const cover=document.getElementById('startup-ready');if(!cover)return;
  cover.hidden=false;document.documentElement.classList.add('startup-loading');document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;
  cover.classList.remove('startup-finished');cover.querySelector('p').textContent='Loading game...';const bar=cover.querySelector('progress'),percent=cover.querySelector('.startup-percent');bar.value=0;percent.textContent='0%';
  try{
   await loadStartupAssets((done,total)=>{bar.value=Math.floor(done/total*85);percent.textContent=bar.value+'%';});
-  cover.querySelector('p').textContent='Preparing your game...';
+  markStartup('assets_ready');cover.querySelector('p').textContent='Preparing your game...';
   await Promise.all([awaitReady(document.fonts.ready,'Font preparation'),effectArtReady,skinArtReady.then(values=>{if(values.some(ready=>!ready))throw Error('Current shape artwork unavailable');})]);
-  await menuReadiness.prepareHome();bar.value=95;percent.textContent='95%';
+  if(!firstJourney.pending)await menuReadiness.prepareHome();bar.value=95;percent.textContent='95%';
 
   let launch,showFirstLesson;const firstScreenVisible=new Promise(resolve=>{showFirstLesson=resolve;});
-  if(firstEndless.pending){
-   runMode='endless';let prepared;const boardReady=new Promise(resolve=>prepared=resolve);launch=start(true,prepared,()=>firstScreenVisible);
+  if(firstJourney.pending){
+   runMode='adventure';adventureLevel=1;let prepared;const boardReady=new Promise(resolve=>prepared=resolve);launch=start(true,prepared,()=>firstScreenVisible);
    // Prepare the board without opening a modal above the loading cover. The
    // first tutorial is presented only after all assets and the screen are ready.
    await Promise.race([boardReady,launch]);
@@ -4022,19 +4054,21 @@ async function prepareStartup(){
   bar.value=100;percent.textContent='100%';cover.querySelector('p').textContent='Ready!';
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   document.documentElement.classList.remove('startup-loading');document.getElementById('app').inert=false;
-  window.ShapeShiftPlatform.ready();
+  markStartup('playable');window.ShapeShiftPlatform.ready();
   if(launch){const firstGate=beginModeTransition('Your first game');try{await firstGate.covered;cover.hidden=true;$('countdown').hidden=true;await firstGate.reveal(()=>{update();timer();openingCoach?.paint();});}finally{firstGate.dispose();}}else cover.hidden=true;
   showFirstLesson?.();
+  loadBackgroundAssets({assets:HOME_STARTUP_ASSETS,paused:()=>document.hidden||transitioning});
   // Mode assets load behind the gate; never warm the full library during gameplay.
   if(launch)await launch;else await storyUI.onFirstOpen();
   window.ShapeShiftReminders?.requestFirstLaunch?.();
- }catch(error){console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=prepareStartup;}
+ }catch(error){engagement.event('startup_error');void engagement.flush();console.error('Startup preparation failed',error);cover.querySelector('p').textContent='Could not prepare the game. Please try again.';retry.hidden=false;retry.onclick=()=>{engagement.event('startup_retry');void prepareStartup();};}
 }
 prepareStartup();
 
 window.addEventListener('playables-save',flushProfile);
 
 initLivingMenu({getProfile:()=>profile,commit:next=>{window.ShapeShiftPlatform.storage.setItem('shape-shift-profile-v1',JSON.stringify(next));profile=next;saveProfile();flushProfile();},sound:uiSound});
+
 
 // First-party telemetry lifecycle is shared by Android and portal editions.
 const telemetrySettings=document.createElement('button');telemetrySettings.className='secondary';telemetrySettings.textContent='Gameplay statistics';telemetrySettings.onclick=()=>telemetryChoice(true);document.querySelector('#settings-dialog .settings-links')?.append(telemetrySettings);

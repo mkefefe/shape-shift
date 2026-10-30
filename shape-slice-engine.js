@@ -1,6 +1,6 @@
-import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=49499';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=49499';
-import {miniGameCoins} from './mini-game-rewards.js?v=49499';
+import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494198';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494198';
+import {miniGameCoins} from './mini-game-rewards.js?v=494198';
 export const SLICE_WIDTH=360,SLICE_HEIGHT=560;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>Number.isFinite(n);
@@ -58,10 +58,10 @@ export function sliceWaveLayout(count,bounds,rng=Math.random,previous=-1){
  }
  return {pattern,items};
 }
-export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,frame='none',upgrade=0,bounds:initialBounds=SLICE_DEFAULT_BOUNDS}={}){
+export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,practice=false,frame='none',upgrade=0,bounds:initialBounds=SLICE_DEFAULT_BOUNDS}={}){
  let bounds=normalizeSliceBounds(initialBounds);
  const maxLives=maxLivesForFrame(frame,upgrade);
- const game={frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1;const missedWaves=new Set(),recuts=new Map();
+ const game={practice,frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1;const missedWaves=new Set(),recuts=new Map();
  const random=()=>clamp(rng(),0,.999999);
  function emit(event){onEvent({...event,time:game.time});}
  function makePiece(options={}){
@@ -92,7 +92,7 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,f
   game.untilWave=Math.max(.75,2.1-game.time/110);emit({type:'launch'});
  }
  function end(){if(game.over)return;game.over=true;game.stroke=null;emit({type:'end'});}
- function strike(kind,piece){if(game.over)return;game.lives--;if(kind==='hazard')game.hazards++;emit({type:kind,piece,lives:game.lives});if(game.lives<=0)end();}
+ function strike(kind,piece){if(practice){emit({type:'practice-miss',piece});return;}if(game.over)return;game.lives--;if(kind==='hazard')game.hazards++;emit({type:kind,piece,lives:game.lives});if(game.lives<=0)end();}
  function beginStroke(){if(game.over)return;game.stroke={count:0,hazard:false,lastHit:-100};}
  function endStroke(){game.stroke=null;}
  function slice(a,b){
@@ -107,7 +107,7 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,f
   }return cut;
  }
  function recut(id){const entry=recuts.get(id);if(game.over||!game.stroke||game.stroke.hazard||!entry||entry.left<=0||game.time>entry.until)return 0;entry.left--;const points=frameRewardMultiplier(frame);game.bonusScore+=points;game.score+=points;return points;}
- function tick(dt){game.time+=dt;for(const [id,entry] of recuts)if(game.time>entry.until)recuts.delete(id);for(const p of game.pieces){const rising=p.vy<0;movePiece(p,dt,bounds);if(rising&&p.vy>=0)emit({type:'fall',piece:p});if(p.y+p.r<bounds.bottom)p.entered=true;}
+ function tick(dt){game.time+=dt;for(const [id,entry] of recuts)if(game.time>entry.until)recuts.delete(id);for(const p of game.pieces){const rising=p.vy<0;if(!practice||!p.practiceSettled){movePiece(p,dt,bounds);if(practice&&p.vy>=0){p.practiceSettled=true;p.vx=0;p.vy=0;}}if(rising&&p.vy>=0)emit({type:'fall',piece:p});if(p.y+p.r<bounds.bottom)p.entered=true;}
   const fallen=game.pieces.filter(p=>departed(p,bounds));game.pieces=game.pieces.filter(p=>!fallen.includes(p));for(const p of fallen){
    if(!p.hazard&&p.entered){game.missed++;if(!missedWaves.has(p.wave)){missedWaves.add(p.wave);strike('miss',p);}}
    if(game.over)return;

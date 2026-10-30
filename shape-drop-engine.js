@@ -1,7 +1,7 @@
-import {frameRewardMultiplier} from './engine.js?v=49499';
-import {miniGameCoins} from './mini-game-rewards.js?v=49499';
-import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=49499';
-import {createDropSequence} from './drop-sequence.js?v=49499';
+import {frameRewardMultiplier} from './engine.js?v=494198';
+import {miniGameCoins} from './mini-game-rewards.js?v=494198';
+import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=494198';
+import {createDropSequence} from './drop-sequence.js?v=494198';
 export const DROP_WIDTH=320,DROP_HEIGHT=520,DROP_LINE=68,DROP_RADIUS=21;
 export const DROP_HEADROOM=12;
 // Extra portrait height should not provide permanent extra capacity. Preserve
@@ -79,7 +79,7 @@ export function dropLandingY(M,tile,x,pieces,height=DROP_HEIGHT){
  return start+Math.max(0,distance);
 }
 
-export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},onImpact=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
+export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},onImpact=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
  height=Number.isFinite(height)?clamp(height,DROP_HEIGHT,1200):DROP_HEIGHT;
  const engine=M.Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});engine.gravity.y=1.05;
  const world=engine.world;
@@ -94,7 +94,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
   if(!tile.bomb&&!tile.obstacle)tile.r*=dropViewportScale(height,turn);
   tile.geometry=geometryFor(tile);return tile;
  };
- game={frame,engine,height,pieces:[],queue:[next()],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[]};
+ game={practice,frame,engine,height,pieces:[],queue:[next()],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[]};
  game.queue.push(next());
  let accumulator=0,frameReady=null,frameMerges=0,frameGroups=[],supportCheckAt=0;
  const pendingImpacts=new Map(),impactPairs=new Map(),impactBodies=new WeakMap();let lastImpactAt=-Infinity,impactCleanupAt=0;
@@ -231,7 +231,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,onClear=()=>{},o
    body.drop.danger=high?body.drop.danger+dt:0;crowded ||= high;
   }
   game.danger=crowded?game.danger+dt:Math.max(0,game.danger-dt*2);
-  if(game.danger>=.8){end('overflow');return;}
+  if(!game.practice&&game.danger>=.8){end('overflow');return;}
   if(autoDrop){game.countdown-=dt;if(game.countdown<=0)drop();}
  }
  function step(seconds){if(game.over||!Number.isFinite(seconds))return;accumulator+=clamp(seconds,0,.05);while(accumulator>=1/120&&!game.over){tick(1/120);accumulator-=1/120;}}

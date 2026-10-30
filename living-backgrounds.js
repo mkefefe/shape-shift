@@ -1,6 +1,6 @@
-import {createCardWater} from './card-water.js?v=49499';
-import {createWaterSurface} from './water-surface.js?v=49499';
-import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=49499';
+import {createCardWater} from './card-water.js?v=494198';
+import {createWaterSurface} from './water-surface.js?v=494198';
+import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=494198';
 export {createWaterSurface,createCloudDrift};
 // Water is lit in place. Never scroll strips of the landscape: they contain
 // plants and cliffs as well as water, and wrapping them makes the banks move.
@@ -106,7 +106,7 @@ export function initLivingBackground(app,home){
    atlas.decode().then(()=>{clouds=createCloudDrift(atlas);waterSurfaces.moon=createWaterSurface(atlas,'moon',scenes.moon);waterSurfaces.sunset=createWaterSurface(atlas,'sunset',scenes.sunset);}).catch(()=>{atlas=null;});
   }
   if(!garden&&app.dataset.background==='garden'){
-   garden=new Image();garden.src=new URL('./assets/home-world-v101.webp',import.meta.url).href;
+   garden=new Image();garden.src=new URL('./assets/delivery-v144/home-world-v101.webp',import.meta.url).href;
    garden.decode().then(()=>{waterSurfaces.garden=createWaterSurface(garden,'garden',scenes.garden);}).catch(()=>{garden=null;});
   }
   if(!cards){cards=new Image();cards.src=new URL('./assets/mode-cards-v101.webp',import.meta.url).href;cards.decode().then(()=>{cardWater=createCardWater(cards,home);}).catch(()=>{cards=null;});}

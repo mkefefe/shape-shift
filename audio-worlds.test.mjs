@@ -4,23 +4,23 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
-const path=world=>'assets/music/menu-'+world+'-v49458.ogg';
+const path=world=>'assets/music/menu-'+world+'-sync-v184.ogg';
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
-const nonVictory=state=>state.fetches.filter(url=>!url.includes('/victory-'));
+const nonVictory=state=>state.fetches.filter(url=>!url.includes('/victory-')&&!url.includes('piano-bridge-'));
 const response=()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
 function buffer(channels,length,rate=44100){
  const data=Array.from({length:channels},()=>new Float32Array(length));
  return {numberOfChannels:channels,length,sampleRate:rate,duration:length/rate,getChannelData:channel=>data[channel]};
 }
 function harness(options={}){
- const state={contexts:0,oscillators:[],sources:[],gains:[],convolvers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
+ const state={contexts:0,oscillators:[],sources:[],gains:[],filters:[],convolvers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
  const parameter=()=>({value:0,values:[],ramps:[],targets:[],cancelScheduledValues(){},setValueAtTime(v,t){this.values.push([v,t]);},linearRampToValueAtTime(v,t){this.ramps.push([v,t]);},exponentialRampToValueAtTime(v,t){this.ramps.push([v,t]);},setTargetAtTime(v,t,c){this.targets.push([v,t,c]);}});
  const node=()=>({connections:[],disconnects:0,connect(target){this.connections.push(target);return target;},disconnect(){this.disconnects++;},gain:parameter(),frequency:parameter(),Q:parameter(),playbackRate:parameter(),threshold:parameter(),ratio:parameter(),knee:parameter(),attack:parameter(),release:parameter()});
  class AudioContext{
   constructor(){state.contexts++;state.context=this;this.state='suspended';this.sampleRate=44100;this.currentTime=0;this.destination={};}
   createOscillator(){const n=node();n.stops=[];n.start=time=>{n.started=time;};n.stop=time=>n.stops.push(time);state.oscillators.push(n);return n;}
   createGain(){const n=node();state.gains.push(n);return n;}
-  createBiquadFilter(){return node();}
+  createBiquadFilter(){const n=node();state.filters.push(n);return n;}
   createDynamicsCompressor(){return node();}
   createConvolver(){const n=node();state.convolvers.push(n);return n;}
   createBufferSource(){const n=node();n.stops=[];n.start=(...args)=>{n.startArgs=args;};n.stop=time=>n.stops.push(time);state.sources.push(n);return n;}
@@ -44,10 +44,10 @@ test('selecting a menu world before the first gesture loads only that theme',asy
  assert.equal(tracks()[0].buffer.url,path('moon'));assert.deepEqual(nonVictory(state),[path('moon')]);
 });
 
-test('common preload caches all three world themes and all three gameplay tracks without playing',async()=>{
+test('common preload caches world themes and the original Endless recording',async()=>{
  const {audio,state,tracks}=harness();assert(await audio.prepareCommon());
  const fetched=state.fetches.filter(url=>url.includes('/music/'));
- assert.equal(fetched.length,6);for(const world of ['garden','moon','sunset'])assert(fetched.includes(path(world)));
+ assert.equal(fetched.length,4);for(const world of ['garden','moon','sunset'])assert(fetched.includes(path(world)));
  assert.equal(tracks().length,0);const count=nonVictory(state).length;
  assert(await audio.prepareCommon());audio.setMenuWorld('sunset');await audio.start();await flush();
  assert.equal(nonVictory(state).length,count);assert.equal(tracks()[0].buffer.url,path('sunset'));
@@ -58,7 +58,7 @@ test('equipping a world during gameplay leaves the gameplay track alone until re
  const game=tracks()[0];audio.setMenuWorld('sunset');await flush();
  assert.equal(tracks().length,1);assert.equal(game.stops.length,0);assert.equal(nonVictory(state).length,1);
  audio.setScene('menu');await flush();assert.equal(tracks().length,2);
- assert.equal(tracks()[1].buffer.url,path('sunset'));assert.equal(game.stops.length,1);
+ assert.equal(tracks()[1].buffer.url,path('sunset'));state.context.currentTime=3;for(const tick of state.timers.values())tick();assert.equal(game.stops.length,1);
 });
 
 test('an uncached world keeps the current music until decoding completes and then crossfades',async()=>{
@@ -66,17 +66,17 @@ test('an uncached world keeps the current music until decoding completes and the
  await audio.start();await flush();const garden=tracks()[0];state.context.currentTime=5;
  audio.setMenuWorld('moon');await flush();assert.equal(garden.stops.length,0);assert.equal(tracks().length,1);
  state.context.currentTime=6;resolveMoon(response());await flush();const moon=tracks()[1];
- assert.equal(moon.buffer.url,path('moon'));assert.deepEqual(moon.startArgs,[6,0]);
- assert.deepEqual(garden.stops,[6.85]);
- assert.deepEqual(garden.connections[0].gain.targets.at(-1),[0,6,.85/4]);
- assert.deepEqual(moon.connections[0].gain.ramps.at(-1),[1,6.85]);
+ assert.equal(moon.buffer.url,path('moon'));assert(Math.abs(moon.startArgs[0]-60/110*12)<1e-8);assert.equal(moon.startArgs[1],0);
+ assert.equal(garden.stops.length,0);assert.deepEqual(garden.connections[0].gain.ramps.at(-1),[0,moon.startArgs[0]+60/110/4]);
+ assert.deepEqual(moon.connections[0].gain.ramps.at(-1),[1,moon.startArgs[0]+.035]);
+ state.context.currentTime=7;for(const tick of state.timers.values())tick();assert.equal(garden.stops.length,1);
 });
 
 test('predecoded world changes crossfade once and repeated selection never restarts the theme',async()=>{
  const {audio,state,tracks}=harness();await audio.prepareCommon();await audio.start();await flush();
  state.context.currentTime=9;audio.setMenuWorld('moon');await flush();
- assert.equal(tracks().length,2);assert.equal(tracks()[0].stops[0],9.85);
- assert.deepEqual(tracks()[1].connections[0].gain.ramps.at(-1),[1,9.85]);
+ assert.equal(tracks().length,2);assert.equal(tracks()[0].stops.length,0);assert(Math.abs(tracks()[1].startArgs[0]-60/110*20)<1e-8);
+ assert.deepEqual(tracks()[1].connections[0].gain.ramps.at(-1),[1,tracks()[1].startArgs[0]+.035]);
  const fetches=state.fetches.length;
  for(let i=0;i<10;i++){audio.setMenuWorld('moon');audio.setScene('menu');for(const callback of state.timers.values())callback();}
  await flush();assert.equal(tracks().length,2);assert.equal(state.fetches.length,fetches);assert.equal(state.timers.size,1);
@@ -104,10 +104,10 @@ test('each world resumes its own saved playback offset across equipment changes 
  const {audio,state,tracks}=harness();await audio.start();await flush();
  state.context.currentTime=12;audio.setMenuWorld('moon');await flush();
  state.context.currentTime=19;audio.setMenuWorld('sunset');await flush();
- state.context.currentTime=25;audio.setMenuWorld('garden');await flush();assert.equal(tracks().at(-1).startArgs[1],12);
- state.context.currentTime=28;audio.setMenuWorld('moon');await flush();assert.equal(tracks().at(-1).startArgs[1],7);
+ state.context.currentTime=25;audio.setMenuWorld('garden');await flush();assert(Math.abs(tracks().at(-1).startArgs[1]/(60/110*4)-6)<1e-8);
+ state.context.currentTime=28;audio.setMenuWorld('moon');await flush();assert(Math.abs(tracks().at(-1).startArgs[1]/(60/110*4)-3)<1e-8);
  state.context.currentTime=32;const continuing=tracks().at(-1);audio.pause();await audio.resume();await flush();assert.equal(tracks().at(-1),continuing);assert.equal(continuing.stops.length,0);
- audio.setMenuWorld('sunset');await flush();assert.equal(tracks().at(-1).startArgs[1],6);
+ audio.setMenuWorld('sunset');await flush();assert(Math.abs(tracks().at(-1).startArgs[1]/(60/110*4)-3)<1e-8);
 });
 
 test('a muted or paused pending world never starts late',async()=>{
@@ -163,10 +163,10 @@ test('menu clicks do not dip or interrupt the world soundtrack',async()=>{
  assert.equal(voice.stops.length,0);assert.equal(duck.gain.ramps.length,before);
 });
 test('returning to menu keeps the current music until its theme has decoded',async()=>{
- let resolveMenu;const {audio,state,tracks}=harness({fetch:url=>url===path('garden')?new Promise(resolve=>resolveMenu=resolve):response()});
+ let resolveMenu;const {audio,state,tracks}=harness({fetch:url=>url===path('sunset')?new Promise(resolve=>resolveMenu=resolve):response()});
  audio.setScene('game');await audio.start();await flush();const game=tracks()[0];
- audio.setScene('menu');await flush();assert.equal(game.stops.length,0);
- resolveMenu(response());await flush();assert.equal(tracks().length,2);assert.equal(game.stops.length,1);
+ audio.setMenuWorld('sunset');audio.setScene('menu');await flush();assert.equal(game.stops.length,0);
+ resolveMenu(response());await flush();assert.equal(tracks().length,2);assert.equal(game.stops.length,0);assert(tracks()[1].startArgs[0]>state.context.currentTime);
 });
 
 
@@ -184,7 +184,7 @@ test('star rewards use the recorded victory family through the centered effects 
 
 
 test('starting a run does not wait for an uncached optional backing track',async()=>{
- let resolveTrack;const track='assets/music/groove-game-v49431.ogg';
+ let resolveTrack;const track='assets/music/groove-game-v494154.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track?new Promise(resolve=>resolveTrack=resolve):response()});
  assert.equal(await audio.prepareGameStart('game'),true);
  audio.setScene('game');await flush();assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -193,7 +193,7 @@ test('starting a run does not wait for an uncached optional backing track',async
 });
 
 test('an unavailable optional backing does not block gameplay and can retry later',async()=>{
- let fail=true;const track='assets/music/groove-slice-v49431.ogg';
+ let fail=true;const track=path('garden');
  const {audio,state,tracks}=harness({fetch:url=>url===track&&fail?{ok:false}:response()});
  assert.equal(await audio.prepareGameStart('slice'),true);audio.setScene('slice');await flush();
  assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -204,9 +204,9 @@ test('an unavailable optional backing does not block gameplay and can retry late
 test('piano prepares only its own samples and retries a failed key without reloading the rest',async()=>{
  let fail=true;const key='assets/music/keys/60.ogg';
  const {audio,state}=harness({fetch:url=>url===key&&fail?{ok:false}:response()});
- assert.equal(await audio.preparePiano(),false);assert.equal(state.fetches.length,13);
+ assert.equal(await audio.preparePiano(),false);assert.equal(state.fetches.length,11);
  assert(state.fetches.every(url=>url.includes('/keys/')||url.includes('/pop-')));
- fail=false;assert.equal(await audio.preparePiano(),true);assert.equal(state.fetches.length,14);
+ fail=false;assert.equal(await audio.preparePiano(),true);assert.equal(state.fetches.length,12);
  assert.equal(state.fetches.filter(url=>url===key).length,2);
 });
 
@@ -318,4 +318,95 @@ test('a resume promise cannot reactivate audio after a newer pause',async()=>{
  let resolve;const {audio,state,tracks}=harness({resume:()=>new Promise(done=>resolve=done)});
  const starting=audio.start();audio.pause();state.platform.audioAllowed=false;state.context.state='running';resolve();await starting;await flush();
  assert.equal(tracks().length,0);assert.equal(state.timers.size,0);
+});
+
+test('Piano backing has no clap or shaker samples and keeps only the quiet low pulse',async()=>{
+ const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();
+ assert(!state.fetches.some(url=>/pop-(clap|shaker)/.test(url)));
+ const start=state.sources.length;for(let i=0;i<8;i++)audio.pianoBeat(i);
+ const backing=state.sources.slice(start);assert.equal(backing.length,2);assert(backing.every(s=>s.buffer.url.includes('pop-kick')));
+});
+
+test('every world retains its same uninterrupted melody through Slice and Drop',async()=>{
+ for(const world of ['garden','moon','sunset']){
+  const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();const original=tracks()[0];
+  for(const mode of ['slice','drop','menu']){
+   state.context.currentTime+=5.137;audio.setScene(mode);await flush();
+   assert.equal(tracks().length,1);assert.equal(tracks()[0],original);assert.equal(original.stops.length,0);
+   assert.equal(original.buffer.url,path(world));
+  }
+  assert.equal(nonVictory(state).length,1);
+ }
+});
+
+test('Piano chord changes retain room tails but exiting stops them',async()=>{
+ const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();
+ audio.pianoNote(48,1,true);const room=state.convolvers.at(-1);
+ audio.stopPiano(true,true);assert.equal(room.disconnects,0);
+ audio.pianoNote(53,1,true);assert.equal(state.convolvers.at(-1),room);
+ audio.setScene('menu');assert(room.disconnects>0);
+});
+test('Piano Flow uses only piano accompaniment without adding percussion at high energy',()=>{
+ const flow=fs.readFileSync(new URL('./piano-flow.js',import.meta.url),'utf8');
+ assert(!flow.includes('.pianoBeat('));
+});
+
+test('mode changes schedule only a gentle mix change on the existing bar, not new notes',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=1.137;
+ const track=tracks()[0],voices=state.oscillators.length;audio.setScene('slice');await flush();
+ const tone=state.filters[0],body=state.filters[1],boundary=60/110*4;
+ assert.deepEqual(tone.frequency.values.at(-1),[tone.frequency.value,boundary]);
+ assert.deepEqual(tone.frequency.ramps.at(-1),[6200,boundary+60/110*2]);
+ assert.deepEqual(body.gain.ramps.at(-1),[1.4,boundary+60/110*2]);
+ assert.equal(tracks()[0],track);assert.equal(tracks().length,1);assert.equal(track.stops.length,0);assert.equal(state.oscillators.length,voices);
+ audio.setScene('menu');await flush();assert.equal(state.gains[1].connections.at(-1),state.filters[2]);
+});
+
+test('new tracks enter exactly on the outgoing bar without extra bridge notes',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=1.137;
+ const before=state.oscillators.length;audio.setMenuWorld('moon');await flush();const next=tracks().at(-1),bar=60/110*4;
+ assert(Math.abs(next.startArgs[0]-bar)<1e-8);assert.equal(next.startArgs[1],0);
+ assert.equal(state.oscillators.length,before);assert(!state.fetches.some(url=>url.includes('piano-bridge')));
+});
+test('returning before the scheduled beat cancels the incoming track and keeps the original alive',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();const original=tracks()[0];state.context.currentTime=.4;
+ audio.setMenuWorld('moon');await flush();const pending=tracks()[1];state.context.currentTime=.5;
+ audio.setMenuWorld('garden');await flush();assert.equal(tracks().length,2);assert.equal(pending.stops.at(-1),.5);assert.equal(original.stops.length,0);
+});
+test('pause or mute cancels a scheduled track before it can start',async()=>{
+ for(const stop of [a=>a.pause(),a=>a.setMusic(false)]){
+  const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=.4;
+  audio.setMenuWorld('moon');await flush();const incoming=tracks()[1];stop(audio);
+  assert(incoming.stops.at(-1)<incoming.startArgs[0]);
+ }
+});
+test('Piano Flow does not render song names or section captions',()=>{
+ const flow=fs.readFileSync(new URL('./piano-flow.js',import.meta.url),'utf8');
+ assert(!flow.includes('songLabel'));assert(!flow.includes("el('p','piano-song')"));
+});
+
+test('Endless restores the exact pre-revision recording with no tone processing in every world',async()=>{
+ for(const world of ['garden','moon','sunset']){
+  const {audio,state,tracks}=harness();audio.setMenuWorld(world);audio.setScene('game');await audio.start();await flush();
+  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/groove-game-v494154.ogg');
+  assert.equal(state.gains[1].connections.at(-1),state.gains[3],'music routes directly to ducking, bypassing the new tone filters');
+  state.context.currentTime=8;audio.pause();await audio.resume();await flush();assert.equal(tracks()[0],original);assert.equal(original.stops.length,0);
+  audio.setScene('menu');await flush();state.context.currentTime=12;for(const tick of state.timers.values())tick();
+  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/groove-game-v494154.ogg');
+ }
+});
+
+test('Adventure shares the restored Endless recording and does not restart it between modes',async()=>{
+ const {audio,state,tracks}=harness();audio.setScene('adventure');await audio.start();await flush();const original=tracks()[0];
+ assert.equal(original.buffer.url,'assets/music/groove-game-v494154.ogg');assert.equal(state.gains[1].connections.at(-1),state.gains[3]);
+ state.context.currentTime=8;audio.setScene('game');await flush();assert.equal(tracks().length,1);assert.equal(original.stops.length,0);
+ audio.setScene('adventure');await flush();assert.equal(tracks().length,1);assert.equal(original.stops.length,0);
+});
+test('all menu themes use gentle melody presence without the muffling low-pass filter',async()=>{
+ for(const world of ['garden','moon','sunset']){
+  const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
+  const presence=state.filters[2];assert.equal(presence.type,'peaking');assert.equal(presence.frequency.value,1800);assert.equal(presence.gain.value,1.8);
+  assert.equal(state.gains[1].connections.at(-1),presence);assert.equal(presence.connections[0],state.gains[3]);assert.equal(tracks()[0].buffer.url,path(world));
+  assert.equal(state.gains[2].connections[0],state.gains[0],'sound effects are not processed through menu EQ');
+ }
 });

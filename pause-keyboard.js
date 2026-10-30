@@ -1,4 +1,4 @@
-import {directionalChoice} from './board-keyboard.js?v=49499';
+import {directionalChoice} from './board-keyboard.js?v=494198';
 // Navigate existing controls, retaining each control's original click handler.
 export function bindPauseKeyboard(doc=document){
  doc.addEventListener('focusin',event=>{doc.querySelectorAll('.keyboard-menu-selected').forEach(el=>{if(el!==event.target)el.classList.remove('keyboard-menu-selected');});});

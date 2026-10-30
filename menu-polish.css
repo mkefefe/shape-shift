@@ -29,24 +29,24 @@
 #discovery-notice{position:absolute;bottom:23%;left:50%;transform:translateX(-50%);z-index:8;max-width:90%;padding:9px 15px;border:1px solid #fff2a7;border-radius:18px;background:#164b5ef2;color:#fff2a7;font:900 14px Nunito,sans-serif;pointer-events:none;white-space:nowrap}
 .mode-card[data-position='-2'],.mode-card[data-position='2']{visibility:hidden;pointer-events:none}
 @media(max-width:360px){.profile-tabs{gap:4px}.profile-tabs button{font-size:11px}#quests-dialog #quest-list{gap:12px!important}}
-@media(prefers-reduced-motion:reduce){#living-water{display:none}}
+
 .reduce-motion #living-water{display:none}
 
 /* One illustrated frame for every popup. Nine-slicing preserves square corners
    and the same rim thickness when the content needs a short or tall panel.
    Fullscreen scenes keep their scenery; their popup cards use this frame. */
-html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"]),
+html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#battle-shell):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"]),
 html body :is(#shape-drop,#shape-slice,#piano-flow) .drop-panel,
 html body #ability-guide section {
  border:0 solid transparent!important;
- border-image:url('assets/menu-panel-v240.webp') 96 fill / 32px / 0 stretch!important;
+ border-image:url('assets/delivery-v144/menu-panel-v240.webp') 96 fill / 32px / 0 stretch!important;
  border-radius:24px!important;
  background:none!important;
  box-shadow:0 16px 54px #001f4770!important;
 }
 /* Retire the old independently stretched top and bottom frame layers. */
-html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"])::before,
-html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"])::after {
+html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#battle-shell):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"])::before,
+html body dialog:not(#story-scene):not(#adventure-victory):not(#ability-guide):not(#piano-flow):not(#battle-shell):not(#shape-drop[data-view="play"]):not(#shape-slice[data-view="play"])::after {
  content:none!important;display:none!important;
 }
 /* Keep content inside the illustrated rim on panels formerly using thin CSS borders. */
@@ -57,7 +57,7 @@ html body #ability-guide section{padding:28px}
 html body :is(#shape-drop,#shape-slice,#piano-flow) .drop-panel.drop-pause-panel{padding:32px 26px!important}
 
 /* Consistent close control, header clearance, and popup rhythm. */
-html body dialog:not(#story-scene):not(#adventure-victory):not(#piano-flow) > .close {
+html body dialog:not(#story-scene):not(#adventure-victory):not(#piano-flow):not(#battle-shell) > .close {
  top:8px!important;right:8px!important;left:auto!important;bottom:auto!important;
  width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
  max-width:48px!important;max-height:48px!important;margin:0!important;padding:0!important;
@@ -136,7 +136,7 @@ html body #profile-dialog #avatar-presets #choose-photo{margin:0}
 }
 /* Quest meters use the same painted gold fill and dark ink as player XP. */
 html body #quests-dialog .quest-progress{height:30px;min-height:30px;border:3px solid var(--ui-ink,#075570);background:var(--ui-track,#bfdfeb);box-shadow:0 2px 0 #07395326;border-radius:22px}
-html body #quests-dialog .quest-progress-fill{display:block;height:100%;border:0;border-radius:0 18px 18px 0;box-shadow:none;background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat}
+html body #quests-dialog .quest-progress-fill{display:block;height:100%;border:0;border-radius:0 18px 18px 0;box-shadow:none;background:#f5c638 url('assets/delivery-v144/xp-gold-painted-v335.webp') center/150% 620% no-repeat}
 html body #quests-dialog .quest-progress strong{font:1000 15px/1 Nunito,sans-serif;color:var(--ui-dark,#073e62);text-shadow:0 1px 1px #ffffffcc}
 html body #quests-dialog #quests-collect-all{flex:none;min-height:48px;height:48px;margin:8px auto 0}
 html body #quests-dialog #quests-collect-all:disabled{opacity:.55;filter:saturate(.6)}
@@ -337,7 +337,7 @@ html body #quests-dialog .quest-card h3{font-size:16px;line-height:1.25;margin:0
 html body #quests-dialog .quest-objectives{display:none}
 html body #quests-dialog .quest-progress{height:24px;min-height:24px}
 html body #quests-dialog .quest-progress strong{font-size:13px;line-height:18px}
-#app #quests-dialog .quest-progress-fill{background:#f5c638 url('assets/xp-gold-painted-v335.webp') center/150% 620% no-repeat}
+#app #quests-dialog .quest-progress-fill{background:#f5c638 url('assets/delivery-v144/xp-gold-painted-v335.webp') center/150% 620% no-repeat}
 html body #quests-dialog .quest-footer{flex-direction:row;justify-content:center;align-items:center;gap:12px}
 html body #quests-dialog .quest-reward{font-size:15px;line-height:22px}
 html body #quests-dialog .quest-reward img{width:22px;height:22px}
@@ -390,3 +390,57 @@ html body #quests-dialog .quest-claim-area{position:relative;top:4px}
 
 /* A brief star shimmer marks the moment the light fills the card. */
 .quest-finish-twinkle{position:absolute;width:10px;height:10px;background:#fffbe2;clip-path:polygon(50% 0,60% 38%,100% 50%,60% 62%,50% 100%,40% 62%,0 50%,40% 38%);filter:drop-shadow(0 0 3px #ffd45a);pointer-events:none}
+
+/* Stable quest slots: reward availability never changes the panel geometry. */
+html body #quests-dialog #quest-list{
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(3,minmax(0,1fr));
+ flex:1 1 0;min-height:0;align-content:stretch;overflow:hidden;
+}
+html body #quests-dialog #quest-list .quest-card{
+ box-sizing:border-box;min-height:0;height:100%;margin:0;justify-content:center;
+}
+html body #quests-dialog .quest-card h3{
+ display:flex;align-items:center;justify-content:center;flex:0 0 2.5em;
+ height:2.5em;min-height:2.5em;line-height:1.25;width:100%;
+}
+html body #quests-dialog .quest-card .quest-progress{flex-shrink:0}
+html body #quests-dialog #quest-list .quest-card .quest-footer{flex:0 0 22px;height:22px;min-height:22px;margin:0}
+html body #quests-dialog .quest-claim-area{flex:0 0 76px;height:76px;min-height:76px;top:0}
+html body #quests-dialog #quests-collect-all{flex:none;height:54px;min-height:54px;max-height:54px}
+html body #quests-dialog #quest-list>.quest-empty{grid-row:1 / -1}
+@media(max-height:650px){
+ html body #quests-dialog .quest-claim-area{flex-basis:64px;height:64px;min-height:64px}
+ html body #quests-dialog #quests-collect-all{height:46px;min-height:46px;max-height:46px}
+ html body #quests-dialog #quest-list .quest-card .quest-footer{flex-basis:18px;height:18px;min-height:18px}
+}
+
+/* Float the claim action over the full-height grid; availability never reflows cards. */
+html body #achievements-dialog #achievement-claim-area{
+ position:absolute;left:0;right:0;bottom:8px;z-index:5;
+ display:flex;align-items:center;justify-content:center;height:68px;pointer-events:none;
+}
+html body #achievements-dialog #achievement-collect-all{margin:0;flex:none;pointer-events:auto}
+html body #achievements-dialog #achievement-grid-wrap #achievement-list{
+ grid-auto-rows:minmax(96px,calc((100% - 42px)/4));align-content:start;scroll-padding-bottom:84px;
+}
+html body #achievements-dialog .achievement-mini-progress{
+ box-sizing:border-box;padding:0 4px;height:18px;line-height:18px;
+}
+@media(max-height:650px){
+ html body #achievements-dialog .achievement-mini-progress{height:15px;line-height:15px}
+}
+
+/* Extra scroll travel lets the last awards clear the floating button. It never
+   subtracts space from the visible grid or changes when rewards are collected. */
+html body #achievements-dialog #achievement-list::after{content:'';grid-column:1 / -1;height:76px;pointer-events:none}
+
+/* Full-card ink rims do not change artwork size or layout dimensions. */
+html body #games-hub .hub-game{position:relative;box-shadow:none!important;background:transparent}
+html body #games-hub .hub-game::after{
+ content:'';position:absolute;inset:0;z-index:4;pointer-events:none;
+ border:5px solid #07465d;border-radius:inherit;
+}
+html body #games-hub .hub-game.keyboard-game,
+html body #games-hub .hub-game:focus-visible{
+ outline:3px solid #ffe347;outline-offset:-6px;
+}

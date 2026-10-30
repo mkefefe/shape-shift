@@ -1,56 +1,40 @@
-import {prepareMenuImage} from './menu-preload.js?v=494115';
-export const GATE_TIMING=Object.freeze({close:720,impact:650,turn:2120,turnDuration:1800,settle:200,openDuration:1300});
+// Use the image load event as the drawable barrier. Some Android WebViews reject
+// Image.decode() even after an image is successfully loaded and drawable.
+let gateImage;
+export function loadGateImage(ImageClass=Image){
+ if(gateImage)return gateImage;
+ gateImage=new Promise((resolve,reject)=>{
+  const image=new ImageClass();let finished=false;
+  const timer=setTimeout(()=>finish(Error('Door artwork timed out')),20000);
+  function finish(error){if(finished)return;finished=true;clearTimeout(timer);image.onload=image.onerror=null;if(error)reject(error);else resolve(image);}
+  image.onload=()=>image.naturalWidth>0?finish():finish(Error('Door artwork is empty'));
+  image.onerror=()=>finish(Error('Door artwork could not load'));
+  image.src=new URL('assets/transition-gate-v115.png',import.meta.url).href;
+  if(image.complete&&image.naturalWidth>0)finish();
+ });
+ gateImage.catch(()=>{gateImage=null;});return gateImage;
+}
+export function prepareGateVisual(load=loadGateImage,audio=()=>window.gameAudio?.prepareGate?.()){
+ Promise.resolve().then(audio).catch(error=>console.warn('Door audio unavailable',error));
+ return load();
+}
+export const GATE_TIMING=Object.freeze({close:400,impact:360,turn:650,turnDuration:750,settle:100,openDuration:650});
 export const GATE_ZOOM_FRAMES=Object.freeze([{transform:'scale(1)',offset:0},{transform:'scale(1.035)',offset:.65},{transform:'scale(1)',offset:1}].map(Object.freeze));
 export let transitioning=false;
 const clamp=n=>Math.min(1,Math.max(0,n)),ease=n=>{n=clamp(n);return n*n*(3-2*n);};
 export function gateFrame(ms,releaseAt=Infinity){
  const turnAt=Math.max(GATE_TIMING.turn,releaseAt),openAt=turnAt+GATE_TIMING.turnDuration+GATE_TIMING.settle;
- return {enter:ease(ms/720),rotation:ease((ms-turnAt)/1800)*Math.PI/2,opening:ease((ms-openAt)/1100),zoom:1+.06*ease((ms-openAt)/1300),done:ms>=openAt+1300,turnAt,openAt};
+ return {enter:ease(ms/GATE_TIMING.close),rotation:ease((ms-turnAt)/GATE_TIMING.turnDuration)*Math.PI/2,opening:ease((ms-openAt)/GATE_TIMING.openDuration),zoom:1+.06*ease((ms-openAt)/GATE_TIMING.openDuration),done:ms>=openAt+GATE_TIMING.openDuration,turnAt,openAt};
 }
-export function beginModeTransition(title){
- // Startup prepares the first board below its own cover; its gate is launched
- // explicitly once setup is complete, before the tutorial is released.
- if(document.documentElement.classList.contains('startup-loading'))return {covered:Promise.resolve(),reveal:async(paint)=>{await paint?.();},dispose(){}};
- // Isolate the top-layer curtain from every global dialog/panel rule.
- const host=document.createElement('div');host.className='mode-transition-host';
- const shadow=host.attachShadow({mode:'open'}),style=document.createElement('style');
- style.textContent=':host{display:contents}dialog{position:fixed;inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:hidden;touch-action:none}dialog::backdrop{background:transparent;backdrop-filter:none}canvas{display:block;width:100%;height:100%;pointer-events:none}';
- const cover=document.createElement('dialog');cover.className='mode-curtain';cover.setAttribute('aria-label','Loading '+title);shadow.append(style,cover);
- const canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');cover.append(canvas);
- cover.oncancel=e=>e.preventDefault();document.body.append(host);cover.showModal();transitioning=true;
- const ctx=canvas.getContext('2d');let disposed=false,ms=0,last=null,raf,releaseAt=Infinity,requested=false,finish,markCovered;
- const covered=new Promise(resolve=>markCovered=resolve);
- const finished=new Promise(resolve=>finish=resolve),sounds=new Map(),cues=new Set();let zoomTarget,zoomAnimation;
- // Destination modes use modal dialogs. Keep the gate above them while they prepare.
- const observer=new MutationObserver(records=>{if(disposed)return;if(records.some(r=>r.target!==cover&&r.target.open&&r.target.tagName==='DIALOG')){cover.close();cover.showModal();}});
- observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
- function dispose(){if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();document.removeEventListener('visibilitychange',visibility);for(const stop of sounds.values())stop?.();zoomAnimation?.cancel();cover.close();host.remove();transitioning=false;markCovered();finish();}
- function visibility(){last=null;if(document.hidden)for(const stop of sounds.values())stop?.();}
- document.addEventListener('visibilitychange',visibility);
- function sound(name){if(cues.has(name))return;cues.add(name);sounds.set(name,window.gameAudio?.playGate?.(name));}
- const art=Promise.all([prepareMenuImage('assets/transition-gate-v115.png'),window.gameAudio?.prepareGate?.()]).then(([image])=>{
-  if(disposed)return;
-  function tick(now){
-   if(disposed)return;
-   if(document.hidden){last=null;raf=requestAnimationFrame(tick);return;}
-   if(last!==null)ms+=Math.min(50,now-last);last=now;
-   if(requested&&releaseAt===Infinity)releaseAt=Math.max(ms,GATE_TIMING.turn);
-   const f=gateFrame(ms,releaseAt),w=cover.clientWidth,h=cover.clientHeight,d=Math.hypot(w,h)+24,dpr=Math.min(devicePixelRatio||1,2);
-   if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
-   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.save();ctx.translate(w/2,h/2);ctx.rotate(f.rotation);
-   const travel=(1-f.enter)*d*.6+f.opening*d*.64;
-   for(let half=0;half<2;half++){ctx.save();ctx.translate(0,(half?1:-1)*travel);ctx.drawImage(image,0,half*image.height/2,image.width,image.height/2,-d/2,half?0:-d/2,d,d/2+.5);ctx.restore();}ctx.restore();
-   if(f.enter===1)markCovered();sound('enter');if(ms>=650)sound('impact');if(ms>=f.turnAt)sound('turn');
-   if(ms>=f.openAt&&!cues.has('open')){
-    sound('open');
-    zoomTarget=[...document.querySelectorAll('dialog[open]:not(.mode-curtain)')].at(-1)||document.getElementById('app');
-    // Move inward from full coverage, then settle; never expose the viewport edges.
-    zoomAnimation=zoomTarget?.animate?.(GATE_ZOOM_FRAMES,{duration:1300,easing:'ease-in-out'});
-   }
-   cover.dataset.phase=ms<720?'closing':ms<f.turnAt?'waiting':ms<f.openAt?'rotating':'opening';
-   if(f.done){dispose();return;}raf=requestAnimationFrame(tick);
-  }
-  raf=requestAnimationFrame(tick);
- }).catch(error=>{console.warn('Door transition unavailable',error);dispose();});
- return {covered,dispose,async reveal(paint){await art;await covered;if(disposed)return;await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));await paint?.();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));requested=true;await finished;}};
+export function beginModeTransition(title,{preparingStartup=false}={}){
+ if(preparingStartup)return {covered:Promise.resolve(),reveal:async(paint)=>{await paint?.();},dispose(){}};
+ const host=document.createElement('div'),shadow=host.attachShadow({mode:'open'});
+ const style=document.createElement('style');style.textContent='dialog{position:fixed;inset:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;padding:0;background:#10233b;color:#fff;display:grid;place-items:center;font:700 20px system-ui}dialog::backdrop{background:#10233b}';
+ const cover=document.createElement('dialog');cover.textContent='Loading…';cover.setAttribute('aria-label','Loading '+title);shadow.append(style,cover);document.body.append(host);cover.showModal();transitioning=true;
+ let disposed=false;
+ const observer=new MutationObserver(()=>{if(!disposed){cover.close();cover.showModal();}});
+ observer.observe(document.getElementById('app')||document.body,{subtree:true,attributes:true,attributeFilter:['open']});
+ function dispose(){if(disposed)return;disposed=true;observer.disconnect();cover.close();host.remove();transitioning=false;}
+ cover.oncancel=e=>e.preventDefault();
+ return {covered:Promise.resolve(),dispose,async reveal(paint){try{await paint?.();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}finally{dispose();}}};
 }

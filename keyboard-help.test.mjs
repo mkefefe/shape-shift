@@ -51,11 +51,12 @@ function resultFixture(){
  const add=doc.addEventListener.bind(doc),remove=doc.removeEventListener.bind(doc);
  doc.addEventListener=(type,listener,capture)=>add(type,listener,{capture:capture===true});
  doc.removeEventListener=(type,listener,capture)=>remove(type,listener,{capture:capture===true});
- const next={hidden:true,disabled:false,click:()=>continues++};
+ const next={hidden:true,disabled:false,textContent:'Continue',click:()=>continues++};
  const dialog={open:true,contains:target=>target.inside!==false,click:()=>clicks++,querySelector:()=>({append:node=>{hint=node;}})};
  doc.getElementById=id=>id==='over-dialog'?dialog:next;
  doc.createElement=()=>({remove(){hint=null;}});
- const unbind=bindResultKeyboard({document:doc});
+ const previous=globalThis.MutationObserver;globalThis.MutationObserver=class{observe(){}disconnect(){}};
+ const unbind=bindResultKeyboard({document:doc});globalThis.MutationObserver=previous;
  function press(code,options={}){
   const event=new Event('keydown',{cancelable:true});
   const target={inside:options.inside,closest:()=>options.editing?{}:null};
@@ -65,8 +66,8 @@ function resultFixture(){
  return {press,dialog,next,unbind,get hint(){return hint;},get clicks(){return clicks;},get continues(){return continues;}};
 }
 
-test('results advertise only Space while existing Enter/Esc dismissal still works',()=>{
- const f=resultFixture();assert.equal(f.hint.textContent,'Press Space to close');
+test('results advertise retry and preserve Escape dismissal',()=>{
+ const f=resultFixture();assert.equal(f.hint.textContent,'Esc: Back');
  for(const code of ['Space','Enter','Escape'])assert.equal(f.press(code).defaultPrevented,true);
  assert.equal(f.clicks,3);
  assert.equal(f.press('KeyZ').defaultPrevented,false);assert.equal(f.clicks,3);

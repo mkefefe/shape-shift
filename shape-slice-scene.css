@@ -19,7 +19,7 @@
 #shape-slice .slice-best{position:static;grid-column:1;grid-row:2;justify-self:start;display:flex;flex-direction:row;gap:6px;align-items:baseline;min-width:0;color:#c4eaff;line-height:1.25}
 #shape-slice .slice-best span{font-size:10px;letter-spacing:1.5px;font-weight:900}#shape-slice .slice-best strong{font-size:16px;font-weight:1000;font-variant-numeric:tabular-nums}
 #shape-slice .slice-lives{position:static;grid-column:3;grid-row:1;justify-self:end;transform:none;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:3px;letter-spacing:0;max-width:100%;width:100%;justify-content:flex-end;--heart-size:min(28px,calc((100% - (var(--heart-count,3) - 1)*3px)/var(--heart-count,3)))}
-#shape-slice .slice-lives .heart{width:var(--heart-size);height:auto;flex:0 0 var(--heart-size);display:block;aspect-ratio:1;background:url('assets/health-boost-v5.webp') left center/200% 100% no-repeat;filter:drop-shadow(0 2px 3px #07234666);transition:opacity .2s,filter .2s}
+#shape-slice .slice-lives .heart{width:var(--heart-size);height:auto;flex:0 0 var(--heart-size);display:block;aspect-ratio:1;background:url('assets/delivery-v144/health-boost-v5.webp') left center/200% 100% no-repeat;filter:drop-shadow(0 2px 3px #07234666);transition:opacity .2s,filter .2s}
 #shape-slice .slice-lives.slice-bomb-damage{filter:drop-shadow(0 0 6px #ff4937)}
 #shape-slice .slice-lives .heart.empty{opacity:.22;filter:grayscale(1)}
 #shape-slice[data-view='play'] .drop-stage{position:relative;flex:1;min-height:0;width:min(600px,100%);height:auto;margin:0 auto;grid-row:auto;grid-column:auto;overflow:hidden;background:none;border:0;box-shadow:none}
