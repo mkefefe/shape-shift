@@ -1,5 +1,6 @@
-import {requestReward} from './rewarded.js?v=494201';
-import {startResultCountdown} from './countdown.js?v=494201';
+import {requestReward} from './rewarded.js?v=494202';
+import {startResultCountdown} from './countdown.js?v=494202';
+import {flushResultStorage} from './result-storage.js?v=494202';
 
 // Borrow the actual Endless/Adventure dialog, never a second mini-game panel.
 export function showSharedContinue({host,description,onWatch,onFinish}){
@@ -20,21 +21,24 @@ export function showSharedContinue({host,description,onWatch,onFinish}){
  dialog.addEventListener('click',click,true);dialog.addEventListener('cancel',cancel,true);
  if(!dialog.open)dialog.showModal();title.focus({preventScroll:true});host.gameAudio?.ui('over');
  return {pending(){busy=true;watch.disabled=true;status.textContent='Loading rewarded ad…';host.gameAudio?.pause();},
- failed(outcome){busy=false;ready=true;countdown.hidden=true;watch.disabled=!host.ShapeShiftAds;hint.textContent='Tap anywhere else';status.textContent=outcome==='unsupported'?'Open the Android app to watch a rewarded ad.':outcome==='dismissed'?'Ad closed before the reward. Your score is safe.':'No ad available right now. Try again shortly.';host.gameAudio?.resume?.();},
+ failed(outcome){busy=false;ready=true;countdown.hidden=true;watch.disabled=!host.ShapeShiftAds;hint.textContent='Tap anywhere else';status.textContent=outcome==='save-failed'?'Your result is waiting to save. Check your connection and try again.':outcome==='unsupported'?'Open the Android app to watch a rewarded ad.':outcome==='dismissed'?'Ad closed before the reward. Your score is safe.':'No ad available right now. Try again shortly.';host.gameAudio?.resume?.();},
  close(){if(closed)return;closed=true;cancelTimer();dialog.removeEventListener('click',click,true);dialog.removeEventListener('cancel',cancel,true);if(dialog.open)dialog.close();dialog.className=oldClass;for(const s of snapshots){s.node.hidden=s.hidden;if(s.text!==null)s.node.textContent=s.text;if(s.disabled!==undefined)s.node.disabled=s.disabled;}host.gameAudio?.resume?.();}};
 }
 
 // One earned continue per run. Stale native callbacks cannot revive a new game.
-export function createMiniContinue({host=window,request=()=>requestReward(host,120000,'continue'),show=showSharedContinue}={}){
+export function createMiniContinue({host=window,request=()=>requestReward(host,120000,'continue'),show=showSharedContinue,tracker=null}={}){
  let used=false,offered=false,busy=false,generation=0,view=null;
- return {reset(){generation++;view?.close();view=null;used=false;offered=false;busy=false;},
- offer({description,resume,finish}){
-  if(!host.ShapeShiftAds?.showRewarded)return false;if(used)return false;if(offered)return true;offered=true;const token=generation;
+ return {isOffering:()=>offered,reset(){generation++;view?.close();view=null;used=false;offered=false;busy=false;},
+ offer({description,resume,finish,checkpoint=()=>true}){
+  if(!host.ShapeShiftAds?.showRewarded)return false;if(used)return false;if(offered)return true;if(checkpoint()===false)return false;offered=true;tracker?.offerContinue();const token=generation;
   view=show({host,description,onWatch:async()=>{
    if(busy||token!==generation)return;busy=true;view.pending();
+   const stored=host.ShapeShiftPlatform?.flush?await flushResultStorage(host.ShapeShiftPlatform):true;
+   if(token!==generation)return;
+   if(!stored){busy=false;view.failed('save-failed');return;}
    let outcome;try{outcome=await request();}catch{outcome='failed';}
    if(token!==generation)return;busy=false;
-   if(outcome==='rewarded'){used=true;offered=false;view.close();view=null;resume();return;}
+   if(outcome==='rewarded'){used=true;offered=false;view.close();view=null;tracker?.resumeRun();resume();return;}
    view.failed(outcome);
   },onFinish:()=>{if(busy||token!==generation)return;used=true;offered=false;view.close();view=null;finish();}});
   return true;

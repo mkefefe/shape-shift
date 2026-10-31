@@ -98,6 +98,19 @@ test('home waits for actual floating avatar decode, even with complete cached im
  }finally{restore();}
 });
 
+test('home prepares the Battle icon but only downloads its lock when Battle is locked',async()=>{
+ let locked=false;const sources=[];
+ const image=(src,isLock)=>({dataset:{src},classList:{contains:name=>isLock&&name==='battle-menu-lock'},getAttribute(){return this.src||null;},decode:async()=>{}});
+ const art=image('battle-ready-art.webp',false),lock=image('battle-ready-lock.webp',true);
+ const root={getElementById:()=>null,querySelector:selector=>selector==='#battle-open'?{classList:{contains:name=>locked&&name==='locked'},querySelectorAll:()=>[art,lock]}:null};
+ const restore=setGlobal('Image',class{set src(value){sources.push(value);}async decode(){}});
+ try{
+  const menus=initMenuReadiness({root,getProfile:()=>({equipped:{background:'garden',frame:'none'}})});
+  await menus.prepareHome();assert.equal(art.src,'battle-ready-art.webp');assert.equal(lock.src,undefined);assert.equal(sources.includes('battle-ready-lock.webp'),false);assert.equal(menus.homeReady(),true);
+  locked=true;assert.equal(menus.homeReady(),false);await menus.prepareHome();assert.equal(lock.src,'battle-ready-lock.webp');assert.equal(menus.homeReady(),true);
+ }finally{restore();}
+});
+
 test('failed actual DOM avatar decode stays unready and can be retried',async()=>{
  let fail=true,calls=0;const image={dataset:{},currentSrc:'assets/avatars-v7.webp',getAttribute:()=> 'assets/avatars-v7.webp',loading:'lazy',async decode(){calls++;if(fail)throw Error('DOM decode failed');}};
  const root={querySelector:selector=>({querySelectorAll:()=>selector==='#profile-open'?[image]:[]}),getElementById:()=>null};const restore=setGlobal('Image',class{async decode(){}});

@@ -1,17 +1,24 @@
-import {createSceneryProgress,sceneryPalette} from './scenery-progress.js?v=494201';
+import {createSceneryProgress,sceneryPalette} from './scenery-progress.js?v=494202';
 // Gameplay-only scenery. Uses the game's clock so pause, ads and slow-time stay in sync.
 export function createGameplayScene(app){
  const canvas=document.createElement('canvas');canvas.id='gameplay-scene';canvas.setAttribute('aria-hidden','true');app.prepend(canvas);
  const ctx=canvas.getContext('2d',{alpha:false}),back=document.createElement('canvas'),bg=back.getContext('2d');
  const economical=(navigator.deviceMemory>0&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency>0&&navigator.hardwareConcurrency<=4);
  let journey=createSceneryProgress(),mood={palette:sceneryPalette(0),speed:1},colorClock=0;
- let mode=null,level=1,w=1,h=1,dpr=1,phase=0,speed=1,lastDraw=0;
+ let mode=null,level=1,w=1,h=1,dpr=1,phase=0,speed=1,lastDraw=0,backdropKey='';
  const particles=Array.from({length:90},(_,i)=>({x:((i*61.7)%101)/101,y:((i*37.3)%103)/103,z:.25+(i%7)/8,r:.6+(i%4)*.45}));
  // Load on first Adventure run; cache the painted sky at the viewport size.
  const sky=new Image();
  sky.onload=()=>{if(mode==='adventure'){backdrop();draw();}};
  function backdrop(){
-  back.width=canvas.width;back.height=canvas.height;bg.setTransform(dpr,0,0,dpr,0,0);
+  const key=[mode,w,h,dpr,...(mode==='endless'?mood.palette:[sky.naturalWidth||0])].join('|');
+  if(key===backdropKey&&back.width===canvas.width&&back.height===canvas.height)return;
+  backdropKey=key;
+  // Resizing a canvas discards its backing bitmap even if the value is unchanged.
+  // Palette animation repaints that bitmap; it must not reallocate it five times/sec.
+  if(back.width!==canvas.width)back.width=canvas.width;
+  if(back.height!==canvas.height)back.height=canvas.height;
+  bg.setTransform(dpr,0,0,dpr,0,0);
   const g=bg.createLinearGradient(0,0,w,h);g.addColorStop(0,mode==='endless'?mood.palette[0]:'#4caaf0');g.addColorStop(1,mode==='endless'?mood.palette[1]:'#a1e1fb');bg.fillStyle=g;bg.fillRect(0,0,w,h);
   if(mode==='adventure'){
    if(sky.complete&&sky.naturalWidth){

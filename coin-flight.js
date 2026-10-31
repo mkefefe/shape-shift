@@ -1,27 +1,55 @@
 // Fly the picked raster shape into the wallet; persistence does not wait for animation.
 export const COIN_FLIGHT_MS=720;
+export const COIN_PICKUP_MS=120;
 export function coinFlightPoint(from,to,t){t=Math.max(0,Math.min(1,t));const p=t*t*(3-2*t);return {x:from.x+(to.x-from.x)*p,y:from.y+(to.y-from.y)*p-Math.sin(t*Math.PI)*30};}
+export function copyFlightArt(art){
+ const copy=art.cloneNode(true);copy.removeAttribute('id');
+ // cloneNode copies canvas elements, but not the painted skin inside them.
+ const originals=art.querySelectorAll('canvas'),canvases=copy.querySelectorAll('canvas');
+ for(let i=0;i<originals.length;i++){
+  const original=originals[i],canvas=canvases[i];
+  if(canvas.width!==original.width)canvas.width=original.width;
+  if(canvas.height!==original.height)canvas.height=original.height;
+  if(original.width&&original.height)canvas.getContext('2d')?.drawImage(original,0,0);
+ }
+ return copy;
+}
 export function createCoinFlight(source,target,reduced=false,revealMs=0){
  const art=source?.querySelector('.sprite');
  if(!art||!target)return null;
  const a=art.getBoundingClientRect(),b=target.getBoundingClientRect();
  const from={x:a.x+a.width/2,y:a.y+a.height/2},to={x:b.x+b.width/2,y:b.y+b.height/2};
  const flight=document.createElement('span');flight.className='shape-coin-flight';flight.setAttribute('aria-hidden','true');
- const copy=art.cloneNode(true);copy.removeAttribute('id');
+ const copy=copyFlightArt(art);
  Object.assign(copy.style,{width:a.width+'px',height:a.height+'px',transform:'none',animation:'none',visibility:'visible'});
- flight.append(copy);flight.style.width=a.width+'px';flight.style.height=a.height+'px';document.body.append(flight);
- const visibility=art.style.visibility;if(!revealMs)art.style.visibility='hidden';
+ flight.append(copy);Object.assign(flight.style,{width:a.width+'px',height:a.height+'px',left:'0px',top:'0px',opacity:'0'});document.body.append(flight);
+ const pulse=document.createElement('span');pulse.className='shape-pickup-pulse';pulse.setAttribute('aria-hidden','true');
+ Object.assign(pulse.style,{left:from.x+'px',top:from.y+'px',width:a.width+'px',height:a.height+'px',opacity:'0'});
+ const sparks=[];
+ if(!reduced){for(let i=0;i<6;i++){const spark=document.createElement('i');pulse.append(spark);sparks.push(spark);}}
+ document.body.append(pulse);
+ const visibility=art.style.visibility;
  const endScale=Math.min(1,Math.max(b.width,b.height)/Math.max(a.width,a.height));
- const travelMs=reduced?180:COIN_FLIGHT_MS;
- return {duration:revealMs+travelMs,elapsed:0,draw(elapsed){
+ const pickupMs=reduced?0:COIN_PICKUP_MS,travelMs=reduced?180:COIN_FLIGHT_MS;let pulseDone=false;
+ return {duration:revealMs+pickupMs+travelMs,elapsed:0,draw(elapsed){
   if(elapsed<revealMs){flight.style.opacity='0';return;}
   art.style.visibility='hidden';
-  const t=Math.max(0,Math.min(1,(elapsed-revealMs)/travelMs)),p=reduced?to:coinFlightPoint(from,to,t);
+  const age=elapsed-revealMs,pickup=Math.min(1,age/Math.max(1,pickupMs));
+  const t=Math.max(0,Math.min(1,(age-pickupMs)/travelMs)),p=coinFlightPoint(from,to,t);
   // Keep the complete gem visible on its journey, then dissolve into the counter.
-  const shrink=Math.max(0,(t-.38)/.62),scale=1+(endScale-1)*shrink;
-  flight.style.left=p.x+'px';flight.style.top=p.y+'px';flight.style.opacity=String(t>.9?(1-t)/.1:1);
-  flight.style.transform='translate(-50%,-50%) scale('+scale+')';
- },clear(){flight.remove();art.style.visibility=visibility;}};
+  const shrink=Math.max(0,(t-.38)/.62),lift=1+.1*Math.sin(pickup*Math.PI),scale=(1+(endScale-1)*shrink)*lift;
+  flight.style.opacity=String(t>.9?(1-t)/.1:1);
+  flight.style.transform='translate3d('+(p.x-a.width/2)+'px,'+(p.y-a.height/2)+'px,0) scale('+scale+')';
+  if(!pulseDone){
+   const ring=Math.min(1,age/360);
+   if(ring===1){pulse.remove();pulseDone=true;}
+   else{
+    pulse.style.opacity=String((1-ring)*Math.min(1,age/35));
+    pulse.style.transform='translate(-50%,-50%) scale('+(1+ring*.36)+')';
+    for(let i=0;i<sparks.length;i++){const angle=i*Math.PI/3,distance=Math.min(a.width,a.height)*(.44+ring*.22);sparks[i].style.transform='translate('+Math.cos(angle)*distance+'px,'+Math.sin(angle)*distance+'px) rotate(45deg) scale('+(1-ring*.6)+')';}
+   }
+  }
+ },clear(){flight.remove();pulse.remove();art.style.visibility=visibility;}};
 }
 
 // Lives in the top layer so reward coins remain visible above the quest dialog.

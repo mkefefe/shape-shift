@@ -1,6 +1,6 @@
 // One physical input owns the active strip. A newer finger/key can take over
 // without an older pointer's eventual release cancelling the replacement.
-export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{}}){
+export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{},onPress=()=>{}}){
  let owner=null;
  function release(id){
   if(!owner||owner.id!==id)return;
@@ -21,7 +21,7 @@ export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{}}){
   const game=getGame();
   if(!Number.isInteger(lane)||lane<0||lane>=4||!enabled()||!game?.started||game.paused||game.over)return false;
   if(owner?.id===id)return true;
-  reset();owner={id,lane,pending:true};flush();return true;
+  reset();owner={id,lane,pending:true};onPress(lane);flush();return true;
  }
  return {press,release,reset,flush};
 }

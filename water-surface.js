@@ -1,17 +1,21 @@
 // Refract only the water painted in the original scene. The mask fades inward
 // and limits displacement near its boundary, keeping banks and plants fixed.
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-function insideDistance(x,y,points){
- let inside=false,distance=Infinity;
- for(let i=0,j=points.length-1;i<points.length;j=i++){
-  const [ax,ay]=points[j],[bx,by]=points[i],dx=bx-ax,dy=by-ay;
-  if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside;
-  const t=clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy),0,1);
-  distance=Math.min(distance,Math.hypot(x-ax-t*dx,y-ay-t*dy));
- }
- return inside?distance:0;
+function polygonEdges(points){
+ return points.map(([bx,by],i)=>{const [ax,ay]=points[(i+points.length-1)%points.length],dx=bx-ax,dy=by-ay;return {ax,ay,bx,by,dx,dy,length:dx*dx+dy*dy};});
 }
+function insideDistance(x,y,edges){
+ let inside=false,distanceSquared=Infinity;
+ for(const {ax,ay,bx,by,dx,dy,length} of edges){
+  if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside;
+  const t=clamp(((x-ax)*dx+(y-ay)*dy)/length,0,1),ex=x-ax-t*dx,ey=y-ay-t*dy;
+  distanceSquared=Math.min(distanceSquared,ex*ex+ey*ey);
+ }
+ return inside?Math.sqrt(distanceSquared):0;
+}
+const masks=new WeakMap();
 function makeMask(scene){
+ if(masks.has(scene))return masks.get(scene);
  const regions=scene.pools.map(points=>({points,fall:false,slope:0,feather:10}));
  for(const [x0,y0,x1,y1,w0,w1] of scene.falls)regions.push({points:[[x0-w0/2,y0],[x0+w0/2,y0],[x1+w1/2,y1],[x1-w1/2,y1]],fall:true,slope:(x1-x0)/(y1-y0),feather:4});
  const bounds=regions.flatMap(r=>r.points),left=Math.max(0,Math.floor(Math.min(...bounds.map(p=>p[0])))),top=Math.floor(Math.min(...bounds.map(p=>p[1])));
@@ -19,15 +23,16 @@ function makeMask(scene){
  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
  const ctx=canvas.getContext('2d'),image=ctx.createImageData(width,height);
  for(const {points,fall,slope,feather} of regions){
+  const edges=polygonEdges(points);
   const minX=Math.max(left,Math.floor(Math.min(...points.map(p=>p[0])))),maxX=Math.min(left+width-1,Math.ceil(Math.max(...points.map(p=>p[0]))));
   const minY=Math.max(top,Math.floor(Math.min(...points.map(p=>p[1])))),maxY=Math.min(top+height-1,Math.ceil(Math.max(...points.map(p=>p[1]))));
   for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++){
-   const distance=insideDistance(x+.5,y+.5,points),fade=clamp((distance-1.5)/feather,0,1),a=Math.round(fade*fade*(3-2*fade)*255);
+   const distance=insideDistance(x+.5,y+.5,edges),fade=clamp((distance-1.5)/feather,0,1),a=Math.round(fade*fade*(3-2*fade)*255);
    const k=((y-top)*width+x-left)*4;if(a<=image.data[k+3])continue;
    image.data[k]=fall?255:0;image.data[k+1]=Math.round((clamp(slope,-1,1)+1)*127.5);image.data[k+2]=255;image.data[k+3]=a;
   }
  }
- ctx.putImageData(image,0,0);return {canvas,left,top,width,height};
+ ctx.putImageData(image,0,0);const region={canvas,left,top,width,height};masks.set(scene,region);return region;
 }
 const vertex=`attribute vec2 position;
 varying vec2 uv;

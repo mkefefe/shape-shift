@@ -1,7 +1,7 @@
 import {attachStartupMetrics} from './experience-metrics.js';
-import {analyticsAgeGroup,audience} from './audience.js?v=494201';
+import {analyticsAgeGroup,audience} from './audience.js?v=494202';
 import {createEngagement,deviceContext,AGE_GROUPS} from './engagement.js';
-import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494201';
+import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494202';
 const endpoint='https://shape-shift-scores.fluffy-stone-5231.chatgpt.site/api/engagement';
 export const CONSENT_KEY='shape-shift-analytics-choice-v2';
 // Deliberately device-local, never the portals' cloud-synced progress store.
@@ -11,7 +11,7 @@ export function choice(){try{const c=JSON.parse(storage.getItem(CONSENT_KEY)||'n
 export const engagement=createEngagement({storage,context:()=>({...deviceContext(globalThis.navigator,globalThis.location),build:TELEMETRY_BUILD,distribution:TELEMETRY_DISTRIBUTION,age:choice()?.age||'unknown'}),send:async body=>{const r=await fetch(endpoint,{method:'POST',credentials:'omit',referrerPolicy:'no-referrer',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(8000),keepalive:true});return r.ok;}});
 const providers=new Map();
 export function registerModeState(mode,read){providers.set(mode,read);}
-export function sampleEngagement(main){for(const read of providers.values()){const state=read();if(state){engagement.sample({...state,visible:main.visible});return;}}engagement.sample(main);}
+export function sampleEngagement(main){for(const [sampleMode,read] of providers){const state=read();if(state){engagement.sample({...state,visible:main.visible,sampleMode});return;}}engagement.sample({...main,sampleMode:null});}
 export async function telemetryChoice(review=false){
  const previous=choice();if(previous&&!review){if(previous.enabled&&audience()==='adult'){engagement.enable();attachStartupMetrics((name,ms)=>engagement.milestone(name,ms));}return;}
  const wasLoading=document.documentElement.classList.contains('startup-loading'),cover=document.getElementById('startup-ready');

@@ -17,10 +17,11 @@ export function decodeMenuImage(image){return awaitReady(image.decode(),'Image p
 // Retain decoded art and share concurrent requests; a failed load may be retried.
 const retained=new Map(),pending=new Map();
 export function prepareMenuImage(src){
- if(retained.has(src))return Promise.resolve(retained.get(src));
- if(pending.has(src))return pending.get(src);
- const loading=(async()=>{const image=new Image();image.decoding='async';image.src=src;try{await decodeMenuImage(image);}catch(error){image.src='';throw error;}retained.set(src,image);return image;})();
- pending.set(src,loading);
- loading.then(()=>pending.delete(src),()=>pending.delete(src));
+ const key=new URL(src,globalThis.document?.baseURI||import.meta.url).href;
+ if(retained.has(key))return Promise.resolve(retained.get(key));
+ if(pending.has(key))return pending.get(key);
+ const loading=(async()=>{const image=new Image();image.decoding='async';image.src=src;try{await decodeMenuImage(image);}catch(error){image.src='';throw error;}retained.set(key,image);return image;})();
+ pending.set(key,loading);
+ loading.then(()=>pending.delete(key),()=>pending.delete(key));
  return loading;
 }

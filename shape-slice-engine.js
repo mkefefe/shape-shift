@@ -1,6 +1,6 @@
-import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494201';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494201';
-import {miniGameCoins} from './mini-game-rewards.js?v=494201';
+import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494202';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494202';
+import {miniGameCoins} from './mini-game-rewards.js?v=494202';
 export const SLICE_WIDTH=360,SLICE_HEIGHT=560;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>Number.isFinite(n);
@@ -61,7 +61,7 @@ export function sliceWaveLayout(count,bounds,rng=Math.random,previous=-1){
 export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,practice=false,frame='none',upgrade=0,bounds:initialBounds=SLICE_DEFAULT_BOUNDS}={}){
  let bounds=normalizeSliceBounds(initialBounds);
  const maxLives=maxLivesForFrame(frame,upgrade);
- const game={practice,frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1;const missedWaves=new Set(),recuts=new Map();
+ const game={practice,frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1,practiceTime=0;const missedWaves=new Set(),recuts=new Map();
  const random=()=>clamp(rng(),0,.999999);
  function emit(event){onEvent({...event,time:game.time});}
  function makePiece(options={}){
@@ -85,11 +85,11 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,p
   return null;
  }
  function launch(){
-  game.wave++;const count=Math.min(4,1+Math.floor(game.time/22))+Math.floor(random()*2);
-  if(game.time>7&&random()<Math.min(.65,.2+game.time/180))spawnFair({hazard:true,r:25,y:bounds.bottom+90});
+  const elapsed=Math.max(0,game.time-practiceTime);game.wave++;const count=Math.min(4,1+Math.floor(elapsed/22))+Math.floor(random()*2);
+  if(elapsed>7&&random()<Math.min(.65,.2+elapsed/180))spawnFair({hazard:true,r:25,y:bounds.bottom+90});
   const formation=sliceWaveLayout(count,bounds,random,lastPattern);lastPattern=formation.pattern;
   for(const item of formation.items)spawnFair(item);
-  game.untilWave=Math.max(.75,2.1-game.time/110);emit({type:'launch'});
+  game.untilWave=Math.max(.75,2.1-elapsed/110);emit({type:'launch'});
  }
  function end(){if(game.over)return;game.over=true;game.stroke=null;emit({type:'end'});}
  function strike(kind,piece){if(practice){emit({type:'practice-miss',piece});return;}if(game.over)return;game.lives--;if(kind==='hazard')game.hazards++;emit({type:kind,piece,lives:game.lives});if(game.lives<=0)end();}
@@ -124,10 +124,11 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,p
   for(const p of game.pieces){p.x=updated.left+(p.x-bounds.left)*ratio;p.y+=updated.bottom-bounds.bottom;p.vx*=ratio;}
   bounds=updated;
  }
- return Object.assign(game,{revive(){if(!game.over||game.lives>0)return false;game.over=false;game.lives=game.maxLives;game.pieces=[];game.stroke=null;game.untilWave=2;missedWaves.clear();accumulator=0;return true;},setBounds,spawn,step,slice,recut,beginStroke,endStroke,end,dispose(){recuts.clear();game.pieces=[];game.stroke=null;missedWaves.clear();}});
+ function completePractice(){if(!practice||game.over)return false;practice=false;game.practice=false;practiceTime=game.time;autoSpawn=true;return true;}
+ return Object.assign(game,{completePractice,revive(){if(!game.over||game.lives>0)return false;game.over=false;game.lives=game.maxLives;game.pieces=[];game.stroke=null;game.untilWave=2;missedWaves.clear();accumulator=0;return true;},setBounds,spawn,step,slice,recut,beginStroke,endStroke,end,dispose(){recuts.clear();game.pieces=[];game.stroke=null;missedWaves.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const valid=e=>e&&/^shape-slice-[a-f0-9-]{36}$/.test(e.id)&&Number.isSafeInteger(e.sliced)&&e.sliced>=0&&e.sliced<=100000;
-export function sliceProgress(raw){return {best:raw?.scoreVersion===2?safe(raw?.best):0,scoreVersion:2,legacyBest:Math.max(safe(raw?.legacyBest),raw?.scoreVersion===2?0:safe(raw?.best)),sliced:safe(raw?.sliced),bestCombo:safe(raw?.bestCombo),runs:safe(raw?.runs),pending:Array.isArray(raw?.pending)?raw.pending.filter(valid):[]};}
-export function finishSliceProgress(raw,result,id){const p=sliceProgress(raw);if(p.pending.some(e=>e.id===id))return p;return {...p,best:Math.max(p.best,safe(result.sliced)*frameRewardMultiplier(result.frame)+Math.min(safe(result.bonusScore),safe(result.sliced)*6*frameRewardMultiplier(result.frame))),sliced:p.sliced+safe(result.sliced),bestCombo:Math.max(p.bestCombo,safe(result.bestCombo)),runs:p.runs+1,pending:[...p.pending,{id,sliced:safe(result.sliced),rewardVersion:3,xpMultiplier:frameRewardMultiplier(result.frame)}]};}
+export function sliceProgress(raw){return {best:raw?.scoreVersion===2?safe(raw?.best):0,scoreVersion:2,legacyBest:Math.max(safe(raw?.legacyBest),raw?.scoreVersion===2?0:safe(raw?.best)),sliced:safe(raw?.sliced),bestCombo:safe(raw?.bestCombo),runs:safe(raw?.runs),completedRuns:Array.isArray(raw?.completedRuns)?raw.completedRuns.filter(id=>typeof id==='string').slice(-100):[],pending:Array.isArray(raw?.pending)?raw.pending.filter(valid):[]};}
+export function finishSliceProgress(raw,result,id){const p=sliceProgress(raw);if(p.completedRuns.includes(id)||p.pending.some(e=>e.id===id))return p;return {...p,best:Math.max(p.best,safe(result.sliced)*frameRewardMultiplier(result.frame)+Math.min(safe(result.bonusScore),safe(result.sliced)*6*frameRewardMultiplier(result.frame))),sliced:p.sliced+safe(result.sliced),bestCombo:Math.max(p.bestCombo,safe(result.bestCombo)),runs:p.runs+1,completedRuns:[...p.completedRuns,id].slice(-100),pending:[...p.pending,{id,sliced:safe(result.sliced),rewardVersion:3,xpMultiplier:frameRewardMultiplier(result.frame)}]};}
 export function claimSliceReward(profile,entry){if(!valid(entry))return profile;const receipts=Array.isArray(profile.sliceRewards)?profile.sliceRewards:[];if(receipts.includes(entry.id))return profile;const coins=profile.coins+miniGameCoins(entry.sliced,entry.rewardVersion??1),xp=profile.xp+Math.min(200,entry.sliced)*(entry.xpMultiplier===2?2:1);if(!Number.isSafeInteger(coins)||!Number.isSafeInteger(xp))return profile;return {...profile,coins,xp,sliceRewards:[...receipts,entry.id]};}

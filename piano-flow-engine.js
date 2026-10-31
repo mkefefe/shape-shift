@@ -1,6 +1,6 @@
-import {createSongSequence} from './piano-songs.js?v=494201';
-import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=494201';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494201';
+import {createSongSequence} from './piano-songs.js?v=494202';
+import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=494202';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494202';
 export const PIANO_LANES=3,PIANO_WINDOW=.38;
 // At the fastest strip tempo this still leaves over half a second to change strips.
 export const PIANO_HOLD_GAP=1.5,PIANO_MAX_HOLD=4.5;
@@ -20,8 +20,8 @@ export const pianoStripTempo=seconds=>72+Math.min(108,Math.max(0,seconds-30)*.3)
 export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upgrade=0,directTouch=false,rhythm=false,stripTap=false,melodicStrips=false,fullSongs=false,practice=false}={}){
  const resumableHolds=stripTap||melodicStrips;
  const maxLives=maxLivesForFrame(frame,upgrade),g={practice,frame,time:0,beat:fullSongs?-3:stripTap?0:-4,countdown:stripTap?3:0,started:false,paused:false,over:false,notes:[],score:0,coins:0,hits:0,combo:0,bestCombo:0,maxLives,lives:maxLives,bpm:fullSongs?88:stripTap?72:90,lanes:rhythm?4:3,fullSongs,songTitle:'',section:'',songsCompleted:0,rhythm,stripTap,melodicStrips,pressed:new Set()};
- let cursor=stripTap?2:directTouch&&!rhythm?2.5:0,serial=0,lastLane=-1,lastWrong=-10,lastBeat=stripTap?-1:-5;
- const nextMusic=fullSongs?createSongSequence(rng):createPianoSequence(rng,{difficulty:()=>pianoDifficulty(g.time)});
+ let cursor=stripTap?2:directTouch&&!rhythm?2.5:0,serial=0,lastLane=-1,lastWrong=-10,lastBeat=stripTap?-1:-5,practiceTime=0;
+ const nextMusic=fullSongs?createSongSequence(rng):createPianoSequence(rng,{difficulty:()=>pianoDifficulty(Math.max(0,g.time-practiceTime))});
  const completedAt=new Map();
  let performed=null;
  const measures=[],backingOrigin=fullSongs?2:0;let backingPulse=0,damageUntil=-1;
@@ -125,7 +125,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  function step(dt){if(!g.started||g.paused||g.over||!Number.isFinite(dt)||dt<=0||g.notes.some(n=>n.status==='holding'&&n.awaiting))return;
   if(practice){const next=nextUnplayed();if(!next||next.status!=='holding'){if(next&&g.beat<next.beat-.25)g.beat=Math.min(next.beat-.25,g.beat+Math.min(.05,dt)*1.2);g.time+=Math.min(.05,dt);return;}}
   const seconds=Math.min(.05,dt);if(g.countdown>0){const before=Math.ceil(g.countdown);g.countdown=Math.max(0,g.countdown-seconds);if(g.countdown<1e-8)g.countdown=0;const after=Math.ceil(g.countdown);if(after!==before)emit(after?'countdown':'ready',{count:after});return;}
-  const previousBeat=g.beat;g.time+=seconds;g.bpm=fullSongs?pianoSongTempo(g.time):stripTap?pianoStripTempo(g.time):pianoTempo(g.time);g.beat+=seconds*g.bpm/60;
+  const previousBeat=g.beat;g.time+=seconds;const elapsed=Math.max(0,g.time-practiceTime);g.bpm=fullSongs?pianoSongTempo(elapsed):stripTap?pianoStripTempo(elapsed):pianoTempo(elapsed);g.beat+=seconds*g.bpm/60;
   if(melodicStrips&&!fullSongs){
    // The first written note is the downbeat. Keep a little harmonic history
    // so a rewarded continuation can rewind its lead-in without a wrong chord.
@@ -167,7 +167,17 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   g.notes=g.notes.filter(n=>n.soundPending||n.end>g.beat-2||n.status==='holding');fill();
  }
  if(practice){g.countdown=0;g.beat=-4;g.notes=[{id:0,lane:1,shape:1,color:1,pitch:64,duration:1,beat:0,end:0,hold:0,status:'waiting'},{id:1,lane:2,shape:2,color:2,pitch:67,duration:2,beat:3,end:5,hold:2,status:'waiting'}];}
- return Object.assign(g,{revive(){if(!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();performed=null;completedAt.clear();if(fullSongs){const next=g.notes.find(n=>['waiting','partial','holding'].includes(n.status)||n.soundPending);if(next){g.beat=next.beat-5;for(const n of g.notes)if(!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;n.soundPending=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding')n.awaiting=true;}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
+ function completePractice(){
+  if(!practice||g.over)return false;
+  practice=false;g.practice=false;practiceTime=g.time;
+  // Continue the chart after the notes already on screen. Never rewind the
+  // musical clock, reuse tutorial IDs, restart audio, or add another countdown.
+  cursor=Math.max(cursor,g.beat+1.5,...g.notes.map(n=>n.end+.5));
+  serial=Math.max(serial,...g.notes.map(n=>n.id+1));lastBeat=Math.floor(g.beat);
+  backingPulse=Math.max(backingPulse,Math.ceil((g.beat-backingOrigin)*2));
+  fill();return true;
+ }
+ return Object.assign(g,{completePractice,revive(){if(!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();performed=null;completedAt.clear();if(fullSongs){const next=g.notes.find(n=>['waiting','partial','holding'].includes(n.status)||n.soundPending);if(next){g.beat=next.beat-5;for(const n of g.notes)if(!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;n.soundPending=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding')n.awaiting=true;}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const receipt=e=>e&&/^piano-flow-[a-f0-9-]{36}$/.test(e.id)&&Number.isSafeInteger(e.coins)&&e.coins>=0&&e.coins<=100000;
@@ -177,12 +187,12 @@ export function pianoProgress(raw){
  const current=raw?.scoreVersion===3;
  return {best:current?safe(raw?.best):0,scoreVersion:3,
   legacyBest:Math.max(safe(raw?.legacyBest),current?0:safe(raw?.best)),
-  runs:safe(raw?.runs),pending:Array.isArray(raw?.pending)?raw.pending.filter(receipt):[]};
+  runs:safe(raw?.runs),completedRuns:Array.isArray(raw?.completedRuns)?raw.completedRuns.filter(id=>typeof id==='string').slice(-100):[],pending:Array.isArray(raw?.pending)?raw.pending.filter(receipt):[]};
 }
 export function finishPianoProgress(raw,result,id){
- const p=pianoProgress(raw);if(p.pending.some(e=>e.id===id))return p;
+ const p=pianoProgress(raw);if(p.completedRuns.includes(id)||p.pending.some(e=>e.id===id))return p;
  const score=safe(result.hits)*frameRewardMultiplier(result.frame);
- return {...p,best:Math.max(p.best,score),runs:p.runs+1,pending:[...p.pending,{id,coins:Math.min(100000,safe(result.coins)),xpMultiplier:frameRewardMultiplier(result.frame)}]};
+ return {...p,best:Math.max(p.best,score),runs:p.runs+1,completedRuns:[...p.completedRuns,id].slice(-100),pending:[...p.pending,{id,coins:Math.min(100000,safe(result.coins)),xpMultiplier:frameRewardMultiplier(result.frame)}]};
 }
 export function claimPianoReward(profile,entry){if(!receipt(entry))return profile;const paid=Array.isArray(profile.pianoRewards)?profile.pianoRewards:[];if(paid.includes(entry.id))return profile;const coins=profile.coins+entry.coins,xp=(profile.xp||0)+Math.min(200,entry.coins)*(entry.xpMultiplier===2?2:1);if(!Number.isSafeInteger(coins)||!Number.isSafeInteger(xp))return profile;return {...profile,coins,xp,pianoRewards:[...paid,entry.id]};}
 

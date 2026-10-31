@@ -1,5 +1,5 @@
 /* Features unavailable in the Playables edition are omitted from its UI. */
-#terms-open, #privacy-policy-open, #delete-profile-open,
+#privacy-policy-open, #delete-profile-open,
 #rankings-enable-open, #privacy-options,
 #choose-photo, #profile-photo,
 [for="notifications-setting"], #notifications-status, #admin-enter, #admin-exit {

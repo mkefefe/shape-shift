@@ -1,7 +1,7 @@
 import {CORE_STARTUP_ASSETS,FULL_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS,HOME_STARTUP_ASSETS} from './startup-plan.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js';
+import {loadStartupAssets,loadBackgroundAssets,prepareBootstrap} from './startup-loader.js';
 import {prepareMenuImage,awaitReady} from './menu-preload.js';
 import {STARTUP_ASSETS} from './startup-assets.js';
 import {observeDeferredImages} from './deferred-images.js';
@@ -59,8 +59,50 @@ test('hidden menu images do not download behind startup; visible images load whe
 
 test('opening and first game exclude the shop, map, music library and unused skins',()=>{
  assert(OPENING_ASSETS.length<=5);
- for(const asset of ['assets/delivery-v144/home-world-v101.webp','assets/adventure-map-v101.webp','assets/mode-cards-v101.webp']){
+ for(const asset of ['assets/delivery-v144/home-world-v101.webp','assets/mode-cards-v101.webp']){
   assert(!FULL_STARTUP_ASSETS.includes(asset));assert(HOME_STARTUP_ASSETS.includes(asset));
  }
  assert(!FULL_STARTUP_ASSETS.some(src=>src.includes('/music/')||src.includes('skin-')));
+});
+
+test('first-play warming does not download unvisited maps, catalogs or minigame media',()=>{
+ for(const asset of ['assets/adventure-map-v101.webp','assets/map-route-v102.webp','assets/worlds-v12.webp','assets/frames-v12.webp','assets/achievement-medals-v208.webp','assets/hub-drop-v291.webp','assets/hub-slice-v291.webp','assets/hub-piano-v292.webp','assets/battle-lock-v175.png']){
+  assert(!HOME_STARTUP_ASSETS.includes(asset),asset);assert(BACKGROUND_ASSETS.includes(asset),asset);
+ }
+ assert(HOME_STARTUP_ASSETS.includes('assets/delivery-v144/battle-icon-v133.webp'));
+});
+
+test('opening, audio and save initialization overlap, but first-play warmup follows successful opening',async()=>{
+ let release,finished=false,warmed=false;const waiting=new Promise(r=>release=r),started=[];
+ const job=prepareBootstrap({initialize:()=>{started.push('save');return waiting;},loadAudio:()=>{started.push('audio');return waiting;},opening:()=>{started.push('opening');return waiting;},warm:()=>{warmed=true;}}).then(()=>{finished=true;});
+ assert.deepEqual(started,['save','audio','opening']);assert.equal(warmed,false);assert.equal(finished,false);
+ release();await job;assert.equal(finished,true);assert.equal(warmed,true);
+});
+
+test('a failed saved-game load cannot pass the boot barrier or start the game',async()=>{
+ let warmed=false;
+ await assert.rejects(prepareBootstrap({initialize:async()=>{throw Error('save offline');},loadAudio:async()=>{},opening:async()=>{},warm:()=>{warmed=true;}}),/save offline/);
+ assert.equal(warmed,false);
+});
+
+test('concurrent warmup and startup share an in-flight resource, including URL aliases',async()=>{
+ let release,calls=0;const gate=new Promise(r=>release=r),progress=[];
+ const prepareImage=()=>{calls++;return gate;};
+ const warm=loadStartupAssets(()=>{},{assets:['./test-shared-boot.webp'],prepareImage});
+ const foreground=loadStartupAssets(n=>progress.push(n),{assets:['test-shared-boot.webp'],prepareImage});
+ await new Promise(resolve=>setImmediate(resolve));assert.equal(calls,1);assert.deepEqual(progress,[]);
+ release();await Promise.all([warm,foreground]);assert.deepEqual(progress,[1]);
+});
+
+test('the game font uses the font set request instead of downloading a second copy',async()=>{
+ const original=globalThis.document;let fontCalls=0,fetchCalls=0;
+ globalThis.document={fonts:{load:async font=>{assert.equal(font,'900 20px Nunito');fontCalls++;return [{}];}}};
+ try{await loadStartupAssets(()=>{},{assets:['font-request-test/Nunito.ttf'],fetcher:async()=>{fetchCalls++;throw Error('duplicate fetch');}});assert.equal(fontCalls,1);assert.equal(fetchCalls,0);}finally{globalThis.document=original;}
+});
+
+test('retained images share relative and absolute URL aliases without a second decode',async()=>{
+ const originalImage=globalThis.Image,originalDocument=globalThis.document;let calls=0;
+ globalThis.document={baseURI:'https://game.example/preview/'};
+ globalThis.Image=class{async decode(){calls++;}};
+ try{const one=await prepareMenuImage('test-canonical.webp'),two=await prepareMenuImage('https://game.example/preview/test-canonical.webp');assert.equal(one,two);assert.equal(calls,1);}finally{globalThis.Image=originalImage;globalThis.document=originalDocument;}
 });

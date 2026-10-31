@@ -15,6 +15,17 @@ function advance(f,beat){
  for(let i=0;f.game.beat<beat&&i<10000;i++){f.game.step(1/240);f.input.flush();}
  assert(f.game.beat>=beat,'game clock reached the requested beat');
 }
+
+test('action observer counts physical presses once before accepted-note feedback, not clock flushes',()=>{
+ const events=[],game=createPianoGame({stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0,onEvent:e=>{if(e.type==='input')events.push('accepted');}});
+ game.start();game.notes=[note(1500,3,0)];game.beat=2;game.countdown=0;
+ const input=createPianoInput({getGame:()=>game,onPress:()=>events.push('press')});
+ input.flush();assert.deepEqual(events,[]);
+ assert(input.press(0,'finger'));assert.deepEqual(events,['press','accepted']);
+ input.press(0,'finger');input.flush();assert.deepEqual(events,['press','accepted']);
+ input.press(-1,'invalid');assert.deepEqual(events,['press','accepted']);
+ input.release('finger');game.pause();input.press(0,'paused');assert.deepEqual(events,['press','accepted']);
+});
 function element(){
  const classes=new Set(),children=[];
  return {children,hidden:false,classList:{add:name=>classes.add(name),remove:name=>classes.delete(name),contains:name=>classes.has(name),toggle(name,force){const on=force??!classes.has(name);if(on)classes.add(name);else classes.delete(name);return on;}},append:child=>children.push(child),setAttribute(){},querySelectorAll:()=>children};

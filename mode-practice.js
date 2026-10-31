@@ -1,4 +1,10 @@
 export const practiceKey=mode=>'shape-shift-practice-'+mode+'-v4';
+// The live engine owns the one-way transition. Tutorial callbacks may arrive
+// twice, but neither a second run nor a second reward may begin at the handoff.
+export function continuePracticeRun(game,onStart=()=>{},...args){
+ if(!game?.completePractice?.(...args))return false;
+ onStart();return true;
+}
 const art=new URL('assets/delivery-v144/ability-hand-v169.webp',import.meta.url).href;
 // Coordinates describe the fingertip in the actual hand artwork, after rotation.
 export function practiceHandPosition(point,bounds,size=56){

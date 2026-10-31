@@ -7,7 +7,7 @@ export const turnTime=s=>encounter(s).interval;
 export function matches(a,b){return !a.special&&(a.shape===b.shape||a.color===b.color);}
 export function createRun(random=Math.random,attackPower=10,setIndex=0,reward=null,{practice=false}={}){
  const set=Math.min(5,Math.max(0,Math.floor(Number(setIndex)||0)));
- const r={set,enemyMaxHp:Math.round(ROSTER[Math.min(set,5)*5].hp),stage:0,hp:3,maxHp:3,shield:0,damage:Math.max(10,Math.min(30,Number(attackPower)||10)),score:0,hits:0,misses:0,combo:0,enemyHp:Math.round(ROSTER[Math.min(set,5)*5].hp),clock:5,current:{shape:1,color:1},board:[],status:'fight',started:true,colorTurns:0,elapsed:0,guardLock:0,reward:SPECIALS.includes(reward)?reward:null};
+ const r={practice,set,enemyMaxHp:Math.round(ROSTER[Math.min(set,5)*5].hp),stage:0,hp:3,maxHp:3,shield:0,damage:Math.max(10,Math.min(30,Number(attackPower)||10)),score:0,hits:0,misses:0,combo:0,enemyHp:Math.round(ROSTER[Math.min(set,5)*5].hp),clock:5,current:{shape:1,color:1},board:[],status:'fight',started:true,colorTurns:0,elapsed:0,guardLock:0,reward:SPECIALS.includes(reward)?reward:null};
  const rand=n=>Math.min(n-1,Math.floor(random()*n));
  function weak(){return encounter(r).color;}
  function normal(){return {shape:rand(4),color:rand(4)};}
@@ -33,5 +33,6 @@ export function createRun(random=Math.random,attackPower=10,setIndex=0,reward=nu
  function tick(dt){if(r.status!=='fight'||r.volley>0||!r.started)return null;dt=Math.max(0,Math.min(dt,.25));r.elapsed+=dt;r.guardLock=Math.max(0,r.guardLock-dt);r.clock-=dt;if(r.clock>0)return null;r.clock+=turnTime(r);return hurt();}
  function guard(){if(r.status!=='fight'||r.guardLock>0)return null;r.guardLock=.35;if(r.clock>1||r.clock<=0)return {kind:'guard-miss'};r.clock=turnTime(r);return {kind:'parry'};}
  function advance(){if(r.status!=='cleared')return false;r.stage++;const e=encounter(r);r.enemyMaxHp=e.hp;r.enemyHp=r.enemyMaxHp;r.clock=turnTime(r);r.hp=3;r.shield=0;r.combo=0;r.colorTurns=0;r.status='fight';r.started=true;board();return true;}
- r.clock=turnTime(r);board();return {state:r,pick,tick,advance,weak,guard,starburstHit};
+ function completePractice(savedReward){if(!practice||r.status!=='fight')return false;practice=false;r.practice=false;if(SPECIALS.includes(savedReward))r.reward=savedReward;return true;}
+ r.clock=turnTime(r);board();return {state:r,pick,tick,advance,weak,guard,starburstHit,completePractice};
 }

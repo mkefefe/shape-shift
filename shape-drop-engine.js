@@ -1,7 +1,7 @@
-import {frameRewardMultiplier} from './engine.js?v=494201';
-import {miniGameCoins} from './mini-game-rewards.js?v=494201';
-import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=494201';
-import {createDropSequence} from './drop-sequence.js?v=494201';
+import {frameRewardMultiplier} from './engine.js?v=494202';
+import {miniGameCoins} from './mini-game-rewards.js?v=494202';
+import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=494202';
+import {createDropSequence} from './drop-sequence.js?v=494202';
 export const DROP_WIDTH=320,DROP_HEIGHT=520,DROP_LINE=68,DROP_RADIUS=21;
 export const DROP_HEADROOM=12;
 // Extra portrait height should not provide permanent extra capacity. Preserve
@@ -253,12 +253,13 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,o
   game.pieces=game.pieces.filter(b=>!removed.includes(b));for(const b of game.pieces)M.Sleeping.set(b,false);
   game.over=false;game.endReason=null;game.danger=0;game.cooldown=1.5;game.combo=0;accumulator=0;return true;
  }
- return Object.assign(game,{landingY:()=>dropLandingY(M,game.queue[0],game.aim,game.pieces,height),bombAt,revive,step,drop,aimAt:aim,rotate,end,dispose,addPiece:add});
+ function completePractice(){if(!game.practice||game.over)return false;game.practice=false;return true;}
+ return Object.assign(game,{completePractice,landingY:()=>dropLandingY(M,game.queue[0],game.aim,game.pieces,height),bombAt,revive,step,drop,aimAt:aim,rotate,end,dispose,addPiece:add});
 }
 
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
-export function dropProgress(raw={}){return {best:raw?.scoreVersion===2?safe(raw?.best):0,scoreVersion:2,legacyBest:Math.max(safe(raw?.legacyBest),raw?.scoreVersion===2?0:safe(raw?.best)),cleared:safe(raw?.cleared),bestCombo:Math.min(8,safe(raw?.bestCombo)),runs:safe(raw?.runs),pending:Array.isArray(raw?.pending)?raw.pending.filter(p=>typeof p?.id==='string'&&/^shape-drop-[a-f0-9-]{36}$/.test(p.id)&&Number.isSafeInteger(p.cleared)&&p.cleared>=0&&p.cleared<=100000).slice(-100):[]};}
-export function finishDropProgress(raw,result,id){const p=dropProgress(raw);if(p.pending.some(x=>x.id===id))return p;const cleared=safe(result.cleared);return {...p,best:Math.max(p.best,(safe(result.matches)+safe(result.bombPoints))*frameRewardMultiplier(result.frame)),cleared:p.cleared+cleared,bestCombo:Math.max(p.bestCombo,Math.min(8,safe(result.bestCombo))),runs:p.runs+1,pending:[...p.pending,{id,cleared,rewardVersion:2,xpMultiplier:frameRewardMultiplier(result.frame)}].slice(-100)};}
+export function dropProgress(raw={}){return {best:raw?.scoreVersion===2?safe(raw?.best):0,scoreVersion:2,legacyBest:Math.max(safe(raw?.legacyBest),raw?.scoreVersion===2?0:safe(raw?.best)),cleared:safe(raw?.cleared),bestCombo:Math.min(8,safe(raw?.bestCombo)),runs:safe(raw?.runs),completedRuns:Array.isArray(raw?.completedRuns)?raw.completedRuns.filter(id=>typeof id==='string').slice(-100):[],pending:Array.isArray(raw?.pending)?raw.pending.filter(p=>typeof p?.id==='string'&&/^shape-drop-[a-f0-9-]{36}$/.test(p.id)&&Number.isSafeInteger(p.cleared)&&p.cleared>=0&&p.cleared<=100000).slice(-100):[]};}
+export function finishDropProgress(raw,result,id){const p=dropProgress(raw);if(p.completedRuns.includes(id)||p.pending.some(x=>x.id===id))return p;const cleared=safe(result.cleared);return {...p,best:Math.max(p.best,(safe(result.matches)+safe(result.bombPoints))*frameRewardMultiplier(result.frame)),cleared:p.cleared+cleared,bestCombo:Math.max(p.bestCombo,Math.min(8,safe(result.bestCombo))),runs:p.runs+1,completedRuns:[...p.completedRuns,id].slice(-100),pending:[...p.pending,{id,cleared,rewardVersion:2,xpMultiplier:frameRewardMultiplier(result.frame)}].slice(-100)};}
 export function claimDropReward(profile,entry){
  if(!entry||!/^shape-drop-[a-f0-9-]{36}$/.test(entry.id)||!Number.isSafeInteger(entry.cleared)||entry.cleared<0||entry.cleared>100000)return profile;
  const receipts=Array.isArray(profile.dropRewards)?profile.dropRewards:[];if(receipts.includes(entry.id))return profile;

@@ -1,10 +1,10 @@
-import {bindLaunchTap} from './menu-navigation.js?v=494201';
-import {activeSkin} from './shape-skin-art.js?v=494201';
+import {bindLaunchTap} from './menu-navigation.js?v=494202';
+import {activeSkin} from './shape-skin-art.js?v=494202';
 export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.gameAudio?.ui(name)}){
  const dialog=document.createElement('dialog');dialog.id='games-hub';dialog.setAttribute('aria-label','Games');document.body.append(dialog);
  const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text)e.textContent=text;return e;};
- function close(){dialog.close();}
- let builtSkin=null,selected=0;
+ function close(){launchToken++;dialog.close();}
+ let builtSkin=null,selected=0,launchToken=0,launching=false;
  function highlight(){const cards=[...dialog.querySelectorAll('.hub-game')];cards.forEach((card,i)=>card.classList.toggle('keyboard-game',i===selected));cards[selected]?.focus({preventScroll:true});}
  dialog.addEventListener('keydown',event=>{
   if(!['KeyW','KeyS','Space','Enter','NumpadEnter'].includes(event.code)||event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
@@ -30,7 +30,14 @@ export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.ga
    const card=make('button','hub-game hub-'+data.kind);card.type='button';card.setAttribute('aria-label','Open '+data.name);
    const art=make('img','hub-cover');art.src='./assets/hub-'+data.kind+(data.kind==='piano'?'-v292.webp':'-v291.webp');art.decoding='async';art.alt='';art.width=1774;art.height=887;art.draggable=false;
    const copy=make('span','hub-copy');copy.append(make('strong','hub-title',data.name),make('span','hub-description',data.copy));
-   card.append(art,copy);bindLaunchTap(card,()=>{if(!dialog.open)return;sound('click');data.action();});list.append(card);
+   card.append(art,copy);bindLaunchTap(card,async()=>{
+    if(!dialog.open||launching)return;
+    const token=++launchToken;launching=true;card.setAttribute('aria-busy','true');
+    const description=copy.querySelector('.hub-description');description.textContent='Opening…';sound('click');
+    try{await data.action(()=>dialog.open&&token===launchToken);}
+    catch{if(dialog.open&&token===launchToken)description.textContent='Could not load. Tap to try again.';}
+    finally{launching=false;card.removeAttribute('aria-busy');if(description.textContent==='Opening…')description.textContent=data.copy;}
+   });list.append(card);
   }
   const hint=make('p','hub-keyboard-hint','W / S select · Space play · Esc back');dialog.append(back,header,list,hint);dialog.showModal();selected=0;highlight();window.gameAudio?.setScene('menu');
  }

@@ -136,7 +136,9 @@ dialog .rank-card.rank-you{border:2px solid #e5ac27;background:#fff3ba;box-shado
 #play-feedback.coin-earned strong{font-size:16px;margin:0}
 .special-flight-layer,.starburst-overlay{z-index:60}
 .special-flying-art{display:block;width:80px!important;height:96px!important;overflow:hidden;background-repeat:no-repeat;filter:drop-shadow(0 0 16px var(--effect-tint))}
-.shape-coin-flight{position:fixed;z-index:61;pointer-events:none;will-change:transform,left,top,opacity}.shape-coin-flight>.sprite{display:block;pointer-events:none}
+.shape-coin-flight{position:fixed;z-index:61;pointer-events:none;will-change:transform,opacity}.shape-coin-flight>.sprite{display:block;pointer-events:none}
+.shape-pickup-pulse{position:fixed;z-index:60;pointer-events:none;border:3px solid #fff3a6;border-radius:30%;box-shadow:0 0 10px #ffe78d99,inset 0 0 9px #fff1b866;will-change:transform,opacity}
+.shape-pickup-pulse>i{position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;background:#fff4ad;border-radius:2px;box-shadow:0 0 5px #ffd64a;will-change:transform}
 
 #avatar-items .avatar{width:70px;height:70px;margin:5px auto}#avatar-presets .avatar-locked{position:relative;opacity:.5}#avatar-presets .avatar-locked:after{content:'Locked';position:absolute;bottom:-5px;left:0;right:0;font-size:8px;border-radius:5px;color:white;background:#225467}
 

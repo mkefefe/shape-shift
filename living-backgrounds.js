@@ -1,6 +1,6 @@
-import {createCardWater} from './card-water.js?v=494201';
-import {createWaterSurface} from './water-surface.js?v=494201';
-import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=494201';
+import {createCardWater} from './card-water.js?v=494202';
+import {createWaterSurface} from './water-surface.js?v=494202';
+import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=494202';
 export {createWaterSurface,createCloudDrift};
 // Water is lit in place. Never scroll strips of the landscape: they contain
 // plants and cliffs as well as water, and wrapping them makes the banks move.
@@ -120,7 +120,10 @@ export function initLivingBackground(app,home){
  }
  function refresh(){prepareVisibleWorld();if(frame)cancelAnimationFrame(frame);frame=0;last=-Infinity;canvas.hidden=!running();if(canvas.hidden)cardWater?.hide();ctx.clearRect(0,0,canvas.width,canvas.height);if(running())frame=requestAnimationFrame(paint);}
  new MutationObserver(refresh).observe(app,{attributes:true,attributeFilter:['data-screen','data-background']});
- new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['class','open'],subtree:true});
+ // Board highlights and floating +1 effects also change descendant classes.
+ // They do not affect Home visibility and must not clear/restart its canvas.
+ new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['class']});
+ new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['open'],subtree:true});
  new MutationObserver(refresh).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
  document.addEventListener('visibilitychange',refresh);motion.addEventListener('change',refresh);refresh();
 }

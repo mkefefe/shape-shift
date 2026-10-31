@@ -14,7 +14,12 @@ export function bindResultKeyboard(host=window){
   if(event.repeat)return;
   const next=doc.getElementById('adventure-continue');
   if(event.code==='Escape'){dialog.click();return;}
-  if(!next.hidden&&!next.disabled)next.click();else {const action=doc.getElementById('continue-ad');if(!action.hidden&&!action.disabled&&action.textContent.trim()==='Retry')action.click();else dialog.click();}
+  // Respect the focused action, including Continue. Never turn a disabled ad
+  // button into a backdrop click while its request is in flight.
+  const focused=event.target.closest?.('button');
+  if(focused&&dialog.contains(focused)){if(!focused.hidden&&!focused.disabled)focused.click();return;}
+  if(!next.hidden&&!next.disabled)next.click();
+  else {const action=doc.getElementById('continue-ad');if(!action.hidden){if(!action.disabled)action.click();}else dialog.click();}
  }
  doc.addEventListener('keydown',keydown,true);
  return ()=>{observer.disconnect();doc.removeEventListener('keydown',keydown,true);hint.remove();};
