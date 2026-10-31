@@ -1,4 +1,4 @@
-import {initLivingBackground} from './living-backgrounds.js?v=494205';
+import {initLivingBackground} from './living-backgrounds.js?v=494206';
 // Daily discoveries share one receipt ledger across every equipped world.
 export const discoveryDay=(now=Date.now())=>new Date(now).toISOString().slice(0,10);
 export function discoveryOrder(day,world='garden'){

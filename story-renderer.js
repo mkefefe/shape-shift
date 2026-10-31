@@ -1,7 +1,7 @@
 // Color Beacon: a deterministic, lightweight story timeline shared by the game
 // and exported previews. Painted art stays at native proportions throughout.
-import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494205';
-export {STORY_RESTORATION} from './story-restoration.js?v=494205';
+import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494206';
+export {STORY_RESTORATION} from './story-restoration.js?v=494206';
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},
@@ -101,7 +101,13 @@ export function drawStoryIsland(ctx,a,percent=0){
  ctx.restore();ctx.restore();
 }
 
-export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,restorationClock,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
+// Match the card's centered, aspect-preserving square at the start; move the
+// same painting continuously into its cinematic position without swapping renderers.
+export function restorationFraming(width,height,opening=1){
+ const scale=Math.min(width/720,height/1280),startSize=Math.min(width,height)/scale,p=Math.max(0,Math.min(1,opening));
+ return {size:startSize+(700-startSize)*p,y:(1280-startSize)/2+(410-(1280-startSize)/2)*p};
+}
+export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,restorationClock,restorationOpening=1,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
  const config=STORY_SCENES[sceneId];if(!config)throw new Error('Unknown story chapter');
  let t=Math.max(0,Math.min(config.duration,seconds));if(sceneId==='credits'){sceneId='ending';t+=13;}
  const finale=sceneId==='ending',intro=sceneId==='intro';
@@ -117,14 +123,14 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  if(!fullScreen)ctx.scale(ctx.canvas.width/720,ctx.canvas.height/1280);
  ctx.fillStyle='#102d43';ctx.fillRect(0,0,w,h);
  const cover=Math.max(w/a.sky.width,h/a.sky.height);
- ctx.globalAlpha=.16+skyPower*.84;ctx.drawImage(a.sky,(w-a.sky.width*cover)/2,(h-a.sky.height*cover)/2,a.sky.width*cover,a.sky.height*cover);ctx.globalAlpha=1;
- const shade=ctx.createLinearGradient(0,0,0,h);shade.addColorStop(0,'#071c3388');shade.addColorStop(.5,'#102c4424');shade.addColorStop(1,'#092c4420');ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);
+ ctx.globalAlpha=restorationClock!=null?mix(1,.16+skyPower*.84,restorationOpening):.16+skyPower*.84;ctx.drawImage(a.sky,(w-a.sky.width*cover)/2,(h-a.sky.height*cover)/2,a.sky.width*cover,a.sky.height*cover);ctx.globalAlpha=1;
+ const shade=ctx.createLinearGradient(0,0,0,h);shade.addColorStop(0,'#071c3388');shade.addColorStop(.5,'#102c4424');shade.addColorStop(1,'#092c4420');ctx.fillStyle=shade;ctx.globalAlpha=restorationOpening;ctx.fillRect(0,0,w,h);ctx.globalAlpha=1;
  if(fullScreen){const scale=Math.min(w/720,h/1280);ctx.translate((w-720*scale)/2,(h-1280*scale)/2);ctx.scale(scale,scale);} 
- const image=(im,x,y,w,h,alpha=1,angle=0)=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(im,-w/2,-h/2,w,h);ctx.restore();};
+ const image=(im,x,y,w,h,alpha=1,angle=0)=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(im,-w/2,-h/2,w,h);ctx.restore();};
  const glow=(x,y,size,color=4,alpha=1)=>image(a.glows[color],x,y,size,size,alpha);
- const text=(str,x,y,size,alpha=1,color='#fff5df')=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.font=`900 ${size}px BeaconStory`;ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(str,x,y);ctx.restore();};
- const shape=(i,x,y,size,alpha=1,angle=0)=>{if(alpha<=.001)return;const cell=a.shapes.width/4,col=[2,0,1,3][i];ctx.save();ctx.globalAlpha=clamp(alpha);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.shapes,col*cell,i*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
- const lantern=(i,x,y,size,alpha=1,angle=0)=>{const cell=a.lanterns.width/2;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.lanterns,(i%2)*cell,Math.floor(i/2)*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
+ const text=(str,x,y,size,alpha=1,color='#fff5df')=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.font=`900 ${size}px BeaconStory`;ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(str,x,y);ctx.restore();};
+ const shape=(i,x,y,size,alpha=1,angle=0)=>{if(alpha<=.001)return;const cell=a.shapes.width/4,col=[2,0,1,3][i];ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.shapes,col*cell,i*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
+ const lantern=(i,x,y,size,alpha=1,angle=0)=>{const cell=a.lanterns.width/2;ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.lanterns,(i%2)*cell,Math.floor(i/2)*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
  const particles=(x,y,age,color=4,count=14,range=115)=>{if(age<0||age>2)return;const p=clamp(age/2),alpha=Math.sin(Math.PI*Math.min(1,p*3))*(1-p);for(let i=0;i<count;i++){const angle=i*2.39996,r=(18+range*(.6+(i%3)*.15))*smooth(p);glow(x+Math.cos(angle)*r,y+Math.sin(angle)*r-age*9,9+(i%3)*5,color,alpha*.7);}};
  const ambientTime=reduced?0:restorationClock??t;
  for(let i=0;i<20;i++){const x=40+i*191%650,y=90+i*213%1090;glow(x+Math.sin(ambientTime*.23+i)*5,y,6,i%4,.19+.1*Math.sin(ambientTime+i));}
@@ -132,7 +138,7 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  // The island gently settles lower for the credits. Reduced motion keeps the
  // painting stationary throughout the ending, including its credit cards.
  const islandDock=reduced&&finale?1:credit;
- const iw=mix(700,500,islandDock),ix=(720-iw)/2,iy=mix(410,750,islandDock),u=iw/a.island.width;
+ const framing=restorationFraming(ctx.canvas.width,ctx.canvas.height,fullScreen?restorationOpening:1),iw=mix(framing.size,500,islandDock),ix=(720-iw)/2,iy=mix(framing.y,750,islandDock),u=iw/a.island.width;
  const lamp={x:ix+620*u,y:iy+294*u,rx:104*u,ry:108*u};
  const focus=chapter&&!reduced&&!restorationPhase?Math.sin(ease(t,0,4.4)*Math.PI)*.035:0;
  ctx.save();ctx.translate(360,800);ctx.scale(1+focus,1+focus);ctx.translate(-360,-800);
@@ -151,7 +157,7 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   ctx.drawImage(a.reveal,0,0);
  }
  const fill=restorationPhase?(restorationPhase.index+ease(t,1.4,1.9))/4:intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
- ctx.save();ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();
+ ctx.save();ctx.globalAlpha=restorationOpening;ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();
  const glass=ctx.createRadialGradient(lamp.x-20,lamp.y-20,0,lamp.x,lamp.y,100*u*2);glass.addColorStop(0,'#254e67');glass.addColorStop(1,'#102e43');ctx.fillStyle=glass;ctx.fillRect(lamp.x-80,lamp.y-80,160,160);
  const waterTop=lamp.y+lamp.ry-2-lamp.ry*1.9*fill;
  ctx.beginPath();ctx.moveTo(lamp.x-lamp.rx-3,lamp.y+lamp.ry+3);ctx.lineTo(lamp.x-lamp.rx-3,waterTop);for(let x=-lamp.rx-3;x<=lamp.rx+3;x+=3)ctx.lineTo(lamp.x+x,waterTop+Math.sin(x*.07+ambientTime*2)*1.4);ctx.lineTo(lamp.x+lamp.rx+3,lamp.y+lamp.ry+3);ctx.closePath();

@@ -16,3 +16,14 @@ test('the original island preserves authored object masks and covers all four di
  assert.equal(restorationPixelGroup(25),1);assert.equal(restorationPixelGroup(50),2);assert.equal(restorationPixelGroup(70),2);assert.equal(restorationPixelGroup(100),3);
  assert.equal(restorationPixelGroup(null,40,190,60),0);assert.equal(restorationPixelGroup(null,30,100,220),1);
 });
+
+import {restorationFraming} from './story-renderer.js';
+test('expansion starts with the card square and ends at exactly the film framing',()=>{
+ for(const [w,h] of [[300,180],[390,844],[1094,300]]){
+  const scale=Math.min(w/720,h/1280),first=restorationFraming(w,h,0);
+  assert(Math.abs(first.size*scale-Math.min(w,h))<1e-8);
+  assert.equal(first.y,(1280-first.size)/2);
+  assert.deepEqual(restorationFraming(w,h,1),{size:700,y:410});
+  const last=restorationFraming(w,h,1-1e-8);assert(Math.abs(last.y-410)<.0001);assert(Math.abs(last.size-700)<.0001);
+ }
+});

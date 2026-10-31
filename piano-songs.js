@@ -1,4 +1,4 @@
-import {pianoIcon} from './piano-music.js?v=494205';
+import {pianoIcon} from './piano-music.js?v=494206';
 
 // Original scores, written in four-bar questions and answers. Song order is shuffled:
 // the melody, harmony, and rhythm always belong together.
