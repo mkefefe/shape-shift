@@ -14,10 +14,19 @@ export function copyFlightArt(art){
  }
  return copy;
 }
+// A DOM rectangle includes temporary board flips/press transforms. Never bake
+// that flattened rectangle into the copied artwork's permanent proportions.
+export function flightArtBounds(art){
+ const rect=art.getBoundingClientRect();
+ const width=art.offsetWidth||rect.width,height=art.offsetHeight||rect.height;
+ const scale=Math.max(rect.width/width,rect.height/height);
+ const w=width*scale,h=height*scale;
+ return {x:rect.x+(rect.width-w)/2,y:rect.y+(rect.height-h)/2,width:w,height:h};
+}
 export function createCoinFlight(source,target,reduced=false,revealMs=0){
  const art=source?.querySelector('.sprite');
  if(!art||!target)return null;
- const a=art.getBoundingClientRect(),b=target.getBoundingClientRect();
+ const a=flightArtBounds(art),b=target.getBoundingClientRect();
  const from={x:a.x+a.width/2,y:a.y+a.height/2},to={x:b.x+b.width/2,y:b.y+b.height/2};
  const flight=document.createElement('span');flight.className='shape-coin-flight';flight.setAttribute('aria-hidden','true');
  const copy=copyFlightArt(art);

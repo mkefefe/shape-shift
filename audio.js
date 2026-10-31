@@ -605,12 +605,13 @@
     if(!voiceBuffers.has(name))voiceBuffers.set(name,fetch('assets/praise/'+name+'.wav').then(r=>{if(!r.ok)throw Error('Voice unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).catch(()=>{voiceBuffers.delete(name);return null;}));
     return voiceBuffers.get(name);
   }
-  async function speakPraise(text){
-    const name=praiseClips[text];if(!name||!sfx||sfxVolume<=0||!active||context?.state!=='running')return;
+  async function speakPraise(text,onStart=()=>{}){
+    const name=praiseClips[text];if(!name||!active||context?.state!=='running'||window.ShapeShiftPlatform.paused)return;
+    if(!sfx||sfxVolume<=0){onStart();return;}
     stopVoice();const epoch=voiceEpoch,buffer=await voiceBuffer(name);
     if(epoch!==voiceEpoch||!buffer||!sfx||sfxVolume<=0||!active||context.state!=='running'||window.ShapeShiftPlatform.paused)return;
     const source=audioSource();source.buffer=buffer;source.connect(effectsBus);voiceSource=source;
-    source.onended=()=>{if(voiceSource===source)voiceSource=null;source.disconnect();};duckMusic(buffer.duration);source.start();
+    source.onended=()=>{if(voiceSource===source)voiceSource=null;source.disconnect();};duckMusic(buffer.duration);source.start();onStart();
   }
   function stopVoice(fade=0){voiceEpoch++;if(voiceSource){try{voiceSource.stop(context.currentTime+fade);}catch{}voiceSource=null;}}
   function pause() {

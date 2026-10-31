@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createCoinFlight,copyFlightArt,COIN_FLIGHT_MS,COIN_PICKUP_MS} from './coin-flight.js';
+import {createCoinFlight,copyFlightArt,flightArtBounds,COIN_FLIGHT_MS,COIN_PICKUP_MS} from './coin-flight.js';
 test('memory art stays visible before flight and reward arrival includes the reveal time',()=>{
  const previous=globalThis.document;
  const element=()=>({style:{visibility:''},setAttribute(){},removeAttribute(){},append(){},remove(){},querySelectorAll(){return []},getBoundingClientRect(){return {x:10,y:10,width:60,height:60}},cloneNode(){return element()}});
@@ -36,4 +36,12 @@ test('collection lifts the visible shape before travel, without per-frame layout
   effect.draw(COIN_PICKUP_MS+COIN_FLIGHT_MS/2);assert.equal(appended[0].style.left,'0px');assert.equal(appended[0].style.top,'0px');assert.equal(appended[0].style.opacity,'1');
   effect.draw(effect.duration);assert.equal(appended[0].style.opacity,'0');effect.clear();assert(appended.every(el=>el.removed));assert.equal(art.style.visibility,'');
  }finally{globalThis.document=previous;}
+});
+
+test('a pressed or flipping card cannot flatten its flying shape',()=>{
+ const art={offsetWidth:100,offsetHeight:100,getBoundingClientRect:()=>({x:50,y:200,width:12,height:90})};
+ const bounds=flightArtBounds(art);assert.equal(bounds.width,90);assert.equal(bounds.height,90);
+ assert.equal(bounds.x+bounds.width/2,56);assert.equal(bounds.y+bounds.height/2,245);
+ const wide={offsetWidth:120,offsetHeight:80,getBoundingClientRect:()=>({x:0,y:0,width:30,height:60})};
+ const b=flightArtBounds(wide);assert.equal(b.width/b.height,1.5);
 });

@@ -1,4 +1,4 @@
-import {BEACON} from './story-restoration.js?v=494203';
+import {BEACON} from './story-restoration.js?v=494204';
 // One prepared painting per destination. The source art is never stretched;
 // the same composition expands from the preview into the celebration window.
 const cache=new Map();

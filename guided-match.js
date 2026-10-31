@@ -1,4 +1,4 @@
-import {fitBoard} from './board-fit.js?v=494203';
+import {fitBoard} from './board-fit.js?v=494204';
 // Teach on the real match board without changing ranked state, RNG, or rewards.
 export function guidedMatch({doc=document,sprite,sound=()=>{}}){
  const game=doc.getElementById('game'),board=doc.getElementById('board'),current=doc.getElementById('current-sprite'),name=doc.getElementById('current-name'),status=doc.getElementById('board-status');

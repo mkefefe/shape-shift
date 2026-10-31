@@ -1,4 +1,4 @@
-import {TUTORIAL_KEY} from './onboarding.js?v=494203';
+import {TUTORIAL_KEY} from './onboarding.js?v=494204';
 export const FIRST_ENDLESS_KEY='shape-shift-first-endless-v1';
 // Decide before profile initialization writes starter data. Interrupted lessons resume.
 export function firstEndlessLaunch(storage){
