@@ -9,7 +9,7 @@ import {createSliceGame,finishSliceProgress,claimSliceReward,sliceProgress} from
 import {createPianoGame,finishPianoProgress,claimPianoReward,pianoProgress} from './piano-flow-engine.js';
 import {createDropGame,finishDropProgress,claimDropReward,dropProgress} from './shape-drop-engine.js';
 const base=frame=>applyLoadout(createRun(()=>0),frame,'garden');
-test('Blossom doubles normal, boosted, streak, pickup, bomb and victory points',()=>{
+test('Blossom doubles normal, boosted, repeated-pick, pickup, bomb and victory points',()=>{
  for(const boosted of [false,true]){
   let a=base('none'),b=base('blossom');if(boosted){a=spendAbility(a,'boost');b=spendAbility(b,'boost');}
   assert.equal(choose(b,[b.current],0).earned,boosted?10:2);

@@ -1,18 +1,20 @@
-import {publicRankings} from './leaderboard-cache.js?v=494202';
-import {leaderboardAllowed} from './audience.js?v=494202';
+import {publicRankings,personalRankings,clearPersonalRanking} from './leaderboard-cache.js?v=494203';
+import {leaderboardAllowed} from './audience.js?v=494203';
 // Public endpoint is enabled only after the score service is published for all players.
 export const LEADERBOARD_URL='https://shape-shift-test-scores.mkplaycraftstudio.workers.dev';
 const key='shape-shift-player-token';
 let sessionEpoch=0;const inFlight=new Set();
+export const rankedSessionVersion=()=>sessionEpoch;
+const sessionChanged=()=>Object.assign(Error('Ranking session changed.'),{code:'SESSION_CHANGED'});
 function token(){let value=window.ShapeShiftPlatform.storage.getItem(key);if(!value){value=crypto.randomUUID()+crypto.randomUUID();window.ShapeShiftPlatform.storage.setItem(key,value);}return value;}
 async function call(path,body,timeout=6000){
  if(!leaderboardAllowed()&&path!=='/api/delete'&&path!=='/api/leaderboard')throw Error('Online features are unavailable with these privacy settings.');
  if(!LEADERBOARD_URL)throw Error('Online leaderboard is not connected yet.');
  if(window.ShapeShiftPlatform.live&&!window.ShapeShiftPlatform.cloudRankings)throw Error('Cloud rankings are unavailable on this platform.');const epoch=sessionEpoch,credential=body?token():null;const controller=new AbortController();inFlight.add(controller);const timer=window.ShapeShiftPlatform.setTimeout(()=>controller.abort(),timeout);
- try{const request=()=>{if(epoch!==sessionEpoch)throw Error('Ranking session changed.');return fetch(LEADERBOARD_URL+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','Authorization':'Bearer '+credential}:undefined,body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit'});};let r=await request();if(r.status===503&&path!=='/api/run'){await r.text();r=await request();}if(r.status===429&&path==='/api/profile'){await r.text();await new Promise(resolve=>window.ShapeShiftPlatform.setTimeout(resolve,1600));r=await request();}if(!r.ok){const error=Error('Leaderboard is temporarily unavailable.');error.status=r.status;throw error;}return await r.json();}finally{window.ShapeShiftPlatform.clearTimeout(timer);inFlight.delete(controller);}
+ try{const current=()=>epoch===sessionEpoch&&(!credential||window.ShapeShiftPlatform.storage.getItem(key)===credential);const request=()=>{if(!current())throw sessionChanged();return fetch(LEADERBOARD_URL+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','Authorization':'Bearer '+credential}:undefined,body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit'});};let r=await request();if(r.status===503&&path!=='/api/run'){await r.text();r=await request();}if(r.status===429&&path==='/api/profile'){await r.text();await new Promise(resolve=>window.ShapeShiftPlatform.setTimeout(resolve,1600));r=await request();}if(!r.ok){const error=Error('Leaderboard is temporarily unavailable.');error.status=r.status;throw error;}const result=await r.json();if(!current())throw sessionChanged();return result;}finally{window.ShapeShiftPlatform.clearTimeout(timer);inFlight.delete(controller);}
 }
 // Each rules version binds the difficulty on the server before play begins.
-export const RANKED_RULES=Object.freeze({easy:39,normal:40,hard:41,extreme:42});
+export const RANKED_RULES=Object.freeze({easy:43,normal:44,hard:45,extreme:46});
 const requestRankedRun=async(difficulty='normal')=>{const rules=RANKED_RULES[difficulty];if(!rules)throw Error('Invalid ranked difficulty');const run=await call('/api/run',{rules,protocol:2},6000);if(run.rules!==rules)throw Error('Score service update pending');return run;};
 const preparedRuns=new Map();
 export function prepareRankedRun(difficulty='normal'){
@@ -27,7 +29,7 @@ export async function beginRankedRun(difficulty='normal'){
  const pending=prepareRankedRun(difficulty);preparedRuns.delete(difficulty);
  const run=await pending;if(run?.protocol===2){saveProof(run.id,{nonce:run.nonce,count:0});return run;}return null;
 }
-export function resetRankedSession(){sessionEpoch++;for(const controller of inFlight)controller.abort();inFlight.clear();preparedRuns.clear();queues.clear();scheduled.clear();window.ShapeShiftPlatform.storage.removeItem('shape-shift-run-proofs-v2');}
+export function resetRankedSession(){sessionEpoch++;for(const controller of inFlight)controller.abort();inFlight.clear();preparedRuns.clear();queues.clear();scheduled.clear();clearPersonalRanking();window.ShapeShiftPlatform.storage.removeItem('shape-shift-run-proofs-v2');}
 const proofKey='shape-shift-run-proofs-v2';
 const queues=new Map(),scheduled=new Map();
 function proofs(){try{return JSON.parse(window.ShapeShiftPlatform.storage.getItem(proofKey)||'{}');}catch{return {};}}
@@ -53,6 +55,14 @@ export async function submitRankedRun(run){await trackRankedActions(run,run.acti
 export const ownerAccess=()=>call('/api/owner',{});
 export const setOwnerAdmin=enabled=>call('/api/admin',{enabled});
 export const loadLeaderboard=()=>publicRankings(()=>call('/api/leaderboard',undefined,12000));
+export async function loadPersonalRanking(){
+ if(!leaderboardAllowed())return null;
+ const epoch=sessionEpoch,credential=window.ShapeShiftPlatform.storage.getItem(key),id=await currentPlayerId();
+ if(!id)return null;
+ const isCurrent=()=>epoch===sessionEpoch&&window.ShapeShiftPlatform.storage.getItem(key)===credential&&leaderboardAllowed();
+ if(!isCurrent())throw sessionChanged();
+ return personalRankings(()=>call('/api/personal-rank',{},12000),id,globalThis.localStorage,{isCurrent});
+}
 
 export const saveOnlineProfile=identity=>call('/api/profile',{name:identity.name,avatar:Number.isInteger(identity.avatar)?identity.avatar:0,frame:identity.frame},10000);
 export const deleteOnlineProfile=()=>call('/api/delete',{},10000);
@@ -77,9 +87,22 @@ export function identifyLeaderboardEntries(entries,playerId,identity){
  });
 }
 
-// A local best is useful outside the returned list, but is not a verified rank.
-export function personalRanking(entries=[],bests={}){
+// Personal verified data is independent of the public top-100 page. A local
+// score must never be presented as a server-verified score or global rank.
+export function personalRanking(entries=[],personal=null){
  const index=entries.findIndex(row=>row.isYou===true);
- if(index>=0)return {rank:index+1,score:entries[index].score,listed:true};
- return {rank:null,score:Math.max(0,...Object.values(bests).filter(value=>Number.isFinite(value)&&value>=0)),listed:false};
+ if(personal?.entry)return {...personal.entry,listed:index>=0,cached:personal.cached===true,savedAt:personal.savedAt};
+ if(personal?.ranked===false)return {rank:null,score:null,listed:false,cached:personal.cached===true,savedAt:personal.savedAt};
+ if(index>=0)return {rank:entries[index].rank||index+1,score:entries[index].score,listed:true,cached:entries[index].rankingCached===true,savedAt:entries[index].rankingSavedAt};
+ return {rank:null,score:null,listed:false};
+}
+
+export async function flushPendingRankedScores({pending,submit=submitRankedRun,saved,failed,isCurrent=()=>true}){
+ const attempted=new Set();let uploaded=0,rejected=0;
+ while(isCurrent()){
+  const run=pending().find(row=>!attempted.has(row.id));if(!run)break;attempted.add(run.id);
+  try{const result=await submit(run);if(!isCurrent())break;await saved(run,result);uploaded++;}
+  catch(error){if(!isCurrent()||error.code==='SESSION_CHANGED')break;if([400,404,413,422].includes(error.status)){await failed(run,error);rejected++;continue;}return {uploaded,rejected,error};}
+ }
+ return {uploaded,rejected};
 }

@@ -22,7 +22,7 @@ export const DIFFICULTIES={
  hard:{name:'Hard',start:2400,floor:ENDLESS_MIN_TIME,ramp:15,pickups:.05,points:2},
  extreme:{name:'Extreme',start:2000,floor:ENDLESS_MIN_TIME,ramp:22,pickups:.03,points:3}
 };
-// Score pressure prevents large streak/boost rewards from leaving long runs at opening speed.
+// Score pressure prevents boosted rewards from leaving long runs at opening speed.
 // Lifetime picks keep pressure rising even after Rewind resets the board size.
 const endlessPressure=state=>Math.max(0,state.picks||0,(state.score||0)/2);
 export const endlessIntensity=state=>{
@@ -39,7 +39,6 @@ export const duration = state => {
 };
 export const randomTile = (rng=Math.random) => ({shape:Math.min(3,Math.floor(rng()*4)),color:Math.min(3,Math.floor(rng()*4))});
 export const createRun = (rng=Math.random) => ({current:randomTile(rng),score:0,picks:0,chainProgress:0,chainTarget:10,difficultyRound:0,sweepPending:false,sweepBoard:null,maxLives:3,strikes:0,level:1,colorStreak:0,shapeStreak:0,lastPick:null,bonus:0,freeze:1,boost:1,shield:1,shieldEnabled:false,shieldCooldown:0,shieldJustBroken:false,protected:false,protectionHits:0,multiplier:1,slow:false,slowRounds:0,pickupSlowRounds:0,boostRounds:0,continued:false,over:false,outcome:'ready'});
-export const streakBonus=n=>n===3||n===5||(n>=10&&n%5===0)?n:0;
 export function seededRandom(seed){let n=seed>>>0;return ()=>{n=(Math.imul(1664525,n)+1013904223)>>>0;return n/4294967296;};}
 
 function shuffled(items,rng) {
@@ -160,8 +159,9 @@ export function choose(state,board,index) {
   if(!(state.mode==='adventure'&&state.matchRule?state.current[state.matchRule]===tile[state.matchRule]:matches(state.current,tile))) return mistake(state,'wrong');
   const colorStreak=state.lastPick?.color===tile.color?state.colorStreak+1:1;
   const shapeStreak=state.lastPick?.shape===tile.shape?state.shapeStreak+1:1;
-  const streak=streakBonus(colorStreak)+streakBonus(shapeStreak);const bonus=streak;
-  const score=state.score+(state.multiplier+bonus)*difficultyFor(state).points*frameRewardMultiplier(state.frame);
+  // Streaks track progress and feedback; only explicit modifiers change a pick's value.
+  const bonus=0;
+  const score=state.score+state.multiplier*difficultyFor(state).points*frameRewardMultiplier(state.frame);
   const picks=state.picks+1;
   return {...state,...chain,current:{...tile},lastPick:{...tile},colorStreak,shapeStreak,bonus,score,picks,stage:(state.stage??state.picks)+1,earned:score-state.score,strikes:state.strikes,level:levelFor(picks),protected:state.protected,outcome:'correct'};
 }

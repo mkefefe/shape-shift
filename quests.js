@@ -1,11 +1,11 @@
-import {journeyQuest,journeyDailyPool,questAvailable,advanceJourney} from './quest-journey.js?v=494202';
-import {advanceQuestRun,advanceChallenge} from './quest-challenges.js?v=494202';
-import {COSMETICS,playerLevel} from './economy.js?v=494202';
+import {journeyQuest,journeyDailyPool,questAvailable,advanceJourney} from './quest-journey.js?v=494203';
+import {advanceQuestRun,advanceChallenge} from './quest-challenges.js?v=494203';
+import {COSMETICS,playerLevel} from './economy.js?v=494203';
 const shapes=['circle','triangle','square','star'],colors=['red','blue','green','yellow'];
 export function questPool(p){return [
  ...shapes.map((name,value)=>({id:'shape-'+value,type:'streak',value,target:3,reward:100,title:'Pick 3 '+name+' shapes in a row',hint:'Consecutive correct picks in one run.'})),
  ...colors.map((name,value)=>({id:'color-'+value,type:'color',value,target:5,reward:50,title:'Pick '+name+' 5 times',hint:'Correct picks across any number of runs.'})),
- {id:'score-20',type:'score',target:20,reward:100,title:'Score 20 in one run',hint:'Boost and streak points count too.'},
+ {id:'score-20',type:'score',target:20,reward:100,title:'Score 20 in one run',hint:'Boosted points count too.'},
  {id:'picks-15',type:'picks',target:15,reward:100,title:'Make 15 correct picks',hint:'Progress carries over between runs.'},
  ...COSMETICS.filter(c=>p.owned.includes(c.id)&&playerLevel(p)>=c.level).map(c=>({id:'wear-'+c.id,type:'wear',value:c.id,kind:c.kind,target:1,reward:100,title:'Play a run with '+c.name,hint:'Make at least 5 correct picks, then finish the run.'}))];}
 export const NORMAL_QUEST_TOTAL=400;

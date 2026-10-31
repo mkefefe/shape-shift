@@ -1,101 +1,93 @@
-import {flushResultStorage,pendingResultModes} from './result-storage.js?v=494202';
-import {checkpointRunResult,finalizeRunResult,recoverRunResult} from './run-results.js?v=494202';
+import {flushResultStorage,pendingResultModes} from './result-storage.js?v=494203';
+import {checkpointRunResult,finalizeRunResult,recoverRunResult} from './run-results.js?v=494203';
 import {markStartup} from './experience-metrics.js';
-import {battleDamage} from './battle-power.js?v=494202';
-import {initBattleMenu} from './battle-menu.js?v=494202';
-import {beginModeTransition,transitioning} from './mode-transition.js?v=494202';
-import {engagement,telemetryChoice,applyWelcomeStatistics,sampleEngagement} from './telemetry.js?v=494202';
-import {createEndlessCoach} from './endless-coach.js?v=494202';
+import {battleDamage} from './battle-power.js?v=494203';
+import {initBattleMenu} from './battle-menu.js?v=494203';
+import {beginModeTransition,transitioning} from './mode-transition.js?v=494203';
+import {engagement,telemetryChoice,applyWelcomeStatistics,sampleEngagement} from './telemetry.js?v=494203';
+import {createEndlessCoach} from './endless-coach.js?v=494203';
 let openingCoach=null,firstLossRecorded=false;
-import {animateQuestRedemption} from './quest-redemption.js?v=494202';
-import {initLivingMenu} from './menu-polish.js?v=494202';
-import {bindPauseKeyboard} from './pause-keyboard.js?v=494202';
-import {bindBoardKeyboard} from './board-keyboard.js?v=494202';
-import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=494202';
-import {bindResultKeyboard} from './result-keyboard.js?v=494202';
-import {bombFeedback,bombDebris} from './bomb-feedback.js?v=494202';
-import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=494202';
-import {HOME_STARTUP_ASSETS} from './startup-plan.js?v=494202';
-import {firstEndlessLaunch as firstJourneyLaunch} from './first-endless.js?v=494202';
-import {RESTORATION_KEY,migrateRestoration,restorationSummary,claimRestoration} from './world-restoration.js?v=494202';
-import {creditRestoration,creditBattleReward} from './world-rewards.js?v=494202';
-import {initRestorationUI} from './restoration-ui.js?v=494202';
-import {initMenuReadiness} from './menu-readiness.js?v=494202';
-import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494202';
-import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=494202';
-import {praiseDirector} from './praise-feedback.js?v=494202';
-import {showAdventureVictory} from './adventure-victory.js?v=494202';
-import {initStoryUI} from './story-ui.js?v=494202';
-import {initTouchUI} from './touch-ui.js?v=494202';
-import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=494202';
-import {createLazyMode} from './lazy-mode.js?v=494202';
-import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=494202';
-import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=494202';
-import {initInputFeedback} from './input-feedback.js?v=494202';
-import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=494202';
-import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=494202';
-import {enableHoldBuying} from './hold-buy.js?v=494202';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=494202';
-import {rankingLoadMessage} from './leaderboard-cache.js?v=494202';
-import {loadPrivacyContent} from './privacy-content.js?v=494202';
-import {initSettingsExtras} from './settings-extras.js?v=494202';
-import {initGamesHub} from './games-hub.js?v=494202';
-import {normalizeMiniQuestEvent} from './mini-quest-events.js?v=494202';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=494202';
-import {fitBoard} from './board-fit.js?v=494202';
-import {analytics} from './analytics.js?v=494202';
-import {ensureTerms} from './terms.js?v=494202';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=494202';
-import {observeBoard} from './board-fit.js?v=494202';
+import {animateQuestRedemption} from './quest-redemption.js?v=494203';
+import {initLivingMenu} from './menu-polish.js?v=494203';
+import {bindPauseKeyboard} from './pause-keyboard.js?v=494203';
+import {bindBoardKeyboard} from './board-keyboard.js?v=494203';
+import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=494203';
+import {bindResultKeyboard} from './result-keyboard.js?v=494203';
+import {bombFeedback,bombDebris} from './bomb-feedback.js?v=494203';
+import {loadStartupAssets,loadBackgroundAssets} from './startup-loader.js?v=494203';
+import {HOME_STARTUP_ASSETS} from './startup-plan.js?v=494203';
+import {firstEndlessLaunch as firstJourneyLaunch} from './first-endless.js?v=494203';
+import {RESTORATION_KEY,migrateRestoration,restorationSummary,claimRestoration} from './world-restoration.js?v=494203';
+import {creditRestoration,creditBattleReward} from './world-rewards.js?v=494203';
+import {initRestorationUI} from './restoration-ui.js?v=494203';
+import {initMenuReadiness} from './menu-readiness.js?v=494203';
+import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494203';
+import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=494203';
+import {praiseDirector} from './praise-feedback.js?v=494203';
+import {showAdventureVictory} from './adventure-victory.js?v=494203';
+import {initStoryUI} from './story-ui.js?v=494203';
+import {initTouchUI} from './touch-ui.js?v=494203';
+import {syncMenuBanner as updateMenuBanner} from './menu-navigation.js?v=494203';
+import {createLazyMode} from './lazy-mode.js?v=494203';
+import {SHAPE_SKINS,buySkin,equipSkin,skinUnlocked} from './shape-skins.js?v=494203';
+import {skinArtReady,ensureSkinArt,setActiveSkin,activeSkin,skinCanvas,skinIsReady} from './shape-skin-art.js?v=494203';
+import {initInputFeedback} from './input-feedback.js?v=494203';
+import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=494203';
+import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=494203';
+import {enableHoldBuying} from './hold-buy.js?v=494203';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=494203';
+import {rankingLoadMessage,readPublicRankings,readPersonalRanking} from './leaderboard-cache.js?v=494203';
+import {loadPrivacyContent} from './privacy-content.js?v=494203';
+import {initSettingsExtras} from './settings-extras.js?v=494203';
+import {initGamesHub} from './games-hub.js?v=494203';
+import {normalizeMiniQuestEvent} from './mini-quest-events.js?v=494203';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=494203';
+import {fitBoard} from './board-fit.js?v=494203';
+import {analytics} from './analytics.js?v=494203';
+import {ensureTerms} from './terms.js?v=494203';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=494203';
+import {observeBoard} from './board-fit.js?v=494203';
 observeBoard(document.getElementById('board'));
-import {createGameplayScene} from './gameplay-scene.js?v=494202';
-import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=494202';
-import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494202';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=494202';
-import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494202';
-import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494202';
+import {createGameplayScene} from './gameplay-scene.js?v=494203';
+import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=494203';
+import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494203';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=494203';
+import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494203';
+import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494203';
 
-import {createCoinFlight,showQuestReward} from './coin-flight.js?v=494202';
-import {earnsMatchCoin} from './economy.js?v=494202';
+import {createCoinFlight,showQuestReward} from './coin-flight.js?v=494203';
+import {earnsMatchCoin} from './economy.js?v=494203';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=494202';
-import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=494202';
-
-
-
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=494202';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=494203';
+import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=494203';
 
 
 
-import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=494202';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=494203';
 
 
 
-import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=494202';
+import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=494203';
 
 
 
-import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=494202';
+import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=494203';
 
 
 
-import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=494202';
+import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js?v=494203';
 
 
 
-import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=494202';
+import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=494203';
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=494202';
+import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,newlyCompletedQuests,questList,NORMAL_QUEST_TOTAL} from './quests.js?v=494203';
 
 
 
-
-
-
-
-import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=494202';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=494203';
 
 
 
@@ -103,7 +95,7 @@ import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECI
 
 
 
-import {requestReward} from './rewarded.js?v=494202';
+import {correctChoiceIndices,awardVictoryBoard,difficultyFor,SHAPES,COLORS,SPECIALS,replayFrame,applyLoadout,abilityActive,stopAbility,frameDelta,advanceBoard,createRun,makeBoard,boardSize,duration,choose,expire,spendAbility,revive,elapsedBoardTime,timeSlowRate,seededRandom} from './engine.js?v=494203';
 
 
 
@@ -111,7 +103,7 @@ import {requestReward} from './rewarded.js?v=494202';
 
 
 
-import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=494202';
+import {requestReward} from './rewarded.js?v=494203';
 
 
 
@@ -119,7 +111,15 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,deleteOnlineProfile,resetRankedSession,saveOnlineProfile} from './leaderboard.js?v=494202';
+import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarterAvatar,PRICES,boostPrice,buy,consume,earnCoin,matchCoinReward,COSMETICS,playerLevel,playerProgress,buyCosmetic,equipCosmetic,rewardVideoCoins,VIDEO_COIN_REWARD,FRAME_UPGRADES,nextFrameUpgrade,upgradeFrame} from './economy.js?v=494203';
+
+
+
+
+
+
+
+import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadLeaderboard,loadPersonalRanking,deleteOnlineProfile,resetRankedSession,saveOnlineProfile,rankedSessionVersion,flushPendingRankedScores} from './leaderboard.js?v=494203';
 
 
 
@@ -2480,40 +2480,18 @@ let flushing=null;
 
 
 function flushScores(){
-
-
-
  if(flushing)return flushing;
-
-
-
- flushing=(async()=>{for(const run of profile.pending.slice()){
-
-
-
-  try{await submitRankedRun(run);profile.pending=profile.pending.filter(r=>r!==run);saveProfile();}
-
-
-
-  catch(error){if([400,404,413,422].includes(error.status)){profile.failedScores=[{...run,status:error.status},...(profile.failedScores||[])].slice(0,20);profile.pending=profile.pending.filter(r=>r!==run);saveProfile();continue;}break;}
-
-
-
- }})().finally(()=>{flushing=null;});
-
-
-
+ if(!leaderboardAllowed())return Promise.resolve({uploaded:0,rejected:0});
+ const epoch=rankedSessionVersion();
+ const persistQueue=()=>{saveProfile();flushProfile();void flushResultStorage();};
+ flushing=flushPendingRankedScores({
+  pending:()=>profile.pending,
+  isCurrent:()=>epoch===rankedSessionVersion()&&leaderboardAllowed(),
+  saved:run=>{profile.pending=profile.pending.filter(r=>r.id!==run.id);persistQueue();},
+  failed:(run,error)=>{profile.failedScores=[{...run,status:error.status},...(profile.failedScores||[]).filter(r=>r.id!==run.id)].slice(0,20);profile.pending=profile.pending.filter(r=>r.id!==run.id);persistQueue();}
+ }).finally(()=>{flushing=null;});
  return flushing;
-
-
-
 }
-
-
-
-
-
-
 
 function applyCosmetics(){
  setActiveSkin(profile.equipped.skin);
@@ -3049,117 +3027,69 @@ function shop(){
 
 
 
-let rankingsRequest=0;
-
-
-
-let lastRankingsSnapshot=null;
-function renderPersonalRanking(entries=[],cached=false){
- const dialog=$('leaderboard-dialog'),summary=personalRanking(entries,endlessBests()),identity=getIdentity();
+let rankingsRequest=0,lastRankingsSnapshot=null,lastRankingEntries=[],lastPersonalRanking=null,lastRankingPlayerId=null;
+const rankingEntries=(data,id)=>identifyLeaderboardEntries(data.entries.map(row=>({...row,rankingCached:data.cached===true,rankingSavedAt:data.savedAt??Date.now()})),id,getIdentity());
+function renderPersonalRanking(entries=[],personal=null,{checking=false}={}){
+ const dialog=$('leaderboard-dialog'),summary=personalRanking(entries,personal),identity=getIdentity();
  let footer=$('leaderboard-personal');
  if(!footer){footer=document.createElement('button');footer.id='leaderboard-personal';footer.type='button';footer.className='personal-score-row';dialog.querySelector('.dialog-content').append(footer);}
- const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=summary.rank===null?'—':String(summary.rank);
+ const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=summary.rank===null?'\u2014':String(summary.rank);
  const copy=document.createElement('span');copy.className='personal-rank-copy';
  const name=document.createElement('strong');name.className='personal-rank-name';name.textContent=identity.name;
- const hint=document.createElement('small');hint.textContent=summary.listed?(cached?'Last loaded ranking':'Your ranking'):'Personal best · rank unavailable';copy.append(name,hint);
- const score=document.createElement('b');score.className='rank-score';score.textContent=summary.score;
- footer.replaceChildren(rank,leaderboardAvatar(identity),copy,score);footer.disabled=!summary.listed;footer.hidden=summary.listed&&summary.rank<=3;
- footer.setAttribute('aria-label',summary.listed?'Your rank '+summary.rank+', '+identity.name+', '+summary.score+' points. Jump to your entry.':identity.name+', personal best '+summary.score+' points. Global rank unavailable.');
- footer.onclick=()=>{
-  const row=$('leaderboard-rows').querySelector('.rank-you');if(!row)return;
-  row.scrollIntoView({block:'center',behavior:'smooth'});
-  row.focus({preventScroll:true});
- };
+ const hint=document.createElement('small');
+ const pending=leaderboardAllowed()&&profile.pending.length>0;
+ if(!leaderboardAllowed())hint.textContent='Ranking uploads are off';
+ else if(summary.rank!==null){
+  const date=Number.isFinite(summary.savedAt)?new Date(summary.savedAt).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  hint.textContent=pending?'Score waiting to upload \u00b7 last verified rank':summary.cached?'Last verified'+(date?' \u00b7 '+date:''):'Your global rank'+(summary.listed?' \u00b7 tap to find':'');
+ }else hint.textContent=pending?'Score waiting to upload':checking?'Checking your verified score\u2026':personal?.ranked===false?'Finish an online Endless run to rank':'Verified score unavailable \u00b7 retry to refresh';
+ copy.append(name,hint);
+ const score=document.createElement('b');score.className='rank-score';score.textContent=summary.score===null?'\u2014':summary.score.toLocaleString();
+ footer.replaceChildren(rank,leaderboardAvatar(identity),copy,score);footer.disabled=!summary.listed;footer.hidden=false;
+ footer.setAttribute('aria-label',summary.rank!==null?'Your global rank '+summary.rank+', '+identity.name+', '+summary.score+' verified points.'+(summary.listed?' Jump to your entry.':' Outside the public top 100.')+(summary.cached?' Last loaded result.':''):identity.name+'. '+hint.textContent);
+ footer.onclick=()=>{const row=$('leaderboard-rows').querySelector('.rank-you');if(!row)return;row.scrollIntoView({block:'center',behavior:'smooth'});row.focus({preventScroll:true});};
 }
-
+function renderRankingRows(entries){
+ lastRankingEntries=entries;const snapshot=JSON.stringify(entries);if(snapshot===lastRankingsSnapshot)return;
+ lastRankingsSnapshot=snapshot;$('leaderboard-rows').replaceChildren();
+ for(const [i,row] of entries.entries()){
+  const line=document.createElement('div');line.className='rank-card'+(row.isYou?' rank-you':'');
+  const rankNumber=row.rank||i+1,rank=document.createElement('strong');rank.className='rank-number';rank.textContent=rankNumber;
+  const copy=document.createElement('div'),name=document.createElement('strong');name.textContent=row.name;copy.append(name);
+  if(row.isYou){line.tabIndex=-1;line.setAttribute('aria-label','Rank '+rankNumber+', '+row.name+', '+row.score+' points');}
+  const score=document.createElement('b');score.className='rank-score';score.textContent=row.score.toLocaleString();
+  line.append(rank,leaderboardAvatar(row),copy,score);$('leaderboard-rows').append(line);
+ }
+}
+function resetLeaderboardView(){rankingsRequest++;lastPersonalRanking=null;lastRankingPlayerId=null;renderRankingRows(lastRankingEntries.map(row=>({...row,isYou:false})));renderPersonalRanking();}
 async function rankings(silent=false){
-
-
-
-
- const request=++rankingsRequest;
-
-
-
- if(!silent&&!lastRankingsSnapshot)$('leaderboard-status').textContent='Loading rankings…';
-
-
-
+ const request=++rankingsRequest,allowed=leaderboardAllowed();
+ const identitySync=allowed?syncIdentity().catch(()=>{}):Promise.resolve();
+ const playerId=allowed?await currentPlayerId():null;if(request!==rankingsRequest)return;
+ if(playerId!==lastRankingPlayerId){lastPersonalRanking=null;lastRankingPlayerId=playerId;renderRankingRows(lastRankingEntries.map(row=>({...row,isYou:false})));}
+ const cachedBoard=readPublicRankings(),cachedPersonal=playerId?readPersonalRanking(playerId):null;
+ if(cachedBoard)renderRankingRows(rankingEntries(cachedBoard,playerId));
+ if(cachedPersonal)lastPersonalRanking=cachedPersonal;
+ renderPersonalRanking(lastRankingEntries,lastPersonalRanking,{checking:allowed&&!lastPersonalRanking});
+ if(!silent)$('leaderboard-status').textContent=cachedBoard?'Refreshing rankings\u2026':'Loading rankings\u2026';
  try{
-
-
-
-  if(leaderboardAllowed())flushScores().catch(()=>{});
-
-
-
-  const [data,playerId]=await Promise.all([loadLeaderboard(),leaderboardAllowed()?currentPlayerId():Promise.resolve(null)]);
-
-
-
+  // A successful finish must reach the service before asking for its new rank.
+  // Keep verified cached rows visible while pending results are being retried.
+  if(allowed){await identitySync;await flushScores();}
   if(request!==rankingsRequest)return;
-
-
-
-  const entries=identifyLeaderboardEntries(data.entries,playerId,getIdentity());
-
-
-
-
-  $('leaderboard-reload').hidden=!data.cached;
-  $('leaderboard-status').textContent=data.cached?'Offline rankings':entries.length?'':'No scores yet.';
-
-
-
-  renderPersonalRanking(entries,Boolean(data.cached));
-  const snapshot=JSON.stringify(entries);
-  if(snapshot===lastRankingsSnapshot)return;
-  lastRankingsSnapshot=snapshot;
-  $('leaderboard-rows').replaceChildren();
-  for(const [i,row] of entries.entries()){
-
-
-
-   const line=document.createElement('div');line.className='rank-card'+(row.isYou?' rank-you':'');if(row.isYou)line.tabIndex=-1;
-
-
-
-   const rank=document.createElement('strong');rank.className='rank-number';rank.textContent=i+1;
-
-
-
-   const copy=document.createElement('div');const name=document.createElement('strong');name.textContent=row.name;copy.append(name);
-
-
-
-   if(row.isYou){line.tabIndex=-1;line.setAttribute('aria-label','Rank '+(i+1)+', '+row.name+', '+row.score+' points');}
-
-
-
-   const score=document.createElement('b');score.className='rank-score';score.textContent=row.score;
-
-
-
-   line.append(rank,leaderboardAvatar(row),copy,score);$('leaderboard-rows').append(line);
-
-
-
-  }
-
-
-
- }catch(error){if(request===rankingsRequest){$('leaderboard-status').textContent=rankingLoadMessage(error,Boolean(lastRankingsSnapshot));$('leaderboard-reload').hidden=false;}}
-
-
-
+  const [boardResult,personalResult]=await Promise.allSettled([loadLeaderboard(),allowed?loadPersonalRanking():Promise.resolve(null)]);
+  if(request!==rankingsRequest||playerId!==(allowed?await currentPlayerId():null))return;
+  if(boardResult.status==='fulfilled'){
+   const data=boardResult.value;renderRankingRows(rankingEntries(data,playerId));
+   $('leaderboard-status').textContent=data.cached?'Offline \u00b7 last loaded top 100':data.entries.length?'Top '+data.entries.length+' \u00b7 '+(data.players??data.entries.length)+' ranked players':'No verified scores yet.';
+   $('leaderboard-reload').hidden=!data.cached;
+  }else{$('leaderboard-status').textContent=rankingLoadMessage(boardResult.reason,Boolean(lastRankingsSnapshot));$('leaderboard-reload').hidden=false;}
+  if(personalResult.status==='fulfilled')lastPersonalRanking=personalResult.value;
+  else $('leaderboard-reload').hidden=false;
+  if(lastPersonalRanking?.cached)$('leaderboard-reload').hidden=false;
+  renderPersonalRanking(lastRankingEntries,lastPersonalRanking);
+ }catch(error){if(request===rankingsRequest){$('leaderboard-status').textContent=rankingLoadMessage(error,Boolean(lastRankingsSnapshot));$('leaderboard-reload').hidden=false;renderPersonalRanking(lastRankingEntries,lastPersonalRanking);}}
 }
-
-
-
-
-
-
-
 
 enableHoldBuying($('shop-dialog'));
 function resetShopView(){for(const tab of document.querySelectorAll('[data-shop-tab]')){const first=tab.dataset.shopTab==='shop-items';tab.setAttribute('aria-selected',String(first));$(tab.dataset.shopTab).hidden=!first;$(tab.dataset.shopTab).scrollTop=0;}$('shop-dialog').querySelector('.dialog-content').scrollTop=0;}
@@ -3172,13 +3102,13 @@ $('shop-open').onclick=()=>{resetShopView();analytics.count('shop',({ 'shop-item
 
 
 $('leaderboard-open').onclick=()=>{
- const dialog=$('leaderboard-dialog');renderPersonalRanking();dialog.showModal();
+ const dialog=$('leaderboard-dialog');renderPersonalRanking([],null,{checking:leaderboardAllowed()});dialog.showModal();
  // Reset after showModal so restored focus cannot keep the old scroll position.
  for(const pane of [dialog,dialog.querySelector('.dialog-content'),$('leaderboard-rows')])pane.scrollTo({top:0,left:0,behavior:'instant'});
  rankings();
 };$('leaderboard-reload').onclick=()=>rankings();
 $('leaderboard-reload').hidden=true;$('leaderboard-reload').textContent='Retry';
-window.ShapeShiftPlatform.setInterval(()=>{if(!window.ShapeShiftPlatform.paused&&$('leaderboard-dialog').open)rankings(true);},30000);
+window.ShapeShiftPlatform.setInterval(()=>{if(window.ShapeShiftPlatform.paused)return;if($('leaderboard-dialog').open)rankings(true);else if(leaderboardAllowed()&&profile.pending.length)void flushScores();},30000);
 document.addEventListener('visibilitychange',()=>{if(!window.ShapeShiftPlatform.paused&&$('leaderboard-dialog').open)rankings(true);});
 
 
@@ -3776,7 +3706,7 @@ $('delete-profile-open').onclick=()=>{$('delete-profile-status').textContent='';
 
 
 
-$('delete-profile-confirm').onclick=async()=>{const b=$('delete-profile-confirm');b.disabled=true;window.ShapeShiftPlatform.storage.setItem('shape-shift-online-disabled','1');resetRankedSession();ranked=null;try{if(window.ShapeShiftPlatform.storage.getItem('shape-shift-player-token'))await deleteOnlineProfile();window.ShapeShiftPlatform.storage.removeItem('shape-shift-player-token');profile.pending=[];saveProfile();flushProfile();$('public-player-id').textContent='';$('player-id-row').hidden=true;$('delete-profile-status').textContent='Online profile deleted. Ranking uploads are off.';}catch{$('delete-profile-status').textContent='Could not delete the online record. Uploads are off. Please reconnect and try again.';}finally{b.disabled=false;syncRankingSettings();}};
+$('delete-profile-confirm').onclick=async()=>{const b=$('delete-profile-confirm');b.disabled=true;window.ShapeShiftPlatform.storage.setItem('shape-shift-online-disabled','1');resetRankedSession();resetLeaderboardView();ranked=null;try{if(window.ShapeShiftPlatform.storage.getItem('shape-shift-player-token'))await deleteOnlineProfile();window.ShapeShiftPlatform.storage.removeItem('shape-shift-player-token');profile.pending=[];saveProfile();flushProfile();$('public-player-id').textContent='';$('player-id-row').hidden=true;$('delete-profile-status').textContent='Online profile deleted. Ranking uploads are off.';}catch{$('delete-profile-status').textContent='Could not delete the online record. Uploads are off. Please reconnect and try again.';}finally{b.disabled=false;syncRankingSettings();}};
 
 
 
@@ -3882,19 +3812,19 @@ let gamesHub;
 function miniQuestEvent(event){trackAchievements({...event,game:event.mode,mode:'games'});const questEvent=normalizeMiniQuestEvent(event);if(!questEvent)return;profile=trackQuestProgress(profile,questEvent);saveProfile();updateQuestBadge();}
 function observeMini(id,instance){bannerObserver.observe(document.getElementById(id),{attributes:true,attributeFilter:['open']});return instance;}
 const shapeDrop=createLazyMode(async()=>{
- const [{initShapeDrop},{claimDropReward}]=await Promise.all([import('./shape-drop.js?v=494202'),import('./shape-drop-engine.js?v=494202')]);
+ const [{initShapeDrop},{claimDropReward}]=await Promise.all([import('./shape-drop.js?v=494203'),import('./shape-drop-engine.js?v=494203')]);
  return observeMini('shape-drop',initShapeDrop({getLoadout:()=>({frame:profile.equipped.frame}),getXp:()=>profile.xp,onQuestEvent:miniQuestEvent,sound:uiSound,onClose:()=>gamesHub?.open(),onProgress:progress=>trackAchievements({type:'dropHistory',mode:'games',...progress}),reward:entry=>{
  const next=claimDropReward(profile,entry);if(next===profile)return profile.dropRewards?.includes(entry.id)===true;
  return commitMiniReward(next,'drop',entry.id);
 }}));});
 const shapeSlice=createLazyMode(async()=>{
- const [{initShapeSlice},{claimSliceReward}]=await Promise.all([import('./shape-slice.js?v=494202'),import('./shape-slice-engine.js?v=494202')]);
+ const [{initShapeSlice},{claimSliceReward}]=await Promise.all([import('./shape-slice.js?v=494203'),import('./shape-slice-engine.js?v=494203')]);
  return observeMini('shape-slice',initShapeSlice({getXp:()=>profile.xp,onQuestEvent:miniQuestEvent,sound:uiSound,getLoadout:()=>({frame:profile.equipped.frame,upgrade:profile.upgrades[profile.equipped.frame]||0}),onClose:()=>gamesHub?.open(),onProgress:progress=>trackAchievements({type:'sliceHistory',mode:'games',...progress}),reward:entry=>{
  const next=claimSliceReward(profile,entry);if(next===profile)return profile.sliceRewards?.includes(entry.id)===true;
  return commitMiniReward(next,'slice',entry.id);
 }}));});
 const pianoFlow=createLazyMode(async()=>{
- const [{initPianoFlow},{claimPianoReward}]=await Promise.all([import('./piano-flow.js?v=494202'),import('./piano-flow-engine.js?v=494202')]);
+ const [{initPianoFlow},{claimPianoReward}]=await Promise.all([import('./piano-flow.js?v=494203'),import('./piano-flow-engine.js?v=494203')]);
  return observeMini('piano-flow',initPianoFlow({onProgress:progress=>trackAchievements({type:'pianoHistory',mode:'games',...progress}),getXp:()=>profile.xp,onQuestEvent:miniQuestEvent,sound:uiSound,getLoadout:()=>({frame:profile.equipped.frame,upgrade:profile.upgrades[profile.equipped.frame]||0}),onClose:()=>gamesHub?.open(),reward:entry=>{
  const next=claimPianoReward(profile,entry);if(next===profile)return profile.pianoRewards?.includes(entry.id)===true;
  return commitMiniReward(next,'piano',entry.id);
@@ -4060,4 +3990,4 @@ document.addEventListener('visibilitychange',()=>document.hidden?engagement.back
 window.addEventListener('pagehide',()=>engagement.background());
 window.addEventListener('androidpause',()=>engagement.background());
 window.addEventListener('androidresume',()=>engagement.foreground());
-window.addEventListener('online',()=>engagement.flush());
+window.addEventListener('online',()=>{engagement.flush();if(leaderboardAllowed())flushScores().then(()=>{if($('leaderboard-dialog').open)rankings(true);});});

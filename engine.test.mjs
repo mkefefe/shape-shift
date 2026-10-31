@@ -11,6 +11,38 @@ test('each valid selection earns exactly one point and adopts both attributes',(
  }
  assert.equal(start.score,0);assert.equal(start.current.color,0);
 });
+
+test('ordinary Endless and Adventure picks stay worth one point through long shape and color streaks',()=>{
+ for(const mode of ['endless','adventure'])for(const pattern of ['both','shape','color']){
+  let state={...base(),mode,difficulty:'normal'};
+  for(let i=0;i<100;i++){
+   const tile={shape:pattern==='color'?i%4:1,color:pattern==='shape'?i%4:0};
+   const previous=state.score;
+   state=choose(state,[tile],0);
+   assert.equal(state.earned,1,`${mode}: ${pattern} streak, pick ${i+1}`);
+   assert.equal(state.score,previous+1);
+   assert.equal(state.bonus,0);
+   assert.equal(state.colorStreak,pattern==='shape'?1:i+1);
+   assert.equal(state.shapeStreak,pattern==='color'?1:i+1);
+   state=advanceBoard(state);
+  }
+  assert.equal(state.score,100);
+ }
+});
+
+test('streaks cannot add points on top of explicit difficulty, frame or boost rewards',()=>{
+ for(const [difficulty,points] of [['easy',1],['normal',1],['hard',2],['extreme',3]])for(const frame of ['none','blossom'])for(const boosted of [false,true]){
+  let state=applyLoadout({...base(),mode:'endless',difficulty},frame,'garden');
+  if(boosted)state=spendAbility(state,'boost');
+  for(let i=0;i<12;i++){
+   const expected=points*(frame==='blossom'?2:1)*(boosted&&i<5?5:1);
+   state=choose(state,[state.current],0);
+   assert.equal(state.earned,expected,`${difficulty}, ${frame}, boost ${boosted}, pick ${i+1}`);
+   assert.equal(state.bonus,0);
+   state=advanceBoard(state);
+  }
+ }
+});
 test('three lifetime missed matches end run; correct choice preserves lost lives',()=>{
  const tile={shape:1,color:2};let state=base();
  state=expire(state,[tile]);assert.equal(state.strikes,1);assert.equal(state.over,false);
