@@ -546,14 +546,14 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 @media(max-width:350px){#difficulty-dialog h2{font-size:19px}#difficulty-dialog .dialog-content{padding:25px 18px 20px}}
 
 
-/* Keep the offer and both dismissal hints inside one content-sized painted panel. */
-#app #over-dialog.continue-offer{height:fit-content;min-height:0;max-height:calc(100dvh - 24px);overflow:hidden}
-#app #over-dialog.continue-offer .result-content{height:auto;max-height:calc(100dvh - 24px);margin:0;overflow-y:auto;justify-content:flex-start;gap:8px;padding:26px 24px 24px}
+/* Keep the offer compact; its dismissal hint is a viewport footer. */
+#app #over-dialog.continue-offer{height:fit-content;min-height:0;max-height:calc(100dvh - 104px);overflow:visible}
+#app #over-dialog.continue-offer .result-content{height:auto;max-height:calc(100dvh - 104px);margin:0;overflow-y:auto;justify-content:flex-start;gap:8px;padding:26px 24px 24px}
 #over-dialog.continue-offer #record{order:1;flex-shrink:0}
 #over-dialog.continue-offer #ad-status{order:2;font-size:14px;line-height:1.35;margin:0;max-width:260px;min-height:0;display:grid;place-items:center}
 #app #over-dialog.continue-offer #continue-ad{order:3;width:min(100%,300px);height:auto;aspect-ratio:3;min-height:48px;flex-shrink:0;margin:0;padding:10px 20px}
 #over-dialog.continue-offer #continue-ad strong{font-size:24px}
-#over-dialog.continue-offer .result-home-hint,#over-dialog.continue-offer #result-return-countdown{
+#over-dialog.continue-offer #result-return-countdown{
  position:static;order:4;width:100%;max-width:290px;box-sizing:border-box;margin:0;padding:0;height:auto;min-height:0;
  color:#174f64;text-shadow:none;font-size:14px;font-weight:900;line-height:1.4;text-align:center;
 }
@@ -917,4 +917,15 @@ html body #home .mode-card[data-position="0"]{border-color:#ffe878;box-shadow:0 
  html body #app #settings-dialog .settings-links{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
  html body #app #settings-dialog .settings-links button{min-height:36px;font-size:11px}
  html body #app #settings-dialog .settings-feature{min-height:38px}
+}
+
+/* Dismissal belongs to the screen, outside the painted results panel. */
+#app #over-dialog{overflow:visible}
+#app #over-dialog:not(.adventure-results):not(.continue-offer),
+#app #over-dialog:not(.adventure-results):not(.continue-offer) .result-content{max-height:calc(100dvh - 104px)}
+#app #over-dialog > .result-home-hint{
+ position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);
+ width:calc(100vw - 32px);max-width:560px;box-sizing:border-box;margin:0;padding:0;
+ color:#fff;text-shadow:0 2px 5px #002638cc;font:1000 clamp(15px,3.8vw,18px)/1.35 Nunito,sans-serif;
+ text-align:center;text-transform:uppercase;letter-spacing:.35px;z-index:1;
 }

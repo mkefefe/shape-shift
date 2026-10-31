@@ -1,5 +1,5 @@
-import {bindLaunchTap} from './menu-navigation.js?v=494200';
-import {activeSkin} from './shape-skin-art.js?v=494200';
+import {bindLaunchTap} from './menu-navigation.js?v=494201';
+import {activeSkin} from './shape-skin-art.js?v=494201';
 export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.gameAudio?.ui(name)}){
  const dialog=document.createElement('dialog');dialog.id='games-hub';dialog.setAttribute('aria-label','Games');document.body.append(dialog);
  const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text)e.textContent=text;return e;};

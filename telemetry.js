@@ -1,7 +1,7 @@
 import {attachStartupMetrics} from './experience-metrics.js';
-import {analyticsAgeGroup,audience} from './audience.js?v=494200';
+import {analyticsAgeGroup,audience} from './audience.js?v=494201';
 import {createEngagement,deviceContext,AGE_GROUPS} from './engagement.js';
-import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494200';
+import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494201';
 const endpoint='https://shape-shift-scores.fluffy-stone-5231.chatgpt.site/api/engagement';
 export const CONSENT_KEY='shape-shift-analytics-choice-v2';
 // Deliberately device-local, never the portals' cloud-synced progress store.

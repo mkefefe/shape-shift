@@ -1,5 +1,5 @@
-import {requestReward} from './rewarded.js?v=494200';
-import {startResultCountdown} from './countdown.js?v=494200';
+import {requestReward} from './rewarded.js?v=494201';
+import {startResultCountdown} from './countdown.js?v=494201';
 
 // Borrow the actual Endless/Adventure dialog, never a second mini-game panel.
 export function showSharedContinue({host,description,onWatch,onFinish}){
@@ -13,14 +13,14 @@ export function showSharedContinue({host,description,onWatch,onFinish}){
  dialog.classList.remove('adventure-results','victory-result','victory-arriving');dialog.classList.add('continue-offer');
  title.textContent='KEEP GOING?';watch.hidden=false;watch.disabled=!host.ShapeShiftAds;next.hidden=true;
  status.textContent=host.ShapeShiftAds?description:'Continue is available in the Android app.';
- hint.textContent='Tap anywhere else to see your results.';countdown.hidden=true;
+ hint.textContent='Tap anywhere else';countdown.hidden=true;
  const cancelTimer=()=>{};
  function click(e){e.stopImmediatePropagation();e.preventDefault();if(busy)return;if(watch.contains(e.target)){if(!watch.disabled){host.gameAudio?.ui('click');onWatch();}}else if(ready){host.gameAudio?.ui('click');onFinish();}}
  function cancel(e){e.stopImmediatePropagation();e.preventDefault();if(ready&&!busy)onFinish();}
  dialog.addEventListener('click',click,true);dialog.addEventListener('cancel',cancel,true);
  if(!dialog.open)dialog.showModal();title.focus({preventScroll:true});host.gameAudio?.ui('over');
  return {pending(){busy=true;watch.disabled=true;status.textContent='Loading rewarded ad…';host.gameAudio?.pause();},
- failed(outcome){busy=false;ready=true;countdown.hidden=true;watch.disabled=!host.ShapeShiftAds;hint.textContent='Tap anywhere else to finish your run.';status.textContent=outcome==='unsupported'?'Open the Android app to watch a rewarded ad.':outcome==='dismissed'?'Ad closed before the reward. Your score is safe.':'No ad available right now. Try again shortly.';host.gameAudio?.resume?.();},
+ failed(outcome){busy=false;ready=true;countdown.hidden=true;watch.disabled=!host.ShapeShiftAds;hint.textContent='Tap anywhere else';status.textContent=outcome==='unsupported'?'Open the Android app to watch a rewarded ad.':outcome==='dismissed'?'Ad closed before the reward. Your score is safe.':'No ad available right now. Try again shortly.';host.gameAudio?.resume?.();},
  close(){if(closed)return;closed=true;cancelTimer();dialog.removeEventListener('click',click,true);dialog.removeEventListener('cancel',cancel,true);if(dialog.open)dialog.close();dialog.className=oldClass;for(const s of snapshots){s.node.hidden=s.hidden;if(s.text!==null)s.node.textContent=s.text;if(s.disabled!==undefined)s.node.disabled=s.disabled;}host.gameAudio?.resume?.();}};
 }
 

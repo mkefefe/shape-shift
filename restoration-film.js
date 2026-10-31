@@ -1,4 +1,4 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?v=494200';
+import {loadStoryAssets,drawStory} from './story-renderer.js?v=494201';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
 export function restorationFilmFrame(seconds,islandIndex=0){
  const finalIsland=islandIndex===9,duration=finalIsland?37:25,t=Math.max(0,Math.min(duration,seconds));

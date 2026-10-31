@@ -1,5 +1,5 @@
-import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494200';
-import {loadDestination} from './destination-loader.js?v=494200';
+import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494201';
+import {loadDestination} from './destination-loader.js?v=494201';
 
 // A cached download is not necessarily decoded. Hold each destination until its
 // artwork can actually be painted, including the first visit after loading.

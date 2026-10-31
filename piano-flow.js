@@ -1,17 +1,17 @@
-import {beginModeTransition} from './mode-transition.js?v=494200';
-import {engagement,registerModeState} from './telemetry.js?v=494200';
-import {translate} from './localization.js?v=494200';
+import {beginModeTransition} from './mode-transition.js?v=494201';
+import {engagement,registerModeState} from './telemetry.js?v=494201';
+import {translate} from './localization.js?v=494201';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice} from './mode-practice.js?v=494200';
-import {createMiniResults} from './mini-results.js?v=494200';
+import {createModePractice} from './mode-practice.js?v=494201';
+import {createMiniResults} from './mini-results.js?v=494201';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494200';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494201';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494200';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494201';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 

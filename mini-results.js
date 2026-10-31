@@ -1,6 +1,6 @@
-import {formatSurvivalTime} from './survival-clock.js?v=494200';
-import {playerProgress} from './economy.js?v=494200';
-import {startResultTally} from './countdown.js?v=494200';
+import {formatSurvivalTime} from './survival-clock.js?v=494201';
+import {playerProgress} from './economy.js?v=494201';
+import {startResultTally} from './countdown.js?v=494201';
 
 // All modes share the same results DOM, artwork, buttons and XP progress track.
 export function createMiniResults({host=window}={}){
@@ -18,7 +18,7 @@ export function createMiniResults({host=window}={}){
   bestLine.hidden=false;bestLine.firstChild.textContent='Best score ';get('final-best').textContent=best.toLocaleString();
   watch.hidden=true;watch.disabled=false;
   next.hidden=false;next.disabled=false;next.textContent=stored?'Retry':'Retry saving';
-  hint.hidden=false;hint.textContent=stored?'Tap anywhere else to return to Games.':'Tap Retry saving to save your run.';
+  hint.hidden=false;hint.textContent=stored?'Tap anywhere else':'Tap Retry saving to save your run.';
   get('ad-status').textContent=!stored?'Could not save this run. Free some storage and retry.':pending?'Reward saved. Wallet sync will retry.':'';
   get('result-xp-bar').classList.remove('xp-level-up');
   function update(a,b,t){get('final-score').textContent=a.toLocaleString();get('final-coins').textContent='+'+b.toLocaleString();const p=playerProgress(xpBefore+Math.floor(Math.max(0,xpAfter-xpBefore)*t));get('result-progress').textContent='Level '+p.level;get('level-progress').max=p.required||1;get('level-progress').value=p.capped?1:p.current;get('result-xp-label').textContent=p.capped?'MAX LEVEL':p.current+' / '+p.required+' XP';get('level-progress').setAttribute('aria-label','Level '+p.level+': '+get('result-xp-label').textContent);}

@@ -1,9 +1,9 @@
-import {loadStartupAssets} from './startup-loader.js?v=494200';
-import {loadDestination} from './destination-loader.js?v=494200';
-import {starTasks} from './adventure-star-tasks.js?v=494200';
-import {COSMETICS} from './economy.js?v=494200';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494200';
-import {rewardMarkup} from './adventure-rewards.js?v=494200';
+import {loadStartupAssets} from './startup-loader.js?v=494201';
+import {loadDestination} from './destination-loader.js?v=494201';
+import {starTasks} from './adventure-star-tasks.js?v=494201';
+import {COSMETICS} from './economy.js?v=494201';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494201';
+import {rewardMarkup} from './adventure-rewards.js?v=494201';
 export const GAMES_UNLOCK_LEVEL=20;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
