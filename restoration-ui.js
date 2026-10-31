@@ -1,10 +1,10 @@
-import {prepareRestorationFilm} from './restoration-film.js?v=494204';
-import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494204';
-import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494204';
+import {prepareRestorationFilm} from './restoration-film.js?v=494205';
+import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494205';
+import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494205';
 const bounded=value=>Math.max(0,Math.min(100,Number(value)||0));
 function ensureStyles(doc=document){
  if(doc.getElementById('restoration-styles'))return;
- const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?v=494204',import.meta.url).href;doc.head.append(css);
+ const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?v=494205',import.meta.url).href;doc.head.append(css);
 }
 
 // Shared progression is deliberately a small destination, not another opening
@@ -99,31 +99,34 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
   if(restorationView(ready,selectedMode).locked)return;const mode=selectedMode;sound('start');close();if(mode==='adventure')onAdventure();else onMode(mode);};
  async function celebrateIsland(art,island,film){
   const token=++epoch;celebrating=true;panel.classList.add('is-restoring');
-  const rect=panel.querySelector('.restoration-art').getBoundingClientRect(),bounds=panel.getBoundingClientRect();
-  const overlay=document.createElement('div');overlay.className='restoration-celebration';overlay.setAttribute('role','status');overlay.setAttribute('aria-label','Restoring '+island.title);
+  const rect=panel.querySelector('.restoration-art').getBoundingClientRect();
+  const overlay=document.createElement('dialog');overlay.className='restoration-celebration';overlay.setAttribute('role','status');overlay.setAttribute('aria-label','Restoring '+island.title);
   overlay.innerHTML='<canvas width="720" height="1280"></canvas>';
-  const surface=overlay.querySelector('canvas'),q=surface.getContext('2d');celebrationOverlay=overlay;panel.append(overlay);
-  const startRect={x:rect.left-bounds.left,y:rect.top-bounds.top,w:rect.width,h:rect.height};
-  const settings=getAudioSettings(),media=new Audio(new URL('./assets/story-beacon/story-10.ogg',import.meta.url).href);
-  media.volume=settings.music===false?0:Math.max(0,Math.min(1,(settings.musicVolume??40)/100));
+  const surface=overlay.querySelector('canvas'),q=surface.getContext('2d');celebrationOverlay=overlay;Object.assign(overlay.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});drawRestorationIsland(q,art,0);document.body.append(overlay);overlay.showModal();overlay.addEventListener('cancel',event=>event.preventDefault());
+  const startRect={x:rect.left,y:rect.top,w:rect.width,h:rect.height};
+  const settings=getAudioSettings(),media=new Audio(new URL('./assets/story-beacon/restoration-continuous-v205.wav',import.meta.url).href);
+  const musicVolume=settings.music===false?0:Math.max(0,Math.min(1,(settings.musicVolume??40)/100));media.volume=musicVolume;media.preload='auto';
   const unregister=window.ShapeShiftPlatform?.registerMedia?.(media);let stopped=false;
   const effects=film.cues.map(({name,at})=>{const audio=new Audio(new URL('./assets/audio/victory-'+name+'-v4947.ogg',import.meta.url).href);audio.volume=settings.sfx===false?0:Math.max(0,Math.min(1,(settings.sfxVolume??65)/100))*.6;return {audio,at,fired:false,off:window.ShapeShiftPlatform?.registerMedia?.(audio)};});
   const stopSound=()=>{if(stopped)return;stopped=true;for(const cue of effects){cue.audio.pause();cue.audio.removeAttribute('src');cue.audio.load();cue.off?.();}media.pause();media.removeAttribute('src');media.load();unregister?.();window.gameAudio?.resume();};stopFilmSound=stopSound;
-  window.gameAudio?.pause();
-  await new Promise(resolve=>{finishAnimation=resolve;let elapsed=0,last=performance.now(),soundStarted=false,soundFile='story-10.ogg';
+  await new Promise(resolve=>{if(media.readyState>=3)return resolve();const timeout=setTimeout(done,5000);function done(){clearTimeout(timeout);media.removeEventListener('canplaythrough',done);media.removeEventListener('error',done);resolve();}media.addEventListener('canplaythrough',done,{once:true});media.addEventListener('error',done,{once:true});media.load();});
+  if(token!==epoch){stopSound();return;}window.gameAudio?.pause();
+  await new Promise(resolve=>{finishAnimation=resolve;let elapsed=0,last=performance.now(),soundStarted=false;
    function frame(now){
     if(token!==epoch||!panel.open){stopSound();resolve();return;}
     const dt=Math.max(0,Math.min(100,now-last));last=now;
     const paused=document.hidden||window.ShapeShiftPlatform?.paused;
     if(!paused)elapsed+=dt;
     if(paused){media.pause();for(const cue of effects)cue.audio.pause();}else if(soundStarted&&media.paused&&!media.ended&&media.volume>0)media.play().catch(()=>{});
+    const bounds={width:window.innerWidth,height:window.innerHeight};
     const expand=Math.min(1,elapsed/800),e=expand*expand*(3-2*expand);
-    overlay.style.left=startRect.x*(1-e)+'px';overlay.style.top=startRect.y*(1-e)+'px';
+    overlay.style.borderRadius=(22*(1-e))+'px';overlay.style.left=startRect.x*(1-e)+'px';overlay.style.top=startRect.y*(1-e)+'px';
     overlay.style.width=(startRect.w+(bounds.width-startRect.w)*e)+'px';overlay.style.height=(startRect.h+(bounds.height-startRect.h)*e)+'px';
     if(expand<1)drawRestorationIsland(q,art,0);
     else {
      if(!soundStarted){soundStarted=true;if(media.volume>0)media.play().catch(()=>{});}
-     const seconds=(elapsed-800)/1000;film.draw(q,seconds);const track=film.soundtrack(seconds);if(track.file!==soundFile){soundFile=track.file;media.onloadedmetadata=()=>{media.currentTime=track.offset;};media.src=new URL('./assets/story-beacon/'+track.file,import.meta.url).href;media.load();if(!paused&&media.volume>0)media.play().catch(()=>{});}for(const cue of effects)if(!paused&&!cue.fired&&seconds>=cue.at){cue.fired=true;if(cue.audio.volume>0)cue.audio.play().catch(()=>{});}
+     const pixelRatio=Math.min(2,window.devicePixelRatio||1),width=Math.round(bounds.width*pixelRatio),height=Math.round(bounds.height*pixelRatio);if(surface.width!==width||surface.height!==height){surface.width=width;surface.height=height;}
+     const seconds=(elapsed-800)/1000;film.draw(q,seconds);media.volume=musicVolume*Math.min(1,Math.max(0,film.duration-seconds));for(const cue of effects)if(!paused&&!cue.fired&&seconds>=cue.at){cue.fired=true;if(cue.audio.volume>0)cue.audio.play().catch(()=>{});}
      overlay.setAttribute('aria-label',film.describe(seconds));
     }
     if(elapsed<800+film.duration*1000)animation=requestAnimationFrame(frame);

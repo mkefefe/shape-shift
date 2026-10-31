@@ -1,9 +1,11 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?v=494204';
+import {loadStoryAssets,drawStory} from './story-renderer.js?v=494205';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
+export const RESTORATION_PHASE_SECONDS=4.4;
+export const RESTORATION_COLOR_SECONDS=RESTORATION_PHASE_SECONDS*4;
 export function restorationFilmFrame(seconds,islandIndex=0){
- const finalIsland=islandIndex===9,duration=finalIsland?37:25,t=Math.max(0,Math.min(duration,seconds));
- if(t<20){const index=Math.floor(t/5);return {duration,kind:'restore',index,time:t-index*5,scene:['garden','river','village','sky'][index],...STAGES[index]};}
- return {duration,kind:finalIsland&&t>=24.5?'credits':'lanterns',time:8+t-20,scene:'ending',finalIsland};
+ const finalIsland=islandIndex===9,duration=finalIsland?34.6:22.6,t=Math.max(0,Math.min(duration,seconds));
+ if(t<RESTORATION_COLOR_SECONDS){const index=Math.floor(t/RESTORATION_PHASE_SECONDS);return {duration,kind:'restore',index,time:t-index*RESTORATION_PHASE_SECONDS,scene:['garden','river','village','sky'][index],...STAGES[index]};}
+ return {duration,kind:finalIsland&&t>=22.1?'credits':'lanterns',time:8+t-RESTORATION_COLOR_SECONDS,scene:'ending',finalIsland};
 }
 export function restorationPixelGroup(stage,r,g,b){
  if(stage!=null)return stage===25?1:stage<=40?0:stage<=70?2:3;
@@ -26,9 +28,9 @@ export async function prepareRestorationFilm(art,island){
  const assets={...original,island:color,gray:art.gray,restorationStage:percent=>stages[Math.max(0,Math.min(4,Math.round(percent/25)))]};
  return {
   duration:restorationFilmFrame(0,island.index).duration,
-  soundtrack:t=>{const f=restorationFilmFrame(t,island.index);return f.kind==='restore'?{file:['story-10.ogg','story-20.ogg','story-50.ogg','story-75.ogg'][f.index],offset:0}:{file:'story-ending.ogg',offset:8};},
-  cues:STAGES.flatMap((_,i)=>[{name:'transform',at:i*5+.7},{name:'spark0',at:i*5+1.6}]),
+  soundtrack:()=>({file:'restoration-continuous-v205.wav',offset:0}),
+  cues:STAGES.flatMap((_,i)=>[{name:'transform',at:i*RESTORATION_PHASE_SECONDS+.7},{name:'spark0',at:i*RESTORATION_PHASE_SECONDS+1.6}]),
   describe:t=>{const f=restorationFilmFrame(t,island.index);return f.kind==='restore'?`Restoration ${f.index+1} of 4: ${f.title}`:f.kind==='credits'?'Final island ending and credits':island.title+' restored — lanterns rising';},
-  draw(ctx,t){const f=restorationFilmFrame(t,island.index);drawStory(ctx,assets,f.scene,f.time,{restorationTitle:island.title,restorationPhase:f.kind==='restore'?{...f,target:targets[f.index]}:null,finalIsland:island.index===9,suppressCredits:island.index!==9});}
+  draw(ctx,t){const f=restorationFilmFrame(t,island.index);drawStory(ctx,assets,f.scene,f.time,{restorationTitle:island.title,restorationClock:t,restorationPhase:f.kind==='restore'?{...f,target:targets[f.index]}:null,finalIsland:island.index===9,suppressCredits:island.index!==9});}
  };
 }

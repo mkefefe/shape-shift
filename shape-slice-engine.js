@@ -1,6 +1,6 @@
-import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494204';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494204';
-import {miniGameCoins} from './mini-game-rewards.js?v=494204';
+import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494205';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494205';
+import {miniGameCoins} from './mini-game-rewards.js?v=494205';
 export const SLICE_WIDTH=360,SLICE_HEIGHT=560;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>Number.isFinite(n);

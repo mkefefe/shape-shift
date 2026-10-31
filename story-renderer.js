@@ -1,7 +1,7 @@
 // Color Beacon: a deterministic, lightweight story timeline shared by the game
 // and exported previews. Painted art stays at native proportions throughout.
-import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494204';
-export {STORY_RESTORATION} from './story-restoration.js?v=494204';
+import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494205';
+export {STORY_RESTORATION} from './story-restoration.js?v=494205';
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},
@@ -101,28 +101,32 @@ export function drawStoryIsland(ctx,a,percent=0){
  ctx.restore();ctx.restore();
 }
 
-export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
+export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,restorationClock,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
  const config=STORY_SCENES[sceneId];if(!config)throw new Error('Unknown story chapter');
  let t=Math.max(0,Math.min(config.duration,seconds));if(sceneId==='credits'){sceneId='ending';t+=13;}
  const finale=sceneId==='ending',intro=sceneId==='intro';
  const chapter={garden:1,river:2,village:3,sky:4}[sceneId]||0;
  const level={garden:10,river:25,village:50,sky:75}[sceneId]||0;
- const rise=restorationPhase?ease(t,2.4,4.7):finale?ease(t,2.7,7.2):ease(t,1,3.2);
+ const rise=restorationPhase?ease(t,2.4,4.4):finale?ease(t,2.7,7.2):ease(t,1,3.2);
  // The one finale begins with the whole island uncolored. The sky brightens
  // with the outward color wave, rather than inheriting a previous chapter.
  const skyPower=restorationPhase ? .15+.85*(restorationPhase.index+rise)/4:finale?mix(.035,1,ease(t,4.5,8)):sceneId==='sky'?mix(.035,.65,rise):.035;
  const credit=finale&&!suppressCredits?ease(t,11.5,13):0;
- ctx.save();ctx.scale(ctx.canvas.width/720,ctx.canvas.height/1280);ctx.imageSmoothingQuality='high';
- ctx.fillStyle='#102d43';ctx.fillRect(0,0,720,1280);
- ctx.globalAlpha=.16+skyPower*.84;ctx.drawImage(a.sky,0,0,720,1280);ctx.globalAlpha=1;
- const shade=ctx.createLinearGradient(0,0,0,1280);shade.addColorStop(0,'#071c3388');shade.addColorStop(.5,'#102c4424');shade.addColorStop(1,'#092c4420');ctx.fillStyle=shade;ctx.fillRect(0,0,720,1280);
+ ctx.save();ctx.imageSmoothingQuality='high';
+ const fullScreen=restorationClock!=null,w=fullScreen?ctx.canvas.width:720,h=fullScreen?ctx.canvas.height:1280;
+ if(!fullScreen)ctx.scale(ctx.canvas.width/720,ctx.canvas.height/1280);
+ ctx.fillStyle='#102d43';ctx.fillRect(0,0,w,h);
+ const cover=Math.max(w/a.sky.width,h/a.sky.height);
+ ctx.globalAlpha=.16+skyPower*.84;ctx.drawImage(a.sky,(w-a.sky.width*cover)/2,(h-a.sky.height*cover)/2,a.sky.width*cover,a.sky.height*cover);ctx.globalAlpha=1;
+ const shade=ctx.createLinearGradient(0,0,0,h);shade.addColorStop(0,'#071c3388');shade.addColorStop(.5,'#102c4424');shade.addColorStop(1,'#092c4420');ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);
+ if(fullScreen){const scale=Math.min(w/720,h/1280);ctx.translate((w-720*scale)/2,(h-1280*scale)/2);ctx.scale(scale,scale);} 
  const image=(im,x,y,w,h,alpha=1,angle=0)=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(im,-w/2,-h/2,w,h);ctx.restore();};
  const glow=(x,y,size,color=4,alpha=1)=>image(a.glows[color],x,y,size,size,alpha);
  const text=(str,x,y,size,alpha=1,color='#fff5df')=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.font=`900 ${size}px BeaconStory`;ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(str,x,y);ctx.restore();};
  const shape=(i,x,y,size,alpha=1,angle=0)=>{if(alpha<=.001)return;const cell=a.shapes.width/4,col=[2,0,1,3][i];ctx.save();ctx.globalAlpha=clamp(alpha);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.shapes,col*cell,i*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
  const lantern=(i,x,y,size,alpha=1,angle=0)=>{const cell=a.lanterns.width/2;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.lanterns,(i%2)*cell,Math.floor(i/2)*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
  const particles=(x,y,age,color=4,count=14,range=115)=>{if(age<0||age>2)return;const p=clamp(age/2),alpha=Math.sin(Math.PI*Math.min(1,p*3))*(1-p);for(let i=0;i<count;i++){const angle=i*2.39996,r=(18+range*(.6+(i%3)*.15))*smooth(p);glow(x+Math.cos(angle)*r,y+Math.sin(angle)*r-age*9,9+(i%3)*5,color,alpha*.7);}};
- const ambientTime=reduced?0:t;
+ const ambientTime=reduced?0:restorationClock??t;
  for(let i=0;i<20;i++){const x=40+i*191%650,y=90+i*213%1090;glow(x+Math.sin(ambientTime*.23+i)*5,y,6,i%4,.19+.1*Math.sin(ambientTime+i));}
  glow(360,760,1000,5,.17+skyPower*.12);
  // The island gently settles lower for the credits. Reduced motion keeps the
@@ -153,7 +157,7 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  ctx.beginPath();ctx.moveTo(lamp.x-lamp.rx-3,lamp.y+lamp.ry+3);ctx.lineTo(lamp.x-lamp.rx-3,waterTop);for(let x=-lamp.rx-3;x<=lamp.rx+3;x+=3)ctx.lineTo(lamp.x+x,waterTop+Math.sin(x*.07+ambientTime*2)*1.4);ctx.lineTo(lamp.x+lamp.rx+3,lamp.y+lamp.ry+3);ctx.closePath();
  const liquid=ctx.createLinearGradient(0,lamp.y-lamp.ry,0,lamp.y+lamp.ry);liquid.addColorStop(0,'#ffe69e');liquid.addColorStop(.3,'#b8edb4');liquid.addColorStop(.65,'#86dcee');liquid.addColorStop(1,'#e3a2c0');ctx.fillStyle=liquid;ctx.fill();
  ctx.fillStyle='#ffffff4a';ctx.beginPath();ctx.ellipse(lamp.x-23*u*1.8,lamp.y-24*u*1.8,7*u*1.8,21*u*1.8,.55,0,Math.PI*2);ctx.fill();ctx.restore();
- glow(lamp.x,lamp.y,150+rise*80,4,.14+fill*.3);
+ glow(lamp.x,lamp.y,150+(restorationPhase?Math.sin(ambientTime*1.4)*.15+.85:rise)*80,4,.14+fill*.3);
  // After the shapes reach the beacon, a traveling spark leads the light to
  // the next district. Color expands from that landing point, not the tower.
  if(restorationPhase&&t>=1.6&&t<3.1){
@@ -186,8 +190,8 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   text('100 levels. One bright adventure.',360,1157,29,ease(t,5.6,6.3));
   text('Every first clear adds a spark.',360,1200,26,ease(t,6,6.7),'#c9e5e5');
  }else if(!finale){
-  text(restorationPhase?restorationTitle:`CHAPTER · ${level} / 100`,360,147,22,ease(t,0,.35),'#bde6e8');
-  text(restorationPhase?restorationPhase.title:config.title,360,203,42,ease(t,.12,.6));
+  text(restorationPhase?restorationTitle:`CHAPTER · ${level} / 100`,360,147,22,ease(restorationClock??t,0,.35),'#bde6e8');
+  text(restorationPhase?'Bring color home':config.title,360,203,42,ease(restorationClock??t,.12,.6));
   const line={garden:'The garden wakes.',river:'The river runs again.',village:'Every window finds its light.',sky:'Even the sky remembers.'}[sceneId];
   if(!restorationPhase){text(line,360,1155,30,ease(t,2.4,3.2),'#ffe3a0');text(`${level}% of the beacon restored`,360,1200,24,ease(t,2.7,3.3),'#c9e5e5');}
  }else{
