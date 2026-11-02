@@ -1,12 +1,13 @@
+import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
-import {loadStartupAssets} from './startup-loader.js?v=494219';
-import {loadDestination} from './destination-loader.js?v=494219';
+import {loadStartupAssets} from './startup-loader.js?v=494220';
+import {loadDestination} from './destination-loader.js?v=494220';
 import {adventureChallenge,challengeTasks} from './adventure-challenges.js?v=207';
-import {starTasks} from './adventure-star-tasks.js?v=494219';
-import {COSMETICS} from './economy.js?v=494219';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494219';
-import {rewardMarkup} from './adventure-rewards.js?v=494219';
-export const GAMES_UNLOCK_LEVEL=20;
+import {starTasks} from './adventure-star-tasks.js?v=494220';
+import {COSMETICS} from './economy.js?v=494220';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494220';
+import {rewardMarkup} from './adventure-rewards.js?v=494220';
+export const GAMES_UNLOCK_LEVEL=10;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
 export function adventureFrameRequirement(level){return COSMETICS.find(c=>c.id===({40:'ice',60:'blossom',80:'cosmic'})[level])||null;}
@@ -80,7 +81,8 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  let launching=false;
  let selected=0,level=unlockedLevel(progress);const cardTaps=createModeCardTap();
  const tagline=$('home').querySelector('.tagline');if(tagline)tagline.textContent='Every match brings color back.';
- const save=()=>{try{window.ShapeShiftPlatform.storage.setItem('shape-shift-adventure-v1',JSON.stringify(progress));}catch{}};
+ const campaignSave=createAdventureSave(window.ShapeShiftPlatform.storage);
+ const save=()=>campaignSave.write(progress);
  const stars=n=>Array.from({length:3},(_,i)=>`<span class="map-star ${i<n?'earned':''}"><img src="assets/stars-v101.webp" alt=""></span>`).join('');
  function refresh(){
   const names=['Adventure','Endless','Games'],copy=['100 levels. A brighter world.','Keep playing. Beat your best!','60 seconds. Make every pick count.'];
@@ -223,12 +225,18 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  new ResizeObserver(()=>{if($('adventure-map').hidden)return;const width=$('adventure-map').clientWidth;if(width&&width!==mapWidth){const ratio=$('adventure-map').scrollTop/Math.max(1,mapWidth);sizeMap();$('adventure-map').scrollTop=ratio*width;paintMap();}}).observe($('adventure-map'));
  $('view-map').onclick=()=>{if(selected===0)map();};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
  document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-shop-tab]').forEach(t=>{const on=t===b;t.setAttribute('aria-selected',String(on));$(t.dataset.shopTab).hidden=!on;});sound('click');});
- refresh();return {refresh,map,openLevel,playAdventure,playMode,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
+ refresh();return {refresh,map,openLevel,playAdventure,playMode,savePending:campaignSave.retry,hasPendingSave:campaignSave.hasPending,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
 }
 
 // Two measured path-center anchors per square raster tile. Odd tiles mirror vertically.
 export function mapNodePosition(level,width){const section=Math.floor((level-1)/2),upper=level%2===0,y=upper?.25:.75,sourceY=y;return {x:sourceY===.25?.660:.340,y:(49-section+y)*width};}
 export function visibleMapSections(scroll,height,width){const first=Math.max(0,Math.floor(scroll/width)-1),last=Math.min(49,Math.ceil((scroll+height)/width)+1);return [Math.max(0,49-last),Math.min(49,49-first)];}
+
+export function levelTaskIntroduction(level){
+ if(Number(level)===100)return '<h3 class="collection-heading">Endless finale</h3><p>Survive as long as you can. Ending the run completes Adventure.</p><h3 class="star-tasks-heading">Optional score stars</h3>';
+ const heading=adventureChallenge(level)?'Level goal':'Collect to win';
+ return '<h3 class="collection-heading">'+heading+'</h3><div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Star tasks</h3>';
+}
 
 export function levelTaskStatus(level,stats={}){return taskStatus(levelTasks(level),stats);}
 function taskStatus(tasks,stats){return tasks.map(task=>{

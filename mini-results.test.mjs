@@ -42,3 +42,12 @@ test('async next-level handoff closes results only after destination succeeds',a
  f.click(f.get('adventure-continue'));assert.equal(f.get('over-dialog').open,true);resolve(true);await Promise.resolve();assert.equal(f.get('over-dialog').open,false);
  }finally{globalThis.window=old;}
 });
+
+test('Adventure save failure keeps minigame results open until retry succeeds without replaying rewards',()=>{
+ const f=fixture(),old=globalThis.window;globalThis.window=f.host;let blocked=true,home=0,retry=0;
+ try{createMiniResults({host:f.host}).show({score:12,best:12,coins:3,xpBefore:0,xpAfter:12,stored:true,saveError:'Adventure progress could not be saved.',beforeLeave:()=>!blocked,retry:()=>retry++,finish:()=>home++});
+ assert.equal(f.get('adventure-continue').textContent,'Save results');
+ f.click(f.get('adventure-continue'));f.leaveMode();assert.equal(home,0);assert.equal(retry,0);assert.equal(f.get('over-dialog').open,true);assert.equal(f.get('adventure-continue').disabled,false);
+ blocked=false;f.click(f.get('adventure-continue'));assert.equal(home,1);assert.equal(retry,0);assert.equal(f.get('over-dialog').open,false);
+ }finally{globalThis.window=old;}
+});

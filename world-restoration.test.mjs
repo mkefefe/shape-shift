@@ -135,14 +135,14 @@ test('v1 migration keeps every revealed landmark and starts the next job without
 
 test('each unlocked mode has its own task and games pool all three minigames',()=>{
  let state=normalizeRestoration({version:3,restoredCount:2,totalXp:250,firstAdventureWin:true});
- assert.deepEqual(restorationSummary(state,{playerLevel:20}).tasks.map(t=>t.mode),['adventure','endless','games']);
- state=reward(state,'drop',4,'drop',{playerLevel:20}).state;state=reward(state,'slice',3,'slice',{playerLevel:20}).state;state=reward(state,'piano',2,'piano',{playerLevel:20}).state;
+ assert.deepEqual(restorationSummary(state,{playerLevel:10}).tasks.map(t=>t.mode),['adventure','endless','games']);
+ state=reward(state,'drop',4,'drop',{playerLevel:10}).state;state=reward(state,'slice',3,'slice',{playerLevel:10}).state;state=reward(state,'piano',2,'piano',{playerLevel:10}).state;
  assert.equal(state.modeTasks.games,9);assert.equal(state.modeTasks.adventure,0);assert.equal(state.restoredCount,2);
 });
 test('every landmark requires all tasks, unlocks modes at boundaries, and never caps daily play',()=>{
  let state=reward(undefined,'adventure',6200,'bank',{firstAdventureWin:true}).state,n=0;
  for(let i=0;i<10;i++){
-  const playerLevel=i<2?19:i<3?20:25;const tasks=restorationSummary(state,{playerLevel}).tasks;
+  const playerLevel=i<2?9:i<3?10:15;const tasks=restorationSummary(state,{playerLevel}).tasks;
   assert.equal(tasks.length,i<2?2:i<3?3:4);
   for(const [index,t]of tasks.entries()){
    if(t.complete)continue;
@@ -174,36 +174,36 @@ test('invalid or duplicate awards cannot advance any mode task',()=>{
 
 test('equal task shares, explicit claims, reloads and double taps are safe',()=>{
  let s=normalizeRestoration({version:3,restoredCount:5,totalXp:900,firstAdventureWin:true,unlockedModes:['games','battle']});
- const tasks=restorationSummary(s,{playerLevel:25}).tasks;assert.equal(tasks.length,4);
- assert.equal(claimRestoration(s,'landmark-6',{playerLevel:25}).claimed,false);
+ const tasks=restorationSummary(s,{playerLevel:15}).tasks;assert.equal(tasks.length,4);
+ assert.equal(claimRestoration(s,'landmark-6',{playerLevel:15}).claimed,false);
  for(const [i,t] of tasks.entries()){
-  s=reward(s,t.mode==='games'?'drop':t.mode,t.target,'share-'+i,{playerLevel:25}).state;
-  assert.equal(restorationSummary(s,{playerLevel:25}).taskPercent,(i+1)*25);assert.equal(restorationSummary(s,{playerLevel:25}).percent,0);
+  s=reward(s,t.mode==='games'?'drop':t.mode,t.target,'share-'+i,{playerLevel:15}).state;
+  assert.equal(restorationSummary(s,{playerLevel:15}).taskPercent,(i+1)*25);assert.equal(restorationSummary(s,{playerLevel:15}).percent,0);
  }
- s=normalizeRestoration(JSON.parse(JSON.stringify(s)));assert(restorationSummary(s,{playerLevel:25}).readyToRestore);
+ s=normalizeRestoration(JSON.parse(JSON.stringify(s)));assert(restorationSummary(s,{playerLevel:15}).readyToRestore);
  assert.equal(claimRestoration(s,'landmark-5').claimed,false);
- const claimed=claimRestoration(s,'landmark-6',{playerLevel:25});assert(claimed.claimed);assert.equal(claimed.toPercent,100);
+ const claimed=claimRestoration(s,'landmark-6',{playerLevel:15});assert(claimed.claimed);assert.equal(claimed.toPercent,100);
  assert.equal(claimRestoration(claimed.state,'landmark-6').claimed,false);
  assert.equal(restorationSummary(claimed.state).taskPercent,0);
 });
 
-test('player levels 20 and 25 alone control mode access regardless of old unlocks',()=>{
+test('player levels 10 and 15 alone control mode access regardless of old unlocks',()=>{
  const old={restoredCount:10,byMode:{battle:900,drop:900},unlockedModes:['games','battle']};
- for(const [level,games,battle]of [[1,false,false],[19,false,false],[20,true,false],[24,true,false],[25,true,true],[30,true,true]]){
+ for(const [level,games,battle]of [[1,false,false],[9,false,false],[10,true,false],[14,true,false],[15,true,true],[30,true,true]]){
   const access=restorationAccess(old,level);assert.equal(access.games.unlocked,games);assert.equal(access.battle.unlocked,battle);
   const summary=restorationSummary(normalizeRestoration(),{playerLevel:level});assert.deepEqual(summary.tasks.map(t=>t.mode),['adventure','endless',...(games?['games']:[]),...(battle?['battle']:[])]);
  }
- assert.match(restorationAccess({},19).games.requirement,/player level 20/);
- assert.match(restorationAccess({},24).battle.requirement,/player level 25/);
+ assert.match(restorationAccess({},9).games.requirement,/player level 10/);
+ assert.match(restorationAccess({},14).battle.requirement,/player level 15/);
 });
 test('reaching an unlock level adds its required task before restoration can be claimed',()=>{
  let state=reward(undefined,'adventure',25,'win',{firstAdventureWin:true}).state;
  state=reward(state,'endless',6,'end').state;
- assert(restorationSummary(state,{playerLevel:19}).readyToRestore);
- assert.equal(claimRestoration(state,'landmark-1',{playerLevel:20}).claimed,false);
- state=reward(state,'piano',8,'games',{playerLevel:20}).state;
- assert(claimRestoration(state,'landmark-1',{playerLevel:20}).claimed);
- assert.equal(claimRestoration(state,'landmark-1',{playerLevel:25}).claimed,false);
+ assert(restorationSummary(state,{playerLevel:9}).readyToRestore);
+ assert.equal(claimRestoration(state,'landmark-1',{playerLevel:10}).claimed,false);
+ state=reward(state,'piano',8,'games',{playerLevel:10}).state;
+ assert(claimRestoration(state,'landmark-1',{playerLevel:10}).claimed);
+ assert.equal(claimRestoration(state,'landmark-1',{playerLevel:15}).claimed,false);
 });
 
 

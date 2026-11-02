@@ -37,12 +37,12 @@ const TASKS=Object.freeze([
 const reachedByXp=xp=>RESTORATION_STEPS.filter(step=>xp>=step.threshold).length;
 const taskMode=mode=>['rush','drop','slice','piano'].includes(mode)?'games':mode;
 
-export const MODE_UNLOCK_LEVELS=Object.freeze({games:20,battle:25});
+export const MODE_UNLOCK_LEVELS=Object.freeze({games:10,battle:15});
 export function restorationAccess(value={},playerLevel=1){
  const level=Number.isFinite(playerLevel)?Math.max(1,Math.floor(playerLevel)):1;
  return {adventure:{unlocked:true},endless:{unlocked:true},
-  games:{unlocked:level>=MODE_UNLOCK_LEVELS.games,requirement:'Reach player level 20 to unlock Games'},
-  battle:{unlocked:level>=MODE_UNLOCK_LEVELS.battle,requirement:'Reach player level 25 to unlock Battle'}};
+  games:{unlocked:level>=MODE_UNLOCK_LEVELS.games,requirement:'Reach player level 10 to unlock Games'},
+  battle:{unlocked:level>=MODE_UNLOCK_LEVELS.battle,requirement:'Reach player level 15 to unlock Battle'}};
 }
 function jobs(state,playerLevel=1){
  if(state.restoredCount>=RESTORATION_STEPS.length)return [];
