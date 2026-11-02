@@ -1,7 +1,7 @@
 // Use the existing result actions so saving, ad waits and Adventure routing stay intact.
 export function bindResultKeyboard(host=window){
  const doc=host.document,dialog=doc.getElementById('over-dialog');
- const hint=doc.createElement('p');hint.className='result-keyboard-hint';hint.textContent='Space: Retry · Esc: Back';
+ const hint=doc.createElement('p');hint.className='result-keyboard-hint';hint.textContent='Space: Continue · Esc: Back';
  dialog.querySelector('.result-content').append(hint);
  const nextButton=doc.getElementById('adventure-continue');
  const syncHint=()=>{hint.textContent=!nextButton.hidden?'Space: '+nextButton.textContent.trim()+' · Esc: Back':'Esc: Back';};

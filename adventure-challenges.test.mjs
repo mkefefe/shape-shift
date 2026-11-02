@@ -1,10 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {adventureChallenge,challengeTasks,challengeFinished,challengeStats,createAdventureChallengeRun} from './adventure-challenges.js';
 import {freshProfile,grantAdventureBoosts,buyCosmetic} from './economy.js';
-import {normalizeAdventure,saveObjectiveStars,levelObjectives} from './world-menu.js';
-test('twenty short special stages rotate all three games and ordinary levels stay matching',()=>{
- let modes=[];for(let level=1;level<=100;level++){const c=adventureChallenge(level);assert.equal(!!c,level%5===0);if(c){modes.push(c.mode);assert.equal(challengeTasks(c).length,3);assert(c.target>0&&c.target<60);}}
- assert.deepEqual(modes.slice(0,3),['drop','slice','piano']);assert.equal(modes.length,20);
+import {normalizeAdventure,saveObjectiveStars,levelObjectives,levelRequirements,levelComplete,adventureMechanics,adventureDesign} from './world-menu.js';
+test('nineteen short special stages rotate all three games and ordinary levels stay matching',()=>{
+ let modes=[];for(let level=1;level<=100;level++){const c=adventureChallenge(level);assert.equal(!!c,level<100&&level%5===0);if(c){modes.push(c.mode);assert.equal(challengeTasks(c).length,3);assert(c.target>0&&c.target<60);}}
+ assert.deepEqual(modes.slice(0,3),['drop','slice','piano']);assert.equal(modes.length,19);
 });
 test('challenge completion cannot come from practice; timeout and goal use active game time',()=>{
  const c=adventureChallenge(5);assert(!challengeFinished({score:100,time:0,practice:true},c));
@@ -27,4 +27,23 @@ test('challenge result waits for durable run save and credits its Adventure outc
  run.step(game);run.step(game);assert.equal(ends,1);assert.deepEqual(run.result(game,false),{});assert.equal(writes,0);
  assert.equal(run.result(game,true).title,'LEVEL COMPLETE');run.result(game,true);assert.equal(writes,1);
  }finally{globalThis.document=old;}
+});
+
+test('challenge pause separates goals and Back never restarts or resumes the run',()=>{
+ const old=globalThis.document;
+ const element=()=>({children:[],classList:{add(){}},append(...nodes){this.children.push(...nodes)},querySelector(){return {focus(){}}},remove(){}});
+ globalThis.document={createElement:element};
+ try{const run=createAdventureChallengeRun({getChallenge:()=>adventureChallenge(30)});run.start(element());let view=element(),resumes=0,exits=0;
+ const panel=title=>{view=element();view.title=title;return view},button=(text,click)=>({text,click});
+ run.pause(view,{panel,button,resume:()=>resumes++,exit:()=>exits++});assert.deepEqual(view.children.map(n=>n.text),['Resume','Level tasks','Main menu']);
+ view.children[1].click();assert.equal(view.title,'Level 30 tasks');assert.equal(view.children[0].children.length,3);view.children[1].click();
+ assert.equal(view.title,'Paused');assert.equal(resumes,0);assert.equal(exits,0);view.children[0].click();assert.equal(resumes,1);
+ }finally{globalThis.document=old;}
+});
+
+test('level 100 is an uncapped matching finale with optional score stars',()=>{
+ assert.equal(adventureChallenge(100),null);assert.deepEqual(levelRequirements(100),[]);assert.equal(adventureDesign(100),null);assert.deepEqual(adventureMechanics(100),{lock:null,memory:0,wheel:false});
+ for(const score of [0,100,200,500,10000])assert.equal(levelComplete(100,{score,elapsed:9999999}),false);
+ assert.deepEqual(levelObjectives(100,{won:true,score:200}).map(o=>o.done),[true,true,false]);
+ const progress=normalizeAdventure({cleared:Array(99).fill(true)});const done=saveObjectiveStars(progress,100,0);assert.equal(done.cleared[99],true);assert.equal(done.stars[99],0);
 });

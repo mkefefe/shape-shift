@@ -23,3 +23,21 @@
 
 #app :is(#level-dialog,#level-tasks-dialog) .dialog-content>*{flex-shrink:0}
 #app #level-tasks-dialog #level-task-list{flex:none;display:grid;gap:6px;min-height:auto}
+
+/* Content-sized level briefing; crop the empty frame center, never its corners. */
+#app #level-dialog{width:min(380px,calc(100vw - 24px));height:fit-content;min-height:0;max-height:calc(100dvh - 24px);background:transparent;isolation:isolate}
+#level-dialog::before,#level-dialog::after{content:'';position:absolute;left:0;right:0;height:50%;z-index:-1;pointer-events:none;background:url('assets/delivery-v144/menu-panel-v240.webp') center top/100% auto no-repeat}
+#level-dialog::before{top:0}#level-dialog::after{bottom:0;background-position:center bottom}
+#app #level-dialog .dialog-content{height:auto;max-height:calc(100dvh - 24px);padding:24px 24px 22px;gap:10px;justify-content:flex-start;overflow-y:auto}
+#app #level-dialog h2{padding:0 40px;font:1000 28px/1.2 Nunito,sans-serif}
+#app #level-dialog #level-goal{display:flex;flex-direction:column;gap:3px;max-width:100%;font-family:Nunito,sans-serif}
+#level-dialog #level-goal strong{font:900 18px/1.25 Nunito,sans-serif;color:#12566d}
+#level-dialog #level-goal span{font:800 13px/1.3 Nunito,sans-serif;color:#347083}
+#level-dialog #level-requirements:empty{display:none}
+#app #level-dialog #level-play{flex:none;margin:4px 0 0}
+@media(max-height:600px){#app #level-dialog .dialog-content{padding:20px 20px 18px;gap:7px}#app #level-dialog h2{font-size:25px}}
+
+:is(#shape-drop,#shape-slice,#piano-flow) :is(.drop-pause-panel,.adventure-task-panel){box-sizing:border-box;width:min(350px,calc(100vw - 40px));border:16px solid transparent;border-image:url('assets/delivery-v144/menu-panel-v240.webp') 70 fill / 16px / 0 stretch;background:transparent;padding:22px 18px;gap:12px;border-radius:24px;color:#07566d}
+:is(#shape-drop,#shape-slice,#piano-flow) :is(.drop-pause-panel,.adventure-task-panel) h2{font:1000 27px/1.2 Nunito,sans-serif;margin:0 0 8px;text-shadow:0 2px white}
+:is(#shape-drop,#shape-slice,#piano-flow) :is(.drop-pause-panel,.adventure-task-panel) button{width:min(250px,100%);height:64px;min-height:64px;padding:8px 18px;border:0;border-radius:0;background:url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;box-shadow:none;color:#684200;font:1000 20px/1.15 Nunito,sans-serif}
+.adventure-task-panel .adventure-pause-goals{margin:0;gap:8px;width:100%}.adventure-task-panel .adventure-pause-goals li{padding:12px 8px;border:2px solid #5aaabb;border-radius:15px;background:#edfcffd9;font:900 14px/1.3 Nunito,sans-serif}

@@ -1,6 +1,6 @@
-import {requestReward} from './rewarded.js?v=494209';
-import {startResultCountdown} from './countdown.js?v=494209';
-import {flushResultStorage} from './result-storage.js?v=494209';
+import {requestReward} from './rewarded.js?v=494219';
+import {startResultCountdown} from './countdown.js?v=494219';
+import {flushResultStorage} from './result-storage.js?v=494219';
 
 // Borrow the actual Endless/Adventure dialog, never a second mini-game panel.
 export function showSharedContinue({host,description,onWatch,onFinish}){

@@ -80,7 +80,8 @@ html body #restoration-dialog .restoration-celebration{position:absolute;z-index
 html body #restoration-dialog .restoration-celebration canvas{width:100%;height:100%;object-fit:contain;min-height:0}
 html body #restoration-dialog .restoration-celebration strong{position:absolute;bottom:8%;left:5%;right:5%;text-align:center;color:#fff7d3;font:1000 6cqw/1.15 Nunito,sans-serif;text-shadow:0 2px 4px #06425d,0 1px 8px #06425d;padding:3cqw;background:#075570b8;border-radius:3cqw}
 html body #restoration-dialog.is-restoring>.close{z-index:6}
-html body #restoration-dialog.is-restoring .restoration-content{visibility:hidden}
+html body #restoration-dialog.is-restoring .restoration-content{visibility:visible}
+html body #restoration-dialog.is-restoring .restoration-percent{visibility:hidden}
 html body #restoration-dialog .restoration-celebration.is-complete{box-shadow:inset 0 0 55px #fff3ac88}
 
 /* The restored film retains its original aspect ratio and quiet dark margins. */

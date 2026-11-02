@@ -5,7 +5,7 @@ import {BOOST_UNLOCK_LEVELS} from './economy.js';
 test('100 distinct plans, three optional stars, and no boost tasks before unlock',()=>{
  assert.equal(STAR_PLAN.length,100);assert.equal(new Set(STAR_PLAN.map(r=>[...r].sort().join(' '))).size,100);
  for(let level=1;level<=100;level++){const tasks=levelTasks(level);assert.equal(tasks.length,3);for(const t of tasks)if(t.type==='ability')for(const name of t.ability==='all'?['shield','freeze','boost']:[t.ability])assert(level>BOOST_UNLOCK_LEVELS[name]);
-  const stats={won:true,elapsed:0,wrong:0,challengeScore:999,bestCombo:99,bestStreak:99,colorChanges:99,shapeChanges:99,pickups:{crystal:1,starburst:1,bomb:1},abilities:{shield:true,freeze:true,boost:true},frame:tasks.find(t=>t.type==='frame')?.frame};
+  const stats={won:true,elapsed:0,wrong:0,score:999,challengeScore:999,bestCombo:99,bestStreak:99,colorChanges:99,shapeChanges:99,pickups:{crystal:1,starburst:1,bomb:1},abilities:{shield:true,freeze:true,boost:true},frame:tasks.find(t=>t.type==='frame')?.frame};
   assert(levelObjectives(level,stats).every(o=>o.done));assert(levelObjectives(level,{...stats,won:false}).every(o=>!o.done));
  }
 });

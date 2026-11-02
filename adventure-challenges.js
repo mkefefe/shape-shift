@@ -1,6 +1,6 @@
 // Short authored breaks in the matching journey; standalone Games stay endless.
 export function adventureChallenge(level){
- const n=Number(level);if(!Number.isInteger(n)||n<5||n>100||n%5)return null;
+ const n=Number(level);if(!Number.isInteger(n)||n<5||n>=100||n%5)return null;
  const index=n/5-1,mode=['drop','slice','piano'][index%3],tier=Math.floor(index/3);
  const target=({drop:8,slice:16,piano:12})[mode]+tier*({drop:2,slice:3,piano:2})[mode];
  return {level:n,mode,name:({drop:'Shape Drop',slice:'Shape Slice',piano:'Piano Flow'})[mode],target,limit:120,starTime:75};
@@ -18,5 +18,10 @@ export function createAdventureChallengeRun({getChallenge=()=>null,onResult=()=>
  step(game){if(!challenge||!game)return;const left=Math.max(0,Math.ceil(challenge.limit-game.time));if(hud)hud.textContent='Level '+challenge.level+' · '+Math.min(game.score,challenge.target)+' / '+challenge.target+' · '+left+'s';if(!game.over&&challengeFinished(game,challenge))game.end('challenge');},
  result(game,stored){if(!challenge)return {};if(!stored)return {};outcome??=onResult(challenge,challengeStats(game,challenge));return outcome;},
  goals(card){if(!challenge)return;const list=document.createElement('ul');list.className='adventure-pause-goals';for(const task of challengeTasks(challenge)){const row=document.createElement('li');row.textContent=task.label;list.append(row);}card.append(list);},
+ pause(card,{panel,button,resume,exit}){if(!challenge)return false;
+  const showPause=()=>{const view=panel('Paused');view.classList.add('drop-pause-panel');this.pause(view,{panel,button,resume,exit});};
+  const showTasks=()=>{const view=panel('Level '+challenge.level+' tasks');view.classList.add('adventure-task-panel');this.goals(view);view.append(button('Back',showPause));view.querySelector('button').focus();};
+  card.append(button('Resume',resume),button('Level tasks',showTasks),button('Main menu',exit));return true;
+ },
  active:()=>!!challenge};
 }

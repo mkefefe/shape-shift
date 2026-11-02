@@ -1,6 +1,6 @@
-import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=494209';
-import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=494209';
-import {onlineAllowed} from './audience.js?v=494209';
+import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=494219';
+import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=494219';
+import {onlineAllowed} from './audience.js?v=494219';
 const key='shape-shift-achievements-v1';let saved;try{saved=JSON.parse(window.ShapeShiftPlatform.storage.getItem(key));}catch{}
 let state=achievementState(saved),notify=()=>{},noticeTimer,hooks={},tab='endless',selected=null,collecting=false;
 const $=id=>document.getElementById(id),claimed=id=>(hooks.getProfile?.().achievementClaims||[]).includes(id);

@@ -1,20 +1,20 @@
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494209';
-import {createResultJournal} from './run-results.js?v=494209';
-import {beginModeTransition} from './mode-transition.js?v=494209';
-import {engagement,registerModeState} from './telemetry.js?v=494209';
-import {translate} from './localization.js?v=494209';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494219';
+import {createResultJournal} from './run-results.js?v=494219';
+import {beginModeTransition} from './mode-transition.js?v=494219';
+import {engagement,registerModeState} from './telemetry.js?v=494219';
+import {translate} from './localization.js?v=494219';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494209';
-import {createMiniResults} from './mini-results.js?v=494209';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494219';
+import {createMiniResults} from './mini-results.js?v=494219';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494209';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494219';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494209';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494219';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 
@@ -73,7 +73,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
  function stop(){practice.clear();teaching.clear();resultsScreen.reset();continueOffer.reset();window.gameAudio?.stopPraise();hitFeedback.reset();epoch++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);clearInput();game?.dispose();game=null;particles=[];reveals=[];glows.fill(0);holdGlows.fill(0);}
 
- function close(){if(!save()){result();return;}stop();dialog.close();window.gameAudio?.setScene('menu');onClose();}
+ function close(){if(!save()){result();return false;}stop();dialog.close();window.gameAudio?.setScene('menu');onClose();return true;}
 
  function panel(title,kind='drop-pause-panel'){overlay?.remove();overlay=el('div','drop-overlay');const card=el('section','drop-panel '+kind);card.append(el('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
 
@@ -85,7 +85,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
  function help(){const card=panel('How to play');card.append(el('p','','Play the lowest shape first by tapping anywhere on its strip. Tapping a different strip costs a heart. Taps respond immediately and the piano follows the song’s beat.'),el('p','','Tap each short note separately, even when it repeats on the same strip. Long notes save their glow progress when you lift your finger. Hold again to continue. Finish before the end of the trail crosses the bottom line to keep your heart.'),button('Got it',resume));card.querySelector('button').focus();}
 
- function pause(){if(!game||!game.started||game.over||game.paused)return;game.pause();window.gameAudio?.stopPraise();clearInput();dialog.dataset.paused='true';const card=panel('Paused');card.classList.add('piano-pause','drop-pause-panel');adventureRun.goals(card);card.append(button('Resume',resume),button('End',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
+ function pause(){if(!game||!game.started||game.over||game.paused)return;game.pause();window.gameAudio?.stopPraise();clearInput();dialog.dataset.paused='true';const card=panel('Paused');card.classList.add('piano-pause','drop-pause-panel');if(!adventureRun.pause(card,{panel,button,resume,exit:close}))card.append(button('Resume',resume),button('End',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
 
  function result(){window.gameAudio?.stopPraise();
   if(!game)return;game.end();clearInput();window.ShapeShiftPlatform.cancelAnimationFrame(raf);dialog.dataset.paused='true';

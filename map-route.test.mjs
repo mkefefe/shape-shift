@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {ROUTE_SEGMENTS} from './map-route.js';import {mapNodePosition} from './world-menu.js';
+test('road sections meet with equal position, width-independent tangent and no reversal',()=>{const first=ROUTE_SEGMENTS[0],last=ROUTE_SEGMENTS.at(-1);assert.equal(first[0],last[6]);assert.equal(first[1]+1000,last[7]);assert.deepEqual([first[2]-first[0],first[3]-first[1]],[last[6]-last[4],last[7]-last[5]]);for(let i=1;i<ROUTE_SEGMENTS.length;i++)assert.deepEqual(ROUTE_SEGMENTS[i].slice(0,2),ROUTE_SEGMENTS[i-1].slice(6));});
+test('all 100 level buttons sit on the opaque road at phone and desktop widths',()=>{for(const width of [280,320,390,480,600])for(let n=1;n<=100;n++){const section=Math.floor((n-1)/2),p=mapNodePosition(n,width),anchor=ROUTE_SEGMENTS[n%2?2:0].slice(6);assert.equal(p.x,anchor[0]/1000);assert.ok(Math.abs(p.y-((49-section)+anchor[1]/1000)*width)<.001);}});

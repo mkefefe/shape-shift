@@ -1,4 +1,4 @@
-import {STORY_KEY,migrateStory,recordStoryClear,markStorySeen,storySummary,availableStoryScenes} from './story-progress.js?v=494209';
+import {STORY_KEY,migrateStory,recordStoryClear,markStorySeen,storySummary,availableStoryScenes} from './story-progress.js?v=494219';
 
 // The controller waits for explicit completion/Skip, but it never makes a
 // failed media load a prerequisite for starting a level or leaving results.

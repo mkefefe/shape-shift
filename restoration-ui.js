@@ -1,10 +1,10 @@
-import {prepareRestorationFilm} from './restoration-film.js?v=494209';
-import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494209';
-import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494209';
+import {prepareRestorationFilm,restorationPresentation,restorationEase,restorationTransition} from './restoration-film.js?v=494219';
+import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494219';
+import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494219';
 const bounded=value=>Math.max(0,Math.min(100,Number(value)||0));
 function ensureStyles(doc=document){
  if(doc.getElementById('restoration-styles'))return;
- const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?v=494209',import.meta.url).href;doc.head.append(css);
+ const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?v=494219',import.meta.url).href;doc.head.append(css);
 }
 
 // Shared progression is deliberately a small destination, not another opening
@@ -99,11 +99,12 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
   if(restorationView(ready,selectedMode).locked)return;const mode=selectedMode;sound('start');close();if(mode==='adventure')onAdventure();else onMode(mode);};
  async function celebrateIsland(art,island,film){
   const token=++epoch;celebrating=true;panel.classList.add('is-restoring');
-  const rect=panel.querySelector('.restoration-art').getBoundingClientRect();
+  const rect=canvas.getBoundingClientRect();
   const overlay=document.createElement('dialog');overlay.className='restoration-celebration';overlay.setAttribute('role','status');overlay.setAttribute('aria-label','Restoring '+island.title);
   overlay.innerHTML='<canvas width="720" height="1280"></canvas>';
   const surface=overlay.querySelector('canvas'),q=surface.getContext('2d');celebrationOverlay=overlay;Object.assign(overlay.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});surface.width=Math.round(rect.width);surface.height=Math.round(rect.height);film.draw(q,0,0);document.body.append(overlay);overlay.showModal();overlay.addEventListener('cancel',event=>event.preventDefault());
   const startRect={x:rect.left,y:rect.top,w:rect.width,h:rect.height};
+  const nextArtwork=warm(); // Prepare the next card behind the still-playing film.
   const settings=getAudioSettings(),media=new Audio(new URL('./assets/story-beacon/'+film.soundtrack().file,import.meta.url).href);
   const musicVolume=settings.music===false?0:Math.max(0,Math.min(1,(settings.musicVolume??40)/100));media.volume=musicVolume;media.preload='auto';
   const unregister=window.ShapeShiftPlatform?.registerMedia?.(media);let stopped=false;
@@ -119,24 +120,40 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
     if(!paused)elapsed+=dt;
     if(paused){media.pause();for(const cue of effects)cue.audio.pause();}else if(soundStarted&&media.paused&&!media.ended&&media.volume>0)media.play().catch(()=>{});
     const bounds={width:window.innerWidth,height:window.innerHeight};
-    const expand=Math.min(1,elapsed/800),e=expand*expand*(3-2*expand);
-    overlay.style.borderRadius=(22*(1-e))+'px';overlay.style.left=startRect.x*(1-e)+'px';overlay.style.top=startRect.y*(1-e)+'px';
-    overlay.style.width=(startRect.w+(bounds.width-startRect.w)*e)+'px';overlay.style.height=(startRect.h+(bounds.height-startRect.h)*e)+'px';
-    const pixelRatio=Math.min(2,window.devicePixelRatio||1),width=Math.round((startRect.w+(bounds.width-startRect.w)*e)*pixelRatio),height=Math.round((startRect.h+(bounds.height-startRect.h)*e)*pixelRatio);
+    const seconds=Math.max(0,(elapsed-1050)/1000),pose=restorationPresentation(seconds,island.index);
+    const expand=Math.min(1,elapsed/1050),e=restorationEase(expand)*(1-pose.dock);
+    const motion=restorationTransition(startRect,{w:bounds.width,h:bounds.height},e);
+    overlay.style.borderRadius=(22*(1-e))+'px';overlay.style.left=motion.x+'px';overlay.style.top=motion.y+'px';
+    overlay.style.width=motion.w+'px';overlay.style.height=motion.h+'px';
+    const pixelRatio=Math.min(2,window.devicePixelRatio||1),width=Math.round(motion.w*pixelRatio),height=Math.round(motion.h*pixelRatio);
     if(surface.width!==width||surface.height!==height){surface.width=width;surface.height=height;}
-    const seconds=Math.max(0,(elapsed-800)/1000);film.draw(q,seconds,e);
+    film.draw(q,pose.filmSeconds,e,{x:motion.image.x*pixelRatio,y:motion.image.y*pixelRatio,size:motion.image.size*pixelRatio});
     if(expand>=1){
      if(!soundStarted){soundStarted=true;if(media.volume>0)media.play().catch(()=>{});}
-     media.volume=musicVolume*Math.min(1,Math.max(0,film.duration-seconds));
-     overlay.setAttribute('aria-label',film.describe(seconds));
+     media.volume=musicVolume*Math.min(1,Math.max(0,pose.duration-seconds));
+     overlay.setAttribute('aria-label',film.describe(pose.filmSeconds));
     }
-    if(elapsed<800+film.duration*1000)animation=requestAnimationFrame(frame);
+    if(elapsed<1050+pose.duration*1000+240)animation=requestAnimationFrame(frame);
     else {stopSound();finishAnimation=null;resolve();}
    }animation=requestAnimationFrame(frame);
   });
   stopFilmSound=null;if(token!==epoch)return;
-  await warm();if(token!==epoch)return;
+  await nextArtwork;if(token!==epoch)return;
+  // Keep the final rendered island visible at its exact card size, then slide
+  // both pictures inside the card's clipping boundary rather than swapping.
+  const artBox=panel.querySelector('.restoration-art'),oldPicture=document.createElement('canvas');
+  oldPicture.width=surface.width;oldPicture.height=surface.height;oldPicture.getContext('2d').drawImage(surface,0,0);
+  Object.assign(oldPicture.style,{position:'absolute',inset:'0',width:'100%',height:'100%',zIndex:'3',pointerEvents:'none'});
+  artBox.append(oldPicture);canvas.style.visibility='hidden';
   overlay.remove();celebrationOverlay=null;celebrating=false;panel.classList.remove('is-restoring');
+  if(!summary().completed){
+   canvas.style.visibility='';
+   const options={duration:700,easing:'cubic-bezier(.22,.7,.25,1)',fill:'both'};
+   const outgoing=oldPicture.animate([{transform:'translateX(0)'},{transform:'translateX(-105%)'}],options);
+   const incoming=canvas.animate([{transform:'translateX(105%)'},{transform:'translateX(0)'}],options);
+   await Promise.allSettled([outgoing.finished,incoming.finished]);outgoing.cancel();incoming.cancel();
+  }
+  oldPicture.remove();canvas.style.visibility='';if(token!==epoch)return;
   panel.querySelector('#restoration-title').textContent=summary().completed?'Color comes home':'A new island awaits';
   earned.hidden=true;selectedMode=summary().requiredMode||'adventure';refresh();
  }

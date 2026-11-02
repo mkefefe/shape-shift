@@ -1,4 +1,4 @@
-import {STORY_KEY,STORY_MILESTONES,migrateStory,recordStoryClear,markStorySeen,storySummary} from './story-progress.js?v=494209';
+import {STORY_KEY,STORY_MILESTONES,migrateStory,recordStoryClear,markStorySeen,storySummary} from './story-progress.js?v=494219';
 
 export const CHARGE_KEY='shape-shift-beacon-charges-v1';
 

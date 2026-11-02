@@ -1,20 +1,20 @@
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494209';
-import {createResultJournal} from './run-results.js?v=494209';
-import {beginModeTransition} from './mode-transition.js?v=494209';
-import {engagement,registerModeState} from './telemetry.js?v=494209';
-import {translate} from './localization.js?v=494209';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494219';
+import {createResultJournal} from './run-results.js?v=494219';
+import {beginModeTransition} from './mode-transition.js?v=494219';
+import {engagement,registerModeState} from './telemetry.js?v=494219';
+import {translate} from './localization.js?v=494219';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494209';
-import {createMiniResults} from './mini-results.js?v=494209';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494219';
+import {createMiniResults} from './mini-results.js?v=494219';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {sliceViewport} from './slice-viewport.js';
 import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js';
 import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js';
 import {miniGameCoins} from './mini-game-rewards.js';
-import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494209';
+import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494219';
 import {shapeArtReady,paintMiniShape} from './mini-shape-art.js';
 import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
@@ -50,10 +50,10 @@ export function initShapeSlice({getAdventureChallenge=()=>null,onAdventureResult
  registerModeState('slice',()=>game&&dialog.open?{playing:!!(!game.over&&!paused&&!overlay),paused:!!(paused||!!overlay)}:null);
  function save(){if(!game||saved||game.practice)return true;pendingSave??=finishSliceProgress(progress,game,runId);if(!persist(pendingSave))return false;saved=true;engagement.endRun('finished');onQuestEvent({type:'finish',mode:'slice',time:game.time});pendingSave=null;resultJournal.clear();settle();return true;}
  function stop(){practice.clear();teaching.clear();resultsScreen.reset();continueOffer.reset();lastHud='';paintTime=0;window.gameAudio?.stopPraise();hitFeedback.reset();endGesture(true);version++;window.ShapeShiftPlatform.cancelAnimationFrame(raf);game?.dispose();game=null;pointer=null;previous=null;trail=[];fragments=[];sparks=[];effects={sparks:[],flashes:[]};labels=[];impacts=[];camera={x:0,y:0};lastBombAt=-100;flash=0;lifeLossTime=0;lifeLossCount=0;lifeLossReason='';overlay=null;}
- function close(){if(game&&!save()){result();return;}stop();dialog.close();window.gameAudio?.setScene('menu');onClose();}
+ function close(){if(game&&!save()){result();return false;}stop();dialog.close();window.gameAudio?.setScene('menu');onClose();return true;}
  function panel(title){overlay?.remove();overlay=el('div','drop-overlay');const card=el('section','drop-panel');card.append(el('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
  function endGesture(clear=false){motionEnergy=0;motionStamp=null;window.gameAudio?.stopSlice();const id=pointer;pointer=null;previous=null;game?.endStroke();if(id!==null&&dialog.hasPointerCapture(id))dialog.releasePointerCapture(id);if(clear){trail=[];renderTrail();}}
- function pause(){if(!game||game.over||paused)return;paused=true;window.gameAudio?.stopPraise();dialog.dataset.paused='true';endGesture(true);const card=panel('Paused');card.classList.add('drop-pause-panel');adventureRun.goals(card);card.append(button('Resume',resume),button('End run',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
+ function pause(){if(!game||game.over||paused)return;paused=true;window.gameAudio?.stopPraise();dialog.dataset.paused='true';endGesture(true);const card=panel('Paused');card.classList.add('drop-pause-panel');if(!adventureRun.pause(card,{panel,button,resume,exit:close}))card.append(button('Resume',resume),button('End run',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
  function resume(){if(!game||game.over)return;overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;paused=false;dialog.dataset.paused='false';last=window.ShapeShiftPlatform.now();canvas.focus();}
  function result(){window.gameAudio?.stopPraise();if(!game)return;game.end();dialog.dataset.paused='true';endGesture(true);window.ShapeShiftPlatform.cancelAnimationFrame(raf);if(!adventureRun.active()&&!saved&&game.lives<=0&&continueOffer.offer({checkpoint:()=>resultJournal.write(runId,game),description:'Watch a video to refill your hearts and keep your score.',resume:()=>{game.revive();hitFeedback.reset();lifeLossTime=0;fragments=[];effects={sparks:[],flashes:[]};resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:result}))return;if(!saved)play('over');const xpBefore=getXp(),stored=save();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.sliced,3),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,restart:start,finish:close,...adventureRun.result(game,stored)});render();
  }

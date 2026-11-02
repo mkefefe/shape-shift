@@ -1,7 +1,7 @@
 // Color Beacon: a deterministic, lightweight story timeline shared by the game
 // and exported previews. Painted art stays at native proportions throughout.
-import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494209';
-export {STORY_RESTORATION} from './story-restoration.js?v=494209';
+import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494219';
+export {STORY_RESTORATION} from './story-restoration.js?v=494219';
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},
@@ -107,7 +107,7 @@ export function restorationFraming(width,height,opening=1){
  const scale=Math.min(width/720,height/1280),startSize=Math.min(width,height)/scale,p=Math.max(0,Math.min(1,opening));
  return {size:startSize+(700-startSize)*p,y:(1280-startSize)/2+(410-(1280-startSize)/2)*p};
 }
-export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,restorationClock,restorationOpening=1,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
+export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,restorationImageFrame,restorationClock,restorationOpening=1,shapeIndex=3,restorationPhase,finalIsland=false,suppressCredits=false}={}){
  const config=STORY_SCENES[sceneId];if(!config)throw new Error('Unknown story chapter');
  let t=Math.max(0,Math.min(config.duration,seconds));if(sceneId==='credits'){sceneId='ending';t+=13;}
  const finale=sceneId==='ending',intro=sceneId==='intro';
@@ -138,7 +138,8 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  // The island gently settles lower for the credits. Reduced motion keeps the
  // painting stationary throughout the ending, including its credit cards.
  const islandDock=reduced&&finale?1:credit;
- const framing=restorationFraming(ctx.canvas.width,ctx.canvas.height,fullScreen?restorationOpening:1),iw=mix(framing.size,500,islandDock),ix=(720-iw)/2,iy=mix(framing.y,750,islandDock),u=iw/a.island.width;
+ let framing=restorationFraming(ctx.canvas.width,ctx.canvas.height,fullScreen?restorationOpening:1),iw=mix(framing.size,500,islandDock),ix=(720-iw)/2,iy=mix(framing.y,750,islandDock),u=iw/a.island.width;
+ if(restorationImageFrame){const s=Math.min(w/720,h/1280);iw=restorationImageFrame.size/s;ix=(restorationImageFrame.x-(w-720*s)/2)/s;iy=(restorationImageFrame.y-(h-1280*s)/2)/s;u=iw/a.island.width;}
  const lamp={x:ix+620*u,y:iy+294*u,rx:104*u,ry:108*u};
  const focus=chapter&&!reduced&&!restorationPhase?Math.sin(ease(t,0,4.4)*Math.PI)*.035:0;
  ctx.save();ctx.translate(360,800);ctx.scale(1+focus,1+focus);ctx.translate(-360,-800);
@@ -151,10 +152,10 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   // composite on every frame after the color reveal has finished.
   ctx.drawImage(after,ix,iy,iw,iw);
  }else if(!intro&&rise>0){
-  const q=a.reveal.getContext('2d');q.clearRect(0,0,720,1280);q.globalCompositeOperation='source-over';q.drawImage(after,ix,iy,iw,iw);
+  const q=a.reveal.getContext('2d');q.setTransform(a.reveal.width/720,0,0,a.reveal.height/1280,0,0);q.clearRect(0,0,720,1280);q.globalCompositeOperation='source-over';q.drawImage(after,ix,iy,iw,iw);
   if(finale&&reduced){q.globalCompositeOperation='destination-in';q.globalAlpha=rise;q.fillStyle='#fff';q.fillRect(0,0,720,1280);q.globalAlpha=1;q.globalCompositeOperation='source-over';}
   else if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(destination.x,destination.y,Math.max(0,radius-140),destination.x,destination.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
-  ctx.drawImage(a.reveal,0,0);
+  ctx.drawImage(a.reveal,0,0,720,1280);
  }
  const fill=restorationPhase?(restorationPhase.index+ease(t,1.4,1.9))/4:intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
  ctx.save();ctx.globalAlpha=restorationOpening;ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();

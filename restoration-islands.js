@@ -1,31 +1,32 @@
-import {BEACON} from './story-restoration.js?v=494209';
+import {BEACON} from './story-restoration.js?v=494219';
 // One prepared painting per destination. The source art is never stretched;
 // the same composition expands from the preview into the celebration window.
 const cache=new Map();
-const canvas=()=>Object.assign(document.createElement('canvas'),{width:640,height:640});
+// Keep native detail throughout the card-to-film transition.
+const SIZE=1254;
+const canvas=()=>Object.assign(document.createElement('canvas'),{width:SIZE,height:SIZE});
 const image=async url=>{const im=new Image();im.src=new URL(url,import.meta.url).href;await im.decode();return im;};
-let atlas,beacon;
+let beacon;
 export function loadRestorationIsland(index=0){
  if(cache.has(index))return cache.get(index);
  const pending=(async()=>{
-  const source=index===0?await image('./assets/story-beacon/island.webp'):await(atlas??=image('./assets/restoration-islands-v191.png'));
+  const source=index===0?await image('./assets/story-beacon/island.webp'):await image(`./assets/restoration-islands/island-${index}-v218.webp`);
   const color=canvas(),c=color.getContext('2d');
-  if(index===0)c.drawImage(source,0,0,640,640);
-  else {const cell=index-1,row=Math.floor(cell/3),edges=[0,435/1254,837/1254,1],w=source.width/3,y=edges[row]*source.height,h=(edges[row+1]-edges[row])*source.height,scale=640/Math.max(w,h);c.drawImage(source,cell%3*w,y,w,h,(640-w*scale)/2,(640-h*scale)/2,w*scale,h*scale);}
+  c.imageSmoothingQuality='high';c.drawImage(source,0,0,SIZE,SIZE);
   if(index>0){
    const tower=await(beacon??=image('./assets/story-beacon/island.webp'));
-   c.save();c.scale(640/1254,640/1254);c.beginPath();BEACON.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.clip();c.drawImage(tower,0,0,1254,1254);c.restore();
+   c.save();c.scale(SIZE/1254,SIZE/1254);c.beginPath();BEACON.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.clip();c.drawImage(tower,0,0,1254,1254);c.restore();
   }
   const gray=canvas(),g=gray.getContext('2d');g.filter='grayscale(1) brightness(.78)';g.drawImage(color,0,0);
-  const pixels=c.getImageData(0,0,640,640),groups=Array.from({length:4},canvas),data=groups.map(a=>a.getContext('2d').createImageData(640,640));
+  const pixels=c.getImageData(0,0,SIZE,SIZE),groups=Array.from({length:4},canvas),data=groups.map(a=>a.getContext('2d').createImageData(SIZE,SIZE));
   for(let i=0;i<pixels.data.length;i+=4){
-   const [r,bg,b]=pixels.data.subarray(i,i+3);
+   const r=pixels.data[i],bg=pixels.data[i+1],b=pixels.data[i+2];
    // Blue water/crystals, green foliage, warm roofs/flowers, then the stone and light.
    const group=b>r*1.12&&b>bg*.95?0:bg>r*1.08&&bg>b*1.08?1:r>b*1.15?2:3;
-   data[group].data.set(pixels.data.subarray(i,i+4),i);
+   const out=data[group].data;out[i]=r;out[i+1]=bg;out[i+2]=b;out[i+3]=pixels.data[i+3];
   }
   groups.forEach((a,i)=>a.getContext('2d').putImageData(data[i],0,0));
-  while(cache.size>3)cache.delete(cache.keys().next().value);
+  while(cache.size>1)cache.delete(cache.keys().next().value);
   return {color,gray,groups};
  })();cache.set(index,pending);pending.catch(()=>cache.delete(index));return pending;
 }

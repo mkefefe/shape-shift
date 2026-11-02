@@ -1,10 +1,11 @@
-import {loadStartupAssets} from './startup-loader.js?v=494209';
-import {loadDestination} from './destination-loader.js?v=494209';
+import {routeArtwork} from './map-route.js?v=212';
+import {loadStartupAssets} from './startup-loader.js?v=494219';
+import {loadDestination} from './destination-loader.js?v=494219';
 import {adventureChallenge,challengeTasks} from './adventure-challenges.js?v=207';
-import {starTasks} from './adventure-star-tasks.js?v=494209';
-import {COSMETICS} from './economy.js?v=494209';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494209';
-import {rewardMarkup} from './adventure-rewards.js?v=494209';
+import {starTasks} from './adventure-star-tasks.js?v=494219';
+import {COSMETICS} from './economy.js?v=494219';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494219';
+import {rewardMarkup} from './adventure-rewards.js?v=494219';
 export const GAMES_UNLOCK_LEVEL=20;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
@@ -28,13 +29,14 @@ export function memoryLevelGoals(level){
  return goals;
 }
 export function levelRequirements(level){
+ if(Number(level)===100)return [];
  const n=levelSpec(level).level,challenge=adventureChallenge(n);if(challenge)return [{type:'challengeScore',target:challenge.target,required:true,label:'Reach '+challenge.target+' points in '+challenge.name}];const memory=memoryLevelGoals(n);if(memory.length)return memory;
  const count=n<=3?1:n<20?2:3,target=n<=3?3+n:n<10?3:n<20?4:Math.min(8,4+Math.floor(n/25));
  return Array.from({length:count},(_,i)=>{const color=(n-1+i)%4,shape=(Math.floor((n-1)/4)+i)%4;
  return {type:'collection',required:true,color,shape,target,label:'Collect '+target+' '+['red','blue','green','yellow'][color]+' '+['circles','triangles','squares','stars'][shape]};});
 }
 export function levelPrimaryGoal(level){return levelRequirements(level)[0];}
-export function levelComplete(level,stats={}){return levelRequirements(level).every(goal=>objectiveMet(goal,stats));}
+export function levelComplete(level,stats={}){return Number(level)!==100&&levelRequirements(level).every(goal=>objectiveMet(goal,stats));}
 export function adventureLayout(level,count){
  // Complete, predictable grids: no decorative gaps or corner blockers.
  return {columns:count===1?1:count===3?3:count<=4?2:count<=9?3:count>16?5:4,cells:[],name:'classic'};
@@ -42,7 +44,7 @@ export function adventureLayout(level,count){
 // Deliberate obstacle lessons, separated by clear boards for new mechanics.
 // Fixed footprints keep cleared blocks from returning as the run progresses.
 export function adventureDesign(level){
- const n=levelSpec(level).level;if(adventureChallenge(n))return null;
+ const n=levelSpec(level).level;if(n===100||adventureChallenge(n))return null;
  const lessons={4:['First block',6,[5],1],9:['Crack and clear',6,[2],2],16:['Around the center',9,[5],1],18:['Two paths',9,[4,6],1],19:['Twin blocks',9,[4,6],2]};
  let plan=lessons[n];
  if(n>=24){
@@ -52,7 +54,7 @@ export function adventureDesign(level){
  }
  return plan?{name:plan[0],size:plan[1],blocks:plan[2],hits:plan[3]}:null;
 }
-export function levelTasks(level){const n=levelSpec(level).level;return adventureChallenge(n)?challengeTasks(adventureChallenge(n)):starTasks(n,{seconds:adventureTimeTarget(n),frameName:id=>COSMETICS.find(c=>c.id===id)?.name||id});}
+export function levelTasks(level){const n=levelSpec(level).level;if(n===100)return [100,200,500].map(target=>({type:'score',target,label:'Score '+target+' in one run (optional)'}));return adventureChallenge(n)?challengeTasks(adventureChallenge(n)):starTasks(n,{seconds:adventureTimeTarget(n),frameName:id=>COSMETICS.find(c=>c.id===id)?.name||id});}
 export function levelRequirementStatus(level,stats={}){return taskStatus(levelRequirements(level),stats);}
 export function trackLevelPick(stats={},tile,correct,outcome){
  if(tile?.special&&outcome==='correct')return {...stats,pickups:{...stats.pickups,[tile.special]:(stats.pickups?.[tile.special]||0)+1}};
@@ -141,13 +143,18 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  function openLevel(n){
   if(launching||!canStart()||!['home','map','game'].includes($('app').dataset.screen))return;
   if(!isAdmin()&&n>unlockedLevel(progress)){sound('map-locked');showMapNotice('Complete Level '+(n-1)+' to unlock Level '+n+'.');return;}
-  level=n;$('level-title').textContent='Level '+n;$('level-goal').textContent=adventureChallenge(n)?adventureChallenge(n).name+' · 2-minute challenge':'Collect to win';
+  level=n;$('level-title').textContent='Level '+n;
+  const challenge=adventureChallenge(n),goal=$('level-goal');goal.replaceChildren();
+  const goalName=document.createElement('strong');goalName.textContent=n===100?'Endless finale':challenge?challenge.name:'Collect to win';goal.append(goalName);
+  if(n===100){const note=document.createElement('span');note.textContent='Survive as long as you can. Ending the run completes Adventure.';goal.append(note);}
+  if(challenge){const duration=document.createElement('span');duration.textContent='2-minute challenge';goal.append(duration);}
   let designNote=$('level-design');if(!designNote){designNote=document.createElement('p');designNote.id='level-design';$('level-goal').after(designNote);}
   const design=adventureChallenge(n)?null:adventureDesign(n);designNote.hidden=!design;
   designNote.textContent=design?design.name+' · Black blocks break after '+design.hits+' adjacent '+(design.hits===1?'match':'matches')+'. No bomb needed.':'';
   let requirements=$('level-requirements');if(!requirements){requirements=document.createElement('div');requirements.id='level-requirements';$('level-goal').after(requirements);}
   renderLevelRequirements(requirements,n,{},drawShape);
   let goals=$('level-objectives');if(!goals){const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Star tasks';goals=document.createElement('ul');goals.id='level-objectives';requirements.after(heading,goals);}
+  $('level-dialog').querySelector('.star-tasks-heading').textContent=n===100?'Optional star milestones':'Star tasks';
   goals.innerHTML=levelTasks(n).map(task=>'<li class="star-challenge"><span class="map-star earned" aria-hidden="true"><img src="assets/stars-v101.webp" alt=""></span><span>'+task.label+'</span></li>').join('');
   let frameNote=$('level-frame-requirement');if(!frameNote){frameNote=document.createElement('p');frameNote.id='level-frame-requirement';frameNote.setAttribute('role','status');$('level-goal').after(frameNote);}
   let frameButton=$('level-choose-frame');if(!frameButton){frameButton=document.createElement('button');frameButton.id='level-choose-frame';frameButton.className='secondary';frameButton.textContent='Choose frame';frameNote.after(frameButton);frameButton.onclick=()=>{$('level-dialog').close();openFrames();};}
@@ -189,14 +196,14 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   mapFrame=0;const viewport=$('adventure-map'),width=viewport.clientWidth||390,range=visibleMapSections(Math.max(0,viewport.scrollTop-$('map-landscape').offsetTop),viewport.clientHeight,width),key=range.join(':')+':'+width+':'+starTotal(progress)+':'+progress.lightning.join('');
   if(key===mapWindow)return;const restoreFocus=mapKeyboard&&$('map-levels').contains(document.activeElement);mapWindow=key;$('map-levels').replaceChildren();
   for(let section=range[0];section<=range[1];section++){
-   const tile=document.createElement('div');tile.className='route-tile'+(section%2?' flipped':'');tile.dataset.region=section>=30?'sunset':section>=13?'moon':'garden';tile.style.top=((49-section)*width)+'px';tile.style.height=(width+1)+'px';$('map-levels').append(tile);
+   const tile=document.createElement('div');tile.className='route-tile';tile.setAttribute('aria-hidden','true');tile.style.setProperty('--map-drift-delay',(-section%7)+'s');tile.dataset.region=section>=30?'sunset':section>=13?'moon':'garden';const moon=Math.max(0,Math.min(1,(section-10)/6)),sunset=Math.max(0,Math.min(1,(section-27)/6));tile.style.setProperty('--terrain-filter',`hue-rotate(${38*moon-63*sunset}deg) saturate(${.96-.28*moon+.2*sunset}) brightness(${1.055-.235*moon+.15*sunset}) sepia(${.4*sunset})`);tile.style.top=((49-section)*width)+'px';tile.style.height=width+'px';tile.innerHTML=routeArtwork(section);$('map-levels').append(tile);
    for(let j=0;j<2;j++){const n=section*2+j+1,pos=mapNodePosition(n,width),b=document.createElement('button'),locked=!isAdmin()&&n>unlockedLevel(progress);b.dataset.level=String(n);b.dataset.challenge=adventureChallenge(n)?.mode||'';b.className='level-node'+(locked?' locked':n===unlockedLevel(progress)?' next':' completed');b.style.left=(pos.x*100)+'%';b.style.top=pos.y+'px';b.setAttribute('aria-label','Level '+n+(adventureChallenge(n)?' · '+adventureChallenge(n).name:'')+(locked?' locked':', '+progress.stars[n-1]+' stars'+(progress.lightning[n-1]?', Lightning Finish':'')));b.setAttribute('aria-disabled',String(locked));b.innerHTML=`<strong>${n}</strong><span class="level-stars" aria-hidden="true">${stars(progress.stars[n-1])}</span>${progress.lightning[n-1]?'<span class=map-lightning aria-hidden=true>&#9889;</span>':''}`;b.onclick=()=>{mapSelected=n;openLevel(n);};$('map-levels').append(b);}
   }
   markMapSelection(restoreFocus);
  }
  function sizeMap(){const width=$('adventure-map').clientWidth||390;mapWidth=width;$('map-landscape').style.height=(50*width)+'px';mapWindow='';}
  let mapReady=false,mapOpening=false;
- async function map(){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',()=>loadStartupAssets(()=>{},{assets:['assets/map-garden-v209.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']}));mapOpening=false;if(!loaded)return;mapReady=true;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
+ async function map(){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',()=>loadStartupAssets(()=>{},{assets:['assets/map-meadow-v212.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']}));mapOpening=false;if(!loaded)return;mapReady=true;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
  const mapNotice=document.createElement('div');mapNotice.id='map-notice';mapNotice.setAttribute('role','status');mapNotice.setAttribute('aria-live','polite');mapNotice.hidden=true;document.body.append(mapNotice);let mapNoticeAnimation;
  function showMapNotice(message){
  mapNoticeAnimation?.cancel();mapNotice.textContent=message;mapNotice.hidden=false;
@@ -220,7 +227,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
 }
 
 // Two measured path-center anchors per square raster tile. Odd tiles mirror vertically.
-export function mapNodePosition(level,width){const section=Math.floor((level-1)/2),upper=level%2===0,y=upper?.25:.75,sourceY=section%2?1-y:y;return {x:sourceY===.25?.654:.485,y:(49-section+y)*width};}
+export function mapNodePosition(level,width){const section=Math.floor((level-1)/2),upper=level%2===0,y=upper?.25:.75,sourceY=y;return {x:sourceY===.25?.660:.340,y:(49-section+y)*width};}
 export function visibleMapSections(scroll,height,width){const first=Math.max(0,Math.floor(scroll/width)-1),last=Math.min(49,Math.ceil((scroll+height)/width)+1);return [Math.max(0,49-last),Math.min(49,49-first)];}
 
 export function levelTaskStatus(level,stats={}){return taskStatus(levelTasks(level),stats);}
@@ -308,7 +315,7 @@ export function createModeCardTap(interval=350){
 
 // Color changes unlock at level 15 and remain active alongside later mechanics.
 export function adventureMechanics(level){
- if(level<5)return {lock:null,memory:0,wheel:false};
+ if(level<5||level===100)return {lock:null,memory:0,wheel:false};
  if(level<8)return {lock:'shape',memory:0,wheel:false};
  if(level<10)return {lock:'color',memory:0,wheel:false};
  if(level<15)return {lock:null,memory:1,wheel:false};
