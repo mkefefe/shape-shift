@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
-const path=world=>'assets/music/menu-'+world+'-sync-v184.ogg';
+const path=world=>'assets/music/'+({garden:'indie-game-soundtrack-251864.mp3',moon:'game-background-359782.mp3',sunset:'game-music-loop-4-144341.mp3'})[world];
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const nonVictory=state=>state.fetches.filter(url=>!url.includes('/victory-')&&!url.includes('piano-bridge-'));
 const response=()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});
@@ -396,12 +396,13 @@ test('Endless restores the exact pre-revision recording with no tone processing 
  }
 });
 
-test('Adventure shares the restored Endless recording and does not restart it between modes',async()=>{
- const {audio,state,tracks}=harness();audio.setScene('adventure');await audio.start();await flush();const original=tracks()[0];
- assert.equal(original.buffer.url,'assets/music/groove-game-v494154.ogg');assert.equal(state.gains[1].connections.at(-1),state.gains[3]);
- state.context.currentTime=8;audio.setScene('game');await flush();assert.equal(tracks().length,1);assert.equal(original.stops.length,0);
- audio.setScene('adventure');await flush();assert.equal(tracks().length,1);assert.equal(original.stops.length,0);
+test('Adventure continues the equipped world melody without restarting the menu recording',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();const original=tracks()[0];
+ assert.equal(original.buffer.url,path('garden'));
+ state.context.currentTime=8;audio.setScene('adventure');await flush();assert.equal(tracks().length,1);assert.equal(original.stops.length,0);
+ audio.setScene('menu');await flush();assert.equal(tracks().length,1);assert.equal(original.stops.length,0);
 });
+
 test('all menu themes use gentle melody presence without the muffling low-pass filter',async()=>{
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();

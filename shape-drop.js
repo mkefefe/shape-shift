@@ -1,25 +1,26 @@
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494206';
-import {createResultJournal} from './run-results.js?v=494206';
-import {beginModeTransition} from './mode-transition.js?v=494206';
-import {engagement,registerModeState} from './telemetry.js?v=494206';
+import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494209';
+import {createResultJournal} from './run-results.js?v=494209';
+import {beginModeTransition} from './mode-transition.js?v=494209';
+import {engagement,registerModeState} from './telemetry.js?v=494209';
 import {createDropWater} from './drop-water.js';
-import {translate} from './localization.js?v=494206';
+import {translate} from './localization.js?v=494209';
 import {createDropMergeAudio} from './drop-merge-audio.js';
 import {dropArtworkGeometry} from './drop-art-geometry.js';
-import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494206';
+import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494209';
 import {createSceneryTint} from './scenery-progress.js';
 import {bindDropKeyboard} from './drop-keyboard.js';
 import {dropBombFeedback} from './bomb-feedback.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494206';
-import {createMiniResults} from './mini-results.js?v=494206';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494209';
+import {createMiniResults} from './mini-results.js?v=494209';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {ARTWORK_CROPS} from './artwork-crops.js';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494206';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494209';
 import {miniGameCoins} from './mini-game-rewards.js';
 import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js';
-import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494206';
+import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494209';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image(),obstacleArt=new Image(),bombArt=new Image(),gardenArt=new Image(),imageLoads=new WeakMap();
 function loadDropImage(image,src){
@@ -42,7 +43,7 @@ function prepareMatter(){
  return matterLoad;
 }
 const COLORS=['#ff4f69','#36caff','#65f078','#ffe367'];
-export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent:reportQuest=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
+export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=()=>({}),sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent:reportQuest=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
  let M;
  const teaching=createMiniTutorial('drop');
  const practice=createModePractice('drop',{onComplete:()=>continuePracticeRun(game,()=>{
@@ -80,6 +81,7 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  const continueOffer=createMiniContinue({tracker:engagement});
  const resultJournal=createResultJournal(window.ShapeShiftPlatform.storage,KEY+'-continue-result');
  const resultsScreen=createMiniResults();
+ const adventureRun=createAdventureChallengeRun({getChallenge:getAdventureChallenge,onResult:onAdventureResult});
  const hitFeedback=createHitFeedback(dialog,{sound:play,reducedMotion:()=>quiet});
  function button(label,fn,cls='drop-action'){const b=make('button',cls,label);b.type='button';b.onclick=()=>{play('click');fn();};return b;}
  function icon(label,fn,kind){const b=button('',fn,'drop-icon drop-icon-'+kind);b.setAttribute('aria-label',label);return b;}
@@ -163,8 +165,8 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  function release(){if(!game||paused||game.over||practice.finished)return;if(practice.active)game.queue.forEach(t=>Object.assign(t,{shape:0,color:1,bomb:false,obstacle:false,geometry:null}));const locked=game.queue[0].obstacle;engagement.interaction('drop');if(game.drop()){engagement.successfulAction('drop');teaching.event('drop');if(practice.active)practice.complete(); play(locked?'drop-block':'drop-release');announcement.textContent=locked?'Locked blocks stay in the pile':dropHint();update();}}
  function panel(title){overlay?.remove();overlay=make('div','drop-overlay');const card=make('section','drop-panel');card.append(make('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
  function resume(){if(!paused||game?.over)return;overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;paused=false;dialog.dataset.paused='false';last=window.ShapeShiftPlatform.now();canvas.focus();update();}
- function pause(message){if(!game||game.over||paused)return;paused=true;keyboard.reset();window.gameAudio?.stopPraise();dialog.dataset.paused='true';drag=null;const card=panel('Paused');card.classList.add('drop-pause-panel');card.append(make('p','drop-result-best','Best score '+Math.max(progress.best,game.score).toLocaleString()));if(message)card.append(make('p','',message));card.append(button('Resume',resume),button('End run',()=>{game.end();showResult();},'drop-secondary'));card.querySelector('button').focus();update();}
- function showResult(){mergeAudio.reset();keyboard.reset();window.gameAudio?.stopPraise();if(!game)return;window.ShapeShiftPlatform.cancelAnimationFrame(raf);raf=0;paused=false;dialog.dataset.paused='true';if(!saved&&game.over&&game.endReason==='overflow'&&continueOffer.offer({checkpoint:()=>resultJournal.write(runId,game),description:'Watch a video to clear the upper pile and keep your score.',resume:()=>{game.revive();hitFeedback.reset();paused=true;resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:showResult}))return;if(!saved)play('over');const xpBefore=getXp(),stored=saveRun();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.cleared),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:showResult,restart:start,finish:close});render();}
+ function pause(message){if(!game||game.over||paused)return;paused=true;keyboard.reset();window.gameAudio?.stopPraise();dialog.dataset.paused='true';drag=null;const card=panel('Paused');card.classList.add('drop-pause-panel');card.append(make('p','drop-result-best','Best score '+Math.max(progress.best,game.score).toLocaleString()));if(message)card.append(make('p','',message));adventureRun.goals(card);card.append(button('Resume',resume),button('End run',()=>{game.end();showResult();},'drop-secondary'));card.querySelector('button').focus();update();}
+ function showResult(){mergeAudio.reset();keyboard.reset();window.gameAudio?.stopPraise();if(!game)return;window.ShapeShiftPlatform.cancelAnimationFrame(raf);raf=0;paused=false;dialog.dataset.paused='true';if(!adventureRun.active()&&!saved&&game.over&&game.endReason==='overflow'&&continueOffer.offer({checkpoint:()=>resultJournal.write(runId,game),description:'Watch a video to clear the upper pile and keep your score.',resume:()=>{game.revive();hitFeedback.reset();paused=true;resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:showResult}))return;if(!saved)play('over');const xpBefore=getXp(),stored=saveRun();resultsScreen.show({score:game.score,best:Math.max(progress.best,game.score),coins:miniGameCoins(game.cleared),elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:showResult,restart:start,finish:close,...adventureRun.result(game,stored)});render();}
 
  let entering=false;
 
@@ -185,11 +187,11 @@ export function initShapeDrop({sound=name=>window.gameAudio?.ui(name),getXp=()=>
   if(token!==version||!dialog.open)return;if(!ready){const card=panel('Unable to load');card.classList.add('drop-result-panel');card.append(make('p','','Shape Drop could not load. Check your connection and try again.'),button('Retry',start),button('Games',close,'drop-secondary'));return;}
   overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
   dropWater=createDropWater(scenery,gardenArt);dropWater.step(0);settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),practice:practice.active,height:layout.worldHeight,geometryFor:tile=>tile.bomb?null:collisionArtwork.get(dropCrop(tile)),autoDrop:false,onImpact:event=>play(event.type==='floor'?'drop-land':'drop-touch'),onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{if(practice.active)practice.finish();teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});mergeAudio.merge(game.time);for(const group of event.groups)fx.push({kind:'merge',at:game.time,x:group.reduce((sum,b)=>sum+b.position.x,0)/group.length,y:group.reduce((sum,b)=>sum+b.position.y,0)/group.length,pieces:group.map(b=>({tile:{...b.drop},x:b.position.x,y:b.position.y,angle:b.angle}))});announcement.textContent='Match!  +'+event.score;}});
-  if(!practice.active)engagement.startRun('drop');onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();await gate.reveal(()=>render());if(token!==version||!dialog.open)return;startPractice();canvas.focus();last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  if(!practice.active)engagement.startRun('drop');onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();await gate.reveal(()=>render());if(token!==version||!dialog.open)return;startPractice();canvas.focus();last=window.ShapeShiftPlatform.now();adventureRun.start(dialog);raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const aim=e=>{if(paused||game.over||!transform)return;const r=canvas.getBoundingClientRect();game.aimAt((e.clientX-r.left-transform.x)/transform.scale);};
   canvas.onpointerdown=e=>{if(e.button!==0||drag!==null||paused||game.over||!transform)return;keyboard.reset();drag=e.pointerId;canvas.setPointerCapture(e.pointerId);aim(e);};canvas.onpointermove=e=>{if(drag===e.pointerId)aim(e);};canvas.onpointerup=e=>{if(drag===e.pointerId){aim(e);drag=null;release();render();}};canvas.onpointercancel=()=>{drag=null;render();};canvas.onlostpointercapture=()=>{drag=null;render();};
  }
- function tick(now){if(!game||!dialog.open)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;if(!paused&&!window.ShapeShiftPlatform.paused){keyboard.step(dt);const drops=game.drops;game.step(hitFeedback.step(dt));mergeAudio.step(game.time);if(!game.over){sceneryTint.step(dt,game.score,quiet);dropWater?.step(dt);}if(game.drops!==drops){play('drop-release');}game.events.length=0;fx=fx.filter(f=>game.time-f.at<(f.kind==='merge'?DROP_MERGE_DURATION:.8)).slice(-80);if(game.time-game.lastClear>1.8){const hint=game.danger>0?'Clear the top before it fills!':dropHint();if(announcement.textContent!==hint)announcement.textContent=hint;}update();paintElapsed+=dt;if(paintElapsed>=1/60){paintElapsed%=1/60;render();}if(game.over&&!hitFeedback.active){showResult();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
+ function tick(now){if(!game||!dialog.open)return;const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;if(!paused&&!window.ShapeShiftPlatform.paused){keyboard.step(dt);const drops=game.drops;game.step(hitFeedback.step(dt));adventureRun.step(game);mergeAudio.step(game.time);if(!game.over){sceneryTint.step(dt,game.score,quiet);dropWater?.step(dt);}if(game.drops!==drops){play('drop-release');}game.events.length=0;fx=fx.filter(f=>game.time-f.at<(f.kind==='merge'?DROP_MERGE_DURATION:.8)).slice(-80);if(game.time-game.lastClear>1.8){const hint=game.danger>0?'Clear the top before it fills!':dropHint();if(announcement.textContent!==hint)announcement.textContent=hint;}update();paintElapsed+=dt;if(paintElapsed>=1/60){paintElapsed%=1/60;render();}if(game.over&&!hitFeedback.active){showResult();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
  const keyboard=bindDropKeyboard(dialog,{active:()=>dialog.open&&game&&!game.over&&!paused&&!window.ShapeShiftPlatform.paused&&!overlay&&drag===null&&dialog.contains(document.activeElement),move:dx=>game.aimAt(game.aim+dx),drop:release});
  window.addEventListener('shape-shift-input-reset',()=>{keyboard.reset();const id=drag;drag=null;if(id!==null&&canvas?.hasPointerCapture(id))canvas.releasePointerCapture(id);});
  dialog.addEventListener('keydown',e=>{if(!game||game.over)return;if(e.key==='Escape'||(e.key===' '&&e.target.closest('button')))return;if(['ArrowLeft','ArrowRight','ArrowUp',' ','p','P'].includes(e.key)){e.preventDefault();if(e.key.toLowerCase()==='p'){if(paused)resume();else pause();}else if(!paused){if(e.key===' ')release();else if(e.key==='ArrowUp')game.rotate();else game.aimAt(game.aim+(e.key==='ArrowLeft'?-14:14));render();}}});

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 async function fixture(t,platform,{disabled=false}={}){
  const values=new Map(disabled?[['shape-shift-online-disabled','1']]:[]),calls=[];
+ values.set('shape-shift-ranking-agreement-v1','yes');
  const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,String(value)),removeItem:key=>values.delete(key)};
  const previous={window:globalThis.window,localStorage:globalThis.localStorage,fetch:globalThis.fetch};
  globalThis.localStorage=storage;

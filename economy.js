@@ -1,5 +1,5 @@
-import {frameRewardMultiplier} from './engine.js?v=494206';
-import {normalizeSkins} from './shape-skins.js?v=494206';
+import {frameRewardMultiplier} from './engine.js?v=494209';
+import {normalizeSkins} from './shape-skins.js?v=494209';
 export const BOOST_UNLOCK_LEVELS=Object.freeze({shield:3,freeze:5,boost:8});
 export const boostUnlocked=(profile,name)=>Object.hasOwn(BOOST_UNLOCK_LEVELS,name)&&(profile.adventureCompleted||0)>=BOOST_UNLOCK_LEVELS[name];
 export const PRICES=Object.freeze({shield:100,freeze:100,boost:100});
@@ -26,8 +26,8 @@ export const COSMETICS=Object.freeze([
  {id:'ice',kind:'frame',name:'Crystal halo',price:900,level:12,index:1},
  {id:'blossom',kind:'frame',name:'Blossom Wrath',price:1600,level:25,index:2},
  {id:'cosmic',kind:'frame',name:'Cosmic crown',price:3000,level:45,index:3},
- {id:'moon',kind:'background',name:'Moonlit forest',price:1200,level:20,index:0},
- {id:'sunset',kind:'background',name:'Sunset islands',price:2400,level:35,index:1}
+ {id:'moon',kind:'background',name:'Moonlit forest',price:1200,level:1,adventureLevel:25,index:0},
+ {id:'sunset',kind:'background',name:'Sunset islands',price:2400,level:1,adventureLevel:60,index:1}
 ]);
 export const MAX_PLAYER_LEVEL=100;
 export const xpRequiredForLevel=level=>level>=MAX_PLAYER_LEVEL?0:level<=10?50+Math.ceil((Math.max(1,level)-1)*50/9):100+level-10;
@@ -38,7 +38,7 @@ export function playerProgress(xp=0){
  return {level,current:level===MAX_PLAYER_LEVEL?0:current,required:xpRequiredForLevel(level),capped:level===MAX_PLAYER_LEVEL};
 }
 export const playerLevel=p=>playerProgress(p.xp).level;
-export function buyCosmetic(p,id){const item=COSMETICS.find(c=>c.id===id);if(!item||p.owned.includes(id)||playerLevel(p)<item.level||p.coins<item.price)return p;return {...p,coins:p.coins-item.price,owned:[...p.owned,id],equipped:{...p.equipped,[item.kind]:id}};}
+export function buyCosmetic(p,id){const item=COSMETICS.find(c=>c.id===id);if(!item||p.owned.includes(id)||item.kind==='background'||playerLevel(p)<item.level||p.coins<item.price)return p;return {...p,coins:p.coins-item.price,owned:[...p.owned,id],equipped:{...p.equipped,[item.kind]:id}};}
 export function equipCosmetic(p,kind,id){if(!['frame','background'].includes(kind))return p;if(!((kind==='frame'&&id==='none')||(kind==='background'&&id==='garden')||p.owned.includes(id)&&COSMETICS.some(c=>c.id===id&&c.kind===kind)))return p;return {...p,equipped:{...p.equipped,[kind]:id}};}
 
 export const VIDEO_COIN_REWARD=500;
@@ -78,7 +78,8 @@ export function buyAvatar(p,id){
 export function grantAdventureBoosts(profile,completed){
  const grants={...profile.boostUnlockGrants},inventory={...profile.inventory};
  for(const [name,level] of Object.entries(BOOST_UNLOCK_LEVELS))if(completed>=level&&!grants[name]){inventory[name]=Math.min(999,(inventory[name]||0)+3);grants[name]=true;}
- return {...profile,adventureCompleted:completed,boostUnlockGrants:grants,inventory};
+ const owned=[...new Set([...(profile.owned||[]),...COSMETICS.filter(c=>c.kind==='background'&&completed>=c.adventureLevel).map(c=>c.id)])];
+ return {...profile,owned,adventureCompleted:completed,boostUnlockGrants:grants,inventory};
 }
 
 export function unlockLevelAvatars(p){

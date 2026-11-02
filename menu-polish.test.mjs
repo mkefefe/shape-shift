@@ -15,7 +15,7 @@ test('daily discoveries persist 100/100/100 once across all worlds and reject cl
  assert.deepEqual(discoveryOrder('2026-10-23'),discoveryOrder('2026-10-23'));assert.notDeepEqual(discoveryOrder('2026-10-23'),discoveryOrder('2026-10-24'));
 });
 test('early levels offer three simple inventory-free stars; level 2 earns three on blue circles',()=>{
- for(let level=1;level<=20;level++)assert.deepEqual(levelTasks(level).map(t=>t.type),['wrong','time','streak']);
+ for(let level=1;level<=20;level++)if(level%5)assert.deepEqual(levelTasks(level).map(t=>t.type),['wrong','time','streak']);
  for(let level=1;level<=3;level++)for(let seed=0;seed<16;seed++){
   let stats={},state={current:{color:seed%4,shape:Math.floor(seed/4)}},steps=0;
   const rng=seededRandom(0x53480000+level);

@@ -1,7 +1,7 @@
 // Color Beacon: a deterministic, lightweight story timeline shared by the game
 // and exported previews. Painted art stays at native proportions throughout.
-import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494206';
-export {STORY_RESTORATION} from './story-restoration.js?v=494206';
+import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494209';
+export {STORY_RESTORATION} from './story-restoration.js?v=494209';
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},
@@ -178,7 +178,6 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   if(chapter>=2||finale){ctx.save();ctx.lineCap='round';for(let i=0;i<8;i++){const p=(ambientTime*.62+i*.137)%1;ctx.globalAlpha=active*Math.sin(p*Math.PI)*.28;ctx.strokeStyle='#e4ffff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(ix+(604+i%3*28)*u,iy+(883+p*166)*u);ctx.lineTo(ix+(604+i%3*28)*u,iy+(910+p*166)*u);ctx.stroke();}ctx.restore();}
   if(chapter>=3||finale)for(const [x,y]of[[402,500],[855,474],[923,623],[300,567]])glow(ix+x*u,iy+y*u,45*u*1.8,4,active*.47);
  }
- if((chapter===1&&!restorationPhase)||finale){for(let i=0;i<3;i++){const born=finale?7.5:1.3,age=t-born-i*.18;if(age<0)continue;const xx=ix+(250+i*330)*u+Math.sin(ambientTime*1.4+i)*12,yy=iy+(760-i%2*90)*u-(reduced?0:Math.min(90,age*18));ctx.save();ctx.translate(xx,yy);ctx.scale(reduced?1:.3+.7*Math.abs(Math.sin(t*7+i)),1);shape(i,-5,0,18,ease(age,0,.4));shape(i,5,0,18,ease(age,0,.4));ctx.restore();}}
  ctx.restore();
  // A readable match-to-beacon action links the story directly to the game.
  const hit=intro?3.2:finale?1.3:.7,age=t-hit;

@@ -1,11 +1,12 @@
-import {formatSurvivalTime} from './survival-clock.js?v=494206';
-import {playerProgress} from './economy.js?v=494206';
-import {startResultTally} from './countdown.js?v=494206';
+import {revealAdventureRewards} from './adventure-rewards.js?v=494209';
+import {formatSurvivalTime} from './survival-clock.js?v=494209';
+import {playerProgress} from './economy.js?v=494209';
+import {startResultTally} from './countdown.js?v=494209';
 
 // All modes share the same results DOM, artwork, buttons and XP progress track.
 export function createMiniResults({host=window}={}){
  let cleanup=null;
- return {reset(){cleanup?.();cleanup=null;},show({title='RUN COMPLETE',score,best,coins,elapsed=0,xpBefore,xpAfter,stored=true,pending=false,retry,restart,finish}){
+ return {reset(){cleanup?.();cleanup=null;},show({title='RUN COMPLETE',score,best,coins,elapsed=0,xpBefore,xpAfter,stored=true,pending=false,retry,restart,finish,adventureMarkup='',nextLabel='Retry'}){
   cleanup?.();
   const doc=host.document,d=doc.getElementById('over-dialog'),get=id=>doc.getElementById(id);
   const ids=['record','final-score','final-coins','result-progress','result-xp-label','final-best','ad-status','result-return-countdown','result-survival','adventure-result','adventure-continue','continue-ad','level-progress'];
@@ -17,11 +18,13 @@ export function createMiniResults({host=window}={}){
   get('record').textContent=title;get('adventure-result').hidden=true;get('result-survival').hidden=false;get('result-survival').textContent='Survived '+formatSurvivalTime(elapsed);get('result-return-countdown').hidden=true;
   bestLine.hidden=false;bestLine.firstChild.textContent='Best score ';get('final-best').textContent=best.toLocaleString();
   watch.hidden=true;watch.disabled=false;
-  next.hidden=false;next.disabled=false;next.textContent=stored?'Retry':'Retry saving';
+  next.hidden=false;next.disabled=false;next.textContent=stored?nextLabel:'Retry saving';
+  if(adventureMarkup){get('adventure-result').hidden=false;get('adventure-result').innerHTML=adventureMarkup;d.classList.add('adventure-results');}
   hint.hidden=false;hint.textContent=stored?'Tap anywhere else':'Tap Retry saving to save your run.';
   get('ad-status').textContent=!stored?'Could not save this run. Free some storage and retry.':pending?'Reward saved. Wallet sync will retry.':'';
   get('result-xp-bar').classList.remove('xp-level-up');
   function update(a,b,t){get('final-score').textContent=a.toLocaleString();get('final-coins').textContent='+'+b.toLocaleString();const p=playerProgress(xpBefore+Math.floor(Math.max(0,xpAfter-xpBefore)*t));get('result-progress').textContent='Level '+p.level;get('level-progress').max=p.required||1;get('level-progress').value=p.capped?1:p.current;get('result-xp-label').textContent=p.capped?'MAX LEVEL':p.current+' / '+p.required+' XP';get('level-progress').setAttribute('aria-label','Level '+p.level+': '+get('result-xp-label').textContent);}
+  let cancelStars=null;
   const cancelTally=startResultTally(score,coins,update,cue=>host.gameAudio?.ui(cue),{visible:()=>!window.ShapeShiftPlatform.paused&&d.open,reduced:doc.body.classList.contains('reduce-motion')});
   function leave(fn){cleanup?.();cleanup=null;host.gameAudio?.ui('click');fn();}
   function click(e){e.stopImmediatePropagation();e.preventDefault();if(next.contains(e.target))leave(stored?(restart||finish):retry);else if(stored)leave(finish);}
@@ -29,7 +32,7 @@ export function createMiniResults({host=window}={}){
   d.addEventListener('restoration:leave-mode',leaveMode);
   function cancel(e){e.stopImmediatePropagation();e.preventDefault();if(stored)leave(finish);}
   d.addEventListener('click',click,true);d.addEventListener('cancel',cancel,true);
-  cleanup=()=>{d.removeEventListener('restoration:leave-mode',leaveMode);if(oldResultMode===undefined)delete d.dataset.resultMode;else d.dataset.resultMode=oldResultMode;cancelTally();d.removeEventListener('click',click,true);d.removeEventListener('cancel',cancel,true);if(d.open)d.close();d.className=oldClass;hint.textContent=oldHint;watch.querySelector('strong').textContent=oldButton;next.textContent=oldNext;bestLine.firstChild.textContent=oldBest;for(const s of snapshots){s.node.hidden=s.hidden;if(s.disabled!==undefined)s.node.disabled=s.disabled;}};
-  if(!d.open)d.showModal();d.querySelector('.result-content').scrollTop=0;get('record').focus({preventScroll:true});
+  cleanup=()=>{d.removeEventListener('restoration:leave-mode',leaveMode);if(oldResultMode===undefined)delete d.dataset.resultMode;else d.dataset.resultMode=oldResultMode;cancelStars?.();cancelTally();d.removeEventListener('click',click,true);d.removeEventListener('cancel',cancel,true);if(d.open)d.close();d.className=oldClass;hint.textContent=oldHint;watch.querySelector('strong').textContent=oldButton;next.textContent=oldNext;bestLine.firstChild.textContent=oldBest;for(const s of snapshots){s.node.hidden=s.hidden;if(s.disabled!==undefined)s.node.disabled=s.disabled;}};
+  if(!d.open)d.showModal();d.querySelector('.result-content').scrollTop=0;get('record').focus({preventScroll:true});if(adventureMarkup)cancelStars=revealAdventureRewards(get('adventure-result'),cue=>host.gameAudio?.ui(cue),()=>{});
  }};
 }

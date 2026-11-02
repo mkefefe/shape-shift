@@ -929,3 +929,8 @@ html body #home .mode-card[data-position="0"]{border-color:#ffe878;box-shadow:0 
  color:#fff;text-shadow:0 2px 5px #002638cc;font:1000 clamp(15px,3.8vw,18px)/1.35 Nunito,sans-serif;
  text-align:center;text-transform:uppercase;letter-spacing:.35px;z-index:1;
 }
+
+/* Painted Adventure route: background-only grading leaves buttons and stars crisp. */
+#map-levels .route-tile{background-image:url('assets/map-garden-v209.webp')}
+#map-levels .route-tile[data-region="moon"]{filter:hue-rotate(38deg) saturate(.58) brightness(.65)}
+#map-levels .route-tile[data-region="sunset"]{filter:sepia(.4) saturate(.88) hue-rotate(335deg)}

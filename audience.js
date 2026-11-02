@@ -1,3 +1,4 @@
+import {rankingAgreement} from './welcome-platform.js?v=208';
 let selectedAgeGroup='unknown';
 export function analyticsAgeGroup(){try{return localStorage.getItem('shape-shift-adult-age-group')||selectedAgeGroup;}catch{return selectedAgeGroup;}}
 export function ageGroupFor(age){if(classifyAge(age)!=='adult')return 'unknown';return age<25?'18-24':age<35?'25-34':age<45?'35-44':age<55?'45-54':'55-plus';}
@@ -9,7 +10,7 @@ export function classifyAge(age){
 export function audience(){try{const a=JSON.parse(localStorage.getItem(AUDIENCE_KEY));return ['adult','protected'].includes(a)?a:'unknown';}catch{return 'unknown';}}
 export const onlineAllowed=()=>false;
 // Ranking participation is independent of age and optional aggregate analytics.
-export const leaderboardAllowed=()=>(!window.ShapeShiftPlatform.live||window.ShapeShiftPlatform.cloudRankings===true)&&window.ShapeShiftPlatform.storage.getItem('shape-shift-online-disabled')!=='1';
+export const leaderboardAllowed=()=>rankingAgreement()&&(!window.ShapeShiftPlatform.live||window.ShapeShiftPlatform.cloudRankings===true)&&window.ShapeShiftPlatform.storage.getItem('shape-shift-online-disabled')!=='1';
 export async function ensureAudience(){
  let chosen=audience();
  if(chosen==='unknown')chosen=await new Promise(resolve=>{

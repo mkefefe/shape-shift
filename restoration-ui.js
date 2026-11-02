@@ -1,10 +1,10 @@
-import {prepareRestorationFilm} from './restoration-film.js?v=494206';
-import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494206';
-import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494206';
+import {prepareRestorationFilm} from './restoration-film.js?v=494209';
+import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494209';
+import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494209';
 const bounded=value=>Math.max(0,Math.min(100,Number(value)||0));
 function ensureStyles(doc=document){
  if(doc.getElementById('restoration-styles'))return;
- const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?v=494206',import.meta.url).href;doc.head.append(css);
+ const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?v=494209',import.meta.url).href;doc.head.append(css);
 }
 
 // Shared progression is deliberately a small destination, not another opening

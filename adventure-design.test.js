@@ -23,5 +23,5 @@ test('obstacle lessons preserve a reachable board and every block clears without
 test('first blocks are gentle and new-mechanic lessons stay clear',()=>{
  assert.deepEqual(adventureDesign(4),{name:'First block',size:6,blocks:[5],hits:1});
  for(const level of [1,2,3,5,8,10,11,12,13,14,15,20,21,22,23])assert.equal(adventureDesign(level),null);
- for(const level of [9,19,24,30,100])assert.equal(adventureDesign(level).hits,2);
+ for(const level of [9,19,24,27,29])assert.equal(adventureDesign(level).hits,2);
 });

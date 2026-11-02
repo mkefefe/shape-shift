@@ -1,19 +1,20 @@
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494206';
-import {createResultJournal} from './run-results.js?v=494206';
-import {beginModeTransition} from './mode-transition.js?v=494206';
-import {engagement,registerModeState} from './telemetry.js?v=494206';
-import {translate} from './localization.js?v=494206';
+import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494209';
+import {createResultJournal} from './run-results.js?v=494209';
+import {beginModeTransition} from './mode-transition.js?v=494209';
+import {engagement,registerModeState} from './telemetry.js?v=494209';
+import {translate} from './localization.js?v=494209';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494206';
-import {createMiniResults} from './mini-results.js?v=494206';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494209';
+import {createMiniResults} from './mini-results.js?v=494209';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494206';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494209';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494206';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494209';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 
@@ -28,7 +29,7 @@ function prepareSky(){
 
 const KEY='shape-shift-piano-v1',COLORS=['#ff7979','#63caff','#75e6a5','#ffe49a'];
 
-export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onQuestEvent:reportQuest=()=>{},onProgress=()=>{},getLoadout=()=>({}),onClose=()=>{}}={}){
+export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=()=>({}),sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onQuestEvent:reportQuest=()=>{},onProgress=()=>{},getLoadout=()=>({}),onClose=()=>{}}={}){
 
  const teaching=createMiniTutorial('piano');
  const practice=createModePractice('piano',{onComplete:()=>continuePracticeRun(game,()=>{engagement.startRun('piano');onQuestEvent({type:'start',mode:'piano',time:game.time});last=window.ShapeShiftPlatform.now();update();draw();})});
@@ -55,6 +56,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
  const continueOffer=createMiniContinue({tracker:engagement});
  const resultJournal=createResultJournal(window.ShapeShiftPlatform.storage,KEY+'-continue-result');
  const resultsScreen=createMiniResults();
+ const adventureRun=createAdventureChallengeRun({getChallenge:getAdventureChallenge,onResult:onAdventureResult});
  const hitFeedback=createHitFeedback(dialog,{sound:play,reducedMotion:()=>quiet,hearts:()=>hearts});
  const button=(text,action,cls='drop-action')=>{const b=el('button',cls,text);b.type='button';b.onclick=()=>{play('click');action();};return b;};
 
@@ -83,12 +85,12 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  function help(){const card=panel('How to play');card.append(el('p','','Play the lowest shape first by tapping anywhere on its strip. Tapping a different strip costs a heart. Taps respond immediately and the piano follows the song’s beat.'),el('p','','Tap each short note separately, even when it repeats on the same strip. Long notes save their glow progress when you lift your finger. Hold again to continue. Finish before the end of the trail crosses the bottom line to keep your heart.'),button('Got it',resume));card.querySelector('button').focus();}
 
- function pause(){if(!game||!game.started||game.over||game.paused)return;game.pause();window.gameAudio?.stopPraise();clearInput();dialog.dataset.paused='true';const card=panel('Paused');card.classList.add('piano-pause','drop-pause-panel');card.append(button('Resume',resume),button('End',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
+ function pause(){if(!game||!game.started||game.over||game.paused)return;game.pause();window.gameAudio?.stopPraise();clearInput();dialog.dataset.paused='true';const card=panel('Paused');card.classList.add('piano-pause','drop-pause-panel');adventureRun.goals(card);card.append(button('Resume',resume),button('End',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
 
  function result(){window.gameAudio?.stopPraise();
   if(!game)return;game.end();clearInput();window.ShapeShiftPlatform.cancelAnimationFrame(raf);dialog.dataset.paused='true';
-  if(!saved&&game.lives<=0&&continueOffer.offer({checkpoint:()=>resultJournal.write(runId,game),description:'Watch a video to refill your hearts and keep playing.',resume:()=>{game.revive();hitFeedback.reset();resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:result}))return;
-  const xpBefore=getXp(),stored=save();resultsScreen.show({title:'BEAUTIFULLY PLAYED',score:game.score,best:progress.best,coins:game.coins,elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,restart:start,finish:close});
+  if(!adventureRun.active()&&!saved&&game.lives<=0&&continueOffer.offer({checkpoint:()=>resultJournal.write(runId,game),description:'Watch a video to refill your hearts and keep playing.',resume:()=>{game.revive();hitFeedback.reset();resume();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);},finish:result}))return;
+  const xpBefore=getXp(),stored=save();resultsScreen.show({title:'BEAUTIFULLY PLAYED',score:game.score,best:progress.best,coins:game.coins,elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,restart:start,finish:close,...adventureRun.result(game,stored)});
  }
 
  function event(e){if(e.type==='practice-miss'){practice.guide('Tap this note’s strip.',practicePoint);return;}if(e.type==='complete'&&practice.active){if(e.note.hold)practice.finish();else practice.guide('Hold for the long note.',practicePoint,'hold');}if(e.type==='start'&&!practice.active)engagement.startRun('piano');if(e.type==='miss'){damage=.65;dialog.dataset.pianoError=e.reason==='wrong'?'Wrong strip':'Missed note';}if(e.type==='miss'&&e.damaged===false){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}return;}if(e.type==='complete')teaching.event(e.note?.hold?'held':'tap');if(e.type==='hold'||e.type==='note'&&e.note?.hold)teaching.event('hold');
@@ -230,7 +232,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
  }
 
- function tick(now){if(!game||!dialog.open)return;const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;if(!window.ShapeShiftPlatform.paused&&!game.paused){hitFeedback.step(dt);input.flush();if(!practice.finished)game.step(dt);input.flush();if(game.started&&!game.over){const mood=skyJourney.step(dt,game.score,quiet);skyClock+=dt;const scenery=dialog.querySelector('.piano-scenery');if(scenery&&skyClock>=.1){skyClock=0;const mist=scenery.querySelector('.piano-mist');mist.style.animation='none';mist.style.transform=quiet?'none':`translate(${Math.sin(mood.seconds*.15)*3}%,${Math.cos(mood.seconds*.11)*2}%)`;}}for(let i=0;i<4;i++){glows[i]=Math.max(0,glows[i]-dt);holdGlows[i]=Math.max(0,holdGlows[i]-dt);}for(const r of reveals)r.age+=dt;reveals=reveals.filter(r=>r.age<.16);for(const p of particles){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const drag=Math.exp(-2.4*dt);p.vx*=drag;p.vy*=drag;p.rotation+=p.spin*dt;}particles=particles.filter(p=>p.age<p.life);damage=Math.max(0,damage-dt);if(!damage)delete dialog.dataset.pianoError;update();draw();if(game.over&&!hitFeedback.active){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
+ function tick(now){if(!game||!dialog.open)return;const dt=Math.max(0,Math.min(.05,(now-last)/1000));last=now;if(!window.ShapeShiftPlatform.paused&&!game.paused){hitFeedback.step(dt);input.flush();if(!practice.finished)game.step(dt);adventureRun.step(game);input.flush();if(game.started&&!game.over){const mood=skyJourney.step(dt,game.score,quiet);skyClock+=dt;const scenery=dialog.querySelector('.piano-scenery');if(scenery&&skyClock>=.1){skyClock=0;const mist=scenery.querySelector('.piano-mist');mist.style.animation='none';mist.style.transform=quiet?'none':`translate(${Math.sin(mood.seconds*.15)*3}%,${Math.cos(mood.seconds*.11)*2}%)`;}}for(let i=0;i<4;i++){glows[i]=Math.max(0,glows[i]-dt);holdGlows[i]=Math.max(0,holdGlows[i]-dt);}for(const r of reveals)r.age+=dt;reveals=reveals.filter(r=>r.age<.16);for(const p of particles){p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;const drag=Math.exp(-2.4*dt);p.vx*=drag;p.vy*=drag;p.rotation+=p.spin*dt;}particles=particles.filter(p=>p.age<p.life);damage=Math.max(0,damage-dt);if(!damage)delete dialog.dataset.pianoError;update();draw();if(game.over&&!hitFeedback.active){result();return;}}raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);}
 
  let entering=false;
 
@@ -254,7 +256,7 @@ export function initPianoFlow({sound=name=>window.gameAudio?.ui(name),getXp=()=>
 
   card.replaceChildren(el('h2','','Piano Flow'));if(!ready){card.append(el('p','','The piano could not load. Try again.'),button('Try again',start),button('Games',close,'drop-secondary'));return;}
 
-  removePanel();draw();await gate.reveal(()=>draw());if(version!==epoch||!dialog.open)return;startPractice();begin();last=window.ShapeShiftPlatform.now();raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
+  removePanel();draw();await gate.reveal(()=>draw());if(version!==epoch||!dialog.open)return;startPractice();begin();last=window.ShapeShiftPlatform.now();adventureRun.start(dialog);raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
 
  }
 

@@ -1,6 +1,6 @@
-import {createCardWater} from './card-water.js?v=494206';
-import {createWaterSurface} from './water-surface.js?v=494206';
-import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=494206';
+import {createCardWater} from './card-water.js?v=494209';
+import {createWaterSurface} from './water-surface.js?v=494209';
+import {createCloudDrift,paintSunsetAtmosphere} from './sunset-atmosphere.js?v=494209';
 export {createWaterSurface,createCloudDrift};
 // Water is lit in place. Never scroll strips of the landscape: they contain
 // plants and cliffs as well as water, and wrapping them makes the banks move.
@@ -42,14 +42,14 @@ function waterfall(ctx,fall,time,index,warm,scale){
  const [x0,y0,x1,y1,w0,w1]=fall,h=y1-y0;
  ctx.save();polygon(ctx,[[x0-w0/2,y0],[x0+w0/2,y0],[x1+w1/2,y1],[x1-w1/2,y1]]);ctx.clip();
  for(let i=0;i<5;i++){
-  const phase=(time*(.00046+i%3*.00004)+i*.193+index*.27)%1;
+  const phase=(time*(.0007+i%3*.00005)+i*.193+index*.27)%1;
   const length=Math.min(54,h*.42),y=y0+phase*(h+length)-length;
   const v=Math.max(0,Math.min(1,(y-y0)/h)),spread=(i+.5)/5-.5;
   const x=x0+(x1-x0)*v+spread*(w0+(w1-w0)*v)*.78,dx=(x1-x0)*length/h;
   const taper=Math.min(1,phase*8,(1-phase)*8);
   for(const shade of [true,false]){
    const rgb=shade?(warm?'142,101,146':'0,130,180'):(warm?'255,250,226':'243,255,255');
-   const alpha=(shade?.12:.42)*taper,g=ctx.createLinearGradient(x,y,x+dx,y+length);
+   const alpha=(shade?.16:.58)*taper,g=ctx.createLinearGradient(x,y,x+dx,y+length);
    g.addColorStop(0,`rgba(${rgb},0)`);g.addColorStop(.42,`rgba(${rgb},${alpha})`);g.addColorStop(1,`rgba(${rgb},0)`);
    ctx.strokeStyle=g;ctx.lineWidth=shade?Math.max(3.4,1.7/scale):Math.max(1.6,.95/scale);ctx.lineCap='round';
    const offset=shade?1.5:0;ctx.beginPath();ctx.moveTo(x+offset,y);ctx.quadraticCurveTo(x+dx*.35+offset+Math.sin(i+time*.001)*.9,y+length*.55,x+dx+offset,y+length);ctx.stroke();
@@ -78,12 +78,21 @@ function pool(ctx,points,time,index,scale,moon){
 }
 
 function firefly(ctx,px,py,time,i,color,scale){
- const pulse=.5+.5*Math.sin(time*.0015+i*1.7),x=px+Math.sin(time*.00065+i)*11,y=py+Math.cos(time*.00085+i)*8;
- glow(ctx,x,y,11,color,.25+pulse*.3);ctx.fillStyle=`rgba(${color},${.4+pulse*.5})`;ctx.beginPath();ctx.arc(x,y,Math.max(1.25,1.05/scale),0,TAU);ctx.fill();
+ const pulse=.5+.5*Math.sin(time*.0015+i*1.7),x=px+Math.sin(time*.0011+i)*24,y=py+Math.cos(time*.0013+i)*18;
+ glow(ctx,x,y,14,color,.35+pulse*.35);ctx.fillStyle=`rgba(${color},${.4+pulse*.5})`;ctx.beginPath();ctx.arc(x,y,Math.max(1.25,1.05/scale),0,TAU);ctx.fill();
+}
+function paintSkyLife(ctx,world,scene,time){
+ // Distant birds cross the clear upper sky; bright motes drift around its edges.
+ const seconds=time/1000;
+ for(let i=0;i<4;i++){const x=((seconds*(14+i*2)+i*scene.width*.26)%(scene.width+100))-50,y=scene.height*(.09+i*.035)+Math.sin(seconds*.7+i)*9;
+ ctx.strokeStyle=world==='moon'?'#c8eaffb3':'#215570a8';ctx.lineWidth=1.7;ctx.lineCap='round';const wing=3+Math.sin(seconds*5+i)*3;ctx.beginPath();ctx.moveTo(x-7,y-wing);ctx.quadraticCurveTo(x-3,y-2,x,y+1);ctx.quadraticCurveTo(x+3,y-2,x+7,y-wing);ctx.stroke();}
+ for(let i=0;i<10;i++){const x=scene.width*(i%2?.92:.06)+Math.sin(seconds*.65+i*2)*23,y=(scene.height*.35+i*119-seconds*(12+i%3*4)+scene.height*100)%scene.height;
+ glow(ctx,x,y,10,world==='moon'?'242,255,173':'255,248,199',.5+.18*Math.sin(seconds*2+i));}
 }
 export function paintLivingBackground(ctx,world,width,height,time,clouds,waterSurfaces={}){
  const scene=scenes[world]||scenes.garden,{scale,x,y}=backgroundTransform(world,width,height);
  ctx.clearRect(0,0,width,height);ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ paintSkyLife(ctx,world,scene,time);
  if(world==='sunset'&&clouds)ctx.drawImage(clouds.paint(time),0,clouds.top);
  const water=waterSurfaces[world];if(water)ctx.drawImage(water.paint(time),water.left,water.top);
  scene.falls.forEach((fall,i)=>waterfall(ctx,fall,time,i,world==='sunset',scale));
