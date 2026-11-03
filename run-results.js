@@ -1,6 +1,6 @@
-import {trackQuests} from './quests.js?v=494221';
-import {creditRestoration} from './world-rewards.js?v=494221';
-import {flushResultStorage} from './result-storage.js?v=494221';
+import {trackQuests} from './quests.js?v=494230';
+import {creditRestoration} from './world-rewards.js?v=494230';
+import {flushResultStorage} from './result-storage.js?v=494230';
 
 const valid=s=>s&&typeof s.id==='string'&&s.id.length<=100&&['endless','adventure','rush'].includes(s.mode)&&Number.isSafeInteger(s.score)&&s.score>=0;
 const entry=s=>({id:s.id,mode:s.mode,difficulty:s.difficulty,ranked:!!s.ranked,score:s.score,picks:s.picks,date:s.date});

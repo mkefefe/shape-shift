@@ -47,7 +47,7 @@ test('selecting a menu world before the first gesture loads only that theme',asy
 test('common preload caches world themes and the original Endless recording',async()=>{
  const {audio,state,tracks}=harness();assert(await audio.prepareCommon());
  const fetched=state.fetches.filter(url=>url.includes('/music/'));
- assert.equal(fetched.length,4);for(const world of ['garden','moon','sunset'])assert(fetched.includes(path(world)));
+ assert.equal(fetched.length,5);for(const world of ['garden','moon','sunset'])assert(fetched.includes(path(world)));
  assert.equal(tracks().length,0);const count=nonVictory(state).length;
  assert(await audio.prepareCommon());audio.setMenuWorld('sunset');await audio.start();await flush();
  assert.equal(nonVictory(state).length,count);assert.equal(tracks()[0].buffer.url,path('sunset'));
@@ -327,10 +327,10 @@ test('Piano backing has no clap or shaker samples and keeps only the quiet low p
  const backing=state.sources.slice(start);assert.equal(backing.length,2);assert(backing.every(s=>s.buffer.url.includes('pop-kick')));
 });
 
-test('every world retains its same uninterrupted melody through Slice and Drop',async()=>{
+test('every world retains its same uninterrupted melody through Slice',async()=>{
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();const original=tracks()[0];
-  for(const mode of ['slice','drop','menu']){
+  for(const mode of ['slice','menu']){
    state.context.currentTime+=5.137;audio.setScene(mode);await flush();
    assert.equal(tracks().length,1);assert.equal(tracks()[0],original);assert.equal(original.stops.length,0);
    assert.equal(original.buffer.url,path(world));
@@ -434,4 +434,12 @@ test('changing worlds mid-crossfade finishes the fade before starting the latest
  state.context.currentTime=start+1.41;for(const tick of state.timers.values())tick();await flush();
  assert.equal(garden.stops.length,1);assert.equal(tracks().length,3);
  assert.equal(tracks()[2].buffer.url,path('sunset'));assert.equal(moon.stops.length,0);
+});
+
+test('Shape Drop uses approved music in every world and returns to the menu theme',async()=>{
+ for(const world of ['garden','moon','sunset']){
+  const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
+  audio.setScene('drop');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-drop-simple-230.ogg');
+  state.context.currentTime=5;for(const tick of state.timers.values())tick();audio.setScene('menu');await flush();assert.equal(tracks().at(-1).buffer.url,path(world));
+ }
 });

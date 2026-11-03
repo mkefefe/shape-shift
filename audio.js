@@ -259,10 +259,10 @@
   }
 
   // Endless and Adventure use the original gameplay recording; Slice and Drop share the world theme.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/groove-game-v494154.ogg'};
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/groove-game-v494154.ogg',drop:'assets/music/shape-drop-simple-230.ogg'};
   const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=1.4;
   let runMusicWorld='garden',musicMood=null;
-  const musicTrack=()=>scene==='game'?'game':'menu-'+(scene==='menu'?menuWorld:runMusicWorld);
+  const musicTrack=()=>scene==='drop'?'drop':scene==='game'?'game':'menu-'+(scene==='menu'?menuWorld:runMusicWorld);
   const musicMixes={menu:[4300,0],adventure:[4700,.6],game:[6500,1.8],slice:[6200,1.4],drop:[5200,1.1],piano:[20000,0]};
   function updateMusicMix(){
     if(!musicTone||musicMood===scene)return;
