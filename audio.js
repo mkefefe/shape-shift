@@ -18,8 +18,8 @@
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
   // Slider percentages scale the mix: effects sit in front of the recorded bed.
-  const MUSIC_LEVEL=.55,PIANO_MUSIC_LEVEL=.95,SFX_LEVEL=2;
-  const musicLevel=()=>scene==='piano'?PIANO_MUSIC_LEVEL:MUSIC_LEVEL;
+  const MUSIC_LEVEL=.55,GAMEPLAY_MUSIC_LEVEL=.28,PIANO_MUSIC_LEVEL=.60,SFX_LEVEL=2;
+  const musicLevel=()=>scene==='piano'?PIANO_MUSIC_LEVEL:(scene==='menu'?MUSIC_LEVEL:GAMEPLAY_MUSIC_LEVEL);
   const volumeValue=(value,fallback)=>Number.isFinite(Number(value))?Math.max(0,Math.min(100,Number(value))):fallback;
   let effectPitch=1,effectGain=1;const previousPitch=new Map();
   const midi = n => 440 * 2 ** ((n - 69) / 12);
@@ -260,7 +260,7 @@
 
   // Endless and Adventure use the original gameplay recording; Slice and Drop share the world theme.
   const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/groove-game-v494154.ogg'};
-  const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4;
+  const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=1.4;
   let runMusicWorld='garden',musicMood=null;
   const musicTrack=()=>scene==='game'?'game':'menu-'+(scene==='menu'?menuWorld:runMusicWorld);
   const musicMixes={menu:[4300,0],adventure:[4700,.6],game:[6500,1.8],slice:[6200,1.4],drop:[5200,1.1],piano:[20000,0]};
@@ -325,6 +325,8 @@
     }
     if(scene==='piano')return;
     settleMusicTransition();updateMusicMix();
+    // Finish an audible handoff before starting another; rapid selections queue the latest world.
+    if(musicTransition)return;
     const name=musicTrack();
     if(musicVoice?.name===name||musicPending===name||context.currentTime<(musicRetry.get(name)||0))return;
     const epoch=musicEpoch;musicPending=name;
@@ -336,7 +338,7 @@
       const position=from?musicPosition(from,now):0;
       const start=from?now+Math.ceil((position+.06)/MUSIC_BAR)*MUSIC_BAR-position:now;
       const offset=from?Math.floor((musicPositions[name]+.00001)/MUSIC_BAR)*MUSIC_BAR%buffer.duration:musicPositions[name]%buffer.duration;
-      const fadeIn=from?.035:(scene==='menu'?.85:.3);
+      const fadeIn=from?MUSIC_CROSSFADE:(scene==='menu'?.85:.3);
       const source=audioSource(),gain=context.createGain();
       source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
       gain.gain.setValueAtTime(0,now);gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(1,start+fadeIn);
@@ -344,7 +346,7 @@
       const voice={name,source,gain,offset,startedAt:start,fadeIn};musicVoice=voice;
       source.onended=()=>{source.disconnect();gain.disconnect();if(musicVoice===voice)musicVoice=null;};
       if(from){
-        const fadeAt=Math.max(now,start-MUSIC_BEAT/4),end=start+MUSIC_BEAT/4,fromLevel=voiceLevel(from,now);
+        const fadeAt=start,end=start+MUSIC_CROSSFADE,fromLevel=voiceLevel(from,now);
         from.gain.gain.cancelScheduledValues(now);from.gain.gain.setValueAtTime(fromLevel,now);
         from.gain.gain.linearRampToValueAtTime(1,fadeAt);from.gain.gain.linearRampToValueAtTime(0,end);
         musicTransition={from,to:voice,start,fadeAt,end,fromLevel:1};
@@ -372,15 +374,15 @@
 
   function setMenuWorld(value){
     const next=['garden','moon','sunset'].includes(value)?value:'garden';if(menuWorld===next)return;menuWorld=next;
-    if(scene==='menu'&&context){settleMusicTransition(true);musicEpoch++;musicPending=null;schedule();}
+    if(scene==='menu'&&context){if(musicTransition&&context.currentTime<musicTransition.start)settleMusicTransition(true);musicEpoch++;musicPending=null;schedule();}
   }
   function setScene(value,{preservePraise=false}={}) {
     const target=['menu','game','adventure','slice','drop','piano'].includes(value)?value:'menu';
-    if(target===scene)return;settleMusicTransition(true);if(!preservePraise)stopVoice();stopSlice();stopPiano();
+    if(target===scene)return;if(musicTransition&&context.currentTime<musicTransition.start)settleMusicTransition(true);if(!preservePraise)stopVoice();stopSlice();stopPiano();
     if(scene==='menu'&&target!=='menu'&&target!=='piano')runMusicWorld=menuWorld;
     if(target==='piano')stopMusicTrack(.2);scene=target;if(context){
       if(target==='piano')updateMusicMix();
-      musicBus.gain.setTargetAtTime(music?musicLevel()*musicVolume/100:0,context.currentTime,.08);
+      musicBus.gain.setTargetAtTime(music?musicLevel()*musicVolume/100:0,context.currentTime,.25);
       duckEnvelope=null;musicDuck.gain.cancelScheduledValues(context.currentTime);musicDuck.gain.setTargetAtTime(1,context.currentTime,.08);schedule();
     }
   }

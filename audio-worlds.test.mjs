@@ -58,7 +58,7 @@ test('equipping a world during gameplay leaves the gameplay track alone until re
  const game=tracks()[0];audio.setMenuWorld('sunset');await flush();
  assert.equal(tracks().length,1);assert.equal(game.stops.length,0);assert.equal(nonVictory(state).length,1);
  audio.setScene('menu');await flush();assert.equal(tracks().length,2);
- assert.equal(tracks()[1].buffer.url,path('sunset'));state.context.currentTime=3;for(const tick of state.timers.values())tick();assert.equal(game.stops.length,1);
+ assert.equal(tracks()[1].buffer.url,path('sunset'));state.context.currentTime=4;for(const tick of state.timers.values())tick();assert.equal(game.stops.length,1);
 });
 
 test('an uncached world keeps the current music until decoding completes and then crossfades',async()=>{
@@ -67,16 +67,16 @@ test('an uncached world keeps the current music until decoding completes and the
  audio.setMenuWorld('moon');await flush();assert.equal(garden.stops.length,0);assert.equal(tracks().length,1);
  state.context.currentTime=6;resolveMoon(response());await flush();const moon=tracks()[1];
  assert.equal(moon.buffer.url,path('moon'));assert(Math.abs(moon.startArgs[0]-60/110*12)<1e-8);assert.equal(moon.startArgs[1],0);
- assert.equal(garden.stops.length,0);assert.deepEqual(garden.connections[0].gain.ramps.at(-1),[0,moon.startArgs[0]+60/110/4]);
- assert.deepEqual(moon.connections[0].gain.ramps.at(-1),[1,moon.startArgs[0]+.035]);
- state.context.currentTime=7;for(const tick of state.timers.values())tick();assert.equal(garden.stops.length,1);
+ assert.equal(garden.stops.length,0);assert.deepEqual(garden.connections[0].gain.ramps.at(-1),[0,moon.startArgs[0]+1.4]);
+ assert.deepEqual(moon.connections[0].gain.ramps.at(-1),[1,moon.startArgs[0]+1.4]);
+ state.context.currentTime=8;for(const tick of state.timers.values())tick();assert.equal(garden.stops.length,1);
 });
 
 test('predecoded world changes crossfade once and repeated selection never restarts the theme',async()=>{
  const {audio,state,tracks}=harness();await audio.prepareCommon();await audio.start();await flush();
  state.context.currentTime=9;audio.setMenuWorld('moon');await flush();
  assert.equal(tracks().length,2);assert.equal(tracks()[0].stops.length,0);assert(Math.abs(tracks()[1].startArgs[0]-60/110*20)<1e-8);
- assert.deepEqual(tracks()[1].connections[0].gain.ramps.at(-1),[1,tracks()[1].startArgs[0]+.035]);
+ assert.deepEqual(tracks()[1].connections[0].gain.ramps.at(-1),[1,tracks()[1].startArgs[0]+1.4]);
  const fetches=state.fetches.length;
  for(let i=0;i<10;i++){audio.setMenuWorld('moon');audio.setScene('menu');for(const callback of state.timers.values())callback();}
  await flush();assert.equal(tracks().length,2);assert.equal(state.fetches.length,fetches);assert.equal(state.timers.size,1);
@@ -410,4 +410,28 @@ test('all menu themes use gentle melody presence without the muffling low-pass f
   assert.equal(state.gains[1].connections.at(-1),presence);assert.equal(presence.connections[0],state.gains[3]);assert.equal(tracks()[0].buffer.url,path(world));
   assert.equal(state.gains[2].connections[0],state.gains[0],'sound effects are not processed through menu EQ');
  }
+});
+
+
+test('gameplay lowers only backing music and restores menu volume without restarting the shared track',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();
+ const original=tracks()[0],effects=state.gains[2].gain.value;
+ for(const mode of ['adventure','drop','slice','game','piano']){
+  audio.setScene(mode);await flush();
+  assert.equal(state.gains[1].gain.targets.at(-1)[0],(mode==='piano'?.60:.28)*.4);
+  assert.equal(state.gains[2].gain.value,effects);
+ }
+ audio.setMusicVolume(70);assert.equal(state.gains[1].gain.targets.at(-1)[0],.60*.7);
+ audio.setScene('menu');assert.equal(state.gains[1].gain.targets.at(-1)[0],.55*.7);
+});
+
+test('changing worlds mid-crossfade finishes the fade before starting the latest request',async()=>{
+ const {audio,state,tracks}=harness();await audio.start();await flush();
+ state.context.currentTime=4;audio.setMenuWorld('moon');await flush();
+ const garden=tracks()[0],moon=tracks()[1],start=moon.startArgs[0];
+ state.context.currentTime=start+.3;audio.setMenuWorld('sunset');await flush();
+ assert.equal(tracks().length,2);assert.equal(garden.stops.length,0);assert.equal(moon.stops.length,0);
+ state.context.currentTime=start+1.41;for(const tick of state.timers.values())tick();await flush();
+ assert.equal(garden.stops.length,1);assert.equal(tracks().length,3);
+ assert.equal(tracks()[2].buffer.url,path('sunset'));assert.equal(moon.stops.length,0);
 });
