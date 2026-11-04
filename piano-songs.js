@@ -1,162 +1,59 @@
-import {pianoIcon} from './piano-music.js?v=494236';
+import {pianoIcon} from './piano-music.js?v=494237';
+import {PIANO_SCORES} from './piano-song-data.js?v=494237';
 
-// Original scores, written in four-bar questions and answers. Song order is shuffled:
-// the melody, harmony, and rhythm always belong together.
-const chords={C:[48,52,55],F:[53,57,60],G:[55,59,62],Am:[45,48,52],Dm:[50,53,57],Em:[52,55,59]};
-const bar=(chord,pitches,rhythm=[1,1,2])=>({chord:chords[chord],pitches,rhythm});
-const answer=(phrase,cadence)=>[...phrase,...phrase.slice(0,3),cadence];
-function quiet(phrase){
- return phrase.map(measure=>{
-  // Retain the two strong-beat tones; passing notes need not become long holds.
-  let beat=0,second=measure.pitches[0];
-  measure.pitches.forEach((pitch,i)=>{if(beat<=2)second=pitch;beat+=measure.rhythm[i];});
-  return {...measure,pitches:[measure.pitches[0],second],rhythm:[2,2]};
+const CHORDS={C:[48,52,55],Cmaj7:[48,52,55,59],F:[53,57,60],Fmaj7:[53,57,60,64],G:[43,47,50],G7:[43,47,50,53],Am:[45,48,52],Am7:[45,48,52,55],Dm:[50,53,57],Dm7:[50,53,57,60],Em:[52,55,59],Em7:[52,55,59,62]};
+const SEMITONES={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+export function scorePitch(name){
+ const match=/^([A-G])([3-5])$/.exec(name);
+ if(!match)throw Error('Unknown written pitch: '+name);
+ const pitch=(Number(match[2])+1)*12+SEMITONES[match[1]];pianoIcon(pitch);return pitch;
+}
+export function readPianoBar([chordName,written]){
+ const chord=CHORDS[chordName];if(!chord)throw Error('Unknown chord '+chordName);
+ let offset=0;
+ const notes=written.split(/\s+/).map(token=>{
+  const match=/^([A-G][3-5])(?:\/(\d*\.?\d+)(h)?(?::(\d*\.?\d+))?)?$/.exec(token);
+  if(!match)throw Error('Invalid written note: '+token);
+  const pitch=scorePitch(match[1]),duration=Number(match[2]||1),sustain=Boolean(match[3]);
+  const soundBeats=match[4]?Number(match[4]):sustain?Math.min(duration-.2,3.3):Math.min(.9,duration*.82);
+  const holdBeats=sustain?Math.max(0,soundBeats-.2):0;
+  if(duration<=0||soundBeats<=0||soundBeats>duration)throw Error('Invalid note duration: '+token);
+  const note={pitch,duration,soundBeats,holdBeats,restAfter:duration-soundBeats,offset};offset+=duration;return note;
  });
+ if(Math.abs(offset-4)>1e-9)throw Error('Written bar must total four beats: '+written+' ('+offset+')');
+ return {chord:[...chord],notes};
 }
-function compose(id,title,bpm,tonic,a,aCadence,b,bCadence){
- const verse=answer(a,aCadence),chorus=answer(b,bCadence);
- const intro=quiet(a),outro=quiet([...a.slice(0,3),aCadence]);
- outro[3]={...aCadence,pitches:[tonic],rhythm:[4]};
- const form=[['Intro',intro],['Verse',verse],['Build',b],['Chorus',chorus],['Verse',verse],['Chorus',chorus],['Outro',outro]];
- const notes=[];let beat=0,measureIndex=0;
- for(const [section,measures] of form)for(let sectionBar=0;sectionBar<measures.length;sectionBar++){
-  const {chord,pitches,rhythm}=measures[sectionBar];let local=0;
-  pitches.forEach((pitch,i)=>{
-   const duration=rhythm[i],cadence=sectionBar%4===3&&i===pitches.length-1;
-   notes.push({pitch,duration,chord:[...chord],harmony:i===0?[chord[0],chord[2]]:[],section,
-    energy:section==='Intro'?.46:section==='Outro'?.4:section==='Chorus'?.94:section==='Build'?.8:.67,
-    accent:local===0?1:local===2?.9:.78,gate:cadence?.82:.94,
-    song:id,title,bpm,songBeat:beat+local,bar:measureIndex,phraseBar:sectionBar%4,
-    rapid:duration<2,...pianoIcon(pitch)});local+=duration;
-  });
-  if(local!==4||pitches.length!==rhythm.length)throw new Error('Each written measure must fill four beats');
-  beat+=4;measureIndex++;
- }
- return {id,title,bpm,tonic,beats:beat,notes};
+function quietBar(measure){
+ const a=measure.notes[0],b=measure.notes.find(n=>n.offset>=2)||measure.notes.at(-1);
+ return {...measure,notes:[{...a,duration:2,soundBeats:1.1,holdBeats:0,restAfter:.9,offset:0},{...b,duration:2,soundBeats:1.7,holdBeats:1.5,restAfter:.3,offset:2}]};
 }
-
-// Eighth notes connect nearby tones; longer endings give each phrase somewhere
-// to breathe. Answer phrases resolve to the tonic instead of looping a bar.
-export const ORIGINAL_SONGS=[
- compose('sunlit-steps','Sunlit Steps',88,60,
-  [bar('C',[64,65,67]),bar('Am',[69,67,64]),
-   bar('F',[65,64,60,62],[1,1,1,1]),bar('G',[62,64,67])],
-  bar('C',[64,62,60]),
-  [bar('F',[65,67,69,65],[1,.5,.5,2]),bar('C',[67,64,64,67],[1,.5,.5,2]),
-   bar('Dm',[65,64,62,65],[1,1,1,1]),bar('G',[67,69,71])],
-  bar('C',[67,64,60])),
- compose('neon-horizon','Neon Horizon',100,57,
-  [bar('Am',[60,62,64,60],[1,.5,.5,2]),bar('F',[60,62,65]),
-   bar('C',[64,62,60,64],[1,1,1,1]),bar('Em',[64,62,59])],
-  bar('Am',[60,59,57]),
-  [bar('Am',[64,65,67,69],[1,.5,.5,2]),bar('F',[69,67,65]),
-   bar('Dm',[65,67,69,65],[1,.5,.5,2]),bar('Em',[67,65,64])],
-  bar('Am',[64,60,57])),
- compose('ripple-road','Ripple Road',92,60,
-  [bar('C',[60,62,64],[1.5,.5,2]),bar('F',[65,64,60],[1.5,.5,2]),
-   bar('Dm',[62,64,65,64],[1,1,1,1]),bar('G',[62,64,67])],
-  bar('C',[64,62,60]),
-  [bar('C',[67,69,67,64],[.5,.5,1,2]),bar('Am',[64,65,64,60],[.5,.5,1,2]),
-   bar('F',[60,62,65,69],[1,1,1,1]),bar('G',[67,65,62])],
-  bar('C',[64,62,60])),
- compose('moonlight-echo','Moonlight Echo',88,57,
-  [bar('Am',[64,62,60]),bar('Em',[59,60,64]),
-   bar('F',[65,64,60],[1.5,.5,2]),bar('Em',[59,62,64])],
-  bar('Am',[60,59,57]),
-  [bar('F',[65,67,69]),bar('C',[67,65,64,62],[1,1,1,1]),
-   bar('Dm',[62,64,65,69],[1,.5,.5,2]),bar('Em',[67,65,64])],
-  bar('Am',[64,60,57])),
- compose('copper-strings','Copper Strings',96,62,
-  [bar('Dm',[62,64,65,69],[1,.5,.5,2]),bar('F',[69,67,65]),
-   bar('C',[64,65,67,64],[1,1,1,1]),bar('Am',[64,62,60])],
-  bar('Dm',[65,64,62]),
-  [bar('F',[69,67,65,69],[1,.5,.5,2]),bar('C',[67,69,67,64],[.5,.5,1,2]),
-   bar('Dm',[65,64,62,65],[1,.5,.5,2]),bar('Am',[64,62,60])],
-  bar('Dm',[65,64,62])),
- compose('homeward-sparks','Homeward Sparks',94,65,
-  [bar('F',[60,62,65]),bar('C',[64,65,67]),
-   bar('Dm',[65,64,62,65],[1,1,1,1]),bar('C',[64,62,60])],
-  bar('F',[60,62,65]),
-  [bar('F',[69,67,65,69],[.5,.5,1,2]),bar('Am',[69,67,64]),
-   bar('Dm',[65,67,69,65],[1,.5,.5,2]),bar('C',[67,65,64])],
-  bar('F',[69,67,65])),
- compose('rainy-window','Rainy Window',90,57,
-  [bar('Am',[60,59,57],[1.5,.5,2]),bar('Dm',[57,59,62],[1.5,.5,2]),
-   bar('F',[60,62,65,64],[1,1,1,1]),bar('Em',[64,62,59])],
-  bar('Am',[60,59,57]),
-  [bar('F',[65,64,60,65],[1,.5,.5,2]),bar('C',[64,62,60]),
-   bar('Dm',[62,64,65,62],[1,.5,.5,2]),bar('Em',[59,62,64])],
-  bar('Am',[64,60,57])),
- compose('golden-hour','Golden Hour',94,60,
-  [bar('C',[67,65,64],[1.5,.5,2]),bar('Am',[64,62,60],[1.5,.5,2]),
-   bar('F',[60,62,65,64],[1,1,1,1]),bar('G',[62,64,67])],
-  bar('C',[64,62,60]),
-  [bar('F',[69,67,65,69],[1,.5,.5,2]),bar('C',[67,65,64]),
-   bar('Am',[64,65,67,69],[.5,.5,1,2]),bar('G',[71,69,67])],
-  bar('C',[67,64,60])),
- compose('little-comet','Little Comet',98,67,
-  [bar('G',[67,69,71]),bar('Em',[71,69,67]),
-   bar('C',[64,65,67,69],[1,1,1,1]),bar('Dm',[69,67,65])],
-  bar('G',[71,69,67]),
-  [bar('C',[67,69,72,72],[1,.5,.5,2]),bar('G',[71,72,71,67],[.5,.5,1,2]),
-   bar('Am',[69,67,64,69],[1,.5,.5,2]),bar('Dm',[69,67,65])],
-  bar('G',[71,69,67])),
- compose('velvet-stairs','Velvet Stairs',92,62,
-  [bar('Dm',[65,64,62],[1.5,.5,2]),bar('Am',[60,62,64],[1.5,.5,2]),
-   bar('F',[65,67,69,67],[1,1,1,1]),bar('C',[67,65,64])],
-  bar('Dm',[65,64,62]),
-  [bar('Dm',[69,67,65,62],[1,.5,.5,2]),bar('F',[65,67,69]),
-   bar('C',[67,69,67,64],[.5,.5,1,2]),bar('Am',[64,62,60])],
-  bar('Dm',[65,64,62])),
-
- compose('paper-kites','Paper Kites',96,60,
-  [bar('C',[60,62,64]),bar('Em',[64,65,67]),bar('F',[69,67,65],[1.5,.5,2]),bar('G',[67,65,62])],bar('C',[64,62,60]),
-  [bar('Am',[64,65,69],[1.5,.5,2]),bar('F',[69,67,65,69],[1,.5,.5,2]),bar('C',[67,65,64]),bar('G',[62,64,67])],bar('C',[67,62,60])),
- compose('lantern-walk','Lantern Walk',90,57,
-  [bar('Am',[57,59,60]),bar('Dm',[62,60,57]),bar('F',[57,59,60],[1.5,.5,2]),bar('Em',[59,60,64])],bar('Am',[64,59,57]),
-  [bar('Dm',[65,64,62]),bar('Am',[64,62,60],[1.5,.5,2]),bar('F',[60,62,65]),bar('Em',[64,65,67])],bar('Am',[64,60,57])),
- compose('seashell-postcard','Seashell Postcard',92,65,
-  [bar('F',[65,67,69]),bar('Dm',[69,67,65]),bar('Am',[64,65,64],[1.5,.5,2]),bar('C',[64,62,60])],bar('F',[60,64,65]),
-  [bar('F',[69,67,65],[1.5,.5,2]),bar('C',[67,65,64,67],[1,.5,.5,2]),bar('Dm',[65,67,69]),bar('C',[67,65,64])],bar('F',[65,64,65])),
- compose('clockwork-garden','Clockwork Garden',102,60,
-  [bar('C',[64,62,60,64],[1,.5,.5,2]),bar('Am',[64,62,60]),bar('Dm',[62,64,65]),bar('G',[67,69,71])],bar('C',[67,64,60]),
-  [bar('C',[67,65,64],[1.5,.5,2]),bar('F',[65,67,69]),bar('Dm',[69,67,65,62],[1,.5,.5,2]),bar('G',[62,64,67])],bar('C',[64,59,60])),
- compose('cloud-carousel','Cloud Carousel',94,67,
-  [bar('G',[62,64,67]),bar('C',[67,65,64]),bar('Am',[64,65,69]),bar('Dm',[69,67,65])],bar('G',[62,65,67]),
-  [bar('Em',[67,69,71]),bar('C',[72,71,67],[1.5,.5,2]),bar('Am',[69,67,64]),bar('G',[67,69,71])],bar('G',[71,69,67])),
- compose('amber-path','Amber Path',88,62,
-  [bar('Dm',[62,60,57]),bar('Am',[57,59,60]),bar('F',[60,62,65]),bar('C',[64,65,67])],bar('Dm',[65,64,62]),
-  [bar('Dm',[65,67,69],[1.5,.5,2]),bar('F',[69,67,65]),bar('Am',[64,62,60]),bar('C',[60,62,64])],bar('Dm',[65,60,62])),
- compose('sugar-skip','Sugar Skip',100,60,
-  [bar('C',[60,62,64],[1.5,.5,2]),bar('G',[62,64,67],[1.5,.5,2]),bar('F',[65,64,60]),bar('Am',[60,62,64])],bar('C',[64,59,60]),
-  [bar('F',[65,64,65,69],[1,.5,.5,2]),bar('C',[67,69,67,64],[1,.5,.5,2]),bar('Am',[64,65,69]),bar('G',[67,65,62])],bar('C',[64,62,60])),
- compose('snowglobe-wish','Snowglobe Wish',88,57,
-  [bar('Am',[60,62,64],[1.5,.5,2]),bar('Em',[67,65,64]),bar('Dm',[65,64,62]),bar('Am',[60,59,57])],bar('Am',[60,62,57]),
-  [bar('F',[60,64,65]),bar('Dm',[65,67,69],[1.5,.5,2]),bar('Am',[69,67,64]),bar('Em',[64,62,59])],bar('Am',[60,59,57])),
- compose('pebble-parade','Pebble Parade',98,65,
-  [bar('F',[60,64,65]),bar('Dm',[65,64,62]),bar('C',[64,65,67]),bar('F',[69,67,65])],bar('F',[60,62,65]),
-  [bar('Dm',[69,67,65,62],[1,.5,.5,2]),bar('Am',[64,65,69]),bar('F',[69,67,65]),bar('C',[64,65,67])],bar('F',[69,64,65])),
- compose('starlight-station','Starlight Station',92,60,
-  [bar('C',[67,69,67]),bar('Em',[67,65,64]),bar('Am',[64,62,60]),bar('G',[62,64,67])],bar('C',[64,62,60]),
-  [bar('F',[65,67,69],[1.5,.5,2]),bar('Am',[69,71,72]),bar('C',[72,69,67]),bar('G',[67,65,62])],bar('C',[64,59,60]))
-];
-
-export function brightenPianoSong(song){
- const notes=song.notes.flatMap(n=>{
-  const minor=n.chord[1]-n.chord[0]===3;
-  const chord=minor?[n.chord[0]+3,n.chord[1]+4,n.chord[2]+3]:[...n.chord];
-  const tones=[48,50,52,53,55,57,59,60,62,64,65,67,69,71,72,74].filter(p=>chord.some(c=>c%12===p%12));
-  const pitch=n.songBeat%2===0?tones.reduce((a,b)=>Math.abs(a-n.pitch)<=Math.abs(b-n.pitch)?a:b):n.pitch;
-  const common={...n,pitch,chord,harmony:n.harmony.length?[chord[0],chord[2]]:[],...pianoIcon(pitch),gate:.84};
-  // Two approachable taps replace the uniformly sustained opening notes.
-  // They still require individual physical input; nothing auto-plays a melody.
-  if(n.section==='Intro'&&n.duration===2){
-   const answer=tones.reduce((a,b)=>Math.abs(a-(pitch+2))<=Math.abs(b-(pitch+2))?a:b);
-   return [{...common,duration:.75,rapid:true},{...common,pitch:answer,...pianoIcon(answer),duration:1.25,songBeat:n.songBeat+.75,harmony:[],accent:.82,rapid:true}];
+function compose([id,title,bpm,tonicName,style,verseScore,verseEnding,chorusScore,chorusEnding,bridgeScore]){
+ const tonic=scorePitch(tonicName),a=verseScore.map(readPianoBar),b=chorusScore.map(readPianoBar),cadence=readPianoBar(verseEnding),chorusCadence=readPianoBar(chorusEnding),bridge=bridgeScore.map(readPianoBar);
+ const answer=(phrase,ending)=>[...phrase,...phrase.slice(0,3),ending];
+ const final={chord:[...cadence.chord],notes:[{pitch:tonic,duration:4,soundBeats:3.3,holdBeats:3.1,restAfter:.7,offset:0}]};
+ const form=[['Intro',a.slice(0,2).map(quietBar)],['Verse',answer(a,cadence)],['Chorus',answer(b,chorusCadence)],['Bridge',[...bridge,quietBar(bridge[0]),quietBar(chorusCadence)]],['Chorus',answer(b,chorusCadence)],['Outro',[quietBar(a[0]),final]]];
+ const notes=[],sections=[];let beat=0,bar=0;
+ for(const [section,measures] of form){
+  sections.push({name:section,beat,bars:measures.length});
+  for(let sectionBar=0;sectionBar<measures.length;sectionBar++){
+   const measure=measures[sectionBar];
+   for(const n of measure.notes){
+    const downbeat=n.offset===0,accent=downbeat?1:n.offset===2?.9:n.offset%1===0?.82:.72;
+    notes.push({...n,chord:[...measure.chord],harmony:downbeat?[measure.chord[0],measure.chord[2]]:[],
+     section,energy:section==='Intro'?.38:section==='Outro'?.3:section==='Chorus'?.85:section==='Bridge'?.48:.65,
+     accent,gate:n.soundBeats/n.duration,song:id,title,bpm,style,songBeat:beat+n.offset,bar,phraseBar:sectionBar%4,rapid:n.duration<1,...pianoIcon(n.pitch)});
+   }
+   beat+=4;bar++;
   }
-  return [common];
- });
- return {...song,notes};
+ }
+ return {id,title,bpm,tonic,style,beats:beat,sections,notes};
+}
+export const ORIGINAL_SONGS=PIANO_SCORES.map(compose);
+
+// Compatibility with saved gameplay options. Brightness is an instrument/mix
+// choice: never rewrite a minor harmony or change a player's learned melody.
+export function brightenPianoSong(song){
+ return {...song,notes:song.notes.map(n=>({...n,chord:[...n.chord],harmony:[...n.harmony]}))};
 }
 export function createSongSequence(rng=Math.random,{bright=false}={}){
  const catalog=bright?ORIGINAL_SONGS.map(brightenPianoSong):ORIGINAL_SONGS;

@@ -1,0 +1,50 @@
+[
+  {
+    "file": "adventure-237.ogg",
+    "LUFS": -17.44,
+    "truePeakDbTP": -5.02,
+    "LRA": 1.2
+  },
+  {
+    "file": "battle-237.ogg",
+    "LUFS": -17.26,
+    "truePeakDbTP": -6.95,
+    "LRA": 1.5
+  },
+  {
+    "file": "endless-237.ogg",
+    "LUFS": -17.25,
+    "truePeakDbTP": -6.98,
+    "LRA": 1.4
+  },
+  {
+    "file": "shape-drop-237.ogg",
+    "LUFS": -17.3,
+    "truePeakDbTP": -7.07,
+    "LRA": 1.7
+  },
+  {
+    "file": "shape-slice-237.ogg",
+    "LUFS": -17.32,
+    "truePeakDbTP": -6.44,
+    "LRA": 1.3
+  },
+  {
+    "file": "indie-game-soundtrack-251864.mp3",
+    "LUFS": -26.75,
+    "truePeakDbTP": -10.0,
+    "LRA": 3.7
+  },
+  {
+    "file": "game-background-359782.mp3",
+    "LUFS": -14.78,
+    "truePeakDbTP": -2.3,
+    "LRA": 9.2
+  },
+  {
+    "file": "game-music-loop-4-144341.mp3",
+    "LUFS": -17.98,
+    "truePeakDbTP": -1.84,
+    "LRA": 1.9
+  }
+]

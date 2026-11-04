@@ -1,0 +1,75 @@
+{
+  "version": "237",
+  "recordings": [
+    {
+      "mode": "adventure",
+      "file": "adventure-237.ogg",
+      "title": "Sunbeam Avenue",
+      "sourceBpm": 104,
+      "key": "D major",
+      "bars": 32,
+      "seconds": 73.846,
+      "sha256": "8bbb9d55016cf8b4b1d3e2f26fe15b4456b7ac64e42cfb2a927ac219ce01b2ca",
+      "score": "modes/adventure-score.json",
+      "generator": "compose237.py",
+      "preview": "modes/adventure-preview.mp3",
+      "newOriginalComposition": true
+    },
+    {
+      "mode": "endless",
+      "file": "endless-237.ogg",
+      "title": "Bright Circuit",
+      "sourceBpm": 140,
+      "key": "A major",
+      "bars": 32,
+      "seconds": 54.857,
+      "sha256": "845140b33a5ce70d952d207f55aa322dbebc6dedb2c7d675076ff66fc210bb82",
+      "score": "modes/endless-score.json",
+      "generator": "compose237.py",
+      "preview": "modes/endless-preview.mp3",
+      "newOriginalComposition": true
+    },
+    {
+      "mode": "drop",
+      "file": "shape-drop-237.ogg",
+      "title": "Pocket Picnic",
+      "sourceBpm": 100,
+      "key": "F major",
+      "bars": 32,
+      "seconds": 76.8,
+      "sha256": "94de21d2de3937ff046b255371866ae6a55a498d25afa4a9dd28d32d2af0317e",
+      "score": "modes/drop-score.json",
+      "generator": "compose237.py",
+      "preview": "modes/drop-preview.mp3",
+      "newOriginalComposition": true
+    },
+    {
+      "mode": "slice",
+      "file": "shape-slice-237.ogg",
+      "title": "Ribbon Radio",
+      "sourceBpm": 124,
+      "key": "E Dorian",
+      "bars": 32,
+      "seconds": 61.935,
+      "sha256": "3be0ae87454b8cce003ceb698dd6dab21d09e4a885abb97d8157354ee7c92b97",
+      "score": "modes/slice-score.json",
+      "generator": "compose237.py",
+      "preview": "modes/slice-preview.mp3",
+      "newOriginalComposition": true
+    },
+    {
+      "mode": "battle",
+      "file": "battle-237.ogg",
+      "title": "Color After Dark",
+      "sourceBpm": 116,
+      "key": "G minor with Dorian color",
+      "bars": 32,
+      "seconds": 66.207,
+      "sha256": "301a924069dc70284a46c9cabbd23cb8708303addeef10dc41ae6119af64a43b",
+      "score": "modes/battle-score.json",
+      "generator": "compose237.py",
+      "preview": "modes/battle-preview.mp3",
+      "newOriginalComposition": true
+    }
+  ]
+}

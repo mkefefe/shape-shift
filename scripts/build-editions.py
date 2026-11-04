@@ -99,6 +99,6 @@ def main():
             if p.is_file() and (p.parent==dest or p.is_relative_to(dest/'assets') or p.is_relative_to(dest/'battle'))
             and p.suffix.lower() in MEDIA|{'.js','.mjs','.css','.html','.json','.webmanifest'} and '.test.' not in p.name}
     write(output/'release-verification.json',json.dumps(receipt,indent=2)+'\n')
-    print(f'Built {version}: {len(shared)} shared files match across all three editions; every approved recording verified.')
+    print(f'Built {version}: {len(shared)} shared files match across all three editions; every manifest recording verified.')
 
 if __name__=='__main__':main()

@@ -1,4 +1,4 @@
-// The selected Endless C recording changes tempo without transposing its notes.
+// Bright Circuit changes tempo without transposing its notes.
 // The other arrangement helpers are retained from the November 3 music preview.
 export function centeredPianoBuffer(context,buffer){
  let best=buffer.getChannelData(0),energy=-1;
@@ -8,12 +8,12 @@ export function centeredPianoBuffer(context,buffer){
  return mono;
 }
 async function recordedEndless(context,destination){
- // Keep the approved arrangement exactly. Native media time stretching changes
+ // Native media time stretching retains the authored arrangement and changes
  // tempo without transposing it; no replacement melody or synthesized timbre.
- const media=new Audio(new URL('./assets/music/endless-c-v228.ogg',import.meta.url));media.preload='auto';media.loop=true;media.preservesPitch=true;
+ const media=new Audio(new URL('./assets/music/endless-237.ogg',import.meta.url));media.preload='auto';media.loop=true;media.preservesPitch=true;
  const source=context.createMediaElementSource(media),gain=context.createGain();gain.gain.value=1;source.connect(gain);gain.connect(destination);
- let bpm=120,target=120,timer=null,playing=false,starting=null,epoch=0;media.playbackRate=bpm/154;
- return {start(){if(playing)return Promise.resolve();if(starting)return starting;const token=epoch;starting=media.play().then(()=>{if(token!==epoch){media.pause();return;}playing=true;timer=setInterval(()=>{if(context.state!=='running')return;bpm+=Math.max(-.7,Math.min(.35,target-bpm));media.playbackRate=bpm/154;},50);}).finally(()=>{starting=null;});return starting;},stop(){epoch++;playing=false;clearInterval(timer);timer=null;media.pause();},setTempo(n,immediate=false){target=Math.max(102,Math.min(170,n));if(immediate){bpm=target;media.playbackRate=bpm/154;}},setVolume(n){gain.gain.setTargetAtTime(Math.max(0,Math.min(1,n)),context.currentTime,.04);},get bpm(){return bpm;},get phrase(){return Math.floor(media.currentTime/(60/154*4))%2?'B':'A';},get playing(){return playing;},dispose(){this.stop();media.removeAttribute('src');media.load();source.disconnect();gain.disconnect();}};
+ let bpm=120,target=120,timer=null,playing=false,starting=null,epoch=0;media.playbackRate=bpm/140;
+ return {start(){if(playing)return Promise.resolve();if(starting)return starting;const token=epoch;starting=media.play().then(()=>{if(token!==epoch){media.pause();return;}playing=true;timer=setInterval(()=>{if(context.state!=='running')return;bpm+=Math.max(-.7,Math.min(.35,target-bpm));media.playbackRate=bpm/140;},50);}).finally(()=>{starting=null;});return starting;},stop(){epoch++;playing=false;clearInterval(timer);timer=null;media.pause();},setTempo(n,immediate=false){target=Math.max(102,Math.min(170,n));if(immediate){bpm=target;media.playbackRate=bpm/140;}},setVolume(n){gain.gain.setTargetAtTime(Math.max(0,Math.min(1,n)),context.currentTime,.04);},get bpm(){return bpm;},get phrase(){return Math.floor(media.currentTime/(60/140*4))%2?'B':'A';},get playing(){return playing;},dispose(){this.stop();media.removeAttribute('src');media.load();source.disconnect();gain.disconnect();}};
 }
 export function endlessMusicTempo(intensity=0,recovery=1){
  const base=120+50*Math.max(0,Math.min(1,Number(intensity)||0));

@@ -30,7 +30,7 @@
   }
   function prepareAdaptive(){
     if(adaptiveLoading||adaptiveMusic||context.currentTime<adaptiveRetryAt)return;
-    adaptiveLoading=import('./adaptive-music.js?v=494236').then(async module=>{
+    adaptiveLoading=import('./adaptive-music.js?v=494237').then(async module=>{
       const player=await module.createAdaptiveMusic(context,musicBus);
       adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();
       if(adaptiveState)player.setTempo(adaptiveModel.update(adaptiveState).targetBpm);
@@ -40,7 +40,7 @@
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
   // Slider percentages scale the mix: effects sit in front of the recorded bed.
-  const MUSIC_LEVEL=.55,GAMEPLAY_MUSIC_LEVEL=.28,PIANO_MUSIC_LEVEL=.60,SFX_LEVEL=2;
+  const MUSIC_LEVEL=.55,GAMEPLAY_MUSIC_LEVEL=.56,PIANO_MUSIC_LEVEL=.60,SFX_LEVEL=2;
   const musicLevel=()=>scene==='piano'?PIANO_MUSIC_LEVEL:(scene==='menu'?MUSIC_LEVEL:GAMEPLAY_MUSIC_LEVEL);
   const volumeValue=(value,fallback)=>Number.isFinite(Number(value))?Math.max(0,Math.min(100,Number(value))):fallback;
   let effectPitch=1,effectGain=1;const previousPitch=new Map();
@@ -226,8 +226,8 @@
     if(lr<0)data.set(ll>=rr?left:right);else for(let i=0;i<data.length;i++)data[i]=(left[i]+right[i])*.5;
     return out;
   }
-  // Match the final229 listening preview: normalize the strongest channel,
-  // keeping phase and instrument character without averaging or added effects.
+  // Keep a phase-safe recorded piano body. Performance dynamics are applied at
+  // the voice, so quiet passing notes and phrase accents retain their contrast.
   function performancePianoBuffer(buffer){
     if(!buffer.getChannelData||!buffer.numberOfChannels)return buffer;
     let strongest=buffer.getChannelData(0),energy=-1;
@@ -280,24 +280,29 @@
     pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();warmth.disconnect();gain.disconnect();};source.start(now);source.stop(now+hold+.5);return voice.release;
   }
 
-  // The actual Piano Flow score uses the exact dry final229 voice. Separate
-  // music/effects sliders remain independent; defaults retain its lead/backing ratio.
+  // Recorded, velocity-sensitive piano. Let other pitches ring through a phrase;
+  // only a repeated key damps its previous strike, just as a real piano does.
+  // Music/effects sliders still control accompaniment and played keys separately.
   function pianoPerformance(note,duration=.35,accompaniment=false,velocity=1,delay=0){
-    if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed||!Number.isFinite(note)||note<36||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
+    if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed||!Number.isFinite(note)||note<33||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
     const key=pianoKeys.reduce((a,b)=>Math.abs(a-note)<=Math.abs(b-note)?a:b),buffer=pianoPerformanceBuffers.get(key);if(!buffer)return ()=>{};
-    if(pianoVoices.size>=32)pianoVoices.values().next().value.release();
-    const source=audioSource(),gain=context.createGain(),at=context.currentTime+Math.max(0,Number(delay)||0),hold=Math.max(.08,Math.min(5,Number(duration)||.35));
-    const level=Math.max(0,Math.min(1,Number(velocity)||0)),volume=accompaniment?level*(SFX_LEVEL*.65)/(PIANO_MUSIC_LEVEL*.4):.30*level;
-    const attack=accompaniment?.01:.008,tail=accompaniment?.20:.22;
+    if(!(Number(velocity)>0))return ()=>{};
+    const at=context.currentTime+Math.max(0,Number(delay)||0);
+    if(!accompaniment)for(const voice of [...pianoVoices])if(!voice.accompaniment&&voice.note===note&&voice.at<=at)voice.release(.075);
+    if(pianoVoices.size>=32)([...pianoVoices].find(voice=>voice.accompaniment)||pianoVoices.values().next().value).release(.035);
+    const source=audioSource(),gain=context.createGain(),color=context.createBiquadFilter(),hold=Math.max(.08,Math.min(6,Number(duration)||.35));
+    const level=Math.max(0,Math.min(1,Number(velocity)||0)),volume=accompaniment?level*(SFX_LEVEL*.65)/(PIANO_MUSIC_LEVEL*.4):.32*Math.pow(level,1.35);
+    const attack=accompaniment?.010:.005,tail=accompaniment?.28:.38;
     source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);
-    gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+attack);gain.gain.setValueAtTime(volume*(accompaniment?.85:1),at+hold);gain.gain.exponentialRampToValueAtTime(.0001,at+hold+tail);
-    source.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);
-    let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const now=context.currentTime;
+    color.type='lowpass';color.frequency.value=accompaniment?4800:3800+5200*Math.sqrt(level);color.Q.value=.55;
+    gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+attack);gain.gain.setValueAtTime(volume,at+hold);gain.gain.exponentialRampToValueAtTime(.0001,at+hold+tail);
+    source.connect(color);color.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
+    let released=false;const voice={note,at,accompaniment,release(releaseTime=.10){if(released)return;released=true;pianoVoices.delete(voice);const now=context.currentTime;
       if(now<at){gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(0,now);try{source.stop(now);}catch{}return;}
-      if(gain.gain.cancelAndHoldAtTime)gain.gain.cancelAndHoldAtTime(now);else{gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(gain.gain.value||0,now);}
-      gain.gain.linearRampToValueAtTime(0,now+.025);try{source.stop(now+.03);}catch{}
+      if(gain.gain.cancelAndHoldAtTime)gain.gain.cancelAndHoldAtTime(now);else{const elapsed=now-at,current=elapsed<attack?volume*elapsed/attack:elapsed<=hold?volume:volume*Math.pow(.0001/Math.max(.0001,volume),Math.min(1,(elapsed-hold)/tail));gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(Math.max(0,current),now);}
+      const release=Math.max(.02,Math.min(.15,Number(releaseTime)||.10));gain.gain.linearRampToValueAtTime(0,now+release);try{source.stop(now+release+.01);}catch{}
     }};
-    pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();gain.disconnect();};source.start(at);source.stop(at+hold+tail+.02);return voice.release;
+    pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();color.disconnect();gain.disconnect();};source.start(at);source.stop(at+hold+tail+.02);return voice.release;
   }
 
   function pianoBeat(pulse,energy=1){
@@ -314,16 +319,16 @@
     }
   }
 
-  // The final preview230 set: selected Endless C, separate Adventure and Slice, Simple Steps Drop.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-c-v228.ogg',adventure:'assets/music/adventure-theme-v229.ogg',slice:'assets/music/shape-slice-theme-v229.ogg',drop:'assets/music/shape-drop-simple-230.ogg'};
+  // Five new original mode themes are packaged with their scores and checksums.
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-237.ogg',adventure:'assets/music/adventure-237.ogg',slice:'assets/music/shape-slice-237.ogg',drop:'assets/music/shape-drop-237.ogg'};
   const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=.85;
   let musicMood=null;
   const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
   const musicMixes={menu:[4300,0],adventure:[4700,.6],game:[6500,1.8],slice:[6200,1.4],drop:[5200,1.1],piano:[20000,0]};
   function updateMusicMix(){
     if(!musicTone||musicMood===scene)return;
-    // The original gameplay recording is uncoloured; menu melodies bypass the low-pass filter.
-    const original=scene==='game'||scene==='adventure'||scene==='piano';
+    // The authored gameplay mixes are already balanced; keep their instrument colors intact.
+    const original=['game','adventure','slice','drop','piano'].includes(scene);
     musicBus.disconnect();musicBus.connect(original?musicDuck:scene==='menu'?musicPresence:musicTone);
     if(original||scene==='menu'){musicMood=scene;return;}
     const now=context.currentTime,position=musicVoice?musicPosition(musicVoice,now):0;

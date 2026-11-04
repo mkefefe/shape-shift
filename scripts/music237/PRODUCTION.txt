@@ -1,0 +1,7 @@
+Shape Shift 237: new original melodic indie/electronic arrangements
+
+Five separately authored 32-bar themes. Form A / developed A / contrasting B / returning A with phrase variations. No reference melodies or commercial recordings are copied. Acoustic piano keys are the existing Salamander Grand Piano v3 by Alexander Holm (CC BY 3.0); repository assets/music/CREDITS.txt and LICENSE.txt carry attribution. Electric piano, rounded pluck/synth, bass, kick/rim/snare/hat/tom and short diffuse room are original synthesis.
+
+Reproduce: Python 3 with numpy, scipy, soundfile, imageio-ffmpeg. Run python compose237.py --modes adventure endless drop slice battle. Sample source defaults to the repository build _site/assets/music/keys. --samples may override this (see script help). Score JSON retains each pitched/drum event, gain, pan, beat and duration. Stem WAVs separate melody, harmony, bass and drums. Full Ogg/WAV loops have circular tails; preview MP3s are28seconds with a presentation fade, not runtime loops.
+
+Audition is necessary: decoding, clipping and score checks cannot establish that the music suits the user. Keep previous and new work separate until the new direction is heard.

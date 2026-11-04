@@ -1,0 +1,17 @@
+COMPOSITION AUDIT — previous recordings and new237 direction
+
+Previous generators are in original project work/music-research223/compose228.py, compose229.py, compose230.py; earlier Battle is work/compose-battle-167.py. Source arrangements were Python lists plus JSON score exports; no MIDI files or soundfonts found in that source search. Only ten recorded piano keys were available, plus existing procedural percussion and basic additive synth voices.
+
+Measured structural limitations:
+- All four most recent recorded mode themes used C major, and Adventure/Slice shared the exact same eight-bar progression.
+- Endless228 had186melody notes but only one note-duration value; uninterrupted equal eighth notes create little phrase-level rhythmic contrast.
+- Drop230 contains72melody notes with only3unique two-bar phrases across12phrases; the same eight-bar material repeats three times.
+- Piano brightenPianoSong automatically replaced Am with C, Dm with F, and Em with G; this reduced six named chord choices to three C/F/G harmonies and altered previously authored melody tones. All20songs shared the same44bar arrangement template.
+- Previous revisions mainly varied synthesis, note ordering, density and tempo. Technical clipping tests cannot determine whether those compositional changes sound attractive. The user has now rejected that direction.
+
+New237 production:
+Five independent authored themes, keys, chords, note contours and rhythms. Each has32bars split into an8bar theme, developed repeat, contrasting bridge and returning theme. Rests and small answering phrases replace continuous noodling. Bass patterns, drum grooves, ghosts and fills are mode-specific. Melody, harmony, bass and drums are separable stems. Dynamics are phrased rather than identical velocity. New Piano scores are separately authored by the Piano agent; render-piano237.py reads their finalized structured catalog without rewriting its notes or chords.
+
+Production checks are scope-limited: note durations fill measures, finite samples, no clipping, exact loop beat lengths, wrapped tails, SHA256 provenance, decoded loudness/peaks, and preview/runtime instrument parameter parity. Musical suitability still requires listening.
+
+Measured source loudness for the five new modes is−17.25to−17.44LUFS with−5to−7.1dBTP peaks. Existing menus differ considerably: indie−26.75LUFS, Moon−14.78, Sunset−17.98. Runtime gameplay bus.28 at40% plusmaster.52 attenuates music24.7dB. Recommended gameplaybus.56 yields+6dB without rewriting saved preferences or squashing masters.

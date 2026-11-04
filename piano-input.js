@@ -1,3 +1,9 @@
+// Pointer/keyboard timestamps use the browser clock; platform time subtracts
+// paused time. Map between them without rewinding a frame already rendered.
+export function pianoInputClock(eventTime,now,platformNow,previous=platformNow){
+ const age=Number.isFinite(eventTime)&&eventTime>0&&eventTime<=now?Math.min(1000,now-eventTime):0;
+ return Math.max(previous,platformNow-age);
+}
 // One physical input owns the active strip. A newer finger/key can take over
 // without an older pointer's eventual release cancelling the replacement.
 export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{},onPress=()=>{}}){
@@ -12,16 +18,16 @@ export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{},onPre
   const game=getGame();
   if(!owner?.pending||!enabled()||!game?.started||game.paused||game.over||game.countdown>0)return;
   const next=game.notes.find(n=>['waiting','partial','holding'].includes(n.status));
-  // Keep a physical hold through GO or the short lead-in, without relying on
-  // OS key-repeat (touch pointers do not produce repeats at all).
-  if(game.fullSongs&&(!next||next.beat-game.beat>(game.inputWindow??4.4)))return;
+  // A full-song press is judged once, at its physical time. Holding an early
+  // key must not silently turn it into a perfectly timed strike later.
+  if(game.fullSongs&&game.practice&&(!next||next.beat-game.beat>(game.inputWindow??4.4)))return;
   owner.pending=false;game.pressStrip(owner.lane);onChange();
  }
  function press(lane,id){
   const game=getGame();
   if(!Number.isInteger(lane)||lane<0||lane>=4||!enabled()||!game?.started||game.paused||game.over)return false;
   if(owner?.id===id)return true;
-  reset();owner={id,lane,pending:true};onPress(lane);flush();return true;
+  reset();owner={id,lane,pending:!(game.fullSongs&&!game.practice&&(game.countdown>0||game.recoverySeconds>0))};onPress(lane);flush();return true;
  }
  return {press,release,reset,flush};
 }
@@ -40,11 +46,11 @@ export function bindPianoKeyboard({host,dialog,active,press,release,pause}){
   // Pointer capability only controls hints. Physical keyboards also work on
   // touch-primary tablets, laptops and Android devices with a keyboard.
   held.add(key);keyboardUsed=true;sync();
-  if(press(lane,'key-'+key))paint(lane);else held.delete(key);
+  if(press(lane,'key-'+key,event.timeStamp))paint(lane);else held.delete(key);
  });
  host.addEventListener('keyup',event=>{
   const key=keyOf(event);if(!held.has(key))return;
-  event.preventDefault();release('key-'+key);held.delete(key);
+  event.preventDefault();release('key-'+key,event.timeStamp);held.delete(key);
   row?.querySelectorAll('kbd')[keys.indexOf(key)]?.classList.remove('pressed');
  });
  host.addEventListener('blur',()=>{reset();if(dialog.open)pause();});

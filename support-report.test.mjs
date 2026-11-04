@@ -7,18 +7,18 @@ import {bindPauseKeyboard} from './pause-keyboard.js';
 
 test('report email carries plain description and build without interpreting HTML or query characters',()=>{
  const description='Music stopped & the menu said <p>hello</p>\nExpected: sound + buttons.';
- const report=buildBugReport({description,mode:'Shape Drop',version:'4.94.236'});
+ const report=buildBugReport({description,mode:'Shape Drop',version:'4.94.237'});
  const url=new URL(report.href);
  assert.equal(url.pathname,SUPPORT_EMAIL);assert.equal(report.copyRequired,false);
  assert.equal(url.searchParams.get('body'),report.text);
- assert.match(report.text,/Version: 4\.94\.236\nWhere: Shape Drop/);
+ assert(report.text.includes('Version: 4.94.237\nWhere: Shape Drop'));
  assert(report.text.endsWith(description));assert.equal(url.searchParams.size,2);
  assert.throws(()=>buildBugReport({description:'  \n '}),/Describe/);
 });
 
 test('long and non-Latin reports preserve their complete text within Android link limits',()=>{
  const description='音楽が止まる 🎵 '.repeat(200);
- const report=buildBugReport({description,mode:'untrusted mode',version:'4.94.236'});
+ const report=buildBugReport({description,mode:'untrusted mode',version:'4.94.237'});
  assert.equal(report.copyRequired,true);assert(report.href.length<2048);
  assert.equal(new URL(report.href).searchParams.has('body'),false);
  assert(report.text.endsWith(description.trim()));assert(report.text.includes('Where: Other'));
@@ -27,7 +27,7 @@ test('long and non-Latin reports preserve their complete text within Android lin
 test('external links use Android bridge and reject executable URLs',()=>{
  const opened=[];const host={location:{href:'https://game.test/'},ShapeShiftLinks:{open:url=>opened.push(url)}};
  assert.equal(openSupportLink('javascript:alert(1)',host),false);assert.equal(opened.length,0);
- const report=buildBugReport({description:'Cannot hear music',version:'4.94.236'});
+ const report=buildBugReport({description:'Cannot hear music',version:'4.94.237'});
  assert.equal(openSupportLink(report.href,host),true);assert.deepEqual(opened,[report.href]);
  const web={location:{href:'https://game.test/'},open:(...args)=>opened.push(args)};
  openSupportLink(report.href,web);assert.equal(web.location.href,report.href);

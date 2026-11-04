@@ -1,184 +1,156 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPianoGame} from './piano-flow-engine.js';
-import {ORIGINAL_SONGS} from './piano-songs.js';
+import {createPianoGame,pianoSongTempo,PIANO_HIT_SECONDS,PIANO_PERFECT_SECONDS,pianoSupportSchedule} from './piano-flow-engine.js';
+import {createPianoInput} from './piano-input.js';
 
 const options={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0};
-test('wrong-tap recovery moves the next note up, freezes time, and permits one correct replay',()=>{
- const events=[],g=createPianoGame({...options,recoverWrongTap:true,onEvent:e=>events.push(e)});g.start();
- for(let i=0;i<360;i++)g.step(1/120);
- const n=g.notes[0];g.beat=n.beat-.1;const before=g.beat,time=g.time;
- g.pressStrip((n.lane+1)%4);assert.equal(g.lives,2);assert.equal(n.status,'waiting');assert.equal(g.recoverySeconds,1);
- assert.equal(g.pressStrip(n.lane),false);
- for(let i=0;i<10;i++)g.step(.05);assert(g.beat<before);assert.equal(g.time,time);
- g.pause();const frozen=g.recoverySeconds;g.step(.05);assert.equal(g.recoverySeconds,frozen);g.resume();
- for(let i=0;i<15;i++)g.step(.05);assert.equal(g.recoverySeconds,0);assert(g.pressStrip(n.lane));
- assert.equal(events.filter(e=>e.type==='note'&&e.note.id===n.id).length,1);assert.equal(g.lives,2);
- assert.equal(events.filter(e=>e.type==='recover').length,1);
-});
-const note=(id,beat,lane,hold=0)=>({id,beat,end:beat+hold,lane,hold,pitch:60+lane*2,shape:lane,color:0,duration:hold?hold+1.5:1,rapid:!hold,status:'waiting',awaiting:false});
-function fixture(notes,beat=2){
- const events=[],g=createPianoGame({...options,onEvent:e=>events.push(e)});
- g.start();for(let i=0;i<360;i++)g.step(1/120);
- g.notes=notes;g.beat=beat;events.length=0;
- return {g,events};
+const note=(id,beat,lane,hold=0,bpm=100)=>({id,beat,end:beat+hold,lane,hold,bpm,pitch:60+lane*2,shape:lane,color:0,duration:hold?hold+.5:1,soundBeats:hold?hold+.1:.8,rapid:!hold,status:'waiting',awaiting:false});
+function fixture(notes,{beat=notes[0].beat,recoverWrongTap=false}={}){
+ const events=[],g=createPianoGame({...options,recoverWrongTap,onEvent:e=>events.push(e)});
+ g.start();g.countdown=0;g.notes=notes;g.beat=beat;g.bpm=notes[0].bpm;events.length=0;
+ return {g,events,input:createPianoInput({getGame:()=>g})};
 }
 function until(g,beat){
- for(let i=0;g.beat<beat&&i<10000;i++)g.step(1/240);
- assert(g.beat>=beat,'the active musical clock reached the requested beat');
+ for(let i=0;g.beat<beat-1e-8&&i<20000&&!g.over;i++)g.step(Math.min(1/240,(beat-g.beat)*60/g.bpm));
+ assert(Math.abs(g.beat-beat)<1e-6,'the active musical clock reached the requested beat');
 }
+function advance(g,seconds,frame=1/240){for(let left=seconds;left>1e-8;){const dt=Math.min(left,frame);g.step(dt);left-=dt;}}
 
-test('all four strips respond and score immediately and sound on the physical strike',()=>{
- const notes=[0,1,2,3].map(lane=>note(900+lane,4+lane*.5,lane)),{g,events}=fixture(notes);
- for(const n of notes){
-  assert(g.pressStrip(n.lane));assert.equal(n.status,'done');assert.equal(n.soundPending,false);
-  assert.equal(g.hits,n.lane+1);assert.equal(g.coins,n.lane+1);g.release(n.lane);
+test('written tempo stays stable for long songs and changes exactly at the next song boundary',()=>{
+ assert.equal(pianoSongTempo(10000,104),104);assert.equal(pianoSongTempo(4,88),88);
+ const a=note(900,4,0,0,90),b=note(901,6,1,0,120),{g}=fixture([a,b],{beat:5.9});
+ a.status='done';g.step(.2);
+ assert(Math.abs(g.beat-(6+(.2-.1*60/90)*2))<1e-8);assert.equal(g.bpm,120);
+});
+
+test('the same forgiving hit windows apply in seconds at slow and fast song tempos',()=>{
+ for(const bpm of [72,100,144])for(const offset of [-.21,-.04,0,.04,.21]){
+  const a=note(900,4,0,0,bpm),{g,events}=fixture([a],{beat:4+offset*bpm/60});
+  assert(g.pressStrip(0));assert.equal(g.hits,1);assert.equal(g.coins,1);
+  assert.equal(a.perfect,Math.abs(offset)<=PIANO_PERFECT_SECONDS);
+  assert(Math.abs(a.timingErrorSeconds-offset)<1e-8);
+  assert.equal(events.filter(e=>e.type==='note').length,1);
  }
- assert.equal(events.filter(e=>e.type==='input').length,4);
- assert.equal(events.filter(e=>e.type==='note').length,4);
- until(g,5.51);
- const sounded=events.filter(e=>e.type==='note');assert.equal(sounded.length,4);
- sounded.forEach((e,i)=>{assert.equal(e.note,notes[i]);assert.equal(e.beat,2);});
- assert.equal(g.hits,4);assert.equal(g.coins,4);assert.equal(g.lives,g.maxLives);
+ assert.equal(PIANO_HIT_SECONDS,.22);
 });
 
-test('all four early holds fill immediately and save finger-down progress across release',()=>{
- for(let lane=0;lane<4;lane++){
-  const a=note(900,4,lane,2),{g,events}=fixture([a],3.7);
-  assert(g.pressStrip(lane));assert.equal(a.status,'holding');
-  until(g,3.9);assert(a.heldBeats>.19);assert(a.heldBeats<.22);
-  g.release(lane);const credited=a.heldBeats;assert.equal(a.status,'partial');
-  until(g,4.1);assert.equal(a.heldBeats,credited);
-  assert.equal(events.filter(e=>e.type==='note').length,1,'release does not schedule a second sound at onset');
-  assert(g.pressStrip(lane));assert.equal(a.heldBeats,credited);
-  assert.equal(events.filter(e=>e.type==='note').length,2,'resuming after onset sounds immediately');
-  until(g,6.05);assert.equal(a.status,'done');assert.equal(g.hits,1);assert.equal(g.lives,g.maxLives);
- }
+test('far-early taps cannot collect visible notes, even with a tall screen input window',()=>{
+ const a=note(900,4,0),b=note(901,4.5,1),{g,events}=fixture([a,b],{beat:2});g.inputWindow=500;
+ assert(!g.pressStrip(0));assert(!g.pressNote(a.id));assert(!g.pressStrip(1));
+ assert.equal(g.hits,0);assert.equal(g.lives,g.maxLives);assert.equal(events.filter(e=>e.type==='note').length,0);
+ until(g,4);assert(g.pressStrip(0));g.release(0);assert(!g.pressStrip(1));
+ until(g,4.5);assert(g.pressStrip(1));assert.equal(g.hits,2);
 });
 
-test('a hold sounds on press and does not replay at its written beat',()=>{
- const a=note(900,4,0,1),{g,events}=fixture([a]);assert(g.pressStrip(0));
- until(g,3.1);assert.equal(a.status,'done');assert.equal(g.hits,1);assert.equal(a.soundPending,false);
- g.release(0);assert.equal(events.filter(e=>e.type==='note').length,1);
- until(g,4.1);assert.equal(events.filter(e=>e.type==='note').length,1);
- assert.equal(g.hits,1);assert.equal(g.coins,1);assert.equal(a.soundPending,false);
-});
-
-test('pausing preserves earned taps, early hold progress without extra sounds while paused',()=>{
- const a=note(900,4,0),b=note(901,5,1,1),{g,events}=fixture([a,b]);
- assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(1));until(g,2.2);
- const credited=b.heldBeats;g.pause();assert.equal(a.status,'done');assert.equal(b.status,'holding');assert(b.awaiting);
- const beat=g.beat;for(let i=0;i<100;i++)g.step(.05);assert.equal(g.beat,beat);
- assert.equal(events.filter(e=>e.type==='note').length,2);
- g.resume();g.step(.05);assert.equal(g.beat,beat);assert.equal(b.heldBeats,credited);
- assert(g.pressStrip(1));assert.equal(b.heldBeats,credited);until(g,5.1);
- assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,1);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===b).length,2);
-});
-
-test('resuming an active hold after pause restarts sound without losing progress',()=>{
- const a=note(900,4,0,2),{g,events}=fixture([a],4);assert(g.pressStrip(0));until(g,4.3);
- g.pause();const credited=a.heldBeats,beat=g.beat;g.resume();g.step(.05);
- assert.equal(g.beat,beat);assert(g.pressStrip(0));assert.equal(a.heldBeats,credited);
- assert.equal(events.filter(e=>e.type==='note').length,2);
- until(g,6.05);assert.equal(a.status,'done');assert.equal(g.hits,1);
-});
-
-test('partial holds remain resumable throughout their visible grace period but not after the deadline',()=>{
- const a=note(900,4,0,1),{g}=fixture([a],4.3);assert(g.pressStrip(0));until(g,5.01);
- g.release(0);const credited=a.heldBeats;until(g,5.05);
- assert(g.pressStrip(0));assert.equal(a.heldBeats,credited);until(g,5.4);
- assert.equal(a.status,'done');assert.equal(g.lives,g.maxLives);
- const b=note(901,4,1,1),expired=fixture([b],4.3).g;
- assert(expired.pressStrip(1));until(expired,4.5);expired.release(1);expired.beat=5.66;
- assert(!expired.pressNote(b.id));expired.step(.01);assert.equal(b.status,'missed');
-});
-
-test('an abandoned partial hold plays only its initial strike and stays silent when missed',()=>{
- const a=note(900,4,0,1),{g,events}=fixture([a],3.7);assert(g.pressStrip(0));until(g,3.9);g.release(0);
- until(g,5.7);assert.equal(a.status,'missed');assert.equal(a.soundPending,false);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,1);assert.equal(g.hits,0);
-});
-
-test('late taps remain forgiving and a held key cannot collect the next short note',()=>{
- const a=note(900,4,0),b=note(901,4.5,0),{g,events}=fixture([a,b],4.3);
- a.rapid=false;b.rapid=false;
- assert(g.pressStrip(0));assert.equal(a.status,'done');assert.equal(events.filter(e=>e.type==='note').length,1);
- until(g,4.6);assert.equal(b.status,'waiting');assert.equal(g.hits,1);
- assert(!g.pressStrip(0));g.release(0);assert(g.pressStrip(0));assert.equal(b.status,'done');
- assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
-});
-
-test('the quieter backing follows performed strong beats without an independent pulse',()=>{
- const events=[],g=createPianoGame({...options,onEvent:e=>events.push(e)});g.start();
- for(let i=0;i<360;i++)g.step(1/120);
- until(g,1.99);assert.equal(events.filter(e=>e.type==='accompaniment').length,0);
- for(let i=0;g.beat<6.01&&i<3000;i++){
-  if(!g.notes.some(n=>n.status==='holding'||n.status==='queued'&&n.hold)){
-   const next=g.notes.find(n=>n.status==='waiting'||n.status==='partial');
-   if(next&&next.beat-g.beat<=.12){for(const lane of [...g.pressed])g.release(lane);g.pressStrip(next.lane);}
-  }
-  g.step(1/240);
- }
- const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,3);
- for(const [i,e] of backing.entries()){
-  assert.equal(e.pulse,(i%2)*4);assert(events.some(n=>n.type==='note'&&n.beat===e.beat),'harmony begins on an actual played note');
-  assert.equal(e.pitches.length,1);assert(e.velocity>0&&e.velocity<=.8);
- }
- const root=chord=>chord[0]>=48?chord[0]-12:chord[0];
- assert.equal(backing[0].pitch,root(ORIGINAL_SONGS[0].notes[0].chord));
- assert.equal(backing[2].pitch,root(ORIGINAL_SONGS[0].notes.find(n=>n.songBeat===4).chord));
- assert.equal(g.lives,g.maxLives);
-});
-
-
-test('revive retains already earned points without replaying completed notes on revive',()=>{
- const a=note(900,4,0),b=note(901,5,1,1),{g,events}=fixture([a,b]);
- assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(1));until(g,2.2);g.release(1);
- g.lives=0;g.end();assert(g.revive());assert.equal(g.beat,0);
- assert.equal(a.status,'done');assert.equal(a.soundPending,false);assert.equal(b.status,'waiting');assert.equal(b.heldBeats,0);
- assert.equal(g.hits,1);assert.equal(g.score,1);assert.equal(g.countdown,3);
- events.length=0;for(let i=0;i<360;i++)g.step(1/120);
- assert.equal(events.filter(e=>e.type==='note'||e.type==='accompaniment').length,0);
- g.step(.01);assert.equal(events.filter(e=>e.type==='accompaniment').length,0);
- until(g,3.5);assert(g.pressStrip(1));until(g,5.1);
- assert.equal(g.hits,2);assert.equal(g.coins,2);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===a).length,0);
- assert.equal(events.filter(e=>e.type==='note'&&e.note===b).length,1);
- const pulses=events.filter(e=>e.type==='accompaniment');
- assert(pulses.every((e,i)=>i===0||e.pulse===pulses[i-1].pulse+1));
- assert.equal(g.lives,g.maxLives);
-});
-
-
-test('short screens allow striking the visible edge of a note immediately',()=>{
- const a=note(900,7,0),{g,events}=fixture([a]);g.inputWindow=5.2;
- assert(g.pressStrip(0));assert.equal(a.status,'done');assert.equal(events.filter(e=>e.type==='note').length,1);
-});
-
-test('a rapid second tap on a completed strip is harmless, without extra points or melody',()=>{
+test('Perfect feedback reflects timing, while each completed note pays exactly one reward',()=>{
  const a=note(900,4,0),b=note(901,5,1),{g,events}=fixture([a,b]);
- assert(g.pressStrip(0));g.release(0);const lives=g.lives;
- assert.equal(g.pressStrip(0),false);until(g,2.2);assert.equal(g.pressStrip(0),false);
- assert.equal(g.lives,lives);assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='note').length,1);assert(!events.some(e=>e.type==='miss'));
- until(g,3);g.pressStrip(0);assert.equal(g.lives,lives-1,'wrong-strip detection returns after grace');
-});
-test('hold completion has repeat protection and does not consume the next note',()=>{
- const a=note(900,4,0,.5),b=note(901,5,1),{g,events}=fixture([a,b]);assert(g.pressStrip(0));until(g,2.6);assert.equal(a.status,'done');g.release(0);g.pressStrip(0);
- assert.equal(g.hits,1);assert.equal(g.lives,g.maxLives);assert.equal(b.status,'waiting');assert(!events.some(e=>e.type==='miss'));
-});
-test('a valid next note on the same strip is still immediately playable',()=>{
- const a=note(900,4,0),b=note(901,4.5,0),{g}=fixture([a,b]);assert(g.pressStrip(0));g.release(0);assert(g.pressStrip(0));assert.equal(g.hits,2);
+ g.pressStrip(0);g.release(0);until(g,5+.16*g.bpm/60);g.pressStrip(1);g.release(1);g.pressStrip(1);
+ assert.equal(g.hits,2);assert.equal(g.score,2);assert.equal(g.coins,2);assert.equal(g.perfectHits,1);
+ assert.deepEqual(events.filter(e=>e.type==='complete').map(e=>e.rating),['perfect','good']);
 });
 
-test('irregular early taps bring their harmony with them; waiting adds no off-beat notes',()=>{
- const a={...note(900,4,0),chord:[48,52,55],song:'test',bar:0,songBeat:0};
- const b={...note(901,6,1),chord:[48,52,55],song:'test',bar:0,songBeat:2};
- const {g,events}=fixture([a,b],2);
- g.pressStrip(0);g.release(0);until(g,3.25);
- assert.equal(events.filter(e=>e.type==='accompaniment').length,1);
- g.pressStrip(1);g.release(1);until(g,4.5);
- const backing=events.filter(e=>e.type==='accompaniment');assert.equal(backing.length,2);
- for(const e of backing)assert(events.some(n=>n.type==='note'&&n.beat===e.beat));
+test('30/15fps frames preserve song time instead of slowing the music down',()=>{
+ for(const frame of [.2,.5,1]){
+  const a=note(900,100,0),fast=fixture([a],{beat:0}).g,slow=fixture([{...a}],{beat:0}).g;
+  advance(fast,1,1/240);advance(slow,1,frame);
+  assert(Math.abs(fast.time-slow.time)<1e-8);assert(Math.abs(fast.beat-slow.beat)<1e-8);
+  assert.equal(slow.bpm,100);assert(Math.abs(slow.time-1)<1e-8);
+ }
+ const stalled=fixture([note(900,4,0)],{beat:3}).g;stalled.step(1.5);
+ assert(stalled.paused);assert.equal(stalled.time,0);assert.equal(stalled.beat,3);assert.equal(stalled.lives,stalled.maxLives);
+});
+
+test('early holds do not earn sustain before onset and brief lifts preserve earned progress',()=>{
+ for(let lane=0;lane<4;lane++){
+  const a=note(900,4,lane,1),{g,events}=fixture([a],{beat:3.8});
+  assert(g.pressStrip(lane));until(g,3.9);assert.equal(a.heldBeats,0);
+  until(g,4.3);g.release(lane);const saved=a.heldBeats;
+  until(g,4.4);assert.equal(a.heldBeats,saved);assert(g.pressStrip(lane));until(g,5.1);
+  assert.equal(a.status,'done');assert.equal(g.hits,1);assert.equal(g.lives,g.maxLives);
+  assert.equal(events.filter(e=>e.type==='note').length,2,'resume is the only additional attack');
+ }
+});
+
+test('a hold must start near its onset instead of being accepted near the end of its trail',()=>{
+ const a=note(900,4,0,2),{g,events}=fixture([a],{beat:4.5});
+ assert(!g.pressStrip(0));g.step(.01);assert.equal(a.status,'missed');assert.equal(g.hits,0);
+ assert.equal(g.lives,g.maxLives-1);assert.equal(events.filter(e=>e.type==='miss').length,1);
+ advance(g,.1);assert.equal(g.lives,g.maxLives-1);
+});
+
+test('release tolerance completes a nearly finished hold without forgiving a large missing section',()=>{
+ for(const gap of [.06,.14]){
+  const a=note(900,4,0,1),{g}=fixture([a]);g.pressStrip(0);until(g,5-gap*g.bpm/60);g.release(0);
+  assert.equal(a.status,gap<PIANO_PERFECT_SECONDS?'done':'partial');assert.equal(g.hits,gap<PIANO_PERFECT_SECONDS?1:0);
+ }
+});
+
+test('one held finger never automatically starts the next long or short note on the same strip',()=>{
+ for(const hold of [0,1]){
+  const a=note(900,4,0,.5),b=note(901,5,0,hold),{g,events}=fixture([a,b]);
+  g.pressStrip(0);until(g,5);assert.equal(a.status,'done');assert.equal(b.status,'waiting');
+  assert(!g.pressStrip(0));assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='note').length,1);
+  g.release(0);assert(g.pressStrip(0));if(hold)until(g,6);assert.equal(g.hits,2);
+ }
+});
+
+test('an unfinished long note cannot block an on-time recovery on the following strip',()=>{
+ for(const nextLane of [0,1]){
+  const a=note(900,4,0,1.8),b=note(901,6,nextLane),{g,events}=fixture([a,b]);
+  g.pressStrip(0);until(g,4.5);g.release(0);until(g,5.85);
+  assert(g.pressStrip(nextLane));assert.equal(a.status,'missed');assert.equal(b.status,'done');
+  assert.equal(g.hits,1);assert.equal(g.lives,g.maxLives-1);assert.equal(events.filter(e=>e.type==='miss').length,1);
+ }
+});
+
+test('wrong-tap recovery freezes the clock, rewinds once, and requires a fresh on-time replay',()=>{
+ const a=note(900,4,0),{g,events,input}=fixture([a],{beat:3.9,recoverWrongTap:true});
+ input.press(1,'bad');const time=g.time;assert.equal(g.lives,g.maxLives-1);assert.equal(g.recoverySeconds,1);
+ advance(g,.5);assert(g.beat<3.9);assert.equal(g.time,time);g.pause();const frozen=g.recoverySeconds;
+ advance(g,.5);assert.equal(g.recoverySeconds,frozen);g.resume();advance(g,.6);
+ assert.equal(g.recoverySeconds,0);assert(!g.pressStrip(0),'rewind does not make an early retry perfect');
+ until(g,4);input.release('bad');input.press(0,'good');assert.equal(g.hits,1);
+ assert.equal(events.filter(e=>e.type==='recover').length,1);assert.equal(events.filter(e=>e.type==='note').length,1);
+});
+
+test('pause freezes a held note and its music until the player resumes the physical hold',()=>{
+ const a=note(900,4,0,1),{g,events}=fixture([a]);g.pressStrip(0);until(g,4.3);
+ g.pause();const beat=g.beat,credited=a.heldBeats;advance(g,1);g.resume();advance(g,.5);
+ assert.equal(g.beat,beat);assert.equal(a.heldBeats,credited);assert.equal(events.filter(e=>e.type==='note').length,1);
+ assert(g.pressStrip(0));until(g,5);assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='note').length,2);
+});
+
+test('revive retains earned notes and points but never auto-plays them or the unfinished sustain',()=>{
+ const a=note(900,4,0),b=note(901,5,1,1),{g,events}=fixture([a,b]);
+ g.pressStrip(0);g.release(0);until(g,5);g.pressStrip(1);until(g,5.2);g.release(1);
+ g.lives=0;g.end();assert(g.revive());assert.equal(a.status,'done');assert.equal(b.status,'waiting');assert.equal(b.heldBeats,0);
+ assert.equal(g.hits,1);assert.equal(g.score,1);events.length=0;advance(g,3);
+ assert.equal(events.filter(e=>e.type==='note').length,0);until(g,5);assert(g.pressStrip(1));until(g,6);
+ assert.equal(g.hits,2);assert.equal(g.coins,2);assert.equal(events.filter(e=>e.type==='note').length,1);
+});
+
+test('a stale early physical press is not retried by frame flushing',()=>{
+ const a=note(900,4,0),{g,input,events}=fixture([a],{beat:3});input.press(0,'finger');
+ until(g,4);for(let i=0;i<10;i++)input.flush();assert.equal(g.hits,0);
+ input.release('finger');input.press(0,'fresh');assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='note').length,1);
+});
+
+test('late-note audio reports the written sustain remaining and actual strike error',()=>{
+ const a=note(900,4,0,1),{g,events}=fixture([a],{beat:4.2});g.pressStrip(0);
+ const sound=events.find(e=>e.type==='note');assert(Math.abs(sound.remainingSound-.9)<1e-8);
+ assert(Math.abs(sound.timingErrorSeconds-.12)<1e-8);until(g,4.5);g.release(0);until(g,4.6);g.pressStrip(0);
+ assert(Math.abs(events.filter(e=>e.type==='note').at(-1).remainingSound-.5)<1e-8);
+});
+
+
+test('backing stays on the written grid and resumed holds cannot duplicate scheduled attacks',()=>{
+ const events=[{id:'bass',beat:0,duration:1},{id:'arp1',beat:.5,duration:.3},{id:'arp2',beat:1.5,duration:.3}],played=new Map();
+ const first=pianoSupportSchedule(events,{bpm:100,timingErrorSeconds:-.1,beat:3.833333,played});
+ assert.deepEqual(first.map(e=>e.id),['bass','arp1','arp2']);
+ assert(first.every(e=>Math.abs(e.delay-(e.beat*.6+.1))<1e-8));
+ assert.deepEqual(pianoSupportSchedule(events,{bpm:100,timingErrorSeconds:.2,beat:4.333333,played}),[]);
+ // Pausing cancels scheduled audio; clear its ownership so future beats can return.
+ played.clear();const resumed=pianoSupportSchedule(events,{bpm:100,timingErrorSeconds:.4,beat:4.666667,played});
+ assert.deepEqual(resumed.map(e=>e.id),['arp2']);assert(Math.abs(resumed[0].delay-.5)<1e-8);
+ pianoSupportSchedule([],{beat:50,played});assert.equal(played.size,0);
 });
