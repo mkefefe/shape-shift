@@ -1,0 +1,13 @@
+Piano Flow arrangement revision 240
+
+All twenty authored songs now establish short, memorable motifs before changing direction.
+Verse and Chorus: A B | A B | A B | turnaround home. Each A/B pair repeats the actual pitches, chords, note lengths, rests, bass and arpeggio voicing three times. The last two bars answer the hook and resolve to the home note.
+Intro: the first short figure is stated twice. Bridge: a contrasting two-bar figure is stated twice. The returning Chorus repeats its earlier hook. The closing tonic is sustained with no drum attacks.
+
+The twenty themes retain distinct written melodies, harmonic colors, tempos and drum grooves. The strong kick/backbeat remains; repeated bass and piano voicings provide recognizable musical structure. The arrangement still lasts 128 beats, preserving chart length and section positions.
+
+Gameplay remains free to perform any visible note immediately. This arrangement does not introduce a bottom timing window or required hold. Pitched accompaniment follows the actual press and percussion follows the existing score clock.
+
+Export the actual runtime score with:
+  node scripts/music240/export-piano240.mjs <absolute-output-catalog.json>
+Render it using render-piano240.py with --samples and --rhythm paths if the verified _site tree is elsewhere. This renderer preserves the separate stereo lead room introduced in239; it does not fold that room back to mono.

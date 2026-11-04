@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPianoGame} from './piano-flow-engine.js';
+import {createPianoGame,PIANO_STALL_SECONDS} from './piano-flow-engine.js';
 import {createPianoInput,bindPianoKeyboard,pianoInputClock} from './piano-input.js';
 
 const note=(id,beat,lane,hold=0)=>({id,beat,end:beat+hold,lane,hold,pitch:60+lane*2,shape:lane,color:0,duration:hold?hold+1.5:1,rapid:false,status:'waiting',awaiting:false});
@@ -187,6 +187,23 @@ test('physical event time maps to paused platform time without rewinding a rende
  assert.equal(pianoInputClock(undefined,1000,600,550),600);
  assert.equal(pianoInputClock(0,1000,600,550),600);
  assert.equal(pianoInputClock(1000000000000,1000,600,550),600);
+});
+
+test('a queued key after a foreground stall cannot split the gap into damaging ordinary frames',()=>{
+ for(const eventTime of [1001,1500,2199]){
+  const f=fixture([note(900,4,0),note(901,4.5,1)],{beat:3});let gameLast=1000;
+  const advance=now=>{const dt=Math.max(0,(now-gameLast)/1000);gameLast=Math.max(gameLast,now);f.game.step(dt);};
+  const deliveredAt=2200;
+  advance(pianoInputClock(eventTime,deliveredAt,deliveredAt,gameLast,PIANO_STALL_SECONDS*1000));
+  assert.equal(gameLast,deliveredAt);assert.equal(f.game.beat,3);assert.equal(f.game.time,0);
+  assert(f.input.press(0,'key-a'));assert(f.input.press(1,'key-s'));
+  advance(deliveredAt);f.input.flush();
+  assert.equal(f.game.beat,3);assert.equal(f.game.time,0);assert.equal(f.game.lives,f.game.maxLives);
+  assert.equal(f.game.hits,2);assert.equal(f.game.paused,false);
+  assert.equal(f.events.filter(e=>e.type==='stall').length,1);assert.equal(f.events.filter(e=>e.type==='miss').length,0);
+  advance(deliveredAt+16);f.input.flush();
+  assert(f.game.beat>3&&f.game.beat<3.05);assert.equal(f.game.time,.016);assert.equal(f.game.hits,2);
+ }
 });
 
 test('keyboard forwards physical timestamps for both the attack and release',()=>{

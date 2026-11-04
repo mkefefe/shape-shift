@@ -13,7 +13,7 @@ function buffer(channels,length,rate=44100){
  return {numberOfChannels:channels,length,sampleRate:rate,duration:length/rate,getChannelData:channel=>data[channel]};
 }
 function harness(options={}){
- const state={contexts:0,oscillators:[],sources:[],gains:[],filters:[],convolvers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
+ const state={contexts:0,oscillators:[],sources:[],gains:[],filters:[],convolvers:[],buffers:[],fetches:[],delays:[],timers:new Map(),document:{hidden:false}};
  const parameter=()=>({value:0,values:[],ramps:[],targets:[],cancelScheduledValues(){},setValueAtTime(v,t){this.values.push([v,t]);},linearRampToValueAtTime(v,t){this.ramps.push([v,t]);},exponentialRampToValueAtTime(v,t){this.ramps.push([v,t]);},setTargetAtTime(v,t,c){this.targets.push([v,t,c]);}});
  const node=()=>({connections:[],disconnects:0,connect(target){this.connections.push(target);return target;},disconnect(){this.disconnects++;},gain:parameter(),frequency:parameter(),Q:parameter(),playbackRate:parameter(),threshold:parameter(),ratio:parameter(),knee:parameter(),attack:parameter(),release:parameter()});
  class AudioContext{
@@ -24,7 +24,7 @@ function harness(options={}){
   createDynamicsCompressor(){return node();}
   createConvolver(){const n=node();state.convolvers.push(n);return n;}
   createBufferSource(){const n=node();n.stops=[];n.start=(...args)=>{n.startArgs=args;};n.stop=time=>n.stops.push(time);state.sources.push(n);return n;}
-  createBuffer(channels,length,rate){return buffer(channels,length,rate);}
+  createBuffer(channels,length,rate){const value=buffer(channels,length,rate);state.buffers.push(value);return value;}
   async decodeAudioData(data){return options.decode?options.decode(data):{url:data.url,duration:96};}
   async resume(){if(options.resume)return options.resume();this.state='running';}
   async suspend(){this.state='suspended';}
@@ -36,6 +36,17 @@ function harness(options={}){
  vm.runInNewContext(source,{window,fetch,document:state.document,Math:math});
  return {audio:window.gameAudio,state,tracks:()=>state.sources.filter(n=>n.loop&&n.startArgs)};
 }
+
+test('Piano prepares its stereo room impulse before the first playable note',async()=>{
+ const {audio,state}=harness();assert(await audio.preparePiano());
+ const rooms=state.buffers.filter(b=>b.numberOfChannels===2&&b.duration===1.25);
+ assert.equal(rooms.length,1);assert.equal(state.sources.length,0,'preparation stays silent');
+ assert(rooms[0].getChannelData(0).some(value=>value!==0));
+ audio.setScene('piano');await audio.start();await flush();const prepared=state.buffers.length;
+ audio.pianoNote(60);assert.equal(state.convolvers[0].buffer,rooms[0]);
+ assert.equal(state.buffers.length,prepared,'the first key does not allocate or calculate a new room impulse');
+ audio.stopPiano();audio.pianoNote(64);assert.equal(state.convolvers.at(-1).buffer,rooms[0]);
+});
 
 test('selecting a menu world before the first gesture loads only that theme',async()=>{
  const {audio,state,tracks}=harness();audio.setMenuWorld('moon');

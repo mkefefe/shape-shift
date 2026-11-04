@@ -1,5 +1,5 @@
-import {pianoIcon} from './piano-music.js?v=494239';
-import {PIANO_SCORES} from './piano-song-data.js?v=494239';
+import {pianoIcon} from './piano-music.js?v=494240';
+import {PIANO_SCORES} from './piano-song-data.js?v=494240';
 
 const CHORDS={C:[48,52,55],Cmaj7:[48,52,55,59],F:[53,57,60],Fmaj7:[53,57,60,64],G:[43,47,50],G7:[43,47,50,53],Am:[45,48,52],Am7:[45,48,52,55],Dm:[50,53,57],Dm7:[50,53,57,60],Em:[52,55,59],Em7:[52,55,59,62]};
 const SEMITONES={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
@@ -29,9 +29,14 @@ function quietBar(measure){
 }
 function compose([id,title,bpm,tonicName,style,verseScore,verseEnding,chorusScore,chorusEnding,bridgeScore]){
  const tonic=scorePitch(tonicName),a=verseScore.map(readPianoBar),b=chorusScore.map(readPianoBar),cadence=readPianoBar(verseEnding),chorusCadence=readPianoBar(chorusEnding),bridge=bridgeScore.map(readPianoBar);
- const answer=(phrase,ending)=>[...phrase,...phrase.slice(0,3),ending];
+ // Establish a short, recognizable melodic/harmonic hook before answering it.
+ // A B | A B | A B | turnaround home: three complete identical statements,
+ // including note lengths and rests. Changing a chord every unfamiliar bar
+ // made free-timed performances sound like a succession of unrelated ideas.
+ const hook=(phrase,turnaround,ending)=>[phrase[0],phrase[1],phrase[0],phrase[1],phrase[0],phrase[1],turnaround,ending];
  const final={chord:[...cadence.chord],notes:[{pitch:tonic,duration:4,soundBeats:3.3,holdBeats:3.1,restAfter:.7,offset:0}]};
- const form=[['Intro',a.slice(0,2).map(quietBar)],['Verse',answer(a,cadence)],['Chorus',answer(b,chorusCadence)],['Bridge',[...bridge,quietBar(bridge[0]),quietBar(chorusCadence)]],['Chorus',answer(b,chorusCadence)],['Outro',[quietBar(a[0]),final]]];
+ const introduction=quietBar(a[0]);
+ const form=[['Intro',[introduction,introduction]],['Verse',hook(a,a[2],cadence)],['Chorus',hook(b,b[3],chorusCadence)],['Bridge',[...bridge,...bridge]],['Chorus',hook(b,b[3],chorusCadence)],['Outro',[quietBar(a[0]),final]]];
  const notes=[],sections=[];let beat=0,bar=0;
  for(const [section,measures] of form){
   sections.push({name:section,beat,bars:measures.length});
@@ -41,7 +46,9 @@ function compose([id,title,bpm,tonicName,style,verseScore,verseEnding,chorusScor
     const downbeat=n.offset===0,accent=downbeat?1:n.offset===2?.9:n.offset%1===0?.82:.72;
     notes.push({...n,chord:[...measure.chord],harmony:downbeat?[measure.chord[0],measure.chord[2]]:[],
      section,energy:section==='Intro'?.38:section==='Outro'?.3:section==='Chorus'?.85:section==='Bridge'?.48:.65,
-     accent,gate:n.soundBeats/n.duration,song:id,title,bpm,style,songBeat:beat+n.offset,bar,phraseBar:sectionBar%4,rapid:n.duration<1,...pianoIcon(n.pitch)});
+     accent,gate:n.soundBeats/n.duration,song:id,title,bpm,style,songBeat:beat+n.offset,bar,phraseBar:sectionBar%4,
+     motifBar:section==='Intro'?0:section==='Bridge'||sectionBar<6?sectionBar%2:sectionBar,
+     rapid:n.duration<1,...pianoIcon(n.pitch)});
    }
    beat+=4;bar++;
   }

@@ -1,5 +1,5 @@
-import {publicRankings,personalRankings,clearPersonalRanking} from './leaderboard-cache.js?v=494239';
-import {leaderboardAllowed} from './audience.js?v=494239';
+import {publicRankings,personalRankings,clearPersonalRanking} from './leaderboard-cache.js?v=494240';
+import {leaderboardAllowed} from './audience.js?v=494240';
 // Public endpoint is enabled only after the score service is published for all players.
 export const LEADERBOARD_URL='https://shape-shift-test-scores.mkplaycraftstudio.workers.dev';
 const key='shape-shift-player-token';
@@ -8,7 +8,7 @@ export const rankedSessionVersion=()=>sessionEpoch;
 const sessionChanged=()=>Object.assign(Error('Ranking session changed.'),{code:'SESSION_CHANGED'});
 function token(){let value=window.ShapeShiftPlatform.storage.getItem(key);if(!value){value=crypto.randomUUID()+crypto.randomUUID();window.ShapeShiftPlatform.storage.setItem(key,value);}return value;}
 async function call(path,body,timeout=6000){
- if(!leaderboardAllowed()&&path!=='/api/delete'&&path!=='/api/leaderboard')throw Error('Online features are unavailable with these privacy settings.');
+ if(!leaderboardAllowed()&&!['/api/delete','/api/leaderboard','/api/owner','/api/admin'].includes(path))throw Error('Online features are unavailable with these privacy settings.');
  if(!LEADERBOARD_URL)throw Error('Online leaderboard is not connected yet.');
  if(window.ShapeShiftPlatform.live&&!window.ShapeShiftPlatform.cloudRankings)throw Error('Cloud rankings are unavailable on this platform.');const epoch=sessionEpoch,credential=body?token():null;const controller=new AbortController();inFlight.add(controller);const timer=window.ShapeShiftPlatform.setTimeout(()=>controller.abort(),timeout);
  try{const current=()=>epoch===sessionEpoch&&(!credential||window.ShapeShiftPlatform.storage.getItem(key)===credential);const request=()=>{if(!current())throw sessionChanged();return fetch(LEADERBOARD_URL+path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json','Authorization':'Bearer '+credential}:undefined,body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit'});};let r=await request();if(r.status===503&&path!=='/api/run'){await r.text();r=await request();}if(r.status===429&&path==='/api/profile'){await r.text();await new Promise(resolve=>window.ShapeShiftPlatform.setTimeout(resolve,1600));r=await request();}if(!r.ok){const error=Error('Leaderboard is temporarily unavailable.');error.status=r.status;throw error;}const result=await r.json();if(!current())throw sessionChanged();return result;}finally{window.ShapeShiftPlatform.clearTimeout(timer);inFlight.delete(controller);}
@@ -55,6 +55,18 @@ export async function submitRankedRun(run){await trackRankedActions(run,run.acti
 export const ownerAccess=()=>call('/api/owner',{});
 export const setOwnerAdmin=enabled=>call('/api/admin',{enabled});
 export const loadLeaderboard=()=>publicRankings(()=>call('/api/leaderboard',undefined,12000));
+// Show the public board as soon as it arrives. Identity uploads and queued
+// verified scores are needed for your own rank, not for reading everyone else's.
+export async function loadRankingPanels({loadPublic=loadLeaderboard,loadPersonal=loadPersonalRanking,syncIdentity=async()=>{},flushScores=async()=>{},participating=true,isCurrent=()=>true,onPublic=()=>{},onPersonal=()=>{},onPublicError=()=>{},onPersonalError=()=>{}}={}){
+ const publicTask=Promise.resolve().then(loadPublic).then(data=>{if(isCurrent())onPublic(data);},error=>{if(isCurrent())onPublicError(error);});
+ const personalTask=(async()=>{
+  if(!participating){if(isCurrent())onPersonal(null);return;}
+  await syncIdentity();if(!isCurrent())return;
+  await flushScores();if(!isCurrent())return;
+  const data=await loadPersonal();if(isCurrent())onPersonal(data);
+ })().catch(error=>{if(isCurrent())onPersonalError(error);});
+ await Promise.all([publicTask,personalTask]);
+}
 export async function loadPersonalRanking(){
  if(!leaderboardAllowed())return null;
  const epoch=sessionEpoch,credential=window.ShapeShiftPlatform.storage.getItem(key),id=await currentPlayerId();

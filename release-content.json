@@ -88,8 +88,8 @@
     "songCount": 20,
     "songFile": "piano-songs.js",
     "planFile": "piano-backing.js",
-    "source": "Twenty authored scores in piano-song-data.js; harmony and beat-grid accompaniment retained without automatic major-key conversion.",
-    "behavior": "Any visible unplayed note in the pressed A/S/D/F lane scores and sounds immediately, independently of other lanes or position. One fresh press per note; holding is optional and never delays the point. Pitched support follows the actual press, with steady percussion, pause/mute cleanup and stereo room.",
+    "source": "Twenty authored scores in piano-song-data.js. Verse and Chorus repeat the same two-bar melody and chord progression three times, followed by a two-bar answer and tonic cadence; Intro and Bridge repeat twice. Bass, arpeggio voicing and percussion repeat with the hook. Runtime chart export and listening renderer are in scripts/music240.",
+    "behavior": "Any visible unplayed note in the pressed A/S/D/F lane scores and sounds immediately, independently of other lanes or position. One fresh press per note; holding is optional and never delays the point. Count-in begins with the first note at the top entry edge. Pitched support follows the actual press, with steady percussion, pause/mute cleanup and stereo room.",
     "keys": [
       "assets/music/keys/36.ogg",
       "assets/music/keys/42.ogg",
@@ -116,7 +116,8 @@
         "file": "assets/music/flow-snare-238.ogg",
         "sha256": "1f4e8587ee81e7df55ee8bb7c334e30bdad37359ac77a76fdde522076e27acb4"
       }
-    ]
+    ],
+    "chartVersion": "4.94.240"
   },
   "effects": {
     "status": "Existing procedural gameplay cues, recorded victory stages, gate cues, recorded praise and Battle effects retained.",
@@ -126,12 +127,13 @@
       "battle/audio.mjs"
     ]
   },
-  "version": "4.94.239",
+  "version": "4.94.240",
   "presentation": {
     "playbackTargetLUFS": -20,
     "userVolumePreferences": "retained",
     "routineHitDucking": false,
     "musicPitch": "original; Endless tempo changes preserve pitch",
     "preparation": "All mode, menu, music and common artwork readiness groups complete before controls become playable; no routine in-mode loading overlay."
-  }
+  },
+  "androidVersionCode": 1240
 }

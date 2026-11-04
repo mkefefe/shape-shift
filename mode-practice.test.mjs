@@ -107,6 +107,15 @@ test('Piano keeps the played notes, musical position, score and held keys when p
  assert.equal(saved.runs,1);assert.equal(paid.coins,g.coins);assert.strictEqual(claimPianoReward(paid,saved.pending[0]),paid);
 });
 
+test('a slow Piano tutorial hands off with new notes above the entry edge rather than spawning mid-strip',()=>{
+ const g=createPianoGame({practice:true,fullSongs:true,melodicStrips:true,stripTap:true,rhythm:true,directTouch:true});
+ g.setViewport({inputWindow:5.2});g.start();for(let i=0;i<1200;i++)g.step(.05);
+ assert(g.pressStrip(1));g.release(1);for(let i=0;i<1200;i++)g.step(.05);
+ assert(g.pressStrip(2));g.release(2);const before={beat:g.beat,score:g.score},ids=new Set(g.notes.map(n=>n.id));
+ assert(g.completePractice());assert.equal(g.beat,before.beat);assert.equal(g.score,before.score);
+ const fresh=g.notes.filter(n=>!ids.has(n.id));assert(fresh.length>0);assert(fresh.every(n=>n.beat-g.beat>=g.inputWindow));
+});
+
 test('Battle keeps the damaged enemy, exact board and current shape after the tutorial block; live attacks resume',()=>{
  const run=createRun(()=>.8,10,0,null,{practice:true});run.pick(run.state.board.findIndex(t=>matches(t,run.state.current)));
  run.state.clock=.6;assert.equal(run.guard().kind,'parry');

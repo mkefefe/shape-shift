@@ -1,5 +1,5 @@
-import {startWelcomeMusic} from './welcome-audio.js?v=494239';
-import {prepareBootstrap} from './startup-loader.js?v=494239';
+import {startWelcomeMusic} from './welcome-audio.js?v=494240';
+import {prepareBootstrap} from './startup-loader.js?v=494240';
 document.documentElement.dataset.nativeAds=typeof window.ShapeShiftAds?.showRewarded==='function'?'true':'false';
 // Use shared GitHub gameplay with the existing Android storage and native bridges.
 import {createScheduler} from './playables-core.mjs';
@@ -22,14 +22,14 @@ async function start(){
  try{
   observeDeferredImages();
   // Required opening art and the audio script download together.
-  await prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494239')});
+  await prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494240')});
   startWelcomeMusic();
   // First-install privacy prompts must remain visible before the loading gate.
   document.documentElement.classList.remove('startup-loading');cover.hidden=true;
-  const {ensureTerms}=await import('./terms.js?v=494239');const {ensureAudience}=await import('./audience.js?v=494239');
+  const {ensureTerms}=await import('./terms.js?v=494240');const {ensureAudience}=await import('./audience.js?v=494240');
   await ensureTerms();await ensureAudience();
   cover.hidden=false;document.documentElement.classList.add('startup-loading');
-  await import('./game.js?v=494239');
+  await import('./game.js?v=494240');
  }catch(error){
   console.error('Android game startup failed',error);
   cover.hidden=false;cover.querySelector('p').textContent='Could not load the game. Please try again.';

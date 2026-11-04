@@ -9,7 +9,7 @@ body #bug-report-dialog{box-sizing:border-box;width:min(390px,calc(100vw - 24px)
 #bug-report-dialog :is(select,textarea){box-sizing:border-box;width:100%;min-width:0;border:2px solid var(--ui-border,#52b8cc);border-radius:12px;padding:10px;background:white;color:var(--ui-text,#12536c);font:400 16px/1.4 Nunito,system-ui,sans-serif}
 #bug-report-dialog textarea{resize:vertical;min-height:110px;max-height:35dvh;touch-action:auto;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 #bug-report-dialog .support-report-close{width:36px;height:36px;min-height:36px;padding:0;border:1px solid var(--ui-border,#52b8cc);border-radius:10px;background:var(--ui-card,#d8f3fa);color:var(--ui-ink,#075570);font-size:25px;line-height:1}
-#bug-report-dialog .support-report-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#bug-report-dialog .support-report-actions{display:grid;grid-template-columns:1fr;gap:9px}
 #bug-report-dialog .support-report-actions button{min-height:44px;border:2px solid var(--ui-border,#52b8cc);border-radius:12px;background:var(--ui-card,#d8f3fa);color:var(--ui-ink,#075570);font:900 14px Nunito,system-ui,sans-serif;padding:8px}
 #bug-report-dialog .support-report-actions .support-report-send{border-color:var(--ui-gold-edge,#eab130);background:var(--ui-selected,linear-gradient(#fff2a4,#ffd159));color:var(--ui-gold-ink,#674414);box-shadow:0 2px var(--ui-gold-shadow,#cb9428)}
 #bug-report-dialog .support-report-note{font-size:12px;color:var(--ui-muted,#326476)}
@@ -20,3 +20,24 @@ body #bug-report-dialog{box-sizing:border-box;width:min(390px,calc(100vw - 24px)
 #bug-report-dialog .support-report-fallback[hidden]{display:none}
 #bug-report-dialog :is(button,textarea,select):focus-visible{outline:3px solid var(--ui-ink,#075570);outline-offset:2px}
 @media(max-height:650px){#bug-report-dialog .support-report-form{gap:7px;padding:14px}#bug-report-dialog textarea{min-height:80px}#bug-report-dialog h2{font-size:22px}}
+body #report-inbox-dialog{box-sizing:border-box;width:min(640px,calc(100vw - 24px));height:fit-content;min-height:0;max-height:calc(100dvh - 24px);padding:0;border:3px solid var(--ui-border,#52b8cc);border-radius:24px;background:var(--ui-panel,#e5fcff);color:var(--ui-text,#12536c);box-shadow:0 12px 38px #002b5c77;overflow:auto;overscroll-behavior:contain}
+#report-inbox-dialog::before,#report-inbox-dialog::after{display:none}
+#report-inbox-dialog .support-report-form{display:grid;gap:12px;padding:20px}
+#report-inbox-dialog header{display:flex;align-items:center;gap:8px}
+#report-inbox-dialog h2{flex:1;margin:0;padding:0;font-size:25px;text-align:left;color:var(--ui-ink,#075570)}
+#report-inbox-dialog p{margin:0;font-size:13px;line-height:1.4;text-align:left}
+#report-inbox-dialog .support-report-close{width:36px;min-height:36px;padding:0;font-size:25px;line-height:1}
+#report-inbox-dialog :is(button,select){min-height:40px;padding:8px 12px;border:2px solid var(--ui-border,#52b8cc);border-radius:10px;background:var(--ui-card,#d8f3fa);color:var(--ui-ink,#075570);font:800 14px Nunito,system-ui,sans-serif}
+#report-inbox-dialog :is(button,select):focus-visible{outline:3px solid var(--ui-ink,#075570);outline-offset:2px}
+#report-inbox-dialog .report-inbox-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#report-inbox-dialog .report-inbox-tools select{flex:1;min-width:90px}
+#report-inbox-dialog .report-inbox-list{display:grid;gap:12px}
+#report-inbox-dialog .report-inbox-card{padding:14px;border:2px solid var(--ui-border,#52b8cc);border-radius:14px;background:#fff}
+#report-inbox-dialog h3{margin:0 0 5px;font-size:16px;text-align:left}
+#report-inbox-dialog .report-inbox-meta{font-size:11px;color:var(--ui-muted,#326476)}
+#report-inbox-dialog .report-inbox-description{white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0;font:400 15px/1.5 Nunito,system-ui,sans-serif;user-select:text;-webkit-user-select:text}
+#report-inbox-dialog .report-inbox-actions{display:flex;gap:8px;flex-wrap:wrap}
+#report-inbox-dialog .report-inbox-actions button:last-child,#report-inbox-dialog .report-inbox-more{background:var(--ui-selected,linear-gradient(#fff2a4,#ffd159));border-color:var(--ui-gold-edge,#eab130);color:var(--ui-gold-ink,#674414)}
+#report-inbox-dialog [hidden]{display:none!important}
+#bug-report-dialog button:disabled,#report-inbox-dialog button:disabled{opacity:.65;cursor:default}
+@media(max-width:420px){#report-inbox-dialog .support-report-form{padding:14px}#report-inbox-dialog .report-inbox-card{padding:10px}}

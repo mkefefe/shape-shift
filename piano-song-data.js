@@ -73,7 +73,7 @@ export const PIANO_SCORES=[
   [['Dm7','A4/2h F4 D4'],['G','G4/2h B4/2:.8']]],
  ['snowglobe-wish','Snowglobe Wish',76,'A3','snow',
   [['Am7','C4/1.5h E4/.5 G4/2:.8'],['Em7','B4/1.5 G4/.5 E4/2h'],['Dm7','A4 F4/1.5 E4/.5 D4'],['Am','C4 B3 A3/2h']],['Am','E4 C4 A3/2h'],
-  [['Fmaj7','A4/2h G4 E4/1:.5'],['Dm7','F4/1.5 A4/.5 C5/2h'],['Am7','A4/2h G4 E4/1:.5'],['Em','B3 E4 G4/2h']],['Am','C4 B3 A3/2h'],
+  [['Fmaj7','A4/2h G4 E4/1:.5'],['Dm7','F4/1.5 A4/.5 C5/2h'],['Am7','A4/2h G4 E4/1:.5'],['Em','B4 E4 G4/2h']],['Am','C4 B3 A3/2h'],
   [['Dm7','F4/3h D4/1:.5'],['Em7','G4/2h B4 E4']]],
  ['pebble-parade','Pebble Parade',102,'F4','parade',
   [['F','C4 F4 A4 F4/1:.5'],['Dm','D4 F4/.5 A4/.5 F4 D4'],['C','E4 G4 C5 G4/1:.5'],['F','A4 G4 F4/2h']],['F','C4 E4 F4/2h'],

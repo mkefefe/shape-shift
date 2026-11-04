@@ -120,13 +120,24 @@ test('music mute invalidates a queued future hit and unmute reschedules it witho
 
 test('early visible performances earn points without moving or duplicating the percussion clock',()=>{
  const game=createPianoGame(options);game.start();game.countdown=0;
- const {scheduler,calls}=rhythm(game),bpm=game.bpm;
+ const {scheduler,calls}=rhythm(game),bpm=game.bpm,origin=game.beat;
  for(let i=0;i<2400&&game.beat<8.1;i++){
   for(const lane of [3,1,0,2]){const n=game.notes.find(n=>n.lane===lane&&!n.scored&&n.status==='waiting'&&n.beat-game.beat<=4.4);if(n){const beat=game.beat;assert(game.pressStrip(lane));assert.equal(game.beat,beat);game.release(lane);}}
   game.step(1/240);scheduler.step(game);
  }
  assert(game.hits>=4);assert.equal(game.lives,game.maxLives);
  const kicks=calls.filter(e=>e.kind==='kick');assert.equal(kicks.length,2);
- for(const [i,kick] of kicks.entries())assert(Math.abs(kick.scheduledAt-(2+i*4)*60/bpm)<1e-7);
+ for(const [i,kick] of kicks.entries())assert(Math.abs(kick.scheduledAt-(2+i*4-origin)*60/bpm)<1e-7);
  assert.equal(new Set(calls.map(e=>e.id)).size,calls.length);
+});
+
+test('foreground stall resync never repeats already queued percussion or catches up in a burst',()=>{
+ const game=gameAt(4,[{beat:4,bpm:100}]);let epoch=0;
+ const {scheduler,calls}=rhythm(game,()=>[drum('now',0),drum('ahead',.1),drum('next',.5)],{epoch:()=>epoch});
+ scheduler.step(game);assert.deepEqual(calls.map(e=>e.id),['now','ahead']);
+ // The Web Audio clock already played the short lookahead during the main-thread
+ // stall. The visual chart retains its position, but those IDs must stay consumed.
+ epoch++;scheduler.resyncAfterStall();scheduler.step(game);assert.equal(calls.length,2);
+ game.beat=4.4;scheduler.step(game);assert.deepEqual(calls.map(e=>e.id),['now','ahead','next']);
+ assert(Number.isFinite(calls.at(-1).delay)&&calls.at(-1).delay>=0);scheduler.step(game);assert.equal(calls.length,3);
 });

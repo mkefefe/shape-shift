@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
 
 async function fixture(t,platform,{disabled=false}={}){
  const values=new Map(disabled?[['shape-shift-online-disabled','1']]:[]),calls=[];
- values.set('shape-shift-ranking-agreement-v1','yes');
  const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,String(value)),removeItem:key=>values.delete(key)};
  const previous={window:globalThis.window,localStorage:globalThis.localStorage,fetch:globalThis.fetch};
  globalThis.localStorage=storage;
@@ -19,6 +20,59 @@ test('Playgama live platform with cloudRankings capability fetches public rankin
  assert.deepEqual(await board.loadLeaderboard(),{entries:[],players:0});
  assert.equal(calls.length,1);assert.match(calls[0].url,/\/api\/leaderboard$/);
  assert.equal(calls[0].options.method,'GET');assert.equal(calls[0].options.headers,undefined);
+});
+
+test('a fresh player can read rankings and submit a profile without terms or analytics agreement',async t=>{
+ const {board,calls,storage}=await fixture(t,{live:false});
+ await board.loadLeaderboard();
+ assert.equal(storage.getItem('shape-shift-player-token'),null,'public reading remains anonymous');
+ await board.saveOnlineProfile({name:'SunnyFox42',avatar:2,frame:'none',email:'must-not-upload',photoURL:'must-not-upload'});
+ assert.equal(calls.length,2);assert.deepEqual(JSON.parse(calls[1].options.body),{name:'SunnyFox42',avatar:2,frame:'none'});
+ for(const key of ['shape-shift-ranking-agreement-v1','shape-shift-terms','shape-shift-statistics','shape-shift-analytics-choice-v2'])assert.equal(storage.getItem(key),null,key);
+});
+
+test('leaderboard opening shows the board directly even without ranking agreement',()=>{
+ const source=fs.readFileSync(new URL('./game.js',import.meta.url),'utf8');
+ const handler=source.match(/\$\('leaderboard-open'\)\.onclick=\(\)=>\{([\s\S]*?)\n\};\$\('leaderboard-reload'\)/)?.[1];assert(handler);
+ const events=[],pane={scrollTo:()=>events.push('scroll')},dialog={...pane,showModal:()=>events.push('board'),querySelector:()=>pane};
+ vm.runInNewContext('(function(){'+handler+'})()',{$:id=>{if(id==='leaderboard-dialog')return dialog;if(id==='leaderboard-rows')return pane;assert.fail('Unexpected ranking gate '+id);},leaderboardAllowed:()=>false,renderPersonalRanking:()=>events.push('personal'),rankings:()=>events.push('load')});
+ assert.deepEqual(events,['personal','board','scroll','scroll','scroll','load']);
+});
+
+test('the public board renders while personal profile and score uploads are still pending',async t=>{
+ const {board}=await fixture(t,{live:false}),events=[];let releaseIdentity,releaseScores;
+ const identity=new Promise(resolve=>releaseIdentity=resolve),scores=new Promise(resolve=>releaseScores=resolve);
+ const pending=board.loadRankingPanels({loadPublic:async()=>({entries:[]}),syncIdentity:()=>identity,flushScores:()=>{events.push('flush');return scores;},loadPersonal:async()=>{events.push('personal fetch');return {ranked:false};},onPublic:()=>events.push('public shown'),onPersonal:()=>events.push('personal shown')});
+ await new Promise(resolve=>setImmediate(resolve));assert.deepEqual(events,['public shown']);
+ releaseIdentity();await new Promise(resolve=>setImmediate(resolve));assert.deepEqual(events,['public shown','flush']);
+ releaseScores();await pending;assert.deepEqual(events,['public shown','flush','personal fetch','personal shown']);
+});
+
+test('explicit opt-out still reads the public board without identity or score requests',async t=>{
+ const {board}=await fixture(t,{live:false},{disabled:true}),events=[];
+ await board.loadRankingPanels({participating:false,loadPublic:async()=>({entries:[]}),syncIdentity:()=>assert.fail('identity upload'),flushScores:()=>assert.fail('score upload'),loadPersonal:()=>assert.fail('personal request'),onPublic:()=>events.push('public'),onPersonal:value=>{assert.equal(value,null);events.push('no personal');}});
+ assert.deepEqual(events.sort(),['no personal','public']);
+});
+
+test('public and personal failures are independent and stale responses cannot repaint the board',async t=>{
+ const {board}=await fixture(t,{live:false}),events=[];
+ await board.loadRankingPanels({loadPublic:async()=>{throw Error('offline');},loadPersonal:async()=>({ranked:false}),onPublicError:error=>events.push(error.message),onPersonal:()=>events.push('personal shown')});
+ assert.deepEqual(events.sort(),['offline','personal shown']);
+ events.length=0;let reply,current=true;
+ const pending=board.loadRankingPanels({participating:false,isCurrent:()=>current,loadPublic:()=>new Promise(resolve=>reply=resolve),onPublic:()=>events.push('stale'),onPersonal:()=>{}});
+ await new Promise(resolve=>setImmediate(resolve));current=false;reply({entries:[]});await pending;assert.deepEqual(events,[]);
+});
+
+test('the rendered leaderboard exposes Retry for failed or cached public and personal results',async t=>{
+ const {board}=await fixture(t,{live:false});
+ const source=fs.readFileSync(new URL('./game.js',import.meta.url),'utf8'),start=source.indexOf('async function rankings(silent=false){'),end=source.indexOf('\nenableHoldBuying(',start);
+ assert(start>=0&&end>start);const fn=source.slice(start,end).trim();
+ for(const scenario of [{publicError:true},{publicCached:true},{personalError:true},{personalCached:true},{}]){
+  const nodes={'leaderboard-status':{textContent:''},'leaderboard-reload':{hidden:true}},state={rankingsRequest:0,lastRankingsSnapshot:null,lastRankingEntries:[],lastPersonalRanking:null,lastRankingPlayerId:null};
+  Object.assign(state,{$:id=>nodes[id],window:{ShapeShiftPlatform:{storage:{getItem:()=>null}}},leaderboardAllowed:()=>true,rankedSessionVersion:()=>0,syncIdentity:async()=>{},currentPlayerId:async()=>null,readPublicRankings:()=>null,readPersonalRanking:()=>null,flushScores:async()=>{},renderPersonalRanking:()=>{},rankingEntries:data=>data.entries,rankingLoadMessage:()=> 'Check your connection and tap Retry.',renderRankingRows:entries=>{state.lastRankingEntries=entries;},loadRankingPanels:options=>board.loadRankingPanels({...options,loadPublic:async()=>{if(scenario.publicError)throw Error('offline');return {entries:[],players:0,cached:scenario.publicCached===true};},loadPersonal:async()=>{if(scenario.personalError)throw Error('offline');return {ranked:false,entry:null,players:0,cached:scenario.personalCached===true};}})});
+  await vm.runInNewContext('('+fn+')()',state);
+  assert.equal(nodes['leaderboard-reload'].hidden,Object.keys(scenario).length===0,JSON.stringify(scenario));
+ }
 });
 
 test('browser rankings remain available and live platforms without capability stay blocked',async t=>{
@@ -41,6 +95,15 @@ test('live Playgama cloud rankings permit participation while opt-out still bloc
  await board.saveOnlineProfile({name:'My chosen name',avatar:0,frame:'none'});
  assert.equal(calls.length,1);assert.match(calls[0].url,/\/api\/profile$/);assert.match(calls[0].options.headers.Authorization,/^Bearer /);
  storage.setItem('shape-shift-online-disabled','1');await assert.rejects(board.saveOnlineProfile({name:'No upload'}),/privacy settings/);assert.equal(calls.length,1);
+});
+
+test('owner access is checked by the server even when ranking uploads are explicitly off',async t=>{
+ const {board,calls}=await fixture(t,{live:false},{disabled:true});
+ await board.ownerAccess();await board.setOwnerAdmin(true);
+ assert.deepEqual(calls.map(row=>new URL(row.url).pathname),['/api/owner','/api/admin']);
+ assert(calls.every(row=>row.options.headers.Authorization.startsWith('Bearer ')));
+ await assert.rejects(board.saveOnlineProfile({name:'No upload'}),/privacy settings/);
+ assert.equal(calls.length,2);
 });
 test('personal endpoint uses the current full identity and never adds authentication to public GET',async t=>{
  const {board,calls}=await fixture(t,{live:false});

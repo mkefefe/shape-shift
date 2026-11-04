@@ -1,6 +1,6 @@
-import {practiceKey} from './mode-practice.js?v=494239';
-import {engagement,registerModeState} from './telemetry.js?v=494239';
-import {createBattleRewards} from './battle-rewards.js?v=494239';
+import {practiceKey} from './mode-practice.js?v=494240';
+import {engagement,registerModeState} from './telemetry.js?v=494240';
+import {createBattleRewards} from './battle-rewards.js?v=494240';
 export function createBattlePreloader({load,unload,timeout=30000}){
  let ready=false,pending,finish,timer;
  const settle=error=>{if(!pending)return;clearTimeout(timer);const done=finish;pending=null;finish=null;ready=!error;if(error)unload();done(error);};
@@ -39,7 +39,7 @@ export function initBattleMenu({storage,getSettings=()=>({}),getAccess=()=>({unl
  function post(data){frame?.contentWindow?.postMessage(data,location.origin);}
  const platformState=()=>({paused:window.ShapeShiftPlatform?.paused===true,audioAllowed:window.ShapeShiftPlatform?.audioAllowed!==false});
  const configuration=()=>{const prefs=getSettings();return {platformPaused:platformState().paused,platformAudioAllowed:platformState().audioAllowed,rewardRunId,tutorialSeen:(()=>{try{return storage.getItem(practiceKey('battle'))==='done';}catch{return false;}})(),completedSets:progress(),reward:(()=>{try{return JSON.parse(storage.getItem(key))?.reward;}catch{return null;}})(),muted:prefs.sfx===false&&prefs.music===false,music:prefs.music,musicVolume:prefs.musicVolume,sfx:prefs.sfx,sfxVolume:prefs.sfxVolume,damage:prefs.damage,skin:prefs.skin};};
- const preparation=createBattlePreloader({load(){frame=document.createElement('iframe');frame.title='Battle: The stolen colors';frame.allow='autoplay';frame.onerror=()=>preparation.complete(false);dialog.replaceChildren(frame);frame.src='battle/index.html?embedded=1&preload=1&v=494239';},unload(){frame?.remove();frame=null;dialog.replaceChildren();}});
+ const preparation=createBattlePreloader({load(){frame=document.createElement('iframe');frame.title='Battle: The stolen colors';frame.allow='autoplay';frame.onerror=()=>preparation.complete(false);dialog.replaceChildren(frame);frame.src='battle/index.html?embedded=1&preload=1&v=494240';},unload(){frame?.remove();frame=null;dialog.replaceChildren();}});
  window.addEventListener('shape-shift-platform-state',()=>post({type:'battle:platform',...platformState()}));
  button.addEventListener('pointerdown',e=>e.stopPropagation());
  button.onclick=async e=>{refreshAccess();e.preventDefault();e.stopPropagation();if(!getAccess().unlocked){sound('map-locked');showLockNotice(getAccess().requirement);onLocked(getAccess().requirement);return;}if(dialog.open||opening)return;opening=true;const token=++launchToken;button.setAttribute('aria-busy','true');try{await preparation.prepare();if(token!==launchToken)return;rewardRunId=sharedRewards.begin();sound('start');dialog.classList.add('battle-pending');dialog.showModal();post({type:'battle:activate',...configuration()});watchdog=setTimeout(()=>{if(!dialog.classList.contains('battle-pending'))return;close();showLockNotice('Battle could not open. Please try again.');},15000);}catch{showLockNotice('Battle could not prepare. Please try again.');}finally{opening=false;button.removeAttribute('aria-busy');}};

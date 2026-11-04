@@ -57,7 +57,10 @@ export function pianoBackingPlan(note){
   bass.forEach((position,i)=>add('bass',bar*4+position,register(note.chord[i%2===0?0:2],33,45),soft?1.6:Math.min(.95,(bass[i+1]??4)-position-.08),soft?.05:chorus?.074:.066,i));
   const arp=soft?[groove.arp[0]]:groove.arp;
   arp.forEach((position,i)=>{
-   const index=(i+(bar%4===2?1:0))%tones.length;
+   // A repeated hook keeps its accompaniment voicing too. Absolute bar numbers
+   // must not change the arpeggio on the second statement of the same motif.
+   const alternate=Number.isInteger(note.motifBar)?note.motifBar===1:bar%4===2;
+   const index=(i+(alternate?1:0))%tones.length;
    add('arp',bar*4+position,tones[index],soft?.9:.55,soft?.022:.029,i);
   });
   let kicks=rhythm.kick,snares=rhythm.snare,hats=rhythm.hat,drumLevel=1;

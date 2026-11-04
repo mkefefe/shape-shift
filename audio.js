@@ -32,7 +32,7 @@
     if(adaptiveLoading)return adaptiveLoading;
     if(adaptiveMusic)return Promise.resolve(true);
     if(!retry&&context.currentTime<adaptiveRetryAt)return Promise.resolve(false);
-    adaptiveLoading=import('./adaptive-music.js?v=494239').then(async module=>{
+    adaptiveLoading=import('./adaptive-music.js?v=494240').then(async module=>{
       const player=await module.createAdaptiveMusic(context,musicBus,{recordingGain:recordingGain('game')});
       if(!await player.prepare()){player.dispose();throw Error('Endless audio unavailable');}
       adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();
@@ -247,9 +247,8 @@
     return mono;
   }
   const pianoRooms=new Map();let pianoImpulse;
-  function pianoRoom(accompaniment){
+  function preparePianoImpulse(){
     if(!context.createConvolver)return null;
-    if(pianoRooms.has(accompaniment))return pianoRooms.get(accompaniment).convolver;
     if(!pianoImpulse){
       const rate=context.sampleRate,length=Math.floor(rate*1.25);pianoImpulse=context.createBuffer(2,length,rate);
       for(let channel=0;channel<2;channel++){
@@ -258,11 +257,18 @@
         for(const [delay,level] of [[.027,.18],[.047,.12],[.081,.07]])data[Math.floor((delay+channel*.004)*rate)]+=level;
       }
     }
-    const convolver=context.createConvolver(),wet=context.createGain();convolver.normalize=false;convolver.buffer=pianoImpulse;wet.gain.value=accompaniment?.16:.22;
+    return pianoImpulse;
+  }
+  function pianoRoom(accompaniment){
+    if(!context.createConvolver)return null;
+    if(pianoRooms.has(accompaniment))return pianoRooms.get(accompaniment).convolver;
+    const impulse=preparePianoImpulse();
+    const convolver=context.createConvolver(),wet=context.createGain();convolver.normalize=false;convolver.buffer=impulse;wet.gain.value=accompaniment?.16:.22;
     convolver.connect(wet);wet.connect(accompaniment?musicBus:pianoLeadBus);pianoRooms.set(accompaniment,{convolver,wet});return convolver;
   }
   async function preparePiano(){
     if(!setup())return false;
+    preparePianoImpulse();
     const ready=await Promise.all([...pianoKeys,'kick','flow-kick','flow-snare','flow-hat'].map(key=>{
       if(pianoBuffers.has(key))return true;
       const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':key.startsWith('flow-')?'assets/music/'+key+'-238.ogg':'assets/music/pop-'+key+'-v322.ogg';

@@ -23,6 +23,8 @@ jobs:
           node-version: 24
       - name: Verify gameplay
         run: npm test
+      - name: Verify private report service
+        run: node --test server/score-service/reports.test.mjs
       - name: Verify Android media-pack publisher
         run: python3 scripts/test_android_content_pack.py
       - name: Verify edition staging guard

@@ -1,6 +1,9 @@
 // Pointer/keyboard timestamps use the browser clock; platform time subtracts
 // paused time. Map between them without rewinding a frame already rendered.
-export function pianoInputClock(eventTime,now,platformNow,previous=platformNow){
+export function pianoInputClock(eventTime,now,platformNow,previous=platformNow,stallMilliseconds=1000){
+ // Detect the whole foreground gap before compensating an old queued event.
+ // Otherwise one stall can split into two ordinary updates and skip notes.
+ if(platformNow-previous>stallMilliseconds)return platformNow;
  const age=Number.isFinite(eventTime)&&eventTime>0&&eventTime<=now?Math.min(1000,now-eventTime):0;
  return Math.max(previous,platformNow-age);
 }

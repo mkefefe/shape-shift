@@ -7,6 +7,15 @@
 - Award the point and sound the note on the press. Long-note holds are optional expression; releasing must not remove the point or impose a required hold.
 - One fresh physical press collects one note. A held key must not collect later notes automatically. Different keys/fingers can work independently.
 - Gameplay and help text must describe these rules. Rhythm backing must accommodate the player's immediate performance without delayed or duplicated melody/support attacks.
+- Build recognizable musical phrases: repeat a two-bar melody/chord hook two or three times before a deliberate variation or turnaround. Bass, arpeggio voicing and percussion must reinforce the repeated phrase.
+- Stage the first notes at the top entry edge during the countdown and let them descend from there. Do not start with an empty board and make notes appear halfway down the lanes.
+- A brief foreground frame stall must not pause the game, jump chart beats, burst queued drum hits or penalize the player. Preserve intentional pauses and real background/visibility pauses.
+
+## Leaderboard and bug reports — user correction, November 4, 2026
+
+- Let players view the leaderboard without a leaderboard-specific terms acceptance screen. Keep player participation and server validation working.
+- Submit bug reports directly to the server from Settings; do not require the player to open or configure email. Preserve the draft when delivery fails and acknowledge only a persisted report.
+- The report inbox is private to a server-verified owner. Client flags or enabling a local admin UI must never grant report access. Retry the same accepted report without duplicating it.
 
 ## Readiness and audio presentation
 

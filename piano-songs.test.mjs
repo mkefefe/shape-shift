@@ -22,7 +22,7 @@ test('twenty themes have distinct melodies, rhythms and written tempos',()=>{
  assert(new Set(ORIGINAL_SONGS.map(s=>s.bpm)).size>=15);
  for(const s of ORIGINAL_SONGS)assert(s.bpm>=76&&s.bpm<=114);
 });
-test('scores have complete measures, answering cadences and returning choruses',()=>{
+test('scores have complete measures, repeated hooks, answering cadences and returning choruses',()=>{
  for(const song of ORIGINAL_SONGS){
   assert.equal(song.beats,128);assert.equal(song.notes.reduce((sum,n)=>sum+n.duration,0),128);
   assert.deepEqual(song.sections.map(s=>[s.name,s.beat,s.bars]),[['Intro',0,2],['Verse',8,8],['Chorus',40,8],['Bridge',72,4],['Chorus',88,8],['Outro',120,2]]);
@@ -32,8 +32,8 @@ test('scores have complete measures, answering cadences and returning choruses',
    for(let i=1;i<notes.length;i++)assert.equal(notes[i].songBeat,notes[i-1].songBeat+notes[i-1].duration);
   }
   for(const start of [2,10,22]){
-   for(let bar=0;bar<3;bar++)assert.deepEqual(shape(measure(song,start+bar)),shape(measure(song,start+4+bar)));
-   assert.notDeepEqual(shape(measure(song,start+3)),shape(measure(song,start+7)));
+   for(let bar=0;bar<2;bar++)for(const repeat of [2,4])assert.deepEqual(shape(measure(song,start+bar)),shape(measure(song,start+repeat+bar)));
+   assert.notDeepEqual(shape(measure(song,start+1)),shape(measure(song,start+7)));
    const cadence=measure(song,start+7).at(-1);assert.equal(cadence.pitch,song.tonic);assert(cadence.duration>=1);
   }
   const chorus=song.notes.filter(n=>n.section==='Chorus'),half=chorus.length/2;
@@ -110,7 +110,7 @@ test('tempo stays stable during a song and changes at the next score',()=>{
 });
 test('countdown is stationary and unplayed notes never start backing',()=>{
  const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});const start=g.beat;g.start();advance(g,2.5);
- assert.equal(g.beat,start);assert.equal(g.notes[0].beat-start,2);assert(!g.pressStrip(g.notes[0].lane));
+ assert.equal(g.beat,start);assert.equal(g.notes[0].beat-start,4.4);assert(!g.pressStrip(g.notes[0].lane));
  advance(g,9);assert(!events.some(e=>['note','accompaniment'].includes(e.type)));assert(g.lives<g.maxLives);
 });
 test('written charts respond immediately to visible notes without deferred or repeated attacks',()=>{

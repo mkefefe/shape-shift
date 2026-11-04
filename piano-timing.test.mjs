@@ -80,9 +80,40 @@ test('written tempo stays stable and changes exactly at the next score boundary'
  assert.equal(pianoSongTempo(10000,104),104);const a=note(900,4,0,0,90),b=note(901,6,1,0,120),{g}=fixture([a,b],{beat:5.9});a.status='done';g.step(.2);
  assert(Math.abs(g.beat-(6+(.2-.1*60/90)*2))<1e-8);assert.equal(g.bpm,120);
 });
-test('slow frames retain musical time, while a long stall pauses without surprise damage',()=>{
+test('slow frames retain musical time, while a long foreground stall drops its time without pausing or damage',()=>{
  for(const frame of [.2,.5,1]){const fast=fixture([note(900,100,0)],{beat:0}).g,slow=fixture([note(900,100,0)],{beat:0}).g;advance(fast,1);advance(slow,1,frame);assert(Math.abs(fast.beat-slow.beat)<1e-8);assert(Math.abs(slow.time-1)<1e-8);}
- const stalled=fixture([note(900,4,0)],{beat:3}).g;stalled.step(1.5);assert(stalled.paused);assert.equal(stalled.beat,3);assert.equal(stalled.lives,stalled.maxLives);
+ const {g:stalled,events}=fixture([note(900,4,0)],{beat:3});stalled.step(1.5);assert.equal(stalled.paused,false);assert.equal(stalled.beat,3);assert.equal(stalled.time,0);assert.equal(stalled.lives,stalled.maxLives);
+ assert.equal(events.filter(e=>e.type==='stall').length,1);stalled.step(.02);assert(stalled.beat>3&&stalled.beat<3.04);assert.equal(stalled.time,.02);assert(stalled.pressStrip(0));assert.equal(stalled.hits,1);
+});
+
+test('the first song note enters at the top after count-in on short, tall and wide screens',()=>{
+ for(const [w,h] of [[320,568],[390,844],[844,390],[1200,800]]){
+  const events=[],g=createPianoGame({...options,onEvent:e=>events.push(e)}),layout=pianoLayout(w,h,true,true,true);
+  const inputWindow=4+(layout.size/2+12)/layout.unit,lateWindow=(h-layout.hit+layout.size/2)/layout.unit;
+  g.setViewport({inputWindow,lateWindow});const first=g.notes[0],entry=pianoTarget(first,g.beat,layout);
+  assert(Math.abs(entry.y+entry.size/2-(layout.top-12))<1e-8,`${w}x${h}: first note starts at clipping edge`);
+  g.start();advance(g,2.9);assert(!g.pressStrip(first.lane));assert.deepEqual(pianoTarget(first,g.beat,layout),entry);
+  advance(g,.1);assert.equal(g.countdown,0);assert.deepEqual(pianoTarget(first,g.beat,layout),entry,'GO cannot move a note into the middle');
+  g.step(1/60);const visible=pianoTarget(first,g.beat,layout);assert(visible.y>entry.y);assert(visible.y-entry.y<5,'first movement is one normal frame');
+  assert(g.pressStrip(first.lane),'the first visible sliver is immediately playable');assert.equal(g.hits,1);
+  assert.deepEqual(events.filter(e=>e.type==='countdown').map(e=>e.count),[3,2,1]);
+ }
+});
+
+test('count-in resize and rewarded continuation both cue the next unplayed note at the current top edge',()=>{
+ const g=createPianoGame(options);g.start();advance(g,1);
+ const layout=pianoLayout(844,390,true,true,true),inputWindow=4+(layout.size/2+12)/layout.unit;
+ g.setViewport({inputWindow});assert(Math.abs(g.countdown-2)<1e-8);assert(Math.abs(pianoTarget(g.notes[0],g.beat,layout).y+layout.size/2-(layout.top-12))<1e-8);
+ advance(g,2);g.pressStrip(g.notes[0].lane);g.release(g.notes[0].lane);const earned=g.hits,next=g.notes.find(n=>!n.scored);
+ g.lives=0;g.end();assert(g.revive());assert.equal(g.hits,earned);assert.equal(g.countdown,3);
+ assert(Math.abs(pianoTarget(next,g.beat,layout).y+layout.size/2-(layout.top-12))<1e-8);
+ advance(g,3);const before=g.beat;g.step(1/60);assert(g.beat>before);assert(g.pressStrip(next.lane));assert.equal(g.hits,earned+1);
+});
+
+test('an explicit background pause still freezes the chart across a stall until resume',()=>{
+ const {g,events}=fixture([note(900,4,0)],{beat:2});g.pause();g.step(5);
+ assert(g.paused);assert.equal(g.beat,2);assert.equal(g.time,0);assert.equal(events.filter(e=>e.type==='stall').length,0);assert(!g.pressStrip(0));
+ g.resume();g.step(.02);assert(!g.paused);assert(g.beat>2);assert(g.pressStrip(0));
 });
 test('lead attacks get their full authored articulation immediately, even before or after nominal onset',()=>{
  for(const beat of [0,4.5]){const a=note(900,4,0,2),{g,events}=fixture([a],{beat});g.pressStrip(0);const sound=events.find(e=>e.type==='note');assert.equal(sound.remainingSound,a.soundBeats);assert.equal(sound.time,0);assert.equal(g.hits,1);}
