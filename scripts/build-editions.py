@@ -32,6 +32,15 @@ def playgama_index_html(shell, host):
     return shell.replace(marker, marker + sdk + '<script id="playgama-host-loader">' + host + '</script>', 1)
 
 
+def playgama_report_source(source):
+    # Embedded hosts can disallow native form submission. Reports already use
+    # fetch and explicit validation; make the button invoke that handler directly.
+    button = '<button type="submit" class="support-report-send">'
+    binding = "form.addEventListener('submit',async event=>{"
+    assert source.count(button) == 1 and source.count(binding) == 1, 'Unexpected report form'
+    return source.replace(button, '<button type="button" class="support-report-send">', 1).replace(binding, "send.addEventListener('click',async event=>{", 1)
+
+
 def playgama_game_source(source):
     """Bound only the portal's initial render handoffs, after asset readiness."""
     start = source.index('async function prepareStartup(){')
@@ -146,6 +155,7 @@ def main():
     write(portal/'game-frame.html',portal_frame)
     host=read(ROOT/'platforms/playgama/host-loader.js')
     write(portal/'index.html',playgama_index_html(read(site/'index.html'),host))
+    write(portal/'support-report.js',playgama_report_source(read(site/'support-report.js')))
     write(portal/'telemetry-config.js',f"export const TELEMETRY_BUILD='{version}';\nexport const TELEMETRY_DISTRIBUTION='playgama';\n")
     # Bridge owns pause/resume on this portal (including ads); preserve that contract.
     for name in ('game.js','piano-flow.js','shape-drop.js','shape-slice.js'):
@@ -168,7 +178,7 @@ def main():
     for dest in (mobile,portal):
         catalog(dest)
 
-    adapted={'index.html','game-frame.html','telemetry-config.js','startup-assets.js','game.js','piano-flow.js','shape-drop.js','shape-slice.js','playables.css','rewarded.js','audio.js','adaptive-music.js','battle-menu.js','battle/app.mjs'}
+    adapted={'index.html','game-frame.html','telemetry-config.js','startup-assets.js','game.js','piano-flow.js','shape-drop.js','shape-slice.js','playables.css','rewarded.js','audio.js','adaptive-music.js','battle-menu.js','battle/app.mjs','support-report.js'}
     for name in ('audio.js', 'adaptive-music.js','battle-menu.js','battle/app.mjs'):
         assert digest(mobile/name) == digest(site/name), f'Native audio drift: {name}'
     shared={p.relative_to(site).as_posix():digest(p) for p in site.rglob('*')
