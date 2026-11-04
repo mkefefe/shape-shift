@@ -1,6 +1,6 @@
-import {createBeaconController} from './beacon-controller.js?v=494230';
-export {CHARGE_KEY,createBeaconController} from './beacon-controller.js?v=494230';
-import {showStoryScene} from './story-scene.js?v=494230';
+import {createBeaconController} from './beacon-controller.js?v=494235';
+export {CHARGE_KEY,createBeaconController} from './beacon-controller.js?v=494235';
+import {showStoryScene} from './story-scene.js?v=494235';
 
 // Adventure completion records the clear; island celebrations belong exclusively
 // to the shared restoration screen, never to a level-100 credits sequence.

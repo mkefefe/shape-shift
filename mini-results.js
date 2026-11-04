@@ -1,7 +1,7 @@
-import {revealAdventureRewards} from './adventure-rewards.js?v=494230';
-import {formatSurvivalTime} from './survival-clock.js?v=494230';
-import {playerProgress} from './economy.js?v=494230';
-import {startResultTally} from './countdown.js?v=494230';
+import {revealAdventureRewards} from './adventure-rewards.js?v=494235';
+import {formatSurvivalTime} from './survival-clock.js?v=494235';
+import {playerProgress} from './economy.js?v=494235';
+import {startResultTally} from './countdown.js?v=494235';
 
 // All modes share the same results DOM, artwork, buttons and XP progress track.
 export function createMiniResults({host=window}={}){
@@ -14,7 +14,7 @@ export function createMiniResults({host=window}={}){
   const snapshots=[...nodes,hint,bestLine].map(node=>({node,hidden:node.hidden,disabled:node.disabled}));
   const oldResultMode=d.dataset.resultMode;d.dataset.resultMode='mini';
   const oldClass=d.className,oldButton=watch.querySelector('strong').textContent,oldNext=next.textContent,oldBest=bestLine.firstChild.textContent,oldHint=hint.textContent;
-  d.classList.remove('continue-offer','adventure-results','victory-result','victory-arriving');
+  d.classList.remove('clear-results','continue-offer','adventure-results','victory-result','victory-arriving');
   get('record').textContent=title;get('adventure-result').hidden=true;get('result-survival').hidden=false;get('result-survival').textContent='Survived '+formatSurvivalTime(elapsed);get('result-return-countdown').hidden=true;
   bestLine.hidden=false;bestLine.firstChild.textContent='Best score ';get('final-best').textContent=best.toLocaleString();
   watch.hidden=true;watch.disabled=false;

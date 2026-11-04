@@ -1,4 +1,4 @@
-import {keyboardHelpFor} from './keyboard-help.js?v=494230';
+import {keyboardHelpFor} from './keyboard-help.js?v=494235';
 
 // Recover only when a game key is pressed on the surrounding page; never steal browser shortcuts.
 const frame=document.querySelector('iframe');

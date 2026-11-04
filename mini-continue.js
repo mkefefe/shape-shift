@@ -1,6 +1,6 @@
-import {requestReward} from './rewarded.js?v=494230';
-import {startResultCountdown} from './countdown.js?v=494230';
-import {flushResultStorage} from './result-storage.js?v=494230';
+import {requestReward} from './rewarded.js?v=494235';
+import {startResultCountdown} from './countdown.js?v=494235';
+import {flushResultStorage} from './result-storage.js?v=494235';
 
 // Borrow the actual Endless/Adventure dialog, never a second mini-game panel.
 export function showSharedContinue({host,description,onWatch,onFinish}){
@@ -11,7 +11,7 @@ export function showSharedContinue({host,description,onWatch,onFinish}){
  const oldClass=dialog.className;
  const snapshots=[watch,status,title,hint,countdown,next].map(node=>({node,text:node===watch?null:node.textContent,hidden:node.hidden,disabled:node.disabled}));
  let busy=false,ready=true,closed=false;
- dialog.classList.remove('adventure-results','victory-result','victory-arriving');dialog.classList.add('continue-offer');
+ dialog.classList.remove('clear-results','adventure-results','victory-result','victory-arriving');dialog.classList.add('continue-offer');
  title.textContent='KEEP GOING?';watch.hidden=false;watch.disabled=!host.ShapeShiftAds;next.hidden=true;
  status.textContent=host.ShapeShiftAds?description:'Continue is available in the Android app.';
  hint.textContent='Tap anywhere else';countdown.hidden=true;

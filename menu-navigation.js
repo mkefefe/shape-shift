@@ -71,9 +71,10 @@ function launchClickGate(doc){
  let gate=launchClickGates.get(doc);if(gate)return gate;
  gate={blocked:false};launchClickGates.set(doc,gate);
  doc.addEventListener('pointerdown',()=>{gate.blocked=false;},true);
- doc.defaultView.addEventListener('shape-shift-input-reset',()=>{gate.blocked=false;});
+ // Screen changes may reset gestures during pointerup, before its native click.
+ // Keep that click consumed until a genuinely new pointerdown.
  doc.addEventListener('click',event=>{
-  if(gate.blocked&&event.detail!==0){event.preventDefault();event.stopImmediatePropagation();}
+  if(gate.blocked&&event.detail!==0){gate.blocked=false;event.preventDefault();event.stopImmediatePropagation();}
  },true);
  return gate;
 }

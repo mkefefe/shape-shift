@@ -80,3 +80,12 @@ test('a fresh Play tap is not swallowed after a swipe without a synthetic click'
 });
 
 test('story playback hides the native banner even when launched from home',()=>{assert.equal(menuBannerVisible('home',['story-scene']),false);});
+
+test('screen input reset does not release the click belonging to a consumed tap',()=>{
+ const f=fixture();f.send('pointerdown',{},f.document);f.send('pointerdown');f.send('pointerup',{},f.host);
+ f.host.dispatchEvent(new Event('shape-shift-input-reset'));
+ assert.equal(f.send('click',{detail:1},f.document).defaultPrevented,true);
+ assert.equal(f.send('click',{detail:0},f.document).defaultPrevented,false);
+ f.send('pointerdown',{},f.document);
+ assert.equal(f.send('click',{detail:1},f.document).defaultPrevented,false);
+});

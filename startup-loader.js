@@ -1,6 +1,6 @@
 import {markStartup} from './experience-metrics.js';
-import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS} from './startup-plan.js?v=494230';
-import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494230';
+import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS} from './startup-plan.js?v=494235';
+import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494235';
 const loaded=new Set(),pending=new Map();
 const assetKey=src=>new URL(src,globalThis.document?.baseURI||import.meta.url).href;
 async function loadFont(src,fetcher){

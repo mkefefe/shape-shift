@@ -1,5 +1,5 @@
-import {playerLevel} from './economy.js?v=494230';
-import {applyRestorationReward,normalizeRestoration} from './world-restoration.js?v=494230';
+import {playerLevel} from './economy.js?v=494235';
+import {applyRestorationReward,normalizeRestoration} from './world-restoration.js?v=494235';
 
 const safeAmount=value=>Number.isSafeInteger(value)&&value>=0;
 const profileObject=value=>value&&typeof value==='object'&&!Array.isArray(value);

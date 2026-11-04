@@ -1,12 +1,12 @@
 import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
-import {loadStartupAssets} from './startup-loader.js?v=494230';
-import {loadDestination} from './destination-loader.js?v=494230';
+import {loadStartupAssets} from './startup-loader.js?v=494235';
+import {loadDestination} from './destination-loader.js?v=494235';
 import {adventureChallenge,challengeTasks} from './adventure-challenges.js?v=207';
-import {starTasks} from './adventure-star-tasks.js?v=494230';
-import {COSMETICS} from './economy.js?v=494230';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494230';
-import {rewardMarkup} from './adventure-rewards.js?v=494230';
+import {starTasks} from './adventure-star-tasks.js?v=494235';
+import {COSMETICS} from './economy.js?v=494235';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494235';
+import {rewardMarkup} from './adventure-rewards.js?v=494235';
 export const GAMES_UNLOCK_LEVEL=10;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
@@ -156,7 +156,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   let requirements=$('level-requirements');if(!requirements){requirements=document.createElement('div');requirements.id='level-requirements';$('level-goal').after(requirements);}
   renderLevelRequirements(requirements,n,{},drawShape);
   let goals=$('level-objectives');if(!goals){const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Star tasks';goals=document.createElement('ul');goals.id='level-objectives';requirements.after(heading,goals);}
-  $('level-dialog').querySelector('.star-tasks-heading').textContent=n===100?'Optional star milestones':'Star tasks';
+  $('level-dialog').querySelector('.star-tasks-heading').textContent=n===100?'Optional star milestones':'Bonus stars (optional)';
   goals.innerHTML=levelTasks(n).map(task=>'<li class="star-challenge"><span class="map-star earned" aria-hidden="true"><img src="assets/stars-v101.webp" alt=""></span><span>'+task.label+'</span></li>').join('');
   let frameNote=$('level-frame-requirement');if(!frameNote){frameNote=document.createElement('p');frameNote.id='level-frame-requirement';frameNote.setAttribute('role','status');$('level-goal').after(frameNote);}
   let frameButton=$('level-choose-frame');if(!frameButton){frameButton=document.createElement('button');frameButton.id='level-choose-frame';frameButton.className='secondary';frameButton.textContent='Choose frame';frameNote.after(frameButton);frameButton.onclick=()=>{$('level-dialog').close();openFrames();};}
