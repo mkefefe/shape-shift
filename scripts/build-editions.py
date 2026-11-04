@@ -29,6 +29,22 @@ def playgama_index_html(index, host):
     assert count == 1, 'Expected one deferred game iframe'
     return index
 
+def playgama_game_source(source):
+    """Bound only the portal's initial render handoffs, after asset readiness."""
+    start = source.index('async function prepareStartup(){')
+    end = source.index('\nprepareStartup();', start)
+    startup = source[start:end]
+    frame_wait = 'await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));'
+    first_reveal = 'await firstGate.reveal(()=>{update();timer();openingCoach?.paint();});'
+    assert startup.count(frame_wait) == 1, 'Unexpected startup frame barrier'
+    assert startup.count(first_reveal) == 1, 'Unexpected first-journey reveal barrier'
+    startup = startup.replace(frame_wait, 'await waitForPortalStartupPaint();', 1)
+    # Keep the existing firstGate input lock and its finally/dispose cleanup.
+    # Only replace its startup reveal wait; later mode transitions stay intact.
+    startup = startup.replace(first_reveal, 'await waitForPortalStartupPaint(()=>{update();timer();openingCoach?.paint();});', 1)
+    return "import {waitForPortalStartupPaint} from './playgama-startup-render.mjs';\n" + source[:start] + startup + source[end:]
+
+
 def verify_shared_stage(root, site):
     """Reject stale source overlays before an edition can copy the shared stage."""
     if not site.is_dir():
@@ -100,6 +116,7 @@ def main():
         for event in ('visibilitychange','androidpause','androidresume'):
             text=text.replace("'"+event+"'","'unused-"+event+"'")
         if name=='game.js':
+            text=playgama_game_source(text)
             needle='if(animateRewards)startResultRewards();'
             assert text.count(needle)==1
             text=text.replace(needle,needle+'\n  void window.ShapeShiftPlatform.runComplete();')

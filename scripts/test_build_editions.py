@@ -44,6 +44,10 @@ class PortalStartupTests(unittest.TestCase):
         result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-host-loader.test.mjs'))], capture_output=True, text=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_portal_startup_render_runtime_regressions(self):
+        result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-startup-render.test.mjs'))], capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
 
 class SharedStageTests(unittest.TestCase):
     def setUp(self):
