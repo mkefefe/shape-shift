@@ -18,6 +18,17 @@ def write(path, text):
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def playgama_index_html(index, host):
+    # Keep the encoding declaration early, then load Bridge as the first normal
+    # script. Its initialization must finish before any game-frame resources.
+    sdk = '<script id="playgama-bridge-sdk" src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>'
+    marker = '<head><meta charset="utf-8">'
+    assert index.count(marker) == 1, 'Unexpected outer page head'
+    index = index.replace(marker, marker + sdk + '<script id="playgama-host-loader">' + host + '</script>', 1)
+    index, count = re.subn(r'(<iframe\s+)src=("[^"]+")', r'\1data-playgama-src=\2', index)
+    assert count == 1, 'Expected one deferred game iframe'
+    return index
+
 def verify_shared_stage(root, site):
     """Reject stale source overlays before an edition can copy the shared stage."""
     if not site.is_dir():
@@ -81,7 +92,7 @@ def main():
     portal_frame=portal_frame.replace('</head>',f'<link rel="stylesheet" href="feature-visibility.css?v={version.replace(".", "")}"></head>')
     write(portal/'game-frame.html',portal_frame)
     host=read(ROOT/'platforms/playgama/host-loader.js')
-    write(portal/'index.html',read(site/'index.html').replace('</head>','<script id="playgama-host-loader">'+host+'</script></head>'))
+    write(portal/'index.html',playgama_index_html(read(site/'index.html'),host))
     write(portal/'telemetry-config.js',f"export const TELEMETRY_BUILD='{version}';\nexport const TELEMETRY_DISTRIBUTION='playgama';\n")
     # Bridge owns pause/resume on this portal (including ads); preserve that contract.
     for name in ('game.js','piano-flow.js','shape-drop.js','shape-slice.js'):

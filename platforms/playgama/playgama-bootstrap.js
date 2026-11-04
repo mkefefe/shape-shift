@@ -83,15 +83,15 @@ async function loadScript(src) {
 async function start() {
   const cover = document.getElementById('startup-ready');
   try {
-    // Start required art while Bridge and cloud progress initialize. This job
-    // never announces game readiness or creates a saved-game fallback.
-    const artwork = prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494240')});
-    artwork.catch(()=>{}); // The awaited barrier below reports any failure.
     // index.html creates this promise before loading game-frame.html. Never initialize
     // a second SDK here: a nested frame loses the portal's launch parameters.
     const ready = window.parent.ShapeShiftBridgeReady;
     if (!ready || typeof ready.then !== 'function') throw Error('Open the game from index.html?v=494240');
     const bridge = await ready;
+    // The host initializes Bridge before opening this frame. Keep this barrier
+    // explicit as well, so required art/audio never race SDK initialization.
+    const artwork = prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494240')});
+    artwork.catch(()=>{}); // The awaited barrier below reports any failure.
     window.ShapeShiftTelemetryBridge=bridge;bridge.gameVersion="4.94.240";
     platform = window.ShapeShiftPlatform = createPlaygamaPlatform({
       bridge, host: window,

@@ -1,6 +1,8 @@
 import hashlib
+from html.parser import HTMLParser
 import importlib.util
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
@@ -8,6 +10,39 @@ import unittest
 spec = importlib.util.spec_from_file_location('build_editions', Path(__file__).with_name('build-editions.py'))
 build_editions = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build_editions)
+
+
+class PortalStartupTests(unittest.TestCase):
+    def test_normal_sdk_is_first_script_and_iframe_has_no_fetchable_source(self):
+        root = Path(__file__).resolve().parent.parent
+        source = (root/'index.html').read_text(encoding='utf-8')
+        output = build_editions.playgama_index_html(source, 'window.hostLoaderStarted=true;')
+        class Tags(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.tags = []
+            def handle_starttag(self, tag, attrs):
+                self.tags.append((tag, dict(attrs)))
+        parsed = Tags()
+        parsed.feed(output)
+        scripts = [attrs for tag, attrs in parsed.tags if tag == 'script']
+        self.assertEqual(scripts[0], {'id':'playgama-bridge-sdk', 'src':'https://bridge.playgama.com/v2/stable/playgama-bridge.js'})
+        self.assertEqual(scripts[1]['id'], 'playgama-host-loader')
+        self.assertEqual(sum('playgama-bridge.js' in attrs.get('src', '') for attrs in scripts), 1)
+        frames = [attrs for tag, attrs in parsed.tags if tag == 'iframe']
+        self.assertEqual(len(frames), 1)
+        self.assertNotIn('src', frames[0])
+        self.assertEqual(frames[0]['data-playgama-src'], 'game-frame.html?v=494240')
+        self.assertLess(output.index('<meta charset="utf-8">'), 1024)
+        self.assertNotIn('data-playgama-src', source)
+
+    def test_unknown_shell_cannot_silently_ship_an_ungated_game(self):
+        with self.assertRaisesRegex(AssertionError, 'Expected one deferred game iframe'):
+            build_editions.playgama_index_html('<head><meta charset="utf-8"></head><iframe></iframe>', '')
+
+    def test_shipped_host_loader_runtime_regressions(self):
+        result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-host-loader.test.mjs'))], capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 class SharedStageTests(unittest.TestCase):

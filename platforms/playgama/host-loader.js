@@ -7,6 +7,7 @@ const PLAYGAMA_BRIDGE_URL = 'https://bridge.playgama.com/v2/stable/playgama-brid
 function createPlaygamaHostLoader({
   loadScript,
   getBridge,
+  preloaded = false,
   setTimer = globalThis.setTimeout.bind(globalThis),
   clearTimer = globalThis.clearTimeout.bind(globalThis),
   slowAfterMs = 25000,
@@ -34,7 +35,12 @@ function createPlaygamaHostLoader({
       for (let attempt = 1; attempt <= delays.length + 1; attempt++) {
         state = {...state, status: 'loading', attempt};
         try {
-          await loadScript(PLAYGAMA_BRIDGE_URL, attempt);
+          // The parser-blocking first script has already finished before this
+          // loader executes. Reuse it; only a failed download needs a retry.
+          if (attempt === 1 && preloaded) {
+            if (typeof getBridge()?.initialize !== 'function')
+              throw new Error('Initial platform SDK download failed');
+          } else await loadScript(PLAYGAMA_BRIDGE_URL, attempt);
           break;
         } catch (cause) {
           if (attempt > delays.length) {
@@ -96,7 +102,7 @@ function installIframeFocusGuard(host) {
   if (focusGuards.has(host)) return;
   focusGuards.add(host);
   // Moving focus into our game iframe must not be reported as leaving the game.
-  // This listener is registered before loading Bridge and its blur listener.
+  // Capture keeps iframe focus handoff from reaching Bridge's blur handlers.
   host.addEventListener('blur', event => {
     const doc = host.document, frame = doc.querySelector('main>iframe');
     if (event.target === host && frame && doc.visibilityState === 'visible' &&
@@ -126,20 +132,23 @@ function createPlaygamaConnectionNotice(host) {
       style.textContent = '#platform-load-status{position:fixed;left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483647;box-sizing:border-box;width:min(420px,calc(100% - 32px));padding:16px 18px;border:1px solid #8fd5e7;border-radius:18px;background:#073d55f5;color:white;text-align:center;box-shadow:0 5px 24px #001b3166;font:600 15px/1.4 system-ui,sans-serif}#platform-load-status h1,#platform-load-status p{margin:0 0 9px}#platform-load-status h1{font-size:19px}#platform-load-status button,#platform-load-error button{border:2px solid #fff;border-radius:16px;padding:10px 24px;color:#503c00;background:#ffcd30;font:700 17px system-ui,sans-serif;cursor:pointer;min-height:44px}#platform-load-error{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-sizing:border-box;padding:24px;background:#063d5d;color:white;text-align:center;font:600 18px/1.5 system-ui,sans-serif}#platform-load-error h1,#platform-load-error p{margin:0;max-width:440px}#platform-load-error h1{font-size:28px}#platform-load-status button:focus-visible,#platform-load-error button:focus-visible{outline:3px solid #8feaff;outline-offset:4px}';
       doc.head.append(style);
     }
-    const failed = current.kind === 'failed';
+    const failed = current.kind === 'failed', pending = current.kind === 'pending';
     const panel = doc.createElement('section');
     panel.id = failed ? 'platform-load-error' : 'platform-load-status';
     panel.setAttribute('role', failed ? 'alert' : 'status');
     const title = doc.createElement('h1'), copy = doc.createElement('p'), retry = doc.createElement('button');
-    title.textContent = failed ? 'Could not connect' : 'Still connectingâ€¦';
+    title.textContent = failed ? 'Could not connect' : pending ? 'Connecting…' : 'Still connecting…';
     copy.textContent = failed
       ? 'The game could not connect to the game platform. Please try again.'
+      : pending ? 'Your game will open when the platform connection is ready.'
       : 'The connection is taking longer than usual. You can wait, or try again.';
     retry.type = 'button'; retry.textContent = 'Try again'; retry.onclick = () => host.location.reload();
+    retry.hidden = pending;
     panel.append(title, copy, retry); doc.body.append(panel);
     if (failed) retry.focus();
   }
   return {
+    pending() { current = {kind: 'pending'}; render(); },
     slow() { current = {kind: 'slow'}; render(); },
     failed() { current = {kind: 'failed'}; render(); },
     clear() { current = null; removePanels(); },
@@ -156,6 +165,7 @@ function initializePlaygamaHost({
 } = {}) {
   if (hostLoads.has(host)) return hostLoads.get(host);
   installIframeFocusGuard(host);
+  try { notice.pending?.(); } catch {}
   const loader = createPlaygamaHostLoader({
     ...options,
     loadScript, getBridge,
@@ -174,5 +184,25 @@ function initializePlaygamaHost({
   return loader.ready;
 }
 
-  window.ShapeShiftBridgeReady = initializePlaygamaHost({host: window});
+function startPlaygamaFrame(host) {
+  const doc = host.document;
+  const start = () => {
+    const frame = doc.querySelector('main>iframe[data-playgama-src]');
+    if (!frame) return;
+    frame.src = frame.getAttribute('data-playgama-src');
+    frame.removeAttribute('data-playgama-src');
+  };
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start, {once: true});
+  else start();
+}
+
+function bootPlaygamaHost(host, options = {}) {
+  const ready = host.ShapeShiftBridgeReady = initializePlaygamaHost({host, preloaded: true, ...options});
+  // Withhold the iframe URL itself: merely awaiting Bridge in its bootstrap
+  // would still let the browser fetch its styles, modules and images early.
+  ready.then(() => startPlaygamaFrame(host)).catch(() => {});
+  return ready;
+}
+
+  bootPlaygamaHost(window);
 })();
