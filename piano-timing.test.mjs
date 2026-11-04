@@ -4,6 +4,18 @@ import {createPianoGame} from './piano-flow-engine.js';
 import {ORIGINAL_SONGS} from './piano-songs.js';
 
 const options={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0};
+test('wrong-tap recovery moves the next note up, freezes time, and permits one correct replay',()=>{
+ const events=[],g=createPianoGame({...options,recoverWrongTap:true,onEvent:e=>events.push(e)});g.start();
+ for(let i=0;i<360;i++)g.step(1/120);
+ const n=g.notes[0];g.beat=n.beat-.1;const before=g.beat,time=g.time;
+ g.pressStrip((n.lane+1)%4);assert.equal(g.lives,2);assert.equal(n.status,'waiting');assert.equal(g.recoverySeconds,1);
+ assert.equal(g.pressStrip(n.lane),false);
+ for(let i=0;i<10;i++)g.step(.05);assert(g.beat<before);assert.equal(g.time,time);
+ g.pause();const frozen=g.recoverySeconds;g.step(.05);assert.equal(g.recoverySeconds,frozen);g.resume();
+ for(let i=0;i<15;i++)g.step(.05);assert.equal(g.recoverySeconds,0);assert(g.pressStrip(n.lane));
+ assert.equal(events.filter(e=>e.type==='note'&&e.note.id===n.id).length,1);assert.equal(g.lives,2);
+ assert.equal(events.filter(e=>e.type==='recover').length,1);
+});
 const note=(id,beat,lane,hold=0)=>({id,beat,end:beat+hold,lane,hold,pitch:60+lane*2,shape:lane,color:0,duration:hold?hold+1.5:1,rapid:!hold,status:'waiting',awaiting:false});
 function fixture(notes,beat=2){
  const events=[],g=createPianoGame({...options,onEvent:e=>events.push(e)});

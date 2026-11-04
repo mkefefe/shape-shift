@@ -1,0 +1,44 @@
+{
+  "advertisement": {
+    "minimumDelayBetweenInterstitial": 120,
+    "initialInterstitialDelay": 120,
+    "interstitial": {
+      "placementFallback": "run_complete",
+      "autoShow": [],
+      "placements": [
+        {
+          "id": "run_complete"
+        }
+      ]
+    },
+    "rewarded": {
+      "placementFallback": "default",
+      "placements": [
+        {
+          "id": "default"
+        },
+        {
+          "id": "menu"
+        },
+        {
+          "id": "run-bonus"
+        },
+        {
+          "id": "continue"
+        },
+        {
+          "id": "continue-drop"
+        },
+        {
+          "id": "continue-slice"
+        },
+        {
+          "id": "continue-piano"
+        }
+      ]
+    },
+    "banner": {
+      "disable": true
+    }
+  }
+}

@@ -1,20 +1,21 @@
+import {pianoBackingPlan} from './piano-backing.js?v=494236';
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494235';
-import {createResultJournal} from './run-results.js?v=494235';
-import {beginModeTransition} from './mode-transition.js?v=494235';
-import {engagement,registerModeState} from './telemetry.js?v=494235';
-import {translate} from './localization.js?v=494235';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494236';
+import {createResultJournal} from './run-results.js?v=494236';
+import {beginModeTransition} from './mode-transition.js?v=494236';
+import {engagement,registerModeState} from './telemetry.js?v=494236';
+import {translate} from './localization.js?v=494236';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard} from './piano-input.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494235';
-import {createMiniResults} from './mini-results.js?v=494235';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494236';
+import {createMiniResults} from './mini-results.js?v=494236';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494235';
+import {createPianoGame,pianoProgress,finishPianoProgress} from './piano-flow-engine.js?v=494236';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494235';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494236';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 
@@ -99,7 +100,11 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
    if(e.type==='input'||e.type==='queued'){if(e.type==='input')engagement.successfulAction('piano');glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;hint.textContent=e.note.hold?'Keep holding this strip':'Nice';}
 
-  else if(e.type==='note'){voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoNote(e.note.pitch,Math.max(.12,(e.note.hold?e.remaining+.18:e.note.duration)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold&&e.note.status==='holding')voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
+  else if(e.type==='note'){
+   // One performed lead note owns the attack; the song-specific backing follows it.
+   window.gameAudio?.stopPiano(true,true);
+   for(const support of pianoBackingPlan(e.note))window.gameAudio?.pianoPerformance(support.pitch,support.duration*60/game.bpm,true,support.gain,support.beat*60/game.bpm);
+   voices.get(e.note.id)?.();const releaseNote=window.gameAudio?.pianoPerformance(e.note.pitch,Math.max(.12,(e.note.hold?e.remaining+.18:e.note.duration)*60/game.bpm*(e.note.gate??.94)),false,e.note.accent??.9);if(e.note.hold&&e.note.status==='holding')voices.set(e.note.id,releaseNote);glows[e.note.lane]=STRIP_LINGER;stripColors[e.note.lane]=e.note.color;}
 
   else if(e.type==='complete'){voices.delete(e.note.id);glows[e.note.lane]=STRIP_LINGER;hint.textContent=e.note.hold?'Lovely hold':e.perfect?'Perfect':'Nice';if(layout){const p=pianoTarget(e.note,game.beat,layout);p.y=Math.min(p.y,layout.h-54);reveals.push({note:e.note,x:p.x/layout.w,y:p.y/layout.h,age:0});reveals=reveals.slice(-12);const count=quiet?5:8,phase=Math.random()*Math.PI*2;
 
@@ -109,17 +114,14 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
    }particles=particles.slice(-160);}
 
+  else if(e.type==='recover'){window.gameAudio?.stopPiano();voices.clear();hint.textContent='Try this note again';}
+  else if(e.type==='recovered'){hint.textContent='Tap the lowest shape';}
   else if(e.type==='release'){voices.get(e.note.id)?.();voices.delete(e.note.id);hint.textContent='Progress saved. Hold this strip again - no heart lost.';}
 
   else if(e.type==='miss'){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}window.gameAudio?.stopPraise();hitFeedback.hit();hint.textContent=e.reason==='wrong'?'Wrong strip — follow the lowest shape':'Missed note — keep going';}
 
   else if(e.type==='beat')window.gameAudio?.pianoNote(e.pitch,.7,true);
-  else if(e.type==='accompaniment'){
-   if(e.reset)window.gameAudio?.stopPiano(true,true);
-   const backingEnergy=.8+.12*Math.max(0,Math.min(1,e.energy??1));
-   for(const pitch of e.pitches)window.gameAudio?.pianoNote(pitch,e.duration,true,(e.velocity??.65)*backingEnergy);
-   // The piano harmony supplies the pulse; no extra drum enters mid-song.
-  }
+  // Accompaniment is scheduled from the performed note above, never a second clock.
 
   else if(e.type==='timing')hint.textContent=e.reason==='order'?'Play the lowest shape first':'Wait for the glowing line';
 
@@ -249,7 +251,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
   hint=el('p','piano-hint','Tap anywhere on the next shape’s strip');dialog.append(hint);
  if(keyboard.mount())hint.textContent='A S D F · Left to right · Hold the key for long notes';
 
-  game=createPianoGame({...getLoadout(),practice:practice.active,directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,onEvent:event});settle();update();draw();const card=panel('Piano Flow');const status=el('p','','Preparing the piano…');card.append(status);
+  game=createPianoGame({...getLoadout(),practice:practice.active,directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,recoverWrongTap:true,brightSongs:true,onEvent:event});settle();update();draw();const card=panel('Piano Flow');const status=el('p','','Preparing the piano…');card.append(status);
 
   card.append(button('Games',close,'drop-secondary'));let loadingTimer;
   const ready=await Promise.race([Promise.all([window.gameAudio?.preparePiano(),Promise.resolve(skinArtReady).then(values=>values.every(Boolean)),prepareSky()]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),15000);})]);window.ShapeShiftPlatform.clearTimeout(loadingTimer);if(version!==epoch||!dialog.open)return;

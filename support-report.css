@@ -1,0 +1,22 @@
+/* Support stays inside the game and uses the same blue panels and gold actions. */
+body #bug-report-dialog{box-sizing:border-box;width:min(390px,calc(100vw - 24px));height:fit-content;min-height:0;max-height:calc(100dvh - 24px);padding:0;border:3px solid var(--ui-border,#52b8cc);border-radius:24px;background:var(--ui-panel,#e5fcff);color:var(--ui-text,#12536c);box-shadow:0 12px 38px #002b5c77;overflow:auto;overscroll-behavior:contain}
+#bug-report-dialog::before,#bug-report-dialog::after{display:none}
+#bug-report-dialog .support-report-form{display:grid;gap:9px;padding:24px}
+#bug-report-dialog header{display:flex;align-items:center;gap:8px}
+#bug-report-dialog h2{flex:1;margin:0;padding:0;font-size:25px;text-align:left;color:var(--ui-ink,#075570)}
+#bug-report-dialog p{margin:0;font-size:13px;line-height:1.4;text-align:left}
+#bug-report-dialog label{font-size:13px;font-weight:900;line-height:1.3}
+#bug-report-dialog :is(select,textarea){box-sizing:border-box;width:100%;min-width:0;border:2px solid var(--ui-border,#52b8cc);border-radius:12px;padding:10px;background:white;color:var(--ui-text,#12536c);font:400 16px/1.4 Nunito,system-ui,sans-serif}
+#bug-report-dialog textarea{resize:vertical;min-height:110px;max-height:35dvh;touch-action:auto;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+#bug-report-dialog .support-report-close{width:36px;height:36px;min-height:36px;padding:0;border:1px solid var(--ui-border,#52b8cc);border-radius:10px;background:var(--ui-card,#d8f3fa);color:var(--ui-ink,#075570);font-size:25px;line-height:1}
+#bug-report-dialog .support-report-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#bug-report-dialog .support-report-actions button{min-height:44px;border:2px solid var(--ui-border,#52b8cc);border-radius:12px;background:var(--ui-card,#d8f3fa);color:var(--ui-ink,#075570);font:900 14px Nunito,system-ui,sans-serif;padding:8px}
+#bug-report-dialog .support-report-actions .support-report-send{border-color:var(--ui-gold-edge,#eab130);background:var(--ui-selected,linear-gradient(#fff2a4,#ffd159));color:var(--ui-gold-ink,#674414);box-shadow:0 2px var(--ui-gold-shadow,#cb9428)}
+#bug-report-dialog .support-report-note{font-size:12px;color:var(--ui-muted,#326476)}
+#bug-report-dialog .support-report-status:empty{display:none}
+#bug-report-dialog .support-report-status{font-size:12px;font-weight:800}
+#bug-report-dialog .support-report-address{font-size:11px;overflow-wrap:anywhere;text-align:center}
+#bug-report-dialog .support-report-fallback{display:grid;gap:5px}
+#bug-report-dialog .support-report-fallback[hidden]{display:none}
+#bug-report-dialog :is(button,textarea,select):focus-visible{outline:3px solid var(--ui-ink,#075570);outline-offset:2px}
+@media(max-height:650px){#bug-report-dialog .support-report-form{gap:7px;padding:14px}#bug-report-dialog textarea{min-height:80px}#bug-report-dialog h2{font-size:22px}}

@@ -1,7 +1,7 @@
-import {revealAdventureRewards} from './adventure-rewards.js?v=494235';
-import {formatSurvivalTime} from './survival-clock.js?v=494235';
-import {playerProgress} from './economy.js?v=494235';
-import {startResultTally} from './countdown.js?v=494235';
+import {revealAdventureRewards} from './adventure-rewards.js?v=494236';
+import {formatSurvivalTime} from './survival-clock.js?v=494236';
+import {playerProgress} from './economy.js?v=494236';
+import {startResultTally} from './countdown.js?v=494236';
 
 // All modes share the same results DOM, artwork, buttons and XP progress track.
 export function createMiniResults({host=window}={}){

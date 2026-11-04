@@ -1,0 +1,80 @@
+{
+  "recordings": [
+    {
+      "mode": "menu-garden",
+      "file": "assets/music/indie-game-soundtrack-251864.mp3",
+      "sha256": "0d27a7df7453ceec61c61a61526e41a40bcb93003754ac711eb3317657d04a84",
+      "source": "retained selected Garden music"
+    },
+    {
+      "mode": "menu-moon",
+      "file": "assets/music/game-background-359782.mp3",
+      "sha256": "ce4619f4ad7706172d139cc5caa56bd825921bfd4858c64387bbd27c9aad4767",
+      "source": "retained selected Moon music"
+    },
+    {
+      "mode": "menu-sunset",
+      "file": "assets/music/game-music-loop-4-144341.mp3",
+      "sha256": "9a470e9127faff162bc3ff5ada7bc4f041cbf076b50b1f6d08b0a2d5e18e149c",
+      "source": "retained selected Sunset music"
+    },
+    {
+      "mode": "endless",
+      "file": "assets/music/endless-c-v228.ogg",
+      "sha256": "7ad86b3b13c5568f2840e7dbf305667cf19b5178fa1c51ea53a420776950d328",
+      "source": "November 3 preview228 selected Endless C; tempo 120-170, Rewind eases tempo"
+    },
+    {
+      "mode": "adventure",
+      "file": "assets/music/adventure-theme-v229.ogg",
+      "sha256": "7459d95a64413dfb83e2591a13185345a11f1f4644db7eea6e9fcf4451b88079",
+      "source": "November 3 final preview229 / retained in230; 110 BPM"
+    },
+    {
+      "mode": "shape-drop",
+      "file": "assets/music/shape-drop-simple-230.ogg",
+      "sha256": "bcbc64959d951f3a364751ea88d3208c5b9b131382055adbd073b1ce9836a918",
+      "source": "November 3 preview230 Simple Steps; 100 BPM"
+    },
+    {
+      "mode": "shape-slice",
+      "file": "assets/music/shape-slice-theme-v229.ogg",
+      "sha256": "767b5cfbbcffb5ca7a3969d4ca6cd73b4b49805dce4e1857f44172b81aba768b",
+      "source": "November 3 final preview229 / retained in230; 128 BPM"
+    },
+    {
+      "mode": "battle",
+      "file": "battle/assets/battle-color-guardians-v167.ogg",
+      "sha256": "5136762dd1e18b232f1dc7220b2f388c70144cce6716a479f001242702fc1e3a",
+      "source": "retained existing Battle soundtrack; rejected preview223 not substituted"
+    }
+  ],
+  "piano": {
+    "songCount": 20,
+    "songFile": "piano-songs.js",
+    "planFile": "piano-backing.js",
+    "source": "piano-backing229.js used in final music-review-230.js",
+    "behavior": "One lead note per correct physical strike. Quiet lower accompaniment follows each note, with no simultaneous chord attack or unrelated backing clock. Each new note cancels pending support. Final229 strongest-channel normalized samples, dry attacks and release envelopes, with the preview lead/support balance at default volume settings.",
+    "keys": [
+      "assets/music/keys/36.ogg",
+      "assets/music/keys/42.ogg",
+      "assets/music/keys/48.ogg",
+      "assets/music/keys/57.ogg",
+      "assets/music/keys/60.ogg",
+      "assets/music/keys/66.ogg",
+      "assets/music/keys/69.ogg",
+      "assets/music/keys/72.ogg",
+      "assets/music/keys/78.ogg",
+      "assets/music/keys/81.ogg"
+    ]
+  },
+  "effects": {
+    "status": "Existing procedural gameplay cues, recorded victory stages, gate cues, recorded praise and Battle effects retained.",
+    "runtime": [
+      "audio.js",
+      "drop-merge-audio.js",
+      "battle/audio.mjs"
+    ]
+  },
+  "version": "4.94.236"
+}

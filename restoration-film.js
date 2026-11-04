@@ -1,4 +1,4 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?v=494235';
+import {loadStoryAssets,drawStory} from './story-renderer.js?v=494236';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
 export const RESTORATION_PHASE_SECONDS=4.4;
 export const RESTORATION_COLOR_SECONDS=RESTORATION_PHASE_SECONDS*4;

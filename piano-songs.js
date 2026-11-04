@@ -1,4 +1,4 @@
-import {pianoIcon} from './piano-music.js?v=494235';
+import {pianoIcon} from './piano-music.js?v=494236';
 
 // Original scores, written in four-bar questions and answers. Song order is shuffled:
 // the melody, harmony, and rhythm always belong together.
@@ -141,17 +141,35 @@ export const ORIGINAL_SONGS=[
   [bar('F',[65,67,69],[1.5,.5,2]),bar('Am',[69,71,72]),bar('C',[72,69,67]),bar('G',[67,65,62])],bar('C',[64,59,60]))
 ];
 
-export function createSongSequence(rng=Math.random){
+export function brightenPianoSong(song){
+ const notes=song.notes.flatMap(n=>{
+  const minor=n.chord[1]-n.chord[0]===3;
+  const chord=minor?[n.chord[0]+3,n.chord[1]+4,n.chord[2]+3]:[...n.chord];
+  const tones=[48,50,52,53,55,57,59,60,62,64,65,67,69,71,72,74].filter(p=>chord.some(c=>c%12===p%12));
+  const pitch=n.songBeat%2===0?tones.reduce((a,b)=>Math.abs(a-n.pitch)<=Math.abs(b-n.pitch)?a:b):n.pitch;
+  const common={...n,pitch,chord,harmony:n.harmony.length?[chord[0],chord[2]]:[],...pianoIcon(pitch),gate:.84};
+  // Two approachable taps replace the uniformly sustained opening notes.
+  // They still require individual physical input; nothing auto-plays a melody.
+  if(n.section==='Intro'&&n.duration===2){
+   const answer=tones.reduce((a,b)=>Math.abs(a-(pitch+2))<=Math.abs(b-(pitch+2))?a:b);
+   return [{...common,duration:.75,rapid:true},{...common,pitch:answer,...pianoIcon(answer),duration:1.25,songBeat:n.songBeat+.75,harmony:[],accent:.82,rapid:true}];
+  }
+  return [common];
+ });
+ return {...song,notes};
+}
+export function createSongSequence(rng=Math.random,{bright=false}={}){
+ const catalog=bright?ORIGINAL_SONGS.map(brightenPianoSong):ORIGINAL_SONGS;
  const randomIndex=n=>Math.floor(Math.max(0,Math.min(.999999,Number(rng())||0))*n);
  let remaining=ORIGINAL_SONGS.map((_,i)=>i),songIndex=remaining.splice(randomIndex(remaining.length),1)[0],index=0,round=0;
  return ()=>{
-  let song=ORIGINAL_SONGS[songIndex];
+  let song=catalog[songIndex];
   if(index===song.notes.length){
    if(!remaining.length)remaining=ORIGINAL_SONGS.map((_,i)=>i).filter(i=>i!==songIndex);
    const previous=songIndex;songIndex=remaining.splice(randomIndex(remaining.length),1)[0];
    // At a cycle boundary the previous song is eligible later, never immediately.
    if(round%ORIGINAL_SONGS.length===ORIGINAL_SONGS.length-1)remaining.push(previous);
-   index=0;round++;song=ORIGINAL_SONGS[songIndex];
+   index=0;round++;song=catalog[songIndex];
   }
   const n=song.notes[index++];return {...n,chord:[...n.chord],harmony:[...n.harmony],phrase:song.id+'-'+round,round};
  };

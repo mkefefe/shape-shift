@@ -1,0 +1,7 @@
+/* Playgama supplies rewarded ads and the shared leaderboard. The browser-only
+   stylesheet must not hide those supported controls. Runtime hidden states
+   still own ad availability, result eligibility, and ranking opt-in. */
+#app #coins-ad-open:not([hidden]){display:block!important}
+#app #continue-ad:not([hidden]){display:flex!important}
+#app #settings-dialog :is(#privacy-policy-open,#delete-profile-open,#rankings-enable-open):not([hidden]){display:block!important}
+#app :is(#coins-ad-open,#continue-ad,#privacy-policy-open,#delete-profile-open,#rankings-enable-open)[hidden]{display:none!important}

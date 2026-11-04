@@ -1,5 +1,18 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {ORIGINAL_SONGS,createSongSequence} from './piano-songs.js';
+import {ORIGINAL_SONGS,createSongSequence,brightenPianoSong} from './piano-songs.js';
+test('bright arrangements preserve all twenty songs, complete measures and playable individual notes',()=>{
+ for(const original of ORIGINAL_SONGS){const song=brightenPianoSong(original);
+  assert.equal(song.id,original.id);assert.equal(song.notes.reduce((s,n)=>s+n.duration,0),176);
+  assert.equal(song.notes.filter(n=>n.section==='Intro').length,16);
+  for(const n of song.notes){assert.equal(n.chord[1]-n.chord[0],4);assert(n.pitch>=48&&n.pitch<=74);assert(Number.isInteger(n.shape)&&Number.isInteger(n.color));}
+ }
+ const g=createPianoGame({...config,brightSongs:true,recoverWrongTap:true});g.start();
+ for(let i=0;i<120*280&&!g.over;i++){
+  if(!g.notes.some(n=>n.status==='holding')){const next=g.notes.find(n=>['waiting','partial'].includes(n.status));if(next&&next.beat-g.beat<.12){for(const lane of [...g.pressed])g.release(lane);g.pressStrip(next.lane);}}
+  g.step(1/120);
+ }
+ assert(!g.over);assert.equal(g.lives,g.maxLives);assert(g.songsCompleted>=2);
+});
 import {createPianoGame} from './piano-flow-engine.js';
 const config={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0};
 const advance=(g,seconds)=>{for(let i=0;i<seconds*120;i++)g.step(1/120);};

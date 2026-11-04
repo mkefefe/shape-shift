@@ -67,3 +67,5 @@ and Shape Drop. These modes share the selected world's existing recorded perform
 mode changes automate low-pass brightness and a subtle low shelf on the next bar.
 No new melody, no track restart, no pitch changes and no added transition notes.
 Piano Flow's interactive notes and Battle's separate soundtrack remain independent.
+
+Release236 recovered original mode arrangements from the November 3 listening sessions: Endless C (preview228, 154 BPM source with adaptive playback); Adventure (preview229, 110 BPM); Shape Slice (preview229, 128 BPM); Shape Drop Simple Steps (preview230, 100 BPM). These are the exact rendered preview files; mode-audio-restoration.test.mjs records their SHA-256 checksums. Composition/render scripts remain in work/music-research223 of the original project. Salamander Grand Piano sample attribution above also applies to these arrangements.

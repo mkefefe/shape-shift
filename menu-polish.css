@@ -444,3 +444,45 @@ html body #games-hub .hub-game.keyboard-game,
 html body #games-hub .hub-game:focus-visible{
  outline:3px solid #ffe347;outline-offset:-6px;
 }
+
+/* Short menus follow their contents instead of inheriting the old 2:3 panel.
+   The nine-slice frame above keeps the painted corners at their original size. */
+html body dialog:is(#pause-dialog,#language-dialog),
+html body #app dialog:is(#pause-dialog,#language-dialog){
+ width:min(380px,calc(100vw - 24px));height:fit-content;min-height:0;
+ max-height:calc(100dvh - 24px);
+}
+html body :is(#pause-dialog,#language-dialog)>.dialog-content{
+ height:auto;max-height:calc(100dvh - 56px);overflow-y:auto;
+ justify-content:flex-start;
+}
+html body #pause-dialog .pause-options{gap:8px;flex:none}
+html body #pause-dialog .pause-option{
+ width:min(270px,100%);height:76px;min-height:60px;flex:none;
+ margin:0;padding:8px 16px;font-size:18px;
+}
+html body #pause-dialog .menu-keyboard-hint{margin:4px 0 0}
+html body #language-dialog .settings-note{margin:12px 0 0}
+
+/* Player identity has fewer rows than the cosmetic collections. Let it shrink
+   while Skins, Frames, and Worlds keep their existing paged collection area. */
+@media(min-height:501px){
+ html body #app #profile-dialog:has(#profile-panel-identity:not([hidden])){
+  height:fit-content;min-height:0;max-height:calc(100dvh - 20px);
+ }
+ html body #profile-dialog:has(#profile-panel-identity:not([hidden]))>.dialog-content{
+  height:auto;max-height:calc(100dvh - 52px);overflow-y:auto;
+ }
+ html body #profile-dialog #profile-panel-identity{flex:0 0 auto;overflow:visible}
+}
+@media(max-height:650px){
+ html body #pause-dialog .pause-option{height:60px;min-height:48px;font-size:16px}
+}
+/* On short phones the collection pager shows one row of three. A full-height
+   grid was stretching those three cards into long, mostly empty columns. */
+@media(min-height:501px) and (max-height:699px){
+ html body #app #profile-dialog{height:fit-content;min-height:0}
+ html body #profile-dialog>.dialog-content{height:auto;max-height:calc(100dvh - 52px);overflow-y:auto}
+ html body #profile-dialog .profile-tab-panel{flex:0 0 auto;overflow:visible}
+ html body #profile-dialog .profile-cosmetics{flex:none;grid-auto-rows:180px}
+}

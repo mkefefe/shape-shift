@@ -1,10 +1,12 @@
-import {directionalChoice} from './board-keyboard.js?v=494235';
+import {directionalChoice} from './board-keyboard.js?v=494236';
 // Navigate existing controls, retaining each control's original click handler.
 export function bindPauseKeyboard(doc=document){
  doc.addEventListener('focusin',event=>{doc.querySelectorAll('.keyboard-menu-selected').forEach(el=>{if(el!==event.target)el.classList.remove('keyboard-menu-selected');});});
  const textField=el=>el?.matches('textarea,input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password]');
  doc.addEventListener('pointerdown',event=>{if(textField(event.target))event.target.dataset.menuEditing='true';},true);
  doc.addEventListener('keydown',event=>{
+  // Text-heavy forms keep native editing, newlines, Tab and button activation.
+  if(event.target.closest?.('[data-native-form="true"]'))return;
   if(textField(event.target)&&event.target.dataset.menuEditing==='true'&&['Enter','NumpadEnter'].includes(event.code)&&!event.isComposing&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();event.stopImmediatePropagation();event.target.dataset.menuEditing='false';event.target.classList.add('keyboard-menu-selected');return;}
 
   if(!['KeyW','KeyA','KeyS','KeyD','Space','Enter','NumpadEnter'].includes(event.code)||event.ctrlKey||event.altKey||event.metaKey||event.isComposing||(event.target.closest?.('textarea,select,[contenteditable],input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=button])')&&event.target.dataset.menuEditing!=='false'))return;

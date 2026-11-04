@@ -15,6 +15,28 @@
     masterFade={from:value,to:target,start:now,duration};
   }
   let music = true, sfx = true, active = false;
+  // Endless tempo follows the run in every release, without a preview-only URL flag.
+  const adaptiveSupported=()=>typeof context?.createMediaElementSource==='function'&&typeof Audio==='function';
+  let adaptiveMusic=null,adaptiveLoading=null,adaptiveModel=null,adaptiveState=null,adaptiveLastPicks=-1,adaptiveFactory=null,adaptiveRetryAt=0,adaptiveStarting=null;
+  function updateEndlessMusic(state,rewind=false){
+    if(!state)return;
+    const newRun=(state.picks||0)<adaptiveLastPicks;
+    if(newRun)adaptiveModel=adaptiveFactory?.()||null;
+    adaptiveLastPicks=state.picks||0;
+    const settings={easy:[3600,6],normal:[2800,9],hard:[2400,15],extreme:[2000,22]}[state.difficulty]||[2800,9];
+    const intensity=Math.min(1,Math.max(state.picks||0,(state.score||0)/2)*settings[1]/(settings[0]-750));
+    adaptiveState={intensity,stage:state.stage??state.picks??0,rewind};
+    if(adaptiveMusic&&adaptiveModel){adaptiveMusic.setTempo(adaptiveModel.update(adaptiveState).targetBpm,newRun);adaptiveState.rewind=false;}
+  }
+  function prepareAdaptive(){
+    if(adaptiveLoading||adaptiveMusic||context.currentTime<adaptiveRetryAt)return;
+    adaptiveLoading=import('./adaptive-music.js?v=494236').then(async module=>{
+      const player=await module.createAdaptiveMusic(context,musicBus);
+      adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();
+      if(adaptiveState)player.setTempo(adaptiveModel.update(adaptiveState).targetBpm);
+      schedule();
+    }).catch(()=>{adaptiveRetryAt=context.currentTime+5;}).finally(()=>{adaptiveLoading=null;});
+  }
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
   // Slider percentages scale the mix: effects sit in front of the recorded bed.
@@ -193,7 +215,7 @@
     for(const source of voice.sources)source.stop(now+.16);
   }
 
-  const pianoKeys=[36,42,48,57,60,66,69,72,78,81],pianoBuffers=new Map(),pianoLoads=new Map(),pianoVoices=new Set();
+  const pianoKeys=[36,42,48,57,60,66,69,72,78,81],pianoBuffers=new Map(),pianoPerformanceBuffers=new Map(),pianoLoads=new Map(),pianoVoices=new Set();
   // Some recorded keys have opposite stereo phases. Folding those to mono
   // cancels their body on phone speakers, so keep the stronger original channel.
   function pianoMono(buffer){
@@ -203,6 +225,20 @@
     const out=context.createBuffer(1,buffer.length,buffer.sampleRate),data=out.getChannelData(0);
     if(lr<0)data.set(ll>=rr?left:right);else for(let i=0;i<data.length;i++)data[i]=(left[i]+right[i])*.5;
     return out;
+  }
+  // Match the final229 listening preview: normalize the strongest channel,
+  // keeping phase and instrument character without averaging or added effects.
+  function performancePianoBuffer(buffer){
+    if(!buffer.getChannelData||!buffer.numberOfChannels)return buffer;
+    let strongest=buffer.getChannelData(0),energy=-1;
+    for(let channel=0;channel<buffer.numberOfChannels;channel++){
+      const data=buffer.getChannelData(channel);let sum=0;for(const value of data)sum+=value*value;
+      if(sum>energy){energy=sum;strongest=data;}
+    }
+    const mono=context.createBuffer(1,buffer.length,buffer.sampleRate),out=mono.getChannelData(0);let peak=.08;
+    for(const value of strongest)peak=Math.max(peak,Math.abs(value));
+    for(let i=0;i<out.length;i++)out[i]=strongest[i]/peak;
+    return mono;
   }
   const pianoRooms=new Map();let pianoImpulse;
   function pianoRoom(accompaniment){
@@ -224,7 +260,7 @@
     const ready=await Promise.all([...pianoKeys,'kick'].map(key=>{
       if(pianoBuffers.has(key))return true;
       const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':'assets/music/pop-'+key+'-v322.ogg';
-      if(!pianoLoads.has(key))pianoLoads.set(key,audioData(url).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
+      if(!pianoLoads.has(key))pianoLoads.set(key,audioData(url).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);if(typeof key==='number')pianoPerformanceBuffers.set(key,performancePianoBuffer(buffer));return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
       return pianoLoads.get(key);
     }));return ready.every(Boolean);
   }
@@ -232,16 +268,36 @@
     for(const voice of [...pianoVoices])if(accompaniment===undefined||voice.accompaniment===accompaniment)voice.release();
     for(const [kind,room] of pianoRooms)if(!preserveRoom&&(accompaniment===undefined||kind===accompaniment)){room.convolver.disconnect();room.wet.disconnect();pianoRooms.delete(kind);}
   }
-  function pianoNote(note,duration=.35,accompaniment=false,velocity=1){
+  function pianoNote(note,duration=.35,accompaniment=false,velocity=1,delay=0){
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!Number.isFinite(note)||note<36||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
     const key=pianoKeys.reduce((a,b)=>Math.abs(a-note)<=Math.abs(b-note)?a:b),buffer=pianoBuffers.get(key);if(!buffer)return ()=>{};
     if(pianoVoices.size>=32)pianoVoices.values().next().value.release();
-    const source=audioSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime,hold=Math.max(.08,Math.min(5,Number(duration)||.35)),volume=(accompaniment?.72:.9)*volumeValue(velocity*100,100)/100;
+    const source=audioSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime+Math.max(0,Number(delay)||0),hold=Math.max(.08,Math.min(5,Number(duration)||.35)),volume=(accompaniment?.72:.9)*volumeValue(velocity*100,100)/100;
     source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(volume,now+.008);gain.gain.setValueAtTime(volume,now+hold);gain.gain.exponentialRampToValueAtTime(.0001,now+hold+.48);
     warmth.type='lowpass';warmth.frequency.value=accompaniment?2900:4200;warmth.Q.value=.55;
     source.connect(warmth);warmth.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
-    let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const t=context.currentTime;gain.gain.cancelScheduledValues(t);gain.gain.setTargetAtTime(0,t,.09);try{source.stop(t+.36);}catch{}}};
+    let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const t=context.currentTime;gain.gain.cancelScheduledValues(t);if(t<now){gain.gain.setValueAtTime(0,t);try{source.stop(t);}catch{}return;}gain.gain.setTargetAtTime(0,t,.09);try{source.stop(t+.36);}catch{}}};
     pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();warmth.disconnect();gain.disconnect();};source.start(now);source.stop(now+hold+.5);return voice.release;
+  }
+
+  // The actual Piano Flow score uses the exact dry final229 voice. Separate
+  // music/effects sliders remain independent; defaults retain its lead/backing ratio.
+  function pianoPerformance(note,duration=.35,accompaniment=false,velocity=1,delay=0){
+    if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed||!Number.isFinite(note)||note<36||note>96||!(accompaniment?music&&musicVolume>0:sfx&&sfxVolume>0))return ()=>{};
+    const key=pianoKeys.reduce((a,b)=>Math.abs(a-note)<=Math.abs(b-note)?a:b),buffer=pianoPerformanceBuffers.get(key);if(!buffer)return ()=>{};
+    if(pianoVoices.size>=32)pianoVoices.values().next().value.release();
+    const source=audioSource(),gain=context.createGain(),at=context.currentTime+Math.max(0,Number(delay)||0),hold=Math.max(.08,Math.min(5,Number(duration)||.35));
+    const level=Math.max(0,Math.min(1,Number(velocity)||0)),volume=accompaniment?level*(SFX_LEVEL*.65)/(PIANO_MUSIC_LEVEL*.4):.30*level;
+    const attack=accompaniment?.01:.008,tail=accompaniment?.20:.22;
+    source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);
+    gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+attack);gain.gain.setValueAtTime(volume*(accompaniment?.85:1),at+hold);gain.gain.exponentialRampToValueAtTime(.0001,at+hold+tail);
+    source.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);
+    let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const now=context.currentTime;
+      if(now<at){gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(0,now);try{source.stop(now);}catch{}return;}
+      if(gain.gain.cancelAndHoldAtTime)gain.gain.cancelAndHoldAtTime(now);else{gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(gain.gain.value||0,now);}
+      gain.gain.linearRampToValueAtTime(0,now+.025);try{source.stop(now+.03);}catch{}
+    }};
+    pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();gain.disconnect();};source.start(at);source.stop(at+hold+tail+.02);return voice.release;
   }
 
   function pianoBeat(pulse,energy=1){
@@ -258,16 +314,16 @@
     }
   }
 
-  // Endless and Adventure use the original gameplay recording; Slice and Drop share the world theme.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/groove-game-v494154.ogg',drop:'assets/music/shape-drop-simple-230.ogg'};
-  const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=1.4;
-  let runMusicWorld='garden',musicMood=null;
-  const musicTrack=()=>scene==='drop'?'drop':scene==='game'?'game':'menu-'+(scene==='menu'?menuWorld:runMusicWorld);
+  // The final preview230 set: selected Endless C, separate Adventure and Slice, Simple Steps Drop.
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-c-v228.ogg',adventure:'assets/music/adventure-theme-v229.ogg',slice:'assets/music/shape-slice-theme-v229.ogg',drop:'assets/music/shape-drop-simple-230.ogg'};
+  const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=.85;
+  let musicMood=null;
+  const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
   const musicMixes={menu:[4300,0],adventure:[4700,.6],game:[6500,1.8],slice:[6200,1.4],drop:[5200,1.1],piano:[20000,0]};
   function updateMusicMix(){
     if(!musicTone||musicMood===scene)return;
     // The original gameplay recording is uncoloured; menu melodies bypass the low-pass filter.
-    const original=scene==='game'||scene==='adventure';
+    const original=scene==='game'||scene==='adventure'||scene==='piano';
     musicBus.disconnect();musicBus.connect(original?musicDuck:scene==='menu'?musicPresence:musicTone);
     if(original||scene==='menu'){musicMood=scene;return;}
     const now=context.currentTime,position=musicVoice?musicPosition(musicVoice,now):0;
@@ -282,8 +338,7 @@
   let musicVoice=null,musicEpoch=0,musicPending=null,musicTransition=null;
   const musicPosition=(voice,time)=>(voice.offset+Math.max(0,time-voice.startedAt))%voice.source.buffer.duration;
   const voiceLevel=(voice,time)=>Math.min(1,Math.max(0,(time-voice.startedAt)/voice.fadeIn));
-  // Web Audio schedules both tracks against the same sample clock. The game
-  // never waits for the musical boundary; only the backing-track handoff does.
+  // Both recordings share the audio clock, but begin crossfading immediately.
   function settleMusicTransition(cancel=false){
     const t=musicTransition;if(!t)return;const now=context.currentTime;
     if(!cancel&&now<t.end)return;
@@ -295,7 +350,12 @@
       musicVoice=t.from;
     }else{
       musicPositions[t.from.name]=musicPosition(t.from,t.start);
-      try{t.from.source.stop(now);}catch{}
+      if(cancel&&now<t.end){
+        const level=t.fromLevel*Math.max(0,1-(now-t.fadeAt)/(t.end-t.fadeAt));
+        t.from.gain.gain.cancelScheduledValues(now);t.from.gain.gain.setValueAtTime(level,now);
+        t.from.gain.gain.linearRampToValueAtTime(0,now+.12);
+        try{t.from.source.stop(now+.12);}catch{}
+      }else{try{t.from.source.stop(now);}catch{}}
       musicVoice=t.to;
     }
   }
@@ -321,12 +381,23 @@
     // A browser audio interruption is temporary: retain the looping voice.
     if(!active||context.state!=='running'||window.ShapeShiftPlatform.paused)return;
     if(!music||musicVolume<=0){
+      adaptiveMusic?.stop();
       if(musicVoice||musicPending)stopMusicTrack();return;
     }
-    if(scene==='piano')return;
+    if(scene==='piano'){updateMusicMix();return;}
+    if(adaptiveSupported()&&scene==='game'){
+      updateMusicMix();
+      if(adaptiveMusic){
+        if(adaptiveMusic.playing){if(musicVoice||musicPending)stopMusicTrack();return;}
+        if(!adaptiveStarting&&context.currentTime>=adaptiveRetryAt){
+          adaptiveStarting=adaptiveMusic.start().then(()=>{
+            if(!active||!music||musicVolume<=0||scene!=='game'||window.ShapeShiftPlatform.paused){adaptiveMusic.stop();return;}
+            schedule();
+          }).catch(()=>{adaptiveMusic.stop();adaptiveRetryAt=context.currentTime+5;}).finally(()=>{adaptiveStarting=null;});
+        }
+      }else prepareAdaptive();
+    }
     settleMusicTransition();updateMusicMix();
-    // Finish an audible handoff before starting another; rapid selections queue the latest world.
-    if(musicTransition)return;
     const name=musicTrack();
     if(musicVoice?.name===name||musicPending===name||context.currentTime<(musicRetry.get(name)||0))return;
     const epoch=musicEpoch;musicPending=name;
@@ -334,10 +405,9 @@
       if(epoch!==musicEpoch)return;musicPending=null;
       if(!buffer||!active||!music||musicVolume<=0||window.ShapeShiftPlatform.paused||context.state!=='running'||musicTrack()!==name)return;
       const now=context.currentTime,from=musicVoice;
-      // Join at the next bar, allowing 60 ms of scheduling lead time.
-      const position=from?musicPosition(from,now):0;
-      const start=from?now+Math.ceil((position+.06)/MUSIC_BAR)*MUSIC_BAR-position:now;
-      const offset=from?Math.floor((musicPositions[name]+.00001)/MUSIC_BAR)*MUSIC_BAR%buffer.duration:musicPositions[name]%buffer.duration;
+      // Begin the handoff immediately; unrelated recordings do not share a bar clock.
+      const start=now;
+      const offset=musicPositions[name]%buffer.duration;
       const fadeIn=from?MUSIC_CROSSFADE:(scene==='menu'?.85:.3);
       const source=audioSource(),gain=context.createGain();
       source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
@@ -348,8 +418,8 @@
       if(from){
         const fadeAt=start,end=start+MUSIC_CROSSFADE,fromLevel=voiceLevel(from,now);
         from.gain.gain.cancelScheduledValues(now);from.gain.gain.setValueAtTime(fromLevel,now);
-        from.gain.gain.linearRampToValueAtTime(1,fadeAt);from.gain.gain.linearRampToValueAtTime(0,end);
-        musicTransition={from,to:voice,start,fadeAt,end,fromLevel:1};
+        from.gain.gain.linearRampToValueAtTime(fromLevel,fadeAt);from.gain.gain.linearRampToValueAtTime(0,end);
+        musicTransition={from,to:voice,start,fadeAt,end,fromLevel};
       }
       source.start(start,offset);
 
@@ -374,12 +444,11 @@
 
   function setMenuWorld(value){
     const next=['garden','moon','sunset'].includes(value)?value:'garden';if(menuWorld===next)return;menuWorld=next;
-    if(scene==='menu'&&context){if(musicTransition&&context.currentTime<musicTransition.start)settleMusicTransition(true);musicEpoch++;musicPending=null;schedule();}
+    if(scene==='menu'&&context){settleMusicTransition(true);musicEpoch++;musicPending=null;schedule();}
   }
   function setScene(value,{preservePraise=false}={}) {
     const target=['menu','game','adventure','slice','drop','piano'].includes(value)?value:'menu';
-    if(target===scene)return;if(musicTransition&&context.currentTime<musicTransition.start)settleMusicTransition(true);if(!preservePraise)stopVoice();stopSlice();stopPiano();
-    if(scene==='menu'&&target!=='menu'&&target!=='piano')runMusicWorld=menuWorld;
+    if(target===scene)return;adaptiveMusic?.stop();settleMusicTransition(true);if(!preservePraise)stopVoice();stopSlice();stopPiano();
     if(target==='piano')stopMusicTrack(.2);scene=target;if(context){
       if(target==='piano')updateMusicMix();
       musicBus.gain.setTargetAtTime(music?musicLevel()*musicVolume/100:0,context.currentTime,.25);
@@ -618,6 +687,7 @@
   function stopVoice(fade=0){voiceEpoch++;if(voiceSource){try{voiceSource.stop(context.currentTime+fade);}catch{}voiceSource=null;}}
   function pause() {
     if(!context)return;
+    adaptiveMusic?.stop();
     const epoch=++lifecycleEpoch;active=false;window.ShapeShiftPlatform.clearInterval(timer);timer=null;
     musicEpoch++;musicPending=null;
     fadeMaster(0,.06);
@@ -668,5 +738,5 @@
     source.onended=()=>{source.disconnect();gain.disconnect();};
     return ()=>{try{source.stop();}catch{}};
   }
-  window.gameAudio = Object.freeze({ prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  window.gameAudio = Object.freeze({ updateEndlessMusic, prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoPerformance, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

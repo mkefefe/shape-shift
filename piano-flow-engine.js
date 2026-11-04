@@ -1,6 +1,6 @@
-import {createSongSequence} from './piano-songs.js?v=494235';
-import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=494235';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494235';
+import {createSongSequence} from './piano-songs.js?v=494236';
+import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=494236';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494236';
 export const PIANO_LANES=3,PIANO_WINDOW=.38;
 // At the fastest strip tempo this still leaves over half a second to change strips.
 export const PIANO_HOLD_GAP=1.5,PIANO_MAX_HOLD=4.5;
@@ -17,13 +17,13 @@ export const pianoTempo=seconds=>90+Math.min(90,Math.max(0,seconds)*.32);
 // Full-song play accelerates gently from four seconds, independently of song changes.
 export const pianoSongTempo=seconds=>88+Math.min(68,Math.max(0,seconds-4)*.65);
 export const pianoStripTempo=seconds=>72+Math.min(108,Math.max(0,seconds-30)*.3);
-export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upgrade=0,directTouch=false,rhythm=false,stripTap=false,melodicStrips=false,fullSongs=false,practice=false}={}){
+export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upgrade=0,directTouch=false,rhythm=false,stripTap=false,melodicStrips=false,fullSongs=false,practice=false,recoverWrongTap=false,brightSongs=false}={}){
  const resumableHolds=stripTap||melodicStrips;
  const maxLives=maxLivesForFrame(frame,upgrade),g={practice,frame,time:0,beat:fullSongs?-3:stripTap?0:-4,countdown:stripTap?3:0,started:false,paused:false,over:false,notes:[],score:0,coins:0,hits:0,combo:0,bestCombo:0,maxLives,lives:maxLives,bpm:fullSongs?88:stripTap?72:90,lanes:rhythm?4:3,fullSongs,songTitle:'',section:'',songsCompleted:0,rhythm,stripTap,melodicStrips,pressed:new Set()};
  let cursor=stripTap?2:directTouch&&!rhythm?2.5:0,serial=0,lastLane=-1,lastWrong=-10,lastBeat=stripTap?-1:-5,practiceTime=0;
- const nextMusic=fullSongs?createSongSequence(rng):createPianoSequence(rng,{difficulty:()=>pianoDifficulty(Math.max(0,g.time-practiceTime))});
+ const nextMusic=fullSongs?createSongSequence(rng,{bright:brightSongs}):createPianoSequence(rng,{difficulty:()=>pianoDifficulty(Math.max(0,g.time-practiceTime))});
  const completedAt=new Map();
- let performed=null;
+ let performed=null,recovery=null;
  const measures=[],backingOrigin=fullSongs?2:0;let backingPulse=0,damageUntil=-1;
  const emit=(type,extra={})=>onEvent({type,...extra,time:g.time,beat:g.beat});
  function fill(){if(practice)return;while(cursor<g.beat+9){
@@ -48,6 +48,11 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(expected)expected.damageCharged=true;
   if(damaged){g.combo=0;g.lives=Math.max(0,g.lives-1);damageUntil=g.time+1.5;}
   emit('miss',{note,reason,damaged});if(!g.lives)end();
+  else if(recoverWrongTap&&fullSongs&&reason==='wrong'&&damaged&&expected){
+   recovery={note:expected,from:g.beat,to:Math.min(g.beat,expected.beat-2.2),elapsed:0};
+   g.recoverySeconds=1;g.pressed.clear();performed=null;
+   emit('recover',{note:expected,seconds:1});
+  }
  }
 
  function complete(note){if(['done','missed'].includes(note.status))return;note.status='done';note.awaiting=false;completedAt.set(note.lane,g.time);g.hits++;g.coins=Math.min(100000,g.coins+1);g.combo++;g.bestCombo=Math.max(g.bestCombo,g.combo);g.score=g.hits*frameRewardMultiplier(frame);emit('complete',{note,perfect:note.perfect});}
@@ -89,7 +94,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(note.hold)emit('hold',{note});else complete(note);
  }
  function pressNote(id){
-  if(!g.started||g.countdown>0||!fullSongs&&g.beat<(rhythm?-PIANO_WINDOW:0)||g.paused||g.over)return false;
+  if(!g.started||g.countdown>0||g.recoverySeconds>0||!fullSongs&&g.beat<(rhythm?-PIANO_WINDOW:0)||g.paused||g.over)return false;
   const note=g.notes.find(n=>n.id===id);if(!note||g.pressed.has(note.lane)||melodicStrips&&g.pressed.size)return false;
   if(melodicStrips&&['waiting','partial'].includes(note.status)&&nextUnplayed()!==note)return wrongStrip();
   if(resumableHolds&&note.status==='partial'){
@@ -111,7 +116,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  // A finger owns exactly one strip. Subsequent notes sound on the same beat position,
  // rather than all visible shapes being collected at once.
  function pressStrip(lane){
-  if(!Number.isInteger(lane)||lane<0||lane>=g.lanes||!g.started||g.countdown>0||g.paused||g.over||g.pressed.size)return false;
+  if(!Number.isInteger(lane)||lane<0||lane>=g.lanes||!g.started||g.countdown>0||g.recoverySeconds>0||g.paused||g.over||g.pressed.size)return false;
   const awaiting=g.notes.find(n=>n.status==='holding'&&n.awaiting);
   if(awaiting){if(awaiting.lane!==lane)return false;return pressNote(awaiting.id);}
   const next=nextUnplayed();
@@ -123,6 +128,9 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  }
  function release(lane){g.pressed.delete(lane);if(g.paused||g.over)return;const n=g.notes.find(n=>n.lane===lane&&n.status==='holding'&&!n.awaiting);if(n){if(resumableHolds){n.status='partial';emit('release',{note:n});return;}if(g.beat<n.end-.16)fail(n,'released');else complete(n);}}
  function step(dt){if(!g.started||g.paused||g.over||!Number.isFinite(dt)||dt<=0||g.notes.some(n=>n.status==='holding'&&n.awaiting))return;
+  if(recovery){recovery.elapsed+=Math.min(.05,dt);const u=Math.min(1,recovery.elapsed/.35),ease=u*u*(3-2*u);
+   g.beat=recovery.from+(recovery.to-recovery.from)*ease;g.recoverySeconds=Math.max(0,1-recovery.elapsed);
+   if(!g.recoverySeconds){recovery.note.damageCharged=false;damageUntil=-1;recovery=null;emit('recovered');}return;}
   if(practice){const next=nextUnplayed();if(!next||next.status!=='holding'){if(next&&g.beat<next.beat-.25)g.beat=Math.min(next.beat-.25,g.beat+Math.min(.05,dt)*1.2);g.time+=Math.min(.05,dt);return;}}
   const seconds=Math.min(.05,dt);if(g.countdown>0){const before=Math.ceil(g.countdown);g.countdown=Math.max(0,g.countdown-seconds);if(g.countdown<1e-8)g.countdown=0;const after=Math.ceil(g.countdown);if(after!==before)emit(after?'countdown':'ready',{count:after});return;}
   const previousBeat=g.beat;g.time+=seconds;const elapsed=Math.max(0,g.time-practiceTime);g.bpm=fullSongs?pianoSongTempo(elapsed):stripTap?pianoStripTempo(elapsed):pianoTempo(elapsed);g.beat+=seconds*g.bpm/60;

@@ -1,12 +1,12 @@
 import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
-import {loadStartupAssets} from './startup-loader.js?v=494235';
-import {loadDestination} from './destination-loader.js?v=494235';
+import {loadStartupAssets} from './startup-loader.js?v=494236';
+import {loadDestination} from './destination-loader.js?v=494236';
 import {adventureChallenge,challengeTasks} from './adventure-challenges.js?v=207';
-import {starTasks} from './adventure-star-tasks.js?v=494235';
-import {COSMETICS} from './economy.js?v=494235';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494235';
-import {rewardMarkup} from './adventure-rewards.js?v=494235';
+import {starTasks} from './adventure-star-tasks.js?v=494236';
+import {COSMETICS} from './economy.js?v=494236';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494236';
+import {rewardMarkup} from './adventure-rewards.js?v=494236';
 export const GAMES_UNLOCK_LEVEL=10;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
