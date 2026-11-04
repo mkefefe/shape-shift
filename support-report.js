@@ -1,5 +1,5 @@
-import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494240';
-import {REPORT_MODES,submitBugReport,supportErrorMessage} from './support-api.js?v=494240';
+import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494241';
+import {REPORT_MODES,submitBugReport,supportErrorMessage} from './support-api.js?v=494241';
 export {REPORT_MODES};
 export const REPORT_DRAFT_KEY='shape-shift-report-draft-v2';
 
@@ -54,7 +54,7 @@ export function createReportDraft({storage,submit=submitBugReport,randomId=()=>c
 export function initBugReport(settingsRoot,sound=()=>{}){
  const doc=settingsRoot.ownerDocument;
  const existing=doc.getElementById('report-bug-open');if(existing)return existing;
- const sheet=doc.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./support-report.css?v=494240',import.meta.url).href;doc.head.append(sheet);
+ const sheet=doc.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./support-report.css?v=494241',import.meta.url).href;doc.head.append(sheet);
  const button=doc.createElement('button');button.type='button';button.id='report-bug-open';button.className='secondary';button.textContent='Report a bug';button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','bug-report-dialog');settingsRoot.querySelector('.settings-links').prepend(button);
  const dialog=doc.createElement('dialog');dialog.id='bug-report-dialog';dialog.dataset.nativeForm='true';dialog.setAttribute('aria-labelledby','bug-report-title');
  dialog.innerHTML=`<form class="support-report-form">

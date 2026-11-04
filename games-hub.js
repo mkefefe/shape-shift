@@ -1,6 +1,6 @@
-import {bindLaunchTap} from './menu-navigation.js?v=494240';
-import {activeSkin} from './shape-skin-art.js?v=494240';
-import {decodeMenuImage} from './menu-preload.js?v=494240';
+import {bindLaunchTap} from './menu-navigation.js?v=494241';
+import {activeSkin} from './shape-skin-art.js?v=494241';
+import {decodeMenuImage} from './menu-preload.js?v=494241';
 export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.gameAudio?.ui(name)}){
  const dialog=document.createElement('dialog');dialog.id='games-hub';dialog.setAttribute('aria-label','Games');document.body.append(dialog);
  const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text)e.textContent=text;return e;};

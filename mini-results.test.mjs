@@ -51,3 +51,18 @@ test('Adventure save failure keeps minigame results open until retry succeeds wi
  blocked=false;f.click(f.get('adventure-continue'));assert.equal(home,1);assert.equal(retry,0);assert.equal(f.get('over-dialog').open,false);
  }finally{globalThis.window=old;}
 });
+
+for(const label of ['Continue Adventure','Retry level'])test('Adventure primary action uses its authored-stage destination: '+label,async()=>{
+ const f=fixture(),old=globalThis.window;globalThis.window=f.host;let next=0,home=0,resolve;
+ try{createMiniResults({host:f.host}).show({adventure:true,nextLabel:label,score:24,best:50,coins:6,elapsed:30000,xpBefore:0,xpAfter:24,retry(){},restart:()=>{next++;return new Promise(done=>resolve=done);},finish:()=>home++});
+ assert.equal(f.get('adventure-continue').textContent,label);assert.match(f.get('result-survival').textContent,/^Time /);
+ f.click(f.get('adventure-continue'));f.click(f.get('adventure-continue'));assert.equal(next,1);assert.equal(home,0);assert.equal(f.get('over-dialog').open,true);
+ resolve(true);await Promise.resolve();assert.equal(f.get('over-dialog').open,false);
+ }finally{globalThis.window=old;}
+});
+test('leaving Adventure results outside the primary button still returns home',()=>{
+ const f=fixture(),old=globalThis.window;globalThis.window=f.host;let next=0,home=0;
+ try{createMiniResults({host:f.host}).show({adventure:true,nextLabel:'Continue Adventure',score:24,best:50,coins:6,xpBefore:0,xpAfter:24,retry(){},restart:()=>next++,finish:()=>home++});
+ f.click(f.get('over-dialog'));assert.equal(home,1);assert.equal(next,0);
+ }finally{globalThis.window=old;}
+});

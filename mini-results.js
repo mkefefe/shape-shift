@@ -1,12 +1,12 @@
-import {revealAdventureRewards} from './adventure-rewards.js?v=494240';
-import {formatSurvivalTime} from './survival-clock.js?v=494240';
-import {playerProgress} from './economy.js?v=494240';
-import {startResultTally} from './countdown.js?v=494240';
+import {revealAdventureRewards} from './adventure-rewards.js?v=494241';
+import {formatSurvivalTime} from './survival-clock.js?v=494241';
+import {playerProgress} from './economy.js?v=494241';
+import {startResultTally} from './countdown.js?v=494241';
 
 // All modes share the same results DOM, artwork, buttons and XP progress track.
 export function createMiniResults({host=window}={}){
  let cleanup=null;
- return {reset(){cleanup?.();cleanup=null;},show({title='RUN COMPLETE',score,best,coins,elapsed=0,xpBefore,xpAfter,stored=true,pending=false,retry,restart,finish,adventureMarkup='',nextLabel='Continue',beforeLeave=()=>true,saveError=''}){
+ return {reset(){cleanup?.();cleanup=null;},show({title='RUN COMPLETE',score,best,coins,elapsed=0,xpBefore,xpAfter,stored=true,pending=false,retry,restart,finish,adventure=false,adventureMarkup='',nextLabel='Continue',beforeLeave=()=>true,saveError=''}){
   cleanup?.();
   const doc=host.document,d=doc.getElementById('over-dialog'),get=id=>doc.getElementById(id);
   const ids=['record','final-score','final-coins','result-progress','result-xp-label','final-best','ad-status','result-return-countdown','result-survival','adventure-result','adventure-continue','continue-ad','level-progress'];
@@ -15,10 +15,10 @@ export function createMiniResults({host=window}={}){
   const oldResultMode=d.dataset.resultMode;d.dataset.resultMode='mini';
   const oldClass=d.className,oldButton=watch.querySelector('strong').textContent,oldNext=next.textContent,oldBest=bestLine.firstChild.textContent,oldHint=hint.textContent;
   d.classList.remove('clear-results','continue-offer','adventure-results','victory-result','victory-arriving');
-  get('record').textContent=title;get('adventure-result').hidden=true;get('result-survival').hidden=false;get('result-survival').textContent='Survived '+formatSurvivalTime(elapsed);get('result-return-countdown').hidden=true;
+  get('record').textContent=title;get('adventure-result').hidden=true;get('result-survival').hidden=false;get('result-survival').textContent=(adventure?'Time ':'Survived ')+formatSurvivalTime(elapsed);get('result-return-countdown').hidden=true;
   bestLine.hidden=false;bestLine.firstChild.textContent='Best score ';get('final-best').textContent=best.toLocaleString();
   watch.hidden=true;watch.disabled=false;
-  next.hidden=false;next.disabled=false;next.textContent=stored&&!saveError?'Continue':'Save results';
+  next.hidden=false;next.disabled=false;next.textContent=stored&&!saveError?(adventure?nextLabel:'Continue'):'Save results';
   if(adventureMarkup){get('adventure-result').hidden=false;get('adventure-result').classList.remove('rewards-revealed','rewards-settled');get('adventure-result').innerHTML=adventureMarkup;d.classList.add('adventure-results');}
   hint.hidden=false;hint.textContent=stored?'Tap anywhere else':'Tap Save results to save your run.';
   get('ad-status').textContent=saveError||(!stored?'Could not save this run. Free some storage and retry.':pending?'Reward saved. Wallet sync will retry.':'');
@@ -34,7 +34,7 @@ export function createMiniResults({host=window}={}){
    const complete=ok=>{if(ok===false){recover();return;}if(cleanup===ownedCleanup){cleanup=null;ownedCleanup?.();}};
    try{const pending=fn();if(pending&&typeof pending.then==='function')pending.then(complete,recover);else complete(pending);}catch{recover();}
   }
-  function click(e){e.stopImmediatePropagation();e.preventDefault();if(next.contains(e.target))leave(stored?finish:retry);else if(stored)leave(finish);}
+  function click(e){e.stopImmediatePropagation();e.preventDefault();if(next.contains(e.target))leave(stored?(adventure&&typeof restart==='function'?restart:finish):retry);else if(stored)leave(finish);}
   function leaveMode(){if(stored)leave(finish);}
   d.addEventListener('restoration:leave-mode',leaveMode);
   function cancel(e){e.stopImmediatePropagation();e.preventDefault();if(stored)leave(finish);}

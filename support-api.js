@@ -1,4 +1,4 @@
-import {LEADERBOARD_URL} from './leaderboard.js?v=494240';
+import {LEADERBOARD_URL} from './leaderboard.js?v=494241';
 
 export const REPORT_MODES=Object.freeze(['Menus or settings','Endless','Adventure','Shape Drop','Shape Slice','Piano Flow','Battle','Other']);
 export const REPORT_STATUSES=Object.freeze(['new','read','resolved']);

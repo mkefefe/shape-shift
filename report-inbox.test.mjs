@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createReportInbox} from './report-inbox.js';
 const id='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
-const row=(id,status='new')=>({id,status,mode:'Piano Flow',description:'<img src=x onerror=alert(1)>',build:'4.94.240',distribution:'github',createdAt:1800000000000});
+const row=(id,status='new')=>({id,status,mode:'Piano Flow',description:'<img src=x onerror=alert(1)>',build:'4.94.241',distribution:'github',createdAt:1800000000000});
 const reply=(reports,next=null,unread=reports.filter(r=>r.status==='new').length)=>({reports,next,unread});
 
 test('inbox pagination keeps the filter and does not duplicate a report from the next page',async()=>{

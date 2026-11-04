@@ -1,27 +1,27 @@
-import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494240';
-import {createResultJournal} from './run-results.js?v=494240';
-import {beginModeTransition} from './mode-transition.js?v=494240';
-import {engagement,registerModeState} from './telemetry.js?v=494240';
+import {createAdventureChallengeRun} from './adventure-challenges.js?v=494241';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
+import {createResultJournal} from './run-results.js?v=494241';
+import {beginModeTransition} from './mode-transition.js?v=494241';
+import {engagement,registerModeState} from './telemetry.js?v=494241';
 import {createDropWater} from './drop-water.js';
-import {translate} from './localization.js?v=494240';
+import {translate} from './localization.js?v=494241';
 import {createDropMergeAudio} from './drop-merge-audio.js';
 import {dropArtworkGeometry} from './drop-art-geometry.js';
-import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494240';
+import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494241';
 import {createSceneryTint} from './scenery-progress.js';
 import {bindDropKeyboard} from './drop-keyboard.js';
 import {dropBombFeedback} from './bomb-feedback.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494240';
-import {createMiniResults} from './mini-results.js?v=494240';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494241';
+import {createMiniResults} from './mini-results.js?v=494241';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {ARTWORK_CROPS} from './artwork-crops.js';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494240';
-import {SHAPE_SKINS} from './shape-skins.js?v=494240';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494241';
+import {SHAPE_SKINS} from './shape-skins.js?v=494241';
 import {miniGameCoins} from './mini-game-rewards.js';
 import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js';
-import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494240';
+import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494241';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image(),obstacleArt=new Image(),bombArt=new Image(),gardenArt=new Image(),imageLoads=new WeakMap();
 function loadDropImage(image,src){
@@ -48,10 +48,11 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
  let M;
  const teaching=createMiniTutorial('drop');
  const practice=createModePractice('drop',{onComplete:()=>continuePracticeRun(game,()=>{
+  if(game.stageProgress){fx=[];mergeAudio.reset();keyboard.reset();hitFeedback.reset();last=window.ShapeShiftPlatform.now();announcement.textContent=dropHint();}
   engagement.startRun('drop');
   onQuestEvent({type:'start',mode:'drop',time:game.time});
   lastHud='';update();
- })});
+ },getAdventureChallenge())});
  const onQuestEvent=event=>{if(!practice.active)reportQuest(event);};
  const dialog=document.createElement('dialog');dialog.id='shape-drop';dialog.setAttribute('aria-label','Shape Drop');document.body.append(dialog);
  let crops=[],artworkPromise;const collisionArtwork=new WeakMap();
@@ -129,7 +130,7 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
   c.drawImage(stamp,-size/2,-h/2,size,h);
   c.restore();
  }
- function dropHint(){return game.queue[0].bomb?'Drop the bomb to clear nearby shapes':game.queue[0].obstacle?'Locked block · Stays in the pile · Aim carefully':'Tap where you want to drop';}
+ function dropHint(){const tile=game.queue[0];return !tile?'All drops placed · Let the final matches settle':tile.bomb?'Drop the bomb to clear nearby shapes':tile.obstacle?'Locked block · Stays in the pile · Aim carefully':'Tap where you want to drop';}
 
  function drawMerge(f){
   drawDropMerge(ctx,f,game.time-f.at,(paint,tile,scale,golden)=>{const crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r,crop.w/crop.h,tile.geometry);drawShape(paint,tile,box.x*scale,box.y*scale,box.width*scale,0,1,golden);},{quiet});
@@ -146,7 +147,7 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
   if(game.danger>0){ctx.fillStyle='#ff786b25';ctx.fillRect(0,DROP_LINE,W,42);}
   ctx.strokeStyle=game.danger>0?'#cf4e53':'#76a89b88';ctx.setLineDash([6,8]);ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(6,DROP_LINE);ctx.lineTo(W-6,DROP_LINE);ctx.stroke();ctx.setLineDash([]);
   if(game.danger>0){ctx.fillStyle='#a72e40';ctx.font='900 11px Nunito,sans-serif';ctx.textAlign='center';ctx.fillText(translate('Clear the top!'),W/2,DROP_LINE+20);}
-  if(!game.over){
+  if(!game.over&&game.queue.length){
    if(drag!==null){ctx.save();ctx.strokeStyle='#ffffff';ctx.shadowColor='#164b68';ctx.shadowBlur=3;ctx.setLineDash([4,8]);ctx.lineCap='round';ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(game.aim,52);ctx.lineTo(game.aim,Math.max(52,game.landingY()));ctx.stroke();ctx.restore();}
    const tile=game.queue[0],crop=dropCrop(tile),box=fitDropArtwork(tile.shape,tile.r??DROP_RADIUS,crop.w/crop.h,tile.geometry);
    // Use the same size, pivot and starting height as the falling body.
@@ -164,8 +165,8 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
   for(const p of framePatches)ctx.drawImage(containerArt,p.sx,p.sy,p.sw,p.sh,p.x,p.y,p.width,p.height);
 
  }
- function update(){if(!game)return;const key=[game.score,game.cleared,game.pieces.length,game.drops].join(':');if(key===lastHud)return;lastHud=key;hudScore.textContent=game.score.toLocaleString();hudCoins.textContent=(game.practice?0:miniGameCoins(game.cleared)).toLocaleString();hudCoins.parentElement.setAttribute('aria-label',(game.practice?0:miniGameCoins(game.cleared))+' coins earned this run');canvas.setAttribute('aria-label',`Shape Drop play area. Score ${game.score}. ${game.pieces.filter(p=>!p.drop.obstacle).length} shapes. ${game.pieces.filter(p=>p.drop.obstacle).length} locked blocks. Current drop: ${game.queue[0].bomb?'bomb, clears nearby objects':game.queue[0].obstacle?'locked block, cannot match':`matching shape, ${game.queue[0].sizeScale??1} times size`}. Drag to aim and release to drop. Hold A or D to aim smoothly, S drops. Left and right arrows also aim, Space drops, Up rotates.`);}
- function release(){if(!game||paused||game.over||practice.finished)return;if(practice.active)game.queue.forEach(t=>Object.assign(t,{shape:0,color:1,bomb:false,obstacle:false,geometry:null}));const locked=game.queue[0].obstacle;engagement.interaction('drop');if(game.drop()){engagement.successfulAction('drop');teaching.event('drop');if(practice.active)practice.complete(); play(locked?'drop-block':'drop-release');announcement.textContent=locked?'Locked blocks stay in the pile':dropHint();update();}}
+ function update(){if(!game)return;const key=[game.score,game.cleared,game.pieces.length,game.drops].join(':');if(key===lastHud)return;lastHud=key;hudScore.textContent=game.score.toLocaleString();hudCoins.textContent=(game.practice?0:miniGameCoins(game.cleared)).toLocaleString();hudCoins.parentElement.setAttribute('aria-label',(game.practice?0:miniGameCoins(game.cleared))+' coins earned this run');const tile=game.queue[0];canvas.setAttribute('aria-label',`Shape Drop play area. Score ${game.score}. ${game.pieces.filter(p=>!p.drop.obstacle).length} shapes. ${game.pieces.filter(p=>p.drop.obstacle).length} locked blocks. Current drop: ${!tile?'none, waiting for final matches to settle':tile.bomb?'bomb, clears nearby objects':tile.obstacle?'locked block, cannot match':`matching shape, ${tile.sizeScale??1} times size`}. Drag to aim and release to drop. Hold A or D to aim smoothly, S drops. Left and right arrows also aim, Space drops, Up rotates.`);}
+ function release(){if(!game||paused||game.over||practice.finished||!game.queue.length)return;if(practice.active)game.queue.forEach(t=>Object.assign(t,{shape:0,color:1,bomb:false,obstacle:false,geometry:null}));const locked=game.queue[0].obstacle;engagement.interaction('drop');if(game.drop()){engagement.successfulAction('drop');teaching.event('drop');if(practice.active)practice.complete(); play(locked?'drop-block':'drop-release');announcement.textContent=locked?'Locked blocks stay in the pile':dropHint();update();}}
  function panel(title){overlay?.remove();overlay=make('div','drop-overlay');const card=make('section','drop-panel');card.append(make('h2','',title));overlay.append(card);dialog.append(overlay);for(const child of dialog.children)if(child!==overlay)child.inert=true;return card;}
  function resume(){if(!paused||game?.over)return;overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;paused=false;dialog.dataset.paused='false';last=window.ShapeShiftPlatform.now();canvas.focus();update();}
  function pause(message){if(!game||game.over||paused)return;paused=true;keyboard.reset();window.gameAudio?.stopPraise();dialog.dataset.paused='true';drag=null;const card=panel('Paused');card.classList.add('drop-pause-panel');if(!adventureRun.active())card.append(make('p','drop-result-best','Best score '+Math.max(progress.best,game.score).toLocaleString()));if(message)card.append(make('p','',message));if(!adventureRun.pause(card,{panel,button,resume,exit:close}))card.append(button('Resume',resume),button('End run',()=>{game.end();showResult();},'drop-secondary'));card.querySelector('button').focus();update();}
@@ -186,7 +187,7 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
   const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
   if(token!==version||!dialog.open)return;overlay=null;for(const child of dialog.children)child.inert=false;
-  dropWater=createDropWater(scenery,gardenArt);dropWater.step(0);settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),practice:practice.active,height:layout.worldHeight,geometryFor:tile=>tile.bomb?null:collisionArtwork.get(dropCrop(tile)),autoDrop:false,onImpact:event=>play(event.type==='floor'?'drop-land':'drop-touch'),onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{if(practice.active)practice.finish();teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});mergeAudio.merge(game.time);for(const group of event.groups)fx.push({kind:'merge',at:game.time,x:group.reduce((sum,b)=>sum+b.position.x,0)/group.length,y:group.reduce((sum,b)=>sum+b.position.y,0)/group.length,pieces:group.map(b=>({tile:{...b.drop},x:b.position.x,y:b.position.y,angle:b.angle}))});announcement.textContent='Match!  +'+event.score;}});
+  dropWater=createDropWater(scenery,gardenArt);dropWater.step(0);settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),practice:practice.active,adventure:practice.active?null:getAdventureChallenge(),height:layout.worldHeight,geometryFor:tile=>tile.bomb?null:collisionArtwork.get(dropCrop(tile)),autoDrop:false,onImpact:event=>play(event.type==='floor'?'drop-land':'drop-touch'),onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{if(practice.active)practice.finish();teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});mergeAudio.merge(game.time);for(const group of event.groups)fx.push({kind:'merge',at:game.time,x:group.reduce((sum,b)=>sum+b.position.x,0)/group.length,y:group.reduce((sum,b)=>sum+b.position.y,0)/group.length,pieces:group.map(b=>({tile:{...b.drop},x:b.position.x,y:b.position.y,angle:b.angle}))});announcement.textContent='Match!  +'+event.score;}});
   if(!practice.active)engagement.startRun('drop');onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();await gate.reveal(()=>render());if(token!==version||!dialog.open)return;startPractice();canvas.focus();last=window.ShapeShiftPlatform.now();adventureRun.start(dialog);raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const aim=e=>{if(paused||game.over||!transform)return;const r=canvas.getBoundingClientRect();game.aimAt((e.clientX-r.left-transform.x)/transform.scale);};
   canvas.onpointerdown=e=>{if(e.button!==0||drag!==null||paused||game.over||!transform)return;keyboard.reset();drag=e.pointerId;canvas.setPointerCapture(e.pointerId);aim(e);};canvas.onpointermove=e=>{if(drag===e.pointerId)aim(e);};canvas.onpointerup=e=>{if(drag===e.pointerId){aim(e);drag=null;release();render();}};canvas.onpointercancel=()=>{drag=null;render();};canvas.onlostpointercapture=()=>{drag=null;render();};

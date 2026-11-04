@@ -32,7 +32,7 @@
     if(adaptiveLoading)return adaptiveLoading;
     if(adaptiveMusic)return Promise.resolve(true);
     if(!retry&&context.currentTime<adaptiveRetryAt)return Promise.resolve(false);
-    adaptiveLoading=import('./adaptive-music.js?v=494240').then(async module=>{
+    adaptiveLoading=import('./adaptive-music.js?v=494241').then(async module=>{
       const player=await module.createAdaptiveMusic(context,musicBus,{recordingGain:recordingGain('game')});
       if(!await player.prepare()){player.dispose();throw Error('Endless audio unavailable');}
       adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();

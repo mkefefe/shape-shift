@@ -1,4 +1,4 @@
-import {DROP_MERGE_BURST_AT} from './drop-merge-fx.js?v=494240';
+import {DROP_MERGE_BURST_AT} from './drop-merge-fx.js?v=494241';
 
 // Follow the same active-game clock as the visuals. No delayed callbacks can
 // outlive a paused, closed, or restarted run.

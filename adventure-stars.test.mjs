@@ -11,7 +11,10 @@ test('100 distinct plans, three optional stars, and no boost tasks before unlock
 });
 test('special stages replace equipment stars with attainable score and skill goals',()=>{
  const tasks=levelTasks(40);assert.equal(tasks.length,3);assert.equal(tasks[0].type,'challengeScore');
- assert(levelComplete(40,{challengeScore:tasks[0].target}));assert(!levelComplete(40,{challengeScore:tasks[0].target-1}));
+ assert(!levelComplete(40,{challengeScore:tasks[0].target}));
+ assert(!levelComplete(40,{challengeScore:tasks[0].target,stageComplete:0}));
+ assert(levelComplete(40,{challengeScore:tasks[0].target,stageComplete:1}));
+ assert(!levelComplete(40,{challengeScore:tasks[0].target-1,stageComplete:1}));
  assert(levelObjectives(40,{won:true,challengeScore:tasks[0].target,elapsed:50000,wrong:0,bestCombo:5}).every(o=>o.done));
 });
 test('all three boosts means three distinct successful activations in this run',()=>{

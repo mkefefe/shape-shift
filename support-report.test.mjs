@@ -9,8 +9,8 @@ const id1='11111111-1111-4111-8111-111111111111',id2='22222222-2222-4222-8222-22
 const draftStorage=()=>{const data=new Map();return {getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,String(value)),removeItem:key=>data.delete(key)};};
 test('report payload preserves plain Unicode text and sends only the requested report fields',()=>{
  const description='Music stopped & the menu said <p>hello</p>\nExpected: 音楽 🎵 + buttons.';
- const report=buildBugReport({description:'  '+description+'  ',mode:'Shape Drop',version:'4.94.240',distribution:'github',id:id1});
- assert.deepEqual(report,{id:id1,description,mode:'Shape Drop',build:'4.94.240',distribution:'github'});
+ const report=buildBugReport({description:'  '+description+'  ',mode:'Shape Drop',version:'4.94.241',distribution:'github',id:id1});
+ assert.deepEqual(report,{id:id1,description,mode:'Shape Drop',build:'4.94.241',distribution:'github'});
  assert.equal(buildBugReport({description:'test',mode:'untrusted mode',id:id1}).mode,'Other');
  assert.throws(()=>buildBugReport({description:'  \n '}),/Describe/);
  assert.throws(()=>buildBugReport({description:'a'.repeat(2001)}),/2,000/);

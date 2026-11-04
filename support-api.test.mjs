@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {supportRequest,submitBugReport,loadReportInbox,updateReportStatus,REPORT_TOKEN_KEY,supportErrorMessage} from './support-api.js';
 const id='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
-const payload={id,mode:'Piano Flow',description:'音楽 stopped <script>safe text</script>',build:'4.94.240',distribution:'github'};
+const payload={id,mode:'Piano Flow',description:'音楽 stopped <script>safe text</script>',build:'4.94.241',distribution:'github'};
 const entry={...payload,createdAt:1800000000000,status:'new'};
 function fixture(entries=[]){const values=new Map(entries),calls=[];const platform={storage:{getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,String(value))}};return {values,calls,platform};}
 const response=(body,status=200)=>({ok:status>=200&&status<300,status,json:async()=>body});

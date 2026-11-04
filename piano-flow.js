@@ -1,21 +1,21 @@
-import {pianoBackingPlan} from './piano-backing.js?v=494240';
-import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494240';
-import {createResultJournal} from './run-results.js?v=494240';
-import {beginModeTransition} from './mode-transition.js?v=494240';
-import {engagement,registerModeState} from './telemetry.js?v=494240';
-import {translate} from './localization.js?v=494240';
+import {pianoBackingPlan} from './piano-backing.js?v=494241';
+import {createAdventureChallengeRun} from './adventure-challenges.js?v=494241';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
+import {createResultJournal} from './run-results.js?v=494241';
+import {beginModeTransition} from './mode-transition.js?v=494241';
+import {engagement,registerModeState} from './telemetry.js?v=494241';
+import {translate} from './localization.js?v=494241';
 import {createSceneryTint} from './scenery-progress.js';
-import {createPianoInput,bindPianoKeyboard,pianoInputClock} from './piano-input.js?v=494240';
+import {createPianoInput,bindPianoKeyboard,pianoInputClock} from './piano-input.js?v=494241';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494240';
-import {createMiniResults} from './mini-results.js?v=494240';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494241';
+import {createMiniResults} from './mini-results.js?v=494241';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress,createPianoPerformedSupport,createPianoRhythmScheduler,PIANO_STALL_SECONDS} from './piano-flow-engine.js?v=494240';
+import {createPianoGame,pianoProgress,finishPianoProgress,createPianoPerformedSupport,createPianoRhythmScheduler,PIANO_STALL_SECONDS} from './piano-flow-engine.js?v=494241';
 
-import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494240';
+import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494241';
 
 import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 
@@ -33,7 +33,7 @@ const KEY='shape-shift-piano-v1',COLORS=['#ff7979','#63caff','#75e6a5','#ffe49a'
 export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=()=>({}),sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onQuestEvent:reportQuest=()=>{},onProgress=()=>{},getLoadout=()=>({}),onClose=()=>{}}={}){
 
  const teaching=createMiniTutorial('piano');
- const practice=createModePractice('piano',{onComplete:()=>continuePracticeRun(game,()=>{engagement.startRun('piano');onQuestEvent({type:'start',mode:'piano',time:game.time});hint.hidden=false;hint.textContent='Tap any visible note’s strip';last=gameLast=window.ShapeShiftPlatform.now();update();draw();})});
+ const practice=createModePractice('piano',{onComplete:()=>continuePracticeRun(game,()=>{engagement.startRun('piano');onQuestEvent({type:'start',mode:'piano',time:game.time});hint.hidden=false;hint.textContent='Tap any visible note’s strip';last=gameLast=window.ShapeShiftPlatform.now();update();draw();},getAdventureChallenge())});
  const onQuestEvent=event=>{if(!practice.active)reportQuest(event);};
  const dialog=document.createElement('dialog');dialog.id='piano-flow';dialog.setAttribute('aria-label','Piano Flow');document.body.append(dialog);
 
@@ -98,7 +98,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
   const xpBefore=getXp(),stored=save();resultsScreen.show({title:'BEAUTIFULLY PLAYED',score:game.score,best:progress.best,coins:game.coins,elapsed:game.time*1000,xpBefore,xpAfter:getXp(),stored,pending:progress.pending.length>0,retry:result,restart:start,finish:close,...adventureRun.result(game,stored)});
  }
 
- function event(e){if(e.type==='end'){window.gameAudio?.stopPiano(true);rhythm.clear();}if(e.type==='practice-miss'){practice.guide('Tap this note’s strip.',practicePoint);return;}if(e.type==='complete'&&practice.active){if(e.note.hold)practice.finish();else practice.guide('Tap the long note. Holding is optional.',practicePoint);}if(e.type==='start'&&!practice.active)engagement.startRun('piano');if(e.type==='miss'){damage=.65;dialog.dataset.pianoError=e.reason==='wrong'?'Wrong strip':'Missed note';}if(e.type==='miss'&&e.damaged===false){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}return;}if(e.type==='complete')teaching.event(e.note?.hold?'held':'tap');if(e.type==='hold'||e.type==='note'&&e.note?.hold)teaching.event('hold');
+ function event(e){if(e.type==='stage-start')clearInput();if(e.type==='end'){window.gameAudio?.stopPiano(true);rhythm.clear();}if(e.type==='practice-miss'){practice.guide('Tap this note’s strip.',practicePoint);return;}if(e.type==='complete'&&practice.active){if(e.note.hold)practice.finish();else practice.guide('Tap the long note. Holding is optional.',practicePoint);}if(e.type==='start'&&!practice.active)engagement.startRun('piano');if(e.type==='miss'){damage=.65;dialog.dataset.pianoError=e.reason==='wrong'?'Wrong strip':'Missed note';}if(e.type==='miss'&&e.damaged===false){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}return;}if(e.type==='complete')teaching.event(e.note?.hold?'held':'tap');if(e.type==='hold'||e.type==='note'&&e.note?.hold)teaching.event('hold');
   if(e.type==='release'&&e.note)e.note.questResumed=true;
   if(['start','complete','miss'].includes(e.type))onQuestEvent({type:e.type==='complete'?'success':e.type==='miss'?'failure':e.type==='end'?'finish':'start',mode:'piano',time:e.time,failure:e.type==='miss',holdSeconds:e.note?.hold?e.note.hold*60/game.bpm:0,tile:e.note?{shape:e.note.shape,color:e.note.color,lane:e.note.lane,pitch:e.note.pitch,hold:e.note.hold,resumed:!!e.note.questResumed}:null});
 
@@ -164,7 +164,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
  function draw(){if(!game||!ctx)return;if(!canvasBounds)measureCanvas();const {width:w,height:h}=canvasBounds;if(!w||!h)return;const dpr=Math.min(2,devicePixelRatio||1);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
 
-  layout=pianoLayout(w,h,true,true,true);game.setViewport({inputWindow:4+(layout.size/2+12)/layout.unit,lateWindow:(h-layout.hit+layout.size/2)/layout.unit});const {top,hit,lane,x,size}=layout;ctx.imageSmoothingQuality='high';
+  layout=pianoLayout(w,h,true,true,true);game.setViewport({inputWindow:4+(layout.size/2+12)/layout.unit,lateWindow:(h-layout.hit+layout.size/2)/layout.unit,cueWindow:4});const {top,hit,lane,x,size}=layout;ctx.imageSmoothingQuality='high';
 
   for(let i=0;i<4;i++){
 
@@ -210,7 +210,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
   ctx.save();ctx.beginPath();ctx.rect(0,top-12,w,h-top+12);ctx.clip();
 
-  for(const n of game.notes){if(!game.started||game.countdown>0||['done','missed'].includes(n.status))continue;const p=pianoTarget(n,game.beat,layout),held=n.status==='holding',started=held||n.status==='partial'||n.status==='queued',color=started?COLORS[n.color]:'#dddddd',crop=skinCrop(n);const length=n.hold*layout.unit;if(p.y+p.size/2<top-45||p.y-length-p.size/2>h)continue;
+  for(const n of game.notes){if(!game.started||['done','missed'].includes(n.status))continue;const p=pianoTarget(n,game.beat,layout),held=n.status==='holding',started=held||n.status==='partial'||n.status==='queued',color=started?COLORS[n.color]:'#dddddd',crop=skinCrop(n);const length=n.hold*layout.unit;if(p.y+p.size/2<top-45||p.y-length-p.size/2>h)continue;
 
    if(n.hold)drawPianoHoldGlow(ctx,{x:p.x,y:p.y,length,size:p.size,color:COLORS[n.color],progress:started?(n.heldBeats||0)/n.hold:0,held});
 
@@ -263,7 +263,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
   hint=el('p','piano-hint','Tap any visible note’s strip');dialog.append(hint);
  if(keyboard.mount())hint.textContent='A S D F · Play any visible note';
 
-  game=createPianoGame({...getLoadout(),practice:practice.active,directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,recoverWrongTap:true,brightSongs:true,onEvent:event});settle();update();draw();
+  game=createPianoGame({...getLoadout(),adventure:practice.active?null:getAdventureChallenge(),practice:practice.active,directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,recoverWrongTap:true,brightSongs:true,onEvent:event});settle();update();draw();
 
   removePanel();draw();await gate.reveal(()=>draw());if(version!==epoch||!dialog.open)return;startPractice();begin();last=gameLast=window.ShapeShiftPlatform.now();adventureRun.start(dialog);raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
 

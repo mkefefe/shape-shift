@@ -1,5 +1,13 @@
 # Shape Shift requirements
 
+## Adventure special stages — user correction, November 4, 2026
+
+- Adventure Piano Flow, Shape Drop and Shape Slice levels use fixed, finite authored content. Every replay gets the same notes, waves and incoming piece order; a seeded random generator is not a substitute for written content.
+- Reaching the target is not an instruction to end. Evaluate success after the authored ending, with remaining notes, waves, sound tails, physics and match effects resolved. Do not abruptly cut a successful level off at a score or timer threshold.
+- A tutorial is separate from the authored stage: reset tutorial-only score and begin the real stage from its first item after practice.
+- Show the fixed stage's progress and finishing requirement. Piano goals count actual notes, independent of cosmetic score multipliers.
+- Scope this correction to Adventure first. The user explicitly chose to leave the separate Battle campaign for later.
+
 ## Piano Flow — user correction, November 4, 2026
 
 - A visible note is playable immediately with its matching A/S/D/F key or strip tap, anywhere on the visible board. Do not require it to reach a bottom line or a narrow rhythm window.

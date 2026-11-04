@@ -1,6 +1,7 @@
-import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494240';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494240';
-import {miniGameCoins} from './mini-game-rewards.js?v=494240';
+import {SLICE_DEFAULT_BOUNDS,normalizeSliceBounds} from './slice-viewport.js?v=494241';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494241';
+import {miniGameCoins} from './mini-game-rewards.js?v=494241';
+import {adventureSliceSpec,adventureSlicePiece} from './adventure-slice.js?v=494241';
 export const SLICE_WIDTH=360,SLICE_HEIGHT=560;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const finite=n=>Number.isFinite(n);
@@ -23,7 +24,7 @@ export function sliceHits(piece,a,b){
 export const SLICE_SAFE_GAP=22;
 const flightStep=1/120;
 function movePiece(p,dt,bounds=SLICE_DEFAULT_BOUNDS){
- p.vy+=620*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.angle+=p.spin*dt;
+ p.vy+=(p.gravity??620)*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.angle+=p.spin*dt;
  if(p.x<bounds.left+p.r){p.x=bounds.left+p.r;p.vx=Math.abs(p.vx);}
  if(p.x>bounds.right-p.r){p.x=bounds.right-p.r;p.vx=-Math.abs(p.vx);}
 }
@@ -58,10 +59,12 @@ export function sliceWaveLayout(count,bounds,rng=Math.random,previous=-1){
  }
  return {pattern,items};
 }
-export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,practice=false,frame='none',upgrade=0,bounds:initialBounds=SLICE_DEFAULT_BOUNDS}={}){
+export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,practice=false,frame='none',upgrade=0,adventure=null,bounds:initialBounds=SLICE_DEFAULT_BOUNDS}={}){
  let bounds=normalizeSliceBounds(initialBounds);
  const maxLives=maxLivesForFrame(frame,upgrade);
- const game={practice,frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null};let serial=0,accumulator=0,lastPattern=-1,practiceTime=0;const missedWaves=new Set(),recuts=new Map();
+ const game={practice,frame,time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,maxLives,lives:maxLives,missed:0,hazards:0,over:false,pieces:[],wave:0,untilWave:.65,stroke:null,stageComplete:false,stageProgress:null};let serial=0,accumulator=0,lastPattern=-1,practiceTime=0;const missedWaves=new Set(),recuts=new Map();
+ let stage=!practice&&adventure?.mode==='slice'?adventureSliceSpec(adventure.level):null,nextStageWave=0,stageClearSince=null;
+ if(stage)game.stageProgress={done:0,total:stage.waveCount,label:'Waves'};
  const random=()=>clamp(rng(),0,.999999);
  function emit(event){onEvent({...event,time:game.time});}
  function makePiece(options={}){
@@ -91,7 +94,7 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,p
   for(const item of formation.items)spawnFair(item);
   game.untilWave=Math.max(.75,2.1-elapsed/110);emit({type:'launch'});
  }
- function end(){if(game.over)return;game.over=true;game.stroke=null;emit({type:'end'});}
+ function end(reason='ended'){if(game.over)return;game.over=true;game.endReason=reason;game.stroke=null;emit({type:'end',reason});}
  function strike(kind,piece){if(practice){emit({type:'practice-miss',piece});return;}if(game.over)return;game.lives--;if(kind==='hazard')game.hazards++;emit({type:kind,piece,lives:game.lives});if(game.lives<=0)end();}
  function beginStroke(){if(game.over)return;game.stroke={count:0,hazard:false,lastHit:-100};}
  function endStroke(){game.stroke=null;}
@@ -114,7 +117,21 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,p
   }
   // Keep the receipt until the last member leaves, even when a batch lands in stages.
   for(const wave of missedWaves)if(!game.pieces.some(p=>p.wave===wave))missedWaves.delete(wave);
-  if(autoSpawn){game.untilWave-=dt;if(game.untilWave<=0)launch();}
+  if(stage){
+   while(nextStageWave<stage.waves.length&&game.time+1e-8>=stage.waves[nextStageWave].at){
+    const wave=stage.waves[nextStageWave++];game.wave=nextStageWave;
+    for(const written of wave.pieces)game.pieces.push({id:++serial,wave:game.wave,...adventureSlicePiece(written,bounds)});
+    emit({type:'launch',formation:wave.formation});
+   }
+   game.stageProgress.done=nextStageWave-new Set(game.pieces.map(piece=>piece.wave)).size;
+   game.untilWave=nextStageWave<stage.waves.length?Math.max(0,stage.waves[nextStageWave].at-game.time):0;
+   if(nextStageWave===stage.waves.length&&!game.pieces.length){
+    stageClearSince??=game.time;
+    // Keep the last cut's fragment bonus available before closing the level.
+    // The view then lets the remaining visual fragments and score labels drain.
+    if(!recuts.size&&game.time-stageClearSince>=.65){game.stageComplete=true;end('stage-complete');}
+   }else stageClearSince=null;
+  }else if(autoSpawn){game.untilWave-=dt;if(game.untilWave<=0)launch();}
  }
  function step(seconds){if(game.over||!finite(seconds))return;accumulator+=clamp(seconds,0,.05);while(accumulator>=1/120&&!game.over){tick(1/120);accumulator-=1/120;}}
  function setBounds(next){
@@ -124,7 +141,15 @@ export function createSliceGame({rng=Math.random,onEvent=()=>{},autoSpawn=true,p
   for(const p of game.pieces){p.x=updated.left+(p.x-bounds.left)*ratio;p.y+=updated.bottom-bounds.bottom;p.vx*=ratio;}
   bounds=updated;
  }
- function completePractice(){if(!practice||game.over)return false;practice=false;game.practice=false;practiceTime=game.time;autoSpawn=true;return true;}
+ function completePractice(nextAdventure=adventure){
+  if(!practice||game.over)return false;practice=false;game.practice=false;practiceTime=game.time;autoSpawn=true;
+  stage=nextAdventure?.mode==='slice'?adventureSliceSpec(nextAdventure.level):null;
+  if(stage){
+   Object.assign(game,{time:0,score:0,bonusScore:0,sliced:0,bestCombo:0,lives:maxLives,missed:0,hazards:0,pieces:[],wave:0,untilWave:stage.waves[0].at,stroke:null,stageComplete:false,stageProgress:{done:0,total:stage.waveCount,label:'Waves'}});
+   serial=0;accumulator=0;practiceTime=0;nextStageWave=0;stageClearSince=null;missedWaves.clear();recuts.clear();
+  }
+  return true;
+ }
  return Object.assign(game,{completePractice,revive(){if(!game.over||game.lives>0)return false;game.over=false;game.lives=game.maxLives;game.pieces=[];game.stroke=null;game.untilWave=2;missedWaves.clear();accumulator=0;return true;},setBounds,spawn,step,slice,recut,beginStroke,endStroke,end,dispose(){recuts.clear();game.pieces=[];game.stroke=null;missedWaves.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;

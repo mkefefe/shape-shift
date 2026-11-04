@@ -14,7 +14,8 @@
 #app :is(#level-dialog,#level-tasks-dialog)::backdrop{background:#001b34a3;backdrop-filter:blur(5px)}
 #app #level-tasks-dialog .tasks-paused{font-size:12px}
 @media(max-height:650px){#app :is(#level-dialog,#level-tasks-dialog) .dialog-content{padding:30px 22px 22px;gap:5px}#app :is(#level-dialog,#level-tasks-dialog) :is(.star-challenge,.level-task-card){padding:6px;font-size:12px}#app :is(#level-dialog,#level-tasks-dialog) :is(#level-play,#tasks-resume){height:50px;min-height:50px}#app #level-design{display:none}}
-.adventure-challenge-hud{position:absolute;top:72px;left:50%;transform:translateX(-50%);z-index:6;max-width:78%;padding:6px 14px;border:2px solid #b4faff;border-radius:20px;background:#06475ee8;color:white;text-align:center;font:900 14px Nunito;pointer-events:none}
+.adventure-challenge-hud{position:absolute;top:72px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 96px);padding:5px 12px;border:2px solid #b4faff;border-radius:16px;background:#06475ee8;color:white;text-align:center;white-space:pre-line;font:900 13px/1.35 Nunito;pointer-events:none}
+#piano-flow:has(.adventure-challenge-hud) .piano-best{visibility:hidden}
 
 #app #level-objectives .map-star{width:24px;height:27px}#app #level-objectives .map-star img{width:151px;top:-33px;left:0}
 .adventure-pause-goals{padding:0;list-style:none;font-size:14px;line-height:1.4;display:grid;gap:6px;margin:8px 0}.adventure-pause-goals li{padding:5px;border-bottom:1px solid #8dc2cc}

@@ -41,7 +41,21 @@ test('winning does not depend on optional challenges and every required collecti
  for(const g of goals){const partial={...stats,collections:{...stats.collections}};if(g.type==='collection')partial.collections[g.color+':'+g.shape]--;else partial.memoryCollected--;assert(!levelComplete(n,partial));}}
 });
 import {levelPrimaryGoal,levelComplete,adventureLayout} from './world-menu.js';
-test('matching levels end on collections; minigames use challenge score; finale never auto-completes',()=>{for(let n=1;n<=100;n++){const c=adventureChallenge(n);assert(levelRequirements(n).every(g=>(c?['challengeScore']:['collection','memoryCollected']).includes(g.type)));assert(!levelComplete(n,{score:999999,picks:999999}));if(c)assert(levelComplete(n,{challengeScore:c.target}));}assert.deepEqual(levelRequirements(100),[]);});
+test('matching levels end on collections; minigames require the score and authored ending; finale never auto-completes',()=>{
+ for(let n=1;n<=100;n++){
+  const c=adventureChallenge(n),requirements=levelRequirements(n);
+  assert(requirements.every(g=>(c?['challengeScore','stageComplete']:['collection','memoryCollected']).includes(g.type)));
+  assert(!levelComplete(n,{score:999999,picks:999999}));
+  if(c){
+   assert.deepEqual(requirements.map(g=>g.type),['challengeScore','stageComplete']);
+   assert(!levelComplete(n,{challengeScore:c.target}));
+   assert(!levelComplete(n,{challengeScore:c.target,stageComplete:0}));
+   assert(!levelComplete(n,{challengeScore:c.target-1,stageComplete:1}));
+   assert(levelComplete(n,{challengeScore:c.target,stageComplete:1}));
+  }
+ }
+ assert.deepEqual(levelRequirements(100),[]);
+});
 test('Adventure boards retain complete grid footprints with authored blocks in stable cells',()=>{
  for(let n=1;n<=100;n++)for(const count of [1,2,3,4,6,9,12,16]){
  const layout=adventureLayout(n,count);assert.equal(layout.name,'classic');assert.equal(layout.cells.length,0);

@@ -1,12 +1,153 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 import {createPianoGame,pianoSongTempo,createPianoPerformedSupport} from './piano-flow-engine.js';
 import {createPianoInput} from './piano-input.js';
 import {pianoLayout,pianoTarget} from './piano-flow-touch.js';
+import {adventurePianoSpec,adventurePianoStage} from './adventure-piano.js';
+import {PIANO_STAGE_RELEASE_SECONDS} from './piano-flow-engine.js';
 const options={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0};
 const note=(id,beat,lane,hold=0,bpm=100)=>({id,beat,end:beat+hold,lane,hold,bpm,pitch:60+lane*2,shape:lane,color:0,duration:hold?hold+.5:1,soundBeats:hold?hold+.1:.8,rapid:!hold,status:'waiting',awaiting:false});
 function fixture(notes,{beat=notes[0].beat,recoverWrongTap=false}={}){const events=[],g=createPianoGame({...options,recoverWrongTap,onEvent:e=>events.push(e)});g.start();g.countdown=0;g.notes=notes;g.beat=beat;g.bpm=notes[0].bpm;events.length=0;return {g,events,input:createPianoInput({getGame:()=>g})};}
 function advance(g,seconds,frame=1/240){for(let left=seconds;left>1e-8;){const dt=Math.min(left,frame);g.step(dt);left-=dt;}}
+
+test('the actual view paints a solid first note throughout 3/2/1 and descends continuously after GO',()=>{
+ const source=readFileSync(new URL('./piano-flow.js',import.meta.url),'utf8');
+ const drawSource=source.slice(source.indexOf(' function round('),source.indexOf(' function advanceGame('));
+ assert(drawSource.includes('function draw()'));
+ for(const [width,height] of [[320,568],[390,844],[844,390]])for(const adventure of [null,{mode:'piano',level:15}]){
+  const game=createPianoGame({...options,adventure}),drawn=[],text=[],clips=[];let clip=null,path=null;
+  const ctx=new Proxy({
+   save(){clips.push(clip);},restore(){clip=clips.pop();},beginPath(){path=null;},rect(x,y,w,h){path={x,y,w,h};},clip(){if(path)clip=path;},
+   createLinearGradient(){return {addColorStop(){}};},measureText(){return {width:50};},fillText(value){text.push(value);},
+   drawImage(art,sx,sy,sw,sh,x,y,w,h){if(Number.isInteger(art.id))drawn.push({id:art.id,x,y,w,h,visibleHeight:Math.max(0,Math.min(y+h,clip?clip.y+clip.h:Infinity)-Math.max(y,clip?.y??-Infinity))});}
+  },{get:(target,key)=>key in target?target[key]:()=>{}});
+  const context={game,ctx,canvas:{},canvasBounds:{width,height},devicePixelRatio:1,pianoLayout,pianoTarget,layout:null,
+   measureCanvas(){},holdGlows:[0,0,0,0],glows:[0,0,0,0],glowFade:()=>0,stripColors:[0,1,2,3],quiet:true,
+   skinCrop:note=>({art:{id:note.id},x:0,y:0,w:100,h:100}),COLORS:['red','blue','green','yellow'],drawPianoHoldGlow(){},
+   reveals:[],particles:[],damage:0,translate:value=>value};
+  const draw=vm.runInNewContext(drawSource+'\ndraw;',context);
+  const paint=()=>{drawn.length=0;text.length=0;draw();return drawn.find(n=>n.id===game.notes[0].id);};
+  game.start();const first=paint(),beat=game.beat,l=pianoLayout(width,height,true,true,true);
+  assert(first&&first.visibleHeight>=l.size/2,'a solid part of the first note is inside the actual clip');
+  assert(Math.abs(first.y+first.h/2-l.top)<1e-8);assert(text.includes('3'));
+  for(const [seconds,count] of [[1.01,'2'],[1,'1']]){
+   advance(game,seconds);const next=paint();assert.deepEqual(next,first);assert(text.includes(count));assert.equal(game.beat,beat);
+   assert.equal(game.pressStrip(game.notes[0].lane),false);assert.equal(game.score,0);assert.equal(game.time,0);
+  }
+  advance(game,.99);assert.equal(game.countdown,0);assert.deepEqual(paint(),first);assert(text.includes('GO!'));
+  game.step(1/60);const moving=paint();assert(moving.y>first.y);assert(moving.y-first.y<6,'GO advances one ordinary frame without a jump');
+  assert(game.pressStrip(game.notes[0].lane));assert.equal(game.hits,1);
+  assert(game.inputWindow>game.cueWindow,'the full visible input window remains larger than the staged cue');
+  const waiting=game.notes.find(n=>n.status==='waiting');game.beat=waiting.beat-game.inputWindow+.001;
+  assert(game.pressStrip(waiting.lane),'later notes remain playable at their first visible sliver');
+ }
+});
+
+const adventureLevels=[15,30,45,60,75,90];
+const adventureChallenge=level=>({mode:'piano',level,...adventurePianoSpec(level)});
+const chartNote=n=>({id:n.id,pitch:n.pitch,lane:n.lane,beat:n.beat,duration:n.duration,hold:n.hold,chord:n.chord,section:n.section,song:n.song});
+function playAdventure(g,{skip=new Set(),observe=()=>{}}={}){
+ const seen=new Map();g.start();
+ for(let frame=0;frame<12000&&!g.over;frame++){
+  for(const n of g.notes){
+   seen.set(n.id,chartNote(n));
+   if(!skip.has(n.id)&&n.status==='waiting'&&n.beat-g.beat<=(g.inputWindow??4.4)&&g.countdown===0){
+    const first=g.notes.find(other=>other.lane===n.lane&&other.status==='waiting'&&other.beat-g.beat<=(g.inputWindow??4.4));
+    if(first!==n)continue;
+    assert(g.pressNote(n.id),'authored visible note must be playable');g.release(n.lane);
+   }
+  }
+  observe(g);g.step(1/120);
+ }
+ assert(g.over,'finite Adventure must terminate');return [...seen.values()];
+}
+
+test('each Adventure Piano level repeats its authored hook three times and closes on its tonic',()=>{
+ for(const level of adventureLevels){
+  const stage=adventurePianoStage(adventureChallenge(level)),spec=adventurePianoSpec(level);
+  assert.equal(stage.notes.length,spec.noteCount);assert.equal(spec.target,spec.noteCount-2);
+  const phrase=from=>stage.notes.filter(n=>n.songBeat>=from&&n.songBeat<from+8).map(n=>({pitch:n.pitch,duration:n.duration,sound:n.soundBeats,chord:n.chord,at:n.songBeat-from}));
+  assert.deepEqual(phrase(0),phrase(8));assert.deepEqual(phrase(0),phrase(16));
+  const last=stage.notes.at(-1);assert.equal(last.section,'Outro');assert.equal(last.songBeat,32);assert.equal(last.duration,4);
+  assert.equal(last.pitch%12,last.chord[0]%12);assert.equal(stage.beats,36);
+ }
+ assert.equal(adventurePianoStage({mode:'drop',level:15}),null);assert.equal(adventurePianoSpec(16),null);
+});
+
+test('Adventure retries replay identical finite notes and never choose or leak another song',()=>{
+ for(const level of adventureLevels){
+  const challenge=adventureChallenge(level),make=()=>createPianoGame({adventure:challenge,rng:()=>{throw Error('Adventure must not use randomness');}});
+  const first=make(),retry=make(),a=playAdventure(first),b=playAdventure(retry);
+  assert.deepEqual(a,b);assert.equal(a.length,challenge.noteCount);assert.equal(new Set(a.map(n=>n.song)).size,1);
+  assert(first.stageComplete&&retry.stageComplete);assert.equal(first.hits,challenge.noteCount);assert.equal(first.songsCompleted,0);
+  assert.deepEqual(first.stageProgress,{done:challenge.noteCount,total:challenge.noteCount,label:'Notes'});
+  const beat=first.beat;advance(first,5);assert.equal(first.beat,beat);assert.equal(first.notes.some(n=>n.beat>=first.stageEndBeat),false);
+ }
+});
+
+test('reaching the Adventure note target leaves the remaining phrase playable until the musical ending',()=>{
+ const challenge=adventureChallenge(15),events=[],g=createPianoGame({adventure:challenge,onEvent:e=>events.push(e)});let reached=false,allPlayedBeforeEnding=false;
+ playAdventure(g,{observe:g=>{
+  if(g.hits>=challenge.target&&!reached){reached=true;assert.equal(g.over,false);assert.equal(g.stageComplete,false);assert(g.stageProgress.done<g.stageProgress.total);}
+  if(g.hits===challenge.noteCount&&g.beat<g.stageEndBeat){allPlayedBeforeEnding=true;assert.equal(g.over,false);assert.equal(g.stageComplete,false);}
+ }});
+ assert(reached&&allPlayedBeforeEnding);assert(g.beat>=g.stageEndBeat);
+ assert.equal(events.filter(e=>e.type==='end').length,1);assert.equal(events.find(e=>e.type==='end').reason,'stage-complete');
+});
+
+test('a last visible Adventure note can play after the nominal ending and its complete sound drains before results',()=>{
+ const challenge=adventureChallenge(15),events=[],g=createPianoGame({adventure:challenge,onEvent:e=>events.push(e)}),lastId=challenge.noteCount-1;
+ g.setViewport({lateWindow:3});g.start();
+ for(let frames=0;g.beat<g.stageEndBeat+1.8&&frames<10000;frames++){
+  for(const n of g.notes)if(n.id!==lastId&&n.status==='waiting'&&n.beat-g.beat<=4.4&&g.countdown===0){assert(g.pressNote(n.id));g.release(n.lane);}
+  g.step(1/120);
+ }
+ assert.equal(g.over,false);assert.equal(g.stageComplete,false);assert.equal(g.hits,challenge.noteCount-1);
+ const last=g.notes.find(n=>n.id===lastId);assert(last&&last.status==='waiting');
+ const playedAt=g.time;assert(g.pressStrip(last.lane));assert.equal(g.hits,challenge.noteCount);g.release(last.lane);
+ assert.equal(last.status,'done');const tail=last.duration*60/last.bpm+PIANO_STAGE_RELEASE_SECONDS;
+ advance(g,tail-.03);assert.equal(g.over,false);assert.equal(g.stageComplete,false);
+ advance(g,.05);assert(g.over&&g.stageComplete);assert(g.time>=playedAt+tail);
+ assert.equal(events.filter(e=>e.type==='note'&&e.note.id===lastId).length,1);assert.equal(g.lives,g.maxLives);
+});
+
+test('one or two missed Adventure notes resolve naturally without truncating the chart or counting as hits',()=>{
+ for(const missed of [[25],[0,25]]){
+  const challenge=adventureChallenge(15),g=createPianoGame({adventure:challenge});
+  playAdventure(g,{skip:new Set(missed)});
+  assert.equal(g.hits,challenge.noteCount-missed.length);assert(g.hits>=challenge.target);assert.equal(g.lives,g.maxLives-missed.length);
+  assert.equal(g.stageProgress.done,challenge.noteCount);assert(g.stageComplete);assert(g.beat>=g.stageEndBeat);
+ }
+});
+
+test('losing the final heart after the written endpoint remains failure rather than natural completion',()=>{
+ const challenge=adventureChallenge(15),g=createPianoGame({adventure:challenge});g.setViewport({lateWindow:1.6});
+ playAdventure(g,{skip:new Set([0,8,25])});
+ assert.equal(g.lives,0);assert.equal(g.stageComplete,false);assert.equal(g.stageProgress.done,challenge.noteCount);
+ assert(g.beat>g.stageEndBeat);assert.equal(g.revive(),false);assert.equal(g.stageComplete,false);
+});
+
+test('Adventure practice hands off to the exact first authored note with clean score and no tutorial credit',()=>{
+ const challenge=adventureChallenge(45),events=[],g=createPianoGame({...options,practice:true,onEvent:e=>events.push(e)});
+ g.setViewport({inputWindow:5.2});g.start();advance(g,10);assert(g.pressStrip(1));g.release(1);advance(g,4);assert(g.pressStrip(2));g.release(2);
+ assert.equal(g.hits,2);assert.equal(g.stageProgress,null);assert(g.completePractice(challenge));assert.equal(g.completePractice(challenge),false);
+ const fresh=createPianoGame({adventure:challenge});fresh.setViewport({inputWindow:5.2});
+ assert.deepEqual(g.notes.map(chartNote),fresh.notes.map(chartNote));assert.equal(g.beat,fresh.beat);assert.equal(g.countdown,3);
+ assert.equal(g.hits,0);assert.equal(g.coins,0);assert.equal(g.score,0);assert.equal(g.time,0);assert.equal(g.pressed.size,0);
+ assert.equal(g.stageProgress.done,0);assert.equal(events.filter(e=>e.type==='stage-start').length,1);
+ playAdventure(g);assert.equal(g.hits,challenge.noteCount);assert(g.stageComplete);
+});
+
+test('Adventure retains top-entry immediate ASDF scoring, optional holds and foreground stall protection',()=>{
+ const g=createPianoGame({adventure:adventureChallenge(60)}),layout=pianoLayout(390,844,true,true,true);
+ const inputWindow=4+(layout.size/2+12)/layout.unit;g.setViewport({inputWindow});g.start();advance(g,3);
+ const first=g.notes[0],entry=pianoTarget(first,g.beat,layout);assert(Math.abs(entry.y+entry.size/2-(layout.top-12))<1e-8);
+ assert(g.pressStrip(first.lane));assert.equal(g.hits,1);g.release(first.lane);assert.equal(first.status,'done');
+ const before={beat:g.beat,time:g.time,lives:g.lives};g.step(2);assert.equal(g.beat,before.beat);assert.equal(g.time,before.time);assert.equal(g.lives,before.lives);assert.equal(g.paused,false);
+ g.pause();advance(g,1);assert.equal(g.beat,before.beat);g.resume();g.step(.02);assert(g.beat>before.beat);
+});
 
 test('every visible lane plays immediately from the upper screen, at every song tempo',()=>{
  for(const bpm of [72,100,144])for(let lane=0;lane<4;lane++){

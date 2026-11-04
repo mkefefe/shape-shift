@@ -1,4 +1,5 @@
 import hashlib
+import json
 from html.parser import HTMLParser
 import importlib.util
 from pathlib import Path
@@ -32,7 +33,8 @@ class PortalStartupTests(unittest.TestCase):
         frames = [attrs for tag, attrs in parsed.tags if tag == 'iframe']
         self.assertEqual(len(frames), 1)
         self.assertNotIn('src', frames[0])
-        self.assertEqual(frames[0]['data-playgama-src'], 'game-frame.html?v=494240')
+        cache_version = json.loads((root/'package.json').read_text(encoding='utf-8'))['version'].replace('.', '')
+        self.assertEqual(frames[0]['data-playgama-src'], 'game-frame.html?v=' + cache_version)
         self.assertLess(output.index('<meta charset="utf-8">'), 1024)
         self.assertNotIn('data-playgama-src', source)
 

@@ -1,7 +1,9 @@
-import {frameRewardMultiplier} from './engine.js?v=494240';
-import {miniGameCoins} from './mini-game-rewards.js?v=494240';
-import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=494240';
-import {createDropSequence} from './drop-sequence.js?v=494240';
+import {frameRewardMultiplier} from './engine.js?v=494241';
+import {miniGameCoins} from './mini-game-rewards.js?v=494241';
+import {dropBodiesTouch,dropMatchTolerance} from './drop-contacts.js?v=494241';
+import {createDropSequence} from './drop-sequence.js?v=494241';
+import {adventureDropSequence} from './adventure-drop.js?v=494241';
+import {DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494241';
 export const DROP_WIDTH=320,DROP_HEIGHT=520,DROP_LINE=68,DROP_RADIUS=21;
 export const DROP_HEADROOM=12;
 // Extra portrait height should not provide permanent extra capacity. Preserve
@@ -79,7 +81,7 @@ export function dropLandingY(M,tile,x,pieces,height=DROP_HEIGHT){
  return start+Math.max(0,distance);
 }
 
-export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},onImpact=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
+export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,adventure=null,onClear=()=>{},onEnd=()=>{},onBomb=()=>{},onImpact=()=>{},height=DROP_HEIGHT,frame='none',geometryFor=()=>null}={}){
  height=Number.isFinite(height)?clamp(height,DROP_HEIGHT,1200):DROP_HEIGHT;
  const engine=M.Engine.create({enableSleeping:true,positionIterations:8,velocityIterations:8});engine.gravity.y=1.05;
  const world=engine.world;
@@ -88,14 +90,17 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,o
  const wallHeight=height+2048,wallY=height-wallHeight/2;
  const floor=M.Bodies.rectangle(160,height+20,360,40,{isStatic:true});
  M.Composite.add(world,[M.Bodies.rectangle(-20,wallY,40,wallHeight,{isStatic:true}),M.Bodies.rectangle(340,wallY,40,wallHeight,{isStatic:true}),floor]);
- const random=createDropSequence(rng);let game;
+ const random=createDropSequence(rng);let game,stage=practice?null:adventureDropSequence(adventure),stageCursor=0,settledFor=0,lastBomb=-Infinity;
  const next=()=>{
-  const turn=game?game.drops+game.queue.length:0,tile=random(game?.pieces||[],turn,game?.queue||[],game?.score||0);
-  if(!tile.bomb&&!tile.obstacle)tile.r*=dropViewportScale(height,turn);
+  if(stage&&stageCursor>=stage.length)return null;
+  const turn=game?game.drops+game.queue.length:0,tile=stage?stage[stageCursor++]:random(game?.pieces||[],turn,game?.queue||[],game?.score||0);
+  if(!tile)return null;
+  if(!stage&&!tile.bomb&&!tile.obstacle)tile.r*=dropViewportScale(height,turn);
   tile.geometry=geometryFor(tile);return tile;
  };
- game={practice,frame,engine,height,pieces:[],queue:[next()],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[]};
- game.queue.push(next());
+ game={practice,frame,engine,height,pieces:[],queue:[],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,over:false,danger:0,events:[],stageComplete:false,stageProgress:stage?{done:0,total:stage.length,label:'Drops'}:null};
+ const refill=()=>{while(game.queue.length<2){const tile=next();if(!tile)break;game.queue.push(tile);}};
+ refill();
  let accumulator=0,frameReady=null,frameMerges=0,frameGroups=[],supportCheckAt=0;
  const pendingImpacts=new Map(),impactPairs=new Map(),impactBodies=new WeakMap();let lastImpactAt=-Infinity,impactCleanupAt=0;
  // collisionStart occurs after beforeSolve and before the velocity solver in
@@ -186,14 +191,14 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,o
  M.Events.on(engine,'collisionStart',captureImpacts);
  function add(tile,x,y=dropSpawnY(tile)){if(!tile.geometry)tile.geometry=geometryFor(tile);const limits=dropAimBounds(M,tile),body=makeDropBody(M,clamp(x,limits.min,limits.max),y,tile);body.drop.born=game.time;game.pieces.push(body);M.Composite.add(world,body);return body;}
  function drop(){
-  if(game.over||game.cooldown>0)return false;
+  if(game.over||game.cooldown>0||!game.queue.length)return false;
   if(game.pieces.length>=110){end('overflow');return false;}
   // The held piece is fixed until released. Choose its replacement from the
   // existing surface before this new body appears at the top of every column.
-  const upcoming=next(),body=add(game.queue.shift(),game.aim);M.Body.setVelocity(body,{x:0,y:1.4});game.queue.push(upcoming);aim(game.aim);game.drops++;game.countdown=dropInterval(game.drops);game.cooldown=.42;game.events.push({type:'drop',body});return true;
+  const upcoming=next(),body=add(game.queue.shift(),game.aim);M.Body.setVelocity(body,{x:0,y:1.4});if(upcoming)game.queue.push(upcoming);aim(game.aim);game.drops++;if(game.stageProgress)game.stageProgress.done=game.drops;game.countdown=dropInterval(game.drops);game.cooldown=.42;settledFor=0;game.events.push({type:'drop',body});return true;
  }
- function aim(x){if(Number.isFinite(x)){const limits=dropAimBounds(M,game.queue[0]);game.aim=clamp(x,limits.min,limits.max);}}
- function rotate(){if(!game.over){game.queue[0].angle+=Math.PI/4;aim(game.aim);}}
+ function aim(x){if(Number.isFinite(x)&&game.queue.length){const limits=dropAimBounds(M,game.queue[0]);game.aim=clamp(x,limits.min,limits.max);}}
+ function rotate(){if(!game.over&&game.queue.length){game.queue[0].angle+=Math.PI/4;aim(game.aim);}}
  function end(reason='quit'){if(game.over)return;game.over=true;game.endReason=reason;onEnd({reason,score:game.score,cleared:game.cleared,bestCombo:game.bestCombo,drops:game.drops});}
  function tick(dt){
   game.time+=dt;game.cooldown=Math.max(0,game.cooldown-dt);
@@ -205,7 +210,7 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,o
    if(!contacts.length)continue;
    const impacted=contacts.flatMap(contact=>[contact.bodyA.parent,contact.bodyB.parent]).filter(body=>body!==bomb&&body?.drop);
    const {x,y}=bomb.position;bomb.drop.clearAt=game.time;M.Composite.remove(world,bomb);game.pieces=game.pieces.filter(b=>b!==bomb);
-   const pieces=bombAt(x,y,impacted);onBomb({x,y,pieces});game.events.push({type:"bomb",x,y,pieces});
+   const pieces=bombAt(x,y,impacted);lastBomb=game.time;onBomb({x,y,pieces});game.events.push({type:"bomb",x,y,pieces});
   }
   if(ready.size){
    game.combo=game.time-game.lastClear<1.7?Math.min(8,game.combo+1):1;game.bestCombo=Math.max(game.bestCombo,game.combo);game.lastClear=game.time;
@@ -232,7 +237,14 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,o
   }
   game.danger=crowded?game.danger+dt:Math.max(0,game.danger-dt*2);
   if(!game.practice&&game.danger>=.8){end('overflow');return;}
-  if(autoDrop){game.countdown-=dt;if(game.countdown<=0)drop();}
+  if(autoDrop&&game.queue.length){game.countdown-=dt;if(game.countdown<=0)drop();}
+  if(stage&&!game.queue.length){
+   // Exhaustion begins a drain, never an immediate score cutoff. Keep gravity,
+   // bomb contacts and newly exposed matches running through the last clear.
+   const settled=game.pieces.every(body=>body.drop.clearAt===null&&!body.drop.bomb&&body.bounds.min.y>=DROP_LINE&&(body.isStatic||body.isSleeping||(body.speed<.05&&Math.abs(body.angularVelocity)<.005)));
+   settledFor=settled?settledFor+dt:0;
+   if(settledFor>=.4&&game.time-game.lastClear>=DROP_MERGE_DURATION&&game.time-lastBomb>=.8){game.stageComplete=true;end('stage-complete');}
+  }
  }
  function step(seconds){if(game.over||!Number.isFinite(seconds))return;accumulator+=clamp(seconds,0,.05);while(accumulator>=1/120&&!game.over){tick(1/120);accumulator-=1/120;}}
  function bombAt(x,y,impacted=[]){
@@ -253,8 +265,19 @@ export function createDropGame(M,{rng=Math.random,autoDrop=true,practice=false,o
   game.pieces=game.pieces.filter(b=>!removed.includes(b));for(const b of game.pieces)M.Sleeping.set(b,false);
   game.over=false;game.endReason=null;game.danger=0;game.cooldown=1.5;game.combo=0;accumulator=0;return true;
  }
- function completePractice(){if(!game.practice||game.over)return false;game.practice=false;return true;}
- return Object.assign(game,{completePractice,landingY:()=>dropLandingY(M,game.queue[0],game.aim,game.pieces,height),bombAt,revive,step,drop,aimAt:aim,rotate,end,dispose,addPiece:add});
+ function completePractice(challenge=adventure){
+  if(!game.practice||game.over)return false;game.practice=false;
+  const authored=adventureDropSequence(challenge);
+  if(authored){
+   // The tutorial is not the opening move of a level. Preserve the engine and
+   // controls, but begin the authored board and its score/time from zero.
+   for(const body of game.pieces)M.Composite.remove(world,body);
+   M.Engine.clear(engine);stage=authored;stageCursor=0;settledFor=0;lastBomb=-Infinity;accumulator=0;supportCheckAt=0;lastImpactAt=-Infinity;pendingImpacts.clear();impactPairs.clear();
+   Object.assign(game,{pieces:[],queue:[],time:0,score:0,matches:0,bombPoints:0,cleared:0,drops:0,combo:0,bestCombo:0,lastClear:-100,aim:160,countdown:6,cooldown:0,danger:0,events:[],stageComplete:false,stageProgress:{done:0,total:stage.length,label:'Drops'}});refill();
+  }
+  return true;
+ }
+ return Object.assign(game,{completePractice,landingY:()=>game.queue.length?dropLandingY(M,game.queue[0],game.aim,game.pieces,height):null,bombAt,revive,step,drop,aimAt:aim,rotate,end,dispose,addPiece:add});
 }
 
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
