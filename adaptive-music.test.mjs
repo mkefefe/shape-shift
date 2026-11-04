@@ -23,8 +23,8 @@ test('tempo grows with difficulty, caps at 170 and rewind preserves run pressure
 function nativeHarness(){
  const state={media:null,mediaSources:0,nodes:[]};
  class Media extends EventTarget{
-  constructor(url){super();state.media=this;this.src=String(url);this.readyState=4;this.currentTime=11;this.plays=0;this.pauses=0;this.loads=0;}
-  play(){this.plays++;return this.pending||Promise.resolve();}pause(){this.pauses++;}load(){this.loads++;if(this.readyState<4)queueMicrotask(()=>this.dispatchEvent(new Event(this.loadError?'error':'canplaythrough')));}
+  constructor(url){super();state.media=this;this.src=String(url);this.readyState=4;this.currentTime=11;this.plays=0;this.playRates=[];this.pauses=0;this.loads=0;this.defaultPlaybackRate=1;}
+  play(){this.plays++;this.playRates.push(this.playbackRate);return this.pending||Promise.resolve();}pause(){this.pauses++;}load(){this.loads++;this.playbackRate=this.defaultPlaybackRate;if(this.readyState<4)queueMicrotask(()=>{if(!this.loadError)this.readyState=4;this.dispatchEvent(new Event(this.loadError?'error':'canplaythrough'));});}
   removeAttribute(name){if(name==='src')this.src='';}
  }
  const node=()=>{const n={connections:[],gain:{value:0,setTargetAtTime(value){this.value=value;}},connect(next){this.connections.push(next);return next;},disconnect(){this.disconnected=true;}};state.nodes.push(n);return n;};
@@ -51,4 +51,16 @@ test('native preparation errors are retryable and a pending play cannot revive p
   let resolve;h.state.media.pending=new Promise(done=>resolve=done);const pending=player.start();player.stop();resolve();await pending;
   assert.equal(player.playing,false);assert(h.state.media.pauses>=2);
  }finally{h.state.media.readyState=4;player?.dispose();globalThis.Audio=previous;}
+});
+test('native loading cannot reset the first audible Endless tempo before its gradual pressure ramp',async t=>{
+ const previous=globalThis.Audio,h=nativeHarness();globalThis.Audio=h.Media;let player,tick;
+ t.mock.method(globalThis,'setInterval',callback=>{tick=callback;return 1;});t.mock.method(globalThis,'clearInterval',()=>{});
+ try{
+  player=await createAdaptiveMusic(h.context,h.destination);h.state.media.readyState=0;
+  assert(await player.prepare());assert.equal(h.state.media.playbackRate,1,'media load follows the browser default-rate reset');
+  await player.start();assert.equal(h.state.media.playRates[0],120/140,'the first play already has the intended tempo');
+  player.setTempo(170);tick();assert.equal(h.state.media.playbackRate,120.35/140);assert(h.state.media.playbackRate>h.state.media.playRates[0]);
+  const ramped=h.state.media.playbackRate;player.stop();h.state.media.playbackRate=1;await player.start();
+  assert.equal(h.state.media.playRates[1],ramped,'resuming restores the retained tempo before playback too');
+ }finally{player?.dispose();globalThis.Audio=previous;}
 });
