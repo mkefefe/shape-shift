@@ -14,6 +14,16 @@ spec.loader.exec_module(build_editions)
 
 
 class PortalStartupTests(unittest.TestCase):
+    def test_owned_battle_frame_readiness(self):
+        result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-battle-preload.test.mjs'))], capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        root = Path(__file__).resolve().parent.parent
+        for name in ('battle-menu.js','battle/app.mjs'):
+            source = (root/name).read_text(encoding='utf-8')
+            self.assertNotEqual(build_editions.playgama_battle_source(source, name), source)
+            with self.assertRaises(AssertionError):
+                build_editions.playgama_battle_source('invalid runtime', name)
+
     def test_audio_preparation_deadlines_and_failure_guards(self):
         result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-audio-deadlines.test.mjs'))], capture_output=True, text=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

@@ -63,6 +63,23 @@ def playgama_audio_source(source, name):
     return source
 
 
+def playgama_battle_source(source, name):
+    if name == 'battle-menu.js':
+        marker = "frame.allow='autoplay';frame.onerror"
+        assert source.count(marker) == 1, 'Unexpected Battle frame creation'
+        direct = "frame.allow='autoplay';const preparingFrame=frame;frame.onload=async()=>{try{const ok=await prepareOwnedBattleFrame(preparingFrame,configuration(),location.origin);if(frame===preparingFrame)preparation.complete(ok);}catch{if(frame===preparingFrame)preparation.complete(false);}};frame.onerror"
+        source = source.replace(marker, direct, 1)
+        # Set the destination before mounting: appending an empty iframe may
+        # synchronously fire load for about:blank, before its real navigation.
+        source, count = re.subn(r"dialog\.replaceChildren\(frame\);(frame\.src='battle/index\.html[^']*';)", r"\1dialog.replaceChildren(frame);", source)
+        assert count == 1, 'Unexpected Battle frame navigation'
+        return "import {prepareOwnedBattleFrame} from './playgama-battle-preload.mjs';\n" + source
+    assert name == 'battle/app.mjs'
+    marker = "send('ready');"
+    assert source.count(marker) == 1, 'Unexpected Battle runtime handshake'
+    return source.replace(marker, "window.ShapeShiftBattlePreparation=Object.freeze({prepare(settings){applyBattleSettings(settings);return prepareBattle();}});\n" + marker, 1)
+
+
 def verify_shared_stage(root, site):
     """Reject stale source overlays before an edition can copy the shared stage."""
     if not site.is_dir():
@@ -141,14 +158,16 @@ def main():
         write(portal/name,text)
     for name in ('audio.js', 'adaptive-music.js'):
         write(portal/name, playgama_audio_source(read(site/name), name))
+    for name in ('battle-menu.js', 'battle/app.mjs'):
+        write(portal/name, playgama_battle_source(read(site/name), name))
     # Hide a genuinely unavailable portal player ID instead of showing an empty row.
     with (portal/'playables.css').open('a',encoding='utf-8') as file:
         file.write('\n#profile-dialog #player-id-row[hidden]{display:none!important;}\n')
     for dest in (mobile,portal):
         catalog(dest)
 
-    adapted={'index.html','game-frame.html','telemetry-config.js','startup-assets.js','game.js','piano-flow.js','shape-drop.js','shape-slice.js','playables.css','rewarded.js','audio.js','adaptive-music.js'}
-    for name in ('audio.js', 'adaptive-music.js'):
+    adapted={'index.html','game-frame.html','telemetry-config.js','startup-assets.js','game.js','piano-flow.js','shape-drop.js','shape-slice.js','playables.css','rewarded.js','audio.js','adaptive-music.js','battle-menu.js','battle/app.mjs'}
+    for name in ('audio.js', 'adaptive-music.js','battle-menu.js','battle/app.mjs'):
         assert digest(mobile/name) == digest(site/name), f'Native audio drift: {name}'
     shared={p.relative_to(site).as_posix():digest(p) for p in site.rglob('*')
         if p.is_file() and not p.is_relative_to(site/'android-assets') and p.relative_to(site).as_posix() not in adapted}
