@@ -45,6 +45,23 @@ def playgama_game_source(source):
     startup = startup.replace(first_reveal, 'await waitForPortalStartupPaint(()=>{update();timer();openingCoach?.paint();});', 1)
     return "import {waitForPortalStartupPaint} from './playgama-startup-render.mjs';\n" + source[:start] + startup + source[end:]
 
+def playgama_audio_source(source, name):
+    # Portal startup downloads the complete audio set before game_ready. The
+    # former 12s request / 30s aggregate deadlines reject healthy downloads on
+    # a reproduced 10 Mbps connection. Keep failures bounded and retryable while
+    # allowing the complete preparation to finish; never substitute success.
+    replacements = {
+        'audio.js': [
+            ('()=>controller.abort(),12000', '()=>controller.abort(),60000'),
+            ('window.setTimeout(()=>resolve(false),30000)', 'window.setTimeout(()=>resolve(false),120000)'),
+        ],
+        'adaptive-music.js': [('setTimeout(()=>finish(false),12000)', 'setTimeout(()=>finish(false),60000)')],
+    }
+    for before, after in replacements[name]:
+        assert source.count(before) == 1, f'Unexpected audio readiness deadline: {name}'
+        source = source.replace(before, after, 1)
+    return source
+
 
 def verify_shared_stage(root, site):
     """Reject stale source overlays before an edition can copy the shared stage."""
@@ -122,13 +139,17 @@ def main():
             assert text.count(needle)==1
             text=text.replace(needle,needle+'\n  void window.ShapeShiftPlatform.runComplete();')
         write(portal/name,text)
+    for name in ('audio.js', 'adaptive-music.js'):
+        write(portal/name, playgama_audio_source(read(site/name), name))
     # Hide a genuinely unavailable portal player ID instead of showing an empty row.
     with (portal/'playables.css').open('a',encoding='utf-8') as file:
         file.write('\n#profile-dialog #player-id-row[hidden]{display:none!important;}\n')
     for dest in (mobile,portal):
         catalog(dest)
 
-    adapted={'index.html','game-frame.html','telemetry-config.js','startup-assets.js','game.js','piano-flow.js','shape-drop.js','shape-slice.js','playables.css','rewarded.js'}
+    adapted={'index.html','game-frame.html','telemetry-config.js','startup-assets.js','game.js','piano-flow.js','shape-drop.js','shape-slice.js','playables.css','rewarded.js','audio.js','adaptive-music.js'}
+    for name in ('audio.js', 'adaptive-music.js'):
+        assert digest(mobile/name) == digest(site/name), f'Native audio drift: {name}'
     shared={p.relative_to(site).as_posix():digest(p) for p in site.rglob('*')
         if p.is_file() and not p.is_relative_to(site/'android-assets') and p.relative_to(site).as_posix() not in adapted}
     for name,expected in shared.items():

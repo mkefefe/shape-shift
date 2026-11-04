@@ -14,6 +14,10 @@ spec.loader.exec_module(build_editions)
 
 
 class PortalStartupTests(unittest.TestCase):
+    def test_audio_preparation_deadlines_and_failure_guards(self):
+        result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-audio-deadlines.test.mjs'))], capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_normal_sdk_is_first_script_and_game_is_in_the_entry_document(self):
         root = Path(__file__).resolve().parent.parent
         source = (root/'game-frame.html').read_text(encoding='utf-8').replace('playables-bootstrap.js', 'playgama-bootstrap.js')
