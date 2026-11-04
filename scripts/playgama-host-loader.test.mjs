@@ -65,6 +65,16 @@ test('an SDK ready before body parsing waits for the iframe DOM without download
   assert.equal(f.attrs.get('src'),'game-frame.html?v=494240');assert.equal(f.counts().assignments,1);
 });
 
+test('the direct game entry shares initialized Bridge without creating or navigating a frame',async()=>{
+  const f=bootFixture();f.host.document.querySelector=()=>null;
+  const ready=bootPlaygamaHost(f.host,f.options);
+  await f.clock.advance(26000);assert.equal(f.host.ShapeShiftBridgeReady,ready);
+  assert.deepEqual(f.counts(),{assignments:0,initializations:1,downloads:0});
+  f.initialization.resolve();assert.equal(await ready,f.host.bridge);await settle();
+  assert.deepEqual(f.counts(),{assignments:0,initializations:1,downloads:0});
+  assert.deepEqual(f.events,['slow','clear']);assert.equal(f.clock.pending(),0);
+});
+
 test('portal artwork preparation follows its explicit initialized Bridge barrier',()=>{
   const bootstrap=readFileSync(new URL('../platforms/playgama/playgama-bootstrap.js',import.meta.url),'utf8');
   assert(bootstrap.indexOf('const bridge = await ready;')<bootstrap.indexOf('const artwork = prepareBootstrap('));
@@ -189,6 +199,20 @@ test('focus guard suppresses only actual focus handoff to the game iframe', () =
   doc.hasFocus = () => false; handlers[0][1](event); assert.equal(stopped, 1);
   doc.hasFocus = () => true; doc.visibilityState = 'hidden'; handlers[0][1](event); assert.equal(stopped, 1);
   doc.visibilityState = 'visible'; doc.activeElement = {}; handlers[0][1](event); assert.equal(stopped, 1);
+});
+
+test('direct entry keeps open Battle focus playable but retains real host blur and hidden-frame pause',()=>{
+  const battle={},injected={},handlers=[];
+  let open=true;
+  const doc={visibilityState:'visible',hasFocus:()=>true,activeElement:battle,
+    querySelector(selector){assert.equal(selector,'#battle-shell[open]>iframe,main>iframe[title="Shape Shift game"]');return open?battle:null;}};
+  const host={document:doc,addEventListener(type,fn){handlers.push(fn);}};installIframeFocusGuard(host);
+  let stopped=0;const event={target:host,stopImmediatePropagation(){stopped++;}};
+  handlers[0](event);assert.equal(stopped,1);
+  doc.activeElement=injected;handlers[0](event);assert.equal(stopped,1);
+  doc.activeElement=battle;open=false;handlers[0](event);assert.equal(stopped,1);
+  open=true;doc.hasFocus=()=>false;handlers[0](event);assert.equal(stopped,1);
+  doc.hasFocus=()=>true;doc.visibilityState='hidden';handlers[0](event);assert.equal(stopped,1);
 });
 
 function fakeDocument({body = true} = {}) {

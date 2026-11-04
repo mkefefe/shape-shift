@@ -3,6 +3,7 @@ import {prepareBootstrap} from './startup-loader.js?v=494241';
 import {createPlaygamaPlatform} from './playgama-platform.mjs?v=494241';
 import {readPersonalScores} from './playables-scores.mjs';
 import {observeDeferredImages} from './deferred-images.js?v=494241';
+import {findPlaygamaHost} from './playgama-entry.mjs';
 
 const media = new Set(), playingMedia = new Set(), animations = new Set();
 let platform;
@@ -82,14 +83,15 @@ async function loadScript(src) {
 }
 async function start() {
   const cover = document.getElementById('startup-ready');
+  let sdkHost = window;
   try {
-    // index.html creates this promise before loading game-frame.html. Never initialize
-    // a second SDK here: a nested frame loses the portal's launch parameters.
-    const ready = window.parent.ShapeShiftBridgeReady;
-    if (!ready || typeof ready.then !== 'function') throw Error('Open the game from index.html?v=494241');
+    // The direct entry owns Bridge and its launch parameters. Reuse that exact
+    // promise, or the same-origin legacy shell's, without initializing again.
+    sdkHost = findPlaygamaHost(window);
+    const ready = sdkHost.ShapeShiftBridgeReady;
     const bridge = await ready;
-    // The host initializes Bridge before opening this frame. Keep this barrier
-    // explicit as well, so required art/audio never race SDK initialization.
+    // Keep this barrier explicit: no required art/audio preparation or saved
+    // progress reads begin until the platform has finished initializing.
     const artwork = prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494241')});
     artwork.catch(()=>{}); // The awaited barrier below reports any failure.
     window.ShapeShiftTelemetryBridge=bridge;bridge.gameVersion="4.94.241";
@@ -101,7 +103,7 @@ async function start() {
       onPause: pause, onResume: resume, onAudio: syncAudio, showScores, onSaveState: showSaveState,
       onReady() {
         document.documentElement.dataset.playablesReady = 'true';
-        if (parent !== window) parent.postMessage('shape-shift-ready', location.origin);
+        if (sdkHost !== window) sdkHost.postMessage('shape-shift-ready', location.origin);
       },
       report: error => console.warn('Game platform request failed', error)
     });
@@ -152,7 +154,7 @@ async function start() {
     console.error('Unable to prepare game', error);
     cover.querySelector('p').textContent = 'Could not load the game and your progress. Please try again.';
     const retry = cover.querySelector('button'); retry.hidden = false;
-    retry.onclick = () => { window.parent.location.reload(); };
+    retry.onclick = () => { sdkHost.location.reload(); };
   }
 }
 

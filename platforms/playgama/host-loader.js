@@ -101,10 +101,11 @@ const focusGuards = new WeakSet();
 function installIframeFocusGuard(host) {
   if (focusGuards.has(host)) return;
   focusGuards.add(host);
-  // Moving focus into our game iframe must not be reported as leaving the game.
-  // Capture keeps iframe focus handoff from reaching Bridge's blur handlers.
+  // Moving focus into an owned gameplay frame is not leaving the game. The
+  // direct portal entry retains Battle's frame; older shells contain the game.
+  // Never suppress blur for an injected frame, a hidden Battle, or another tab.
   host.addEventListener('blur', event => {
-    const doc = host.document, frame = doc.querySelector('main>iframe');
+    const doc = host.document, frame = doc.querySelector('#battle-shell[open]>iframe,main>iframe[title="Shape Shift game"]');
     if (event.target === host && frame && doc.visibilityState === 'visible' &&
         doc.hasFocus() && doc.activeElement === frame) event.stopImmediatePropagation();
   }, {capture: true});

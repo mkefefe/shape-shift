@@ -18,16 +18,17 @@ def write(path, text):
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def playgama_index_html(index, host):
-    # Keep the encoding declaration early, then load Bridge as the first normal
-    # script. Its initialization must finish before any game-frame resources.
+def playgama_index_html(frame, host):
+    # The portal owns the outer frame already. Put the actual game in its entry
+    # document so Bridge, the visible game and host instrumentation share a window.
+    # Bootstrap still awaits SDK initialization before preparing art/audio or saves.
     sdk = '<script id="playgama-bridge-sdk" src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>'
     marker = '<head><meta charset="utf-8">'
-    assert index.count(marker) == 1, 'Unexpected outer page head'
-    index = index.replace(marker, marker + sdk + '<script id="playgama-host-loader">' + host + '</script>', 1)
-    index, count = re.subn(r'(<iframe\s+)src=("[^"]+")', r'\1data-playgama-src=\2', index)
-    assert count == 1, 'Expected one deferred game iframe'
-    return index
+    assert frame.count(marker) == 1, 'Unexpected game document head'
+    assert '<main id="app"' in frame and 'id="startup-ready"' in frame, 'Expected the actual game document'
+    assert frame.count('src="playgama-bootstrap.js') == 1, 'Expected one portal bootstrap'
+    assert 'src="playables-bootstrap.js' not in frame, 'Browser bootstrap cannot initialize the portal'
+    return frame.replace(marker, marker + sdk + '<script id="playgama-host-loader">' + host + '</script>', 1)
 
 def playgama_game_source(source):
     """Bound only the portal's initial render handoffs, after asset readiness."""
@@ -108,7 +109,7 @@ def main():
     portal_frame=portal_frame.replace('</head>',f'<link rel="stylesheet" href="feature-visibility.css?v={version.replace(".", "")}"></head>')
     write(portal/'game-frame.html',portal_frame)
     host=read(ROOT/'platforms/playgama/host-loader.js')
-    write(portal/'index.html',playgama_index_html(read(site/'index.html'),host))
+    write(portal/'index.html',playgama_index_html(portal_frame,host))
     write(portal/'telemetry-config.js',f"export const TELEMETRY_BUILD='{version}';\nexport const TELEMETRY_DISTRIBUTION='playgama';\n")
     # Bridge owns pause/resume on this portal (including ads); preserve that contract.
     for name in ('game.js','piano-flow.js','shape-drop.js','shape-slice.js'):
