@@ -19,13 +19,13 @@ test('startup preparation uses its own barrier instead of blocking board readine
  const old=globalThis.document;globalThis.document={documentElement:{classList:{contains:()=>true}},createElement(){throw Error('Unexpected gate');}};
  try{const gate=beginModeTransition('First board',{preparingStartup:true});await gate.reveal();gate.dispose();}finally{globalThis.document=old;}
 });
-test('destinations paint under the closed gate before reveal',async()=>{
+test('destinations finish preparation and paint before their game clock is released',async()=>{
  const read=name=>readFile(new URL(name,import.meta.url),'utf8');const game=await read('game.js');
  assert.match(game,/await gate.covered;return await prepareRun/);
  assert.match(game,/nextBoard\(\);await gameplayScene.prepare\(\);/);
  assert.match(game,/await firstGate.covered;cover.hidden=true/);
  assert(game.indexOf('await firstGate.reveal(')<game.indexOf('showFirstLesson?.()'));
- assert.match(game,/loadBackgroundAssets\(\{assets:HOME_STARTUP_ASSETS/);
+ assert.doesNotMatch(game,/loadBackgroundAssets\(/);assert.match(game,/await startupReadiness.prepare/);
  for(const name of ['shape-drop.js','shape-slice.js','piano-flow.js']){
   const source=await read(name);assert.match(source,/await gate.covered;document.getElementById\('games-hub'\)\?\.close\(\);if\(!dialog.open\)dialog.showModal\(\)/);
   assert.match(source,/await gate.reveal\(\(\)=>/);
@@ -34,13 +34,28 @@ test('destinations paint under the closed gate before reveal',async()=>{
 
 test('approved effects use settings-controlled bus, no separate unmuted context',async()=>{
  const audio=await readFile(new URL('audio.js',import.meta.url),'utf8');assert.match(audio,/function playGate[\s\S]*?sfxVolume<=0/);assert.match(audio,/source.connect\(gain\).connect\(effectsBus\)/);
- const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');assert.match(gate,/observer.disconnect\(\)/);assert.doesNotMatch(gate.slice(gate.indexOf('export function beginModeTransition')),/playGate|gateFrame|canvas/);assert.doesNotMatch(gate,/new AudioContext/);
+ const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');assert.doesNotMatch(gate.slice(gate.indexOf('export function beginModeTransition')),/playGate|gateFrame|canvas/);assert.doesNotMatch(gate,/new AudioContext/);
 });
 
-test('curtain is isolated from global panel styles and hub stays until covered',async()=>{
- const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8');
- assert.match(gate,/host.attachShadow/);assert.match(gate,/shadow.append\(style,cover\)/);assert.match(gate,/host.remove\(\)/);
+test('ready mode switches add no loading dialog and retain launch ownership',async()=>{
+ const gate=await readFile(new URL('mode-transition.js',import.meta.url),'utf8'),switcher=gate.slice(gate.indexOf('export function beginModeTransition'));
+ assert.doesNotMatch(switcher,/createElement|showModal|Loading/);
  const hub=await readFile(new URL('games-hub.js',import.meta.url),'utf8');assert.doesNotMatch(hub,/close\(\);data.action\(\)/);
+});
+
+test('screen handoff locks input until painting finishes and always restores prior state',async()=>{
+ const oldDocument=globalThis.document,oldRaf=globalThis.requestAnimationFrame;
+ const app={inert:false},events=new Map(),frames=[];
+ globalThis.document={getElementById:()=>app,addEventListener:(type,fn)=>events.set(type,fn),removeEventListener:type=>events.delete(type),createElement(){throw Error('Unexpected loading UI');}};
+ globalThis.requestAnimationFrame=fn=>frames.push(fn);
+ try{
+  const one=beginModeTransition('Piano'),two=beginModeTransition('Slice');assert(app.inert);assert.equal(events.size,3);
+  one.dispose();assert(app.inert);let release,painted=false;
+  const done=two.reveal(()=>new Promise(resolve=>{release=()=>{painted=true;resolve();};}));
+  await Promise.resolve();assert(!painted);assert(app.inert);release();await Promise.resolve();frames.shift()();frames.shift()();await done;
+  assert.equal(app.inert,false);assert.equal(events.size,0);two.dispose();
+  app.inert=true;const failed=beginModeTransition('Failed paint');await assert.rejects(failed.reveal(()=>{throw Error('paint failed');}),/paint failed/);assert.equal(app.inert,true);assert.equal(events.size,0);
+ }finally{globalThis.document=oldDocument;globalThis.requestAnimationFrame=oldRaf;}
 });
 
 test('opening zoom never shrinks below the viewport or snaps at cleanup',()=>{

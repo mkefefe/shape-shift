@@ -125,6 +125,14 @@ test('startup can prepare a menu without displaying it, then open it immediately
  const work=prepared.prepare();await settle();assert.equal(dialog.open,false);assert.equal(painted,false);gate.resolve();await work;assert.equal(dialog.open,false);dialog.showModal();assert.equal(dialog.open,true);assert.equal(loads,0);assert.equal(extras,1);
 });
 
+test('concurrent startup and menu requests share expensive extras and DOM decoding',async()=>{
+ const gate=deferred(),dialog=node('dialog');let extras=0,paints=0,painted=false;
+ const menu=bindPreparedDialog(dialog,{sources:()=>[],assets:createAssetReadiness(),extra:async()=>{extras++;await gate.promise;},paint:async()=>{paints++;painted=true;},paintReady:()=>painted,load:async(title,prepare)=>{await prepare();return true;}});
+ const first=menu.prepare(),second=menu.prepare();assert.equal(first,second);dialog.showModal();await settle();
+ assert.equal(extras,1);assert.equal(paints,0);assert.equal(dialog.open,false);
+ gate.resolve();await first;await settle();assert.equal(extras,1);assert.equal(paints,1);assert.equal(dialog.open,true);
+});
+
 test('full startup prepares hidden home and menu DOM images before first tutorial',async()=>{
  const gate=deferred();let decoded=false,skinCalls=0,finished=false;
  const image={dataset:{src:'assets/startup-dialog.webp'},loading:'lazy',getAttribute:()=>null,decode:async()=>{await gate.promise;decoded=true;}};

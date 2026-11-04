@@ -1,5 +1,6 @@
-import {bindLaunchTap} from './menu-navigation.js?v=494238';
-import {activeSkin} from './shape-skin-art.js?v=494238';
+import {bindLaunchTap} from './menu-navigation.js?v=494239';
+import {activeSkin} from './shape-skin-art.js?v=494239';
+import {decodeMenuImage} from './menu-preload.js?v=494239';
 export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.gameAudio?.ui(name)}){
  const dialog=document.createElement('dialog');dialog.id='games-hub';dialog.setAttribute('aria-label','Games');document.body.append(dialog);
  const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text)e.textContent=text;return e;};
@@ -13,9 +14,8 @@ export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.ga
  });
  dialog.addEventListener('focusin',event=>{const cards=[...dialog.querySelectorAll('.hub-game')],index=cards.indexOf(event.target);if(index>=0){selected=index;cards.forEach((card,i)=>card.classList.toggle('keyboard-game',i===selected));}});
 
- function open(){
-  if(dialog.open)return;
-  if(builtSkin===activeSkin()){dialog.showModal();selected=0;highlight();window.gameAudio?.setScene('menu');return;}
+ function build(){
+  if(builtSkin===activeSkin())return;
   builtSkin=activeSkin();dialog.replaceChildren();
   const header=make('header','drop-header'),back=make('button','hub-back');
   back.type='button';back.setAttribute('aria-label','Back to main menu');back.onclick=()=>{sound('click');close();};
@@ -33,14 +33,15 @@ export function initGamesHub({openDrop,openSlice,openPiano,sound=name=>window.ga
    card.append(art,copy);bindLaunchTap(card,async()=>{
     if(!dialog.open||launching)return;
     const token=++launchToken;launching=true;card.setAttribute('aria-busy','true');
-    const description=copy.querySelector('.hub-description');description.textContent='Opening…';sound('click');
+    const description=copy.querySelector('.hub-description');sound('click');
     try{await data.action(()=>dialog.open&&token===launchToken);}
-    catch{if(dialog.open&&token===launchToken)description.textContent='Could not load. Tap to try again.';}
-    finally{launching=false;card.removeAttribute('aria-busy');if(description.textContent==='Opening…')description.textContent=data.copy;}
+    catch{if(dialog.open&&token===launchToken)description.textContent='Could not open. Tap to try again.';}
+    finally{launching=false;card.removeAttribute('aria-busy');}
    });list.append(card);
   }
-  const hint=make('p','hub-keyboard-hint','W / S select · Space play · Esc back');dialog.append(back,header,list,hint);dialog.showModal();selected=0;highlight();window.gameAudio?.setScene('menu');
+  const hint=make('p','hub-keyboard-hint','W / S select · Space play · Esc back');dialog.append(back,header,list,hint);
  }
+ function open(){if(dialog.open)return;build();dialog.showModal();selected=0;highlight();window.gameAudio?.setScene('menu');}
  dialog.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('button,a,input'))sound('surface-tap');});
- dialog.addEventListener('cancel',e=>{e.preventDefault();close();});return {open,close};
+ dialog.addEventListener('cancel',e=>{e.preventDefault();close();});return {open,close,async prepare(){build();await Promise.all([...dialog.querySelectorAll('img')].map(decodeMenuImage));}};
 }

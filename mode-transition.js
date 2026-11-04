@@ -21,6 +21,7 @@ export function prepareGateVisual(load=loadGateImage,audio=()=>window.gameAudio?
 export const GATE_TIMING=Object.freeze({close:400,impact:360,turn:650,turnDuration:750,settle:100,openDuration:650});
 export const GATE_ZOOM_FRAMES=Object.freeze([{transform:'scale(1)',offset:0},{transform:'scale(1.035)',offset:.65},{transform:'scale(1)',offset:1}].map(Object.freeze));
 export let transitioning=false;
+let transitions=0,lockedApp,wasInert,releaseEvents;
 const clamp=n=>Math.min(1,Math.max(0,n)),ease=n=>{n=clamp(n);return n*n*(3-2*n);};
 export function gateFrame(ms,releaseAt=Infinity){
  const turnAt=Math.max(GATE_TIMING.turn,releaseAt),openAt=turnAt+GATE_TIMING.turnDuration+GATE_TIMING.settle;
@@ -28,13 +29,18 @@ export function gateFrame(ms,releaseAt=Infinity){
 }
 export function beginModeTransition(title,{preparingStartup=false}={}){
  if(preparingStartup)return {covered:Promise.resolve(),reveal:async(paint)=>{await paint?.();},dispose(){}};
- const host=document.createElement('div'),shadow=host.attachShadow({mode:'open'});
- const style=document.createElement('style');style.textContent='dialog{position:fixed;inset:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;padding:0;background:#10233b;color:#fff;display:grid;place-items:center;font:700 20px system-ui}dialog::backdrop{background:#10233b}';
- const cover=document.createElement('dialog');cover.textContent='Loading…';cover.setAttribute('aria-label','Loading '+title);shadow.append(style,cover);document.body.append(host);cover.showModal();transitioning=true;
+ // Resources are prepared by the single startup barrier. Switching a ready
+ // screen only needs an input lock until its first painted frame, not a loader.
+ if(transitions++===0){
+  lockedApp=document.getElementById?.('app');wasInert=lockedApp?.inert;
+  if(lockedApp)lockedApp.inert=true;
+  const stop=event=>{event.preventDefault();event.stopImmediatePropagation();};
+  const types=['pointerdown','keydown','touchstart'];
+  for(const type of types)document.addEventListener?.(type,stop,{capture:true,passive:false});
+  releaseEvents=()=>{for(const type of types)document.removeEventListener?.(type,stop,{capture:true});};
+ }
+ transitioning=true;
  let disposed=false;
- const observer=new MutationObserver(()=>{if(!disposed){cover.close();cover.showModal();}});
- observer.observe(document.getElementById('app')||document.body,{subtree:true,attributes:true,attributeFilter:['open']});
- function dispose(){if(disposed)return;disposed=true;observer.disconnect();cover.close();host.remove();transitioning=false;}
- cover.oncancel=e=>e.preventDefault();
+ function dispose(){if(disposed)return;disposed=true;if(--transitions===0){releaseEvents?.();if(lockedApp)lockedApp.inert=wasInert;lockedApp=null;releaseEvents=null;transitioning=false;}}
  return {covered:Promise.resolve(),dispose,async reveal(paint){try{await paint?.();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}finally{dispose();}}};
 }

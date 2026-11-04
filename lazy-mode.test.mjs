@@ -57,3 +57,18 @@ test('launch lock covers preparation and the complete board handoff',async()=>{
  const first=mode.open();while(!release)await Promise.resolve();
  const second=mode.open();assert.equal(opens,1);release();await Promise.all([first,second]);assert.equal(opens,1);
 });
+
+test('startup prepare includes mode assets and later opening performs no preparation again',async()=>{
+ let release,imports=0,assets=0,opens=0,ready=0;
+ const mode=createLazyMode(()=>{imports++;return {prepare(){assets++;return new Promise(resolve=>release=resolve);},open(){opens++;}};},{onReady:()=>ready++});
+ const first=mode.prepare(),second=mode.prepare();assert.equal(first,second);
+ while(!release)await Promise.resolve();assert(!mode.isReady());assert.equal(ready,0);assert.equal(opens,0);
+ release(true);await first;assert(mode.isReady());assert.equal(ready,1);
+ await mode.open();await mode.open();assert.equal(imports,1);assert.equal(assets,1);assert.equal(opens,2);
+});
+
+test('a false readiness result cannot expose an unprepared mode',async()=>{
+ let attempts=0,opens=0;const mode=createLazyMode(()=>({prepare:()=>++attempts>1,open:()=>opens++}));
+ await assert.rejects(mode.open(),/assets unavailable/);assert(!mode.isReady());assert.equal(opens,0);
+ await mode.prepare();assert(mode.isReady());assert.equal(opens,0);await mode.open();assert.equal(opens,1);
+});

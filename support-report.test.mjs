@@ -7,18 +7,18 @@ import {bindPauseKeyboard} from './pause-keyboard.js';
 
 test('report email carries plain description and build without interpreting HTML or query characters',()=>{
  const description='Music stopped & the menu said <p>hello</p>\nExpected: sound + buttons.';
- const report=buildBugReport({description,mode:'Shape Drop',version:'4.94.238'});
+ const report=buildBugReport({description,mode:'Shape Drop',version:'4.94.239'});
  const url=new URL(report.href);
  assert.equal(url.pathname,SUPPORT_EMAIL);assert.equal(report.copyRequired,false);
  assert.equal(url.searchParams.get('body'),report.text);
- assert(report.text.includes('Version: 4.94.238\nWhere: Shape Drop'));
+ assert(report.text.includes('Version: 4.94.239\nWhere: Shape Drop'));
  assert(report.text.endsWith(description));assert.equal(url.searchParams.size,2);
  assert.throws(()=>buildBugReport({description:'  \n '}),/Describe/);
 });
 
 test('long and non-Latin reports preserve their complete text within Android link limits',()=>{
  const description='音楽が止まる 🎵 '.repeat(200);
- const report=buildBugReport({description,mode:'untrusted mode',version:'4.94.238'});
+ const report=buildBugReport({description,mode:'untrusted mode',version:'4.94.239'});
  assert.equal(report.copyRequired,true);assert(report.href.length<2048);
  assert.equal(new URL(report.href).searchParams.has('body'),false);
  assert(report.text.endsWith(description.trim()));assert(report.text.includes('Where: Other'));
@@ -27,7 +27,7 @@ test('long and non-Latin reports preserve their complete text within Android lin
 test('external links use Android bridge and reject executable URLs',()=>{
  const opened=[];const host={location:{href:'https://game.test/'},ShapeShiftLinks:{open:url=>opened.push(url)}};
  assert.equal(openSupportLink('javascript:alert(1)',host),false);assert.equal(opened.length,0);
- const report=buildBugReport({description:'Cannot hear music',version:'4.94.238'});
+ const report=buildBugReport({description:'Cannot hear music',version:'4.94.239'});
  assert.equal(openSupportLink(report.href,host),true);assert.deepEqual(opened,[report.href]);
  const web={location:{href:'https://game.test/'},open:(...args)=>opened.push(args)};
  openSupportLink(report.href,web);assert.equal(web.location.href,report.href);
@@ -67,4 +67,20 @@ test('report form keeps Enter and WASD as native typing even after pointer editi
   let consumed=false;events.get('keydown')({target,code,preventDefault:()=>consumed=true,stopImmediatePropagation:()=>consumed=true});
   assert.equal(consumed,false);assert.equal(target.dataset.menuEditing,'true');
  }
+});
+
+test('privacy startup shares its request and a timed-out request can be retried',async()=>{
+ const originals={DOMParser:globalThis.DOMParser,document:globalThis.document};
+ const host={dataset:{},children:[],replaceChildren(...nodes){this.children=nodes;},append(node){this.children.push(node);},addEventListener(){}};
+ let requests=0,aborted=false;
+ const fetcher=(_url,{signal})=>{requests++;return new Promise((_,reject)=>signal.addEventListener('abort',()=>{aborted=true;reject(Error('aborted'));},{once:true}));};
+ try{
+  globalThis.document={createElement:()=>({}),importNode:node=>node};
+  const first=loadPrivacyContent(host,{fetcher,timeout:5}),second=loadPrivacyContent(host,{fetcher,timeout:5});
+  assert.equal(first,second);assert.equal(await first,false);assert.equal(requests,1);assert.equal(aborted,true);
+  assert.equal(host.dataset.loading,undefined);assert.equal(host.children.at(-1).textContent,'Try again');
+  const content={textContent:'Policy'};globalThis.DOMParser=class{parseFromString(){return {querySelector:()=>({childNodes:[content]})};}};
+  const retry=loadPrivacyContent(host,{fetcher:async()=>{requests++;return {ok:true,text:async()=>'<main>Policy</main>'};}});
+  assert.equal(await retry,true);assert.equal(requests,2);assert.deepEqual(host.children,[content]);assert.equal(host.dataset.loaded,'yes');
+ }finally{Object.assign(globalThis,originals);}
 });

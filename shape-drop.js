@@ -1,26 +1,27 @@
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494238';
-import {createResultJournal} from './run-results.js?v=494238';
-import {beginModeTransition} from './mode-transition.js?v=494238';
-import {engagement,registerModeState} from './telemetry.js?v=494238';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494239';
+import {createResultJournal} from './run-results.js?v=494239';
+import {beginModeTransition} from './mode-transition.js?v=494239';
+import {engagement,registerModeState} from './telemetry.js?v=494239';
 import {createDropWater} from './drop-water.js';
-import {translate} from './localization.js?v=494238';
+import {translate} from './localization.js?v=494239';
 import {createDropMergeAudio} from './drop-merge-audio.js';
 import {dropArtworkGeometry} from './drop-art-geometry.js';
-import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494238';
+import {drawDropMerge,DROP_MERGE_DURATION} from './drop-merge-fx.js?v=494239';
 import {createSceneryTint} from './scenery-progress.js';
 import {bindDropKeyboard} from './drop-keyboard.js';
 import {dropBombFeedback} from './bomb-feedback.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494238';
-import {createMiniResults} from './mini-results.js?v=494238';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494239';
+import {createMiniResults} from './mini-results.js?v=494239';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {ARTWORK_CROPS} from './artwork-crops.js';
-import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494238';
+import {skinArtReady,skinCrop,activeSkin} from './shape-skin-art.js?v=494239';
+import {SHAPE_SKINS} from './shape-skins.js?v=494239';
 import {miniGameCoins} from './mini-game-rewards.js';
 import {dropLayout,fitDropArtwork,dropFramePatches,dropShapeBox} from './shape-drop-view.js';
-import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494238';
+import {createDropGame,dropProgress,finishDropProgress,dropSpawnY,DROP_WIDTH as W,DROP_LINE, DROP_RADIUS} from './shape-drop-engine.js?v=494239';
 const KEY='shape-shift-drop-v1';
 const containerArt=new Image(),obstacleArt=new Image(),bombArt=new Image(),gardenArt=new Image(),imageLoads=new WeakMap();
 function loadDropImage(image,src){
@@ -61,14 +62,16 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
  async function prepareAssets(){
   const results=await Promise.all([prepareArtwork(),prepareMatter(),loadDropImage(containerArt,'assets/drop-container-v241.webp'),loadDropImage(obstacleArt,'assets/shape-lock-chains-v202.webp'),loadDropImage(bombArt,'assets/slice-bomb-v239.webp'),loadDropImage(gardenArt,'assets/drop-garden-v491.webp'),Promise.resolve(skinArtReady).then(values=>values.every(Boolean))]);
   M=window.Matter;const ready=results.every(Boolean)&&!!M&&crops.length===16;
-  if(ready)for(let shape=0;shape<4;shape++)for(let color=0;color<4;color++)for(const obstacle of [false,true]){
-   const crop=dropCrop({shape,color,obstacle});if(collisionArtwork.has(crop))continue;
+  if(ready)for(let shape=0;shape<4;shape++)for(let color=0;color<4;color++)for(const crop of [crops[color*4+shape],...SHAPE_SKINS.filter(s=>s.id!=='classic').map(s=>skinCrop({shape,color},s.id))].filter(Boolean)){
+   if(collisionArtwork.has(crop))continue;
    const sample=document.createElement('canvas'),scale=192/Math.max(crop.w,crop.h);sample.width=Math.round(crop.w*scale);sample.height=Math.round(crop.h*scale);
    const context=sample.getContext('2d',{willReadFrequently:true});context.drawImage(crop.art,crop.x,crop.y,crop.w,crop.h,0,0,sample.width,sample.height);
    collisionArtwork.set(crop,dropArtworkGeometry(context.getImageData(0,0,sample.width,sample.height).data,sample.width,sample.height,shape,crop.w/crop.h));sample.width=sample.height=0;
   }
   return ready;
  }
+ let preparedAssets;
+ function prepare(){return preparedAssets??=Promise.all([prepareAssets(),window.gameAudio?.prepareGameStart('drop')??true]).then(ready=>{if(!ready.every(Boolean))throw Error('Shape Drop assets unavailable');return true;}).catch(error=>{preparedAssets=null;throw error;});}
  function dropCrop(tile){if(tile.bomb)return {art:bombArt,x:0,y:0,w:1280,h:1280};return !tile.obstacle&&activeSkin()!=='classic'?skinCrop(tile):crops[tile.color*4+tile.shape];}
  let framePatches=dropFramePatches();
  let progress;try{progress=dropProgress(JSON.parse(window.ShapeShiftPlatform.storage.getItem(KEY)||'null'));}catch{progress=dropProgress();}
@@ -173,7 +176,7 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
  function practicePoint(){const r=canvas.getBoundingClientRect();const first=game.pieces.find(p=>p.drop.clearAt===null);return {x:r.left+transform.x+(first?.position.x??game.aim)*transform.scale,y:r.top+transform.y+(first?.position.y??dropSpawnY(game.queue[0])+45)*transform.scale};}
  function startPractice(){if(!practice.active)return;game.queue.forEach(t=>Object.assign(t,{shape:0,color:1,bomb:false,obstacle:false,geometry:null}));practice.mount(dialog);practice.guide('Slide to aim. Release to drop.',practicePoint,'aim');}
 
- async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Drop');try{await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate.dispose();entering=false;}}
+ async function start(){if(entering)return;entering=true;let gate;try{await prepare();gate=beginModeTransition('Shape Drop');await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate?.dispose();entering=false;}}
  async function prepareRun(gate){if(!game&&!recoverResult()){const card=panel('Unable to save progress');card.append(button('Retry',start),button('Games',close));return;}
   window.gameAudio?.start()?.catch(()=>{});
   if(game&&!saveRun())return;stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;runId='shape-drop-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion');
@@ -182,10 +185,7 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
   const stage=make('div','drop-stage');canvas=make('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;viewBounds=null;lastHud='';paintElapsed=0;
   const keys=make('p','drop-keyboard-hint','Hold A / D to move · S to drop');dialog.append(keys);
   announcement=make('p','drop-gesture-hint','Tap where you want to drop');announcement.setAttribute('aria-live','polite');dialog.append(announcement);
-  const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close,'drop-secondary'));let loadingTimer;
-  const ready=await Promise.race([prepareAssets(),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),15000);})]);window.ShapeShiftPlatform.clearTimeout(loadingTimer);
-  if(token!==version||!dialog.open)return;if(!ready){const card=panel('Unable to load');card.classList.add('drop-result-panel');card.append(make('p','','Shape Drop could not load. Check your connection and try again.'),button('Retry',start),button('Games',close,'drop-secondary'));return;}
-  overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
+  if(token!==version||!dialog.open)return;overlay=null;for(const child of dialog.children)child.inert=false;
   dropWater=createDropWater(scenery,gardenArt);dropWater.step(0);settleRewards();const stageBounds=canvas.getBoundingClientRect();const layout=dropLayout(stageBounds.width,stageBounds.height);game=createDropGame(M,{...getLoadout(),practice:practice.active,height:layout.worldHeight,geometryFor:tile=>tile.bomb?null:collisionArtwork.get(dropCrop(tile)),autoDrop:false,onImpact:event=>play(event.type==='floor'?'drop-land':'drop-touch'),onBomb:event=>{play('slice-bomb');const rect=canvas.getBoundingClientRect();if(transform)dropBombFeedback(dialog,rect.left+transform.x+event.x*transform.scale,rect.top+transform.y+event.y*transform.scale,quiet);for(const b of event.pieces)fx.push({x:b.position.x,y:b.position.y,at:game.time,color:b.drop.obstacle?'#ffd56a':COLORS[b.drop.color],label:'+'+(game.frame==='blossom'?2:1)});announcement.textContent=event.pieces.length?'Bomb! +'+event.pieces.length*(game.frame==='blossom'?2:1):'Bomb!';lastHud='';},onEnd:e=>{if(e.reason==='overflow')hitFeedback.hit();},onClear:event=>{if(practice.active)practice.finish();teaching.event('match');for(const group of event.groups)onQuestEvent({type:'success',mode:'drop',time:game.time,matches:group.length-1,combo:event.combo,height:game.height,x:group.reduce((n,b)=>n+b.position.x,0)/group.length,y:group.reduce((n,b)=>n+b.position.y,0)/group.length,obstacle:game.pieces.some(b=>b.drop.obstacle),pieces:group.map(b=>({shape:b.drop.shape,color:b.drop.color,r:b.drop.r,age:game.time-b.drop.born}))});mergeAudio.merge(game.time);for(const group of event.groups)fx.push({kind:'merge',at:game.time,x:group.reduce((sum,b)=>sum+b.position.x,0)/group.length,y:group.reduce((sum,b)=>sum+b.position.y,0)/group.length,pieces:group.map(b=>({tile:{...b.drop},x:b.position.x,y:b.position.y,angle:b.angle}))});announcement.textContent='Match!  +'+event.score;}});
   if(!practice.active)engagement.startRun('drop');onQuestEvent({type:'start',mode:'drop',time:0});framePatches=dropFramePatches(game.height);update();render();window.gameAudio?.setScene('drop');canvas.focus();await gate.reveal(()=>render());if(token!==version||!dialog.open)return;startPractice();canvas.focus();last=window.ShapeShiftPlatform.now();adventureRun.start(dialog);raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const aim=e=>{if(paused||game.over||!transform)return;const r=canvas.getBoundingClientRect();game.aimAt((e.clientX-r.left-transform.x)/transform.scale);};
@@ -201,5 +201,5 @@ export function initShapeDrop({getAdventureChallenge=()=>null,onAdventureResult=
  window.addEventListener('pagehide',()=>{if(game&&!saved){if(continueOffer.isOffering()){resultJournal.write(runId,game);return;}game.end();showResult();}});new ResizeObserver(()=>{viewBounds=null;if(game)render();}).observe(dialog);
  settleRewards();
  try{onProgress(progress);}catch{}
- return {async prepare(){if(!await prepareAssets())throw Error('Shape Drop assets unavailable');},open(){if(dialog.open)return;play('click');return start();},close};
+ return {prepare,open(){if(dialog.open)return;play('click');return start();},close};
 }

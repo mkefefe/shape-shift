@@ -1,8 +1,8 @@
-import {startWelcomeMusic} from './welcome-audio.js?v=494238';
-import {prepareBootstrap} from './startup-loader.js?v=494238';
-import {createPlaygamaPlatform} from './playgama-platform.mjs?v=494238';
+import {startWelcomeMusic} from './welcome-audio.js?v=494239';
+import {prepareBootstrap} from './startup-loader.js?v=494239';
+import {createPlaygamaPlatform} from './playgama-platform.mjs?v=494239';
 import {readPersonalScores} from './playables-scores.mjs';
-import {observeDeferredImages} from './deferred-images.js?v=494238';
+import {observeDeferredImages} from './deferred-images.js?v=494239';
 
 const media = new Set(), playingMedia = new Set(), animations = new Set();
 let platform;
@@ -85,14 +85,14 @@ async function start() {
   try {
     // Start required art while Bridge and cloud progress initialize. This job
     // never announces game readiness or creates a saved-game fallback.
-    const artwork = prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494238')});
+    const artwork = prepareBootstrap({loadAudio:()=>loadScript('audio.js?v=494239')});
     artwork.catch(()=>{}); // The awaited barrier below reports any failure.
     // index.html creates this promise before loading game-frame.html. Never initialize
     // a second SDK here: a nested frame loses the portal's launch parameters.
     const ready = window.parent.ShapeShiftBridgeReady;
-    if (!ready || typeof ready.then !== 'function') throw Error('Open the game from index.html?v=494238');
+    if (!ready || typeof ready.then !== 'function') throw Error('Open the game from index.html?v=494239');
     const bridge = await ready;
-    window.ShapeShiftTelemetryBridge=bridge;bridge.gameVersion="4.94.238";
+    window.ShapeShiftTelemetryBridge=bridge;bridge.gameVersion="4.94.239";
     platform = window.ShapeShiftPlatform = createPlaygamaPlatform({
       bridge, host: window,
       isInteractive: () => cover.hidden && !document.getElementById('app').inert &&
@@ -143,7 +143,7 @@ async function start() {
     observeDeferredImages();
     bindDesktopScroll();
     startWelcomeMusic();
-    await import('./game.js?v=494238');
+    await import('./game.js?v=494239');
     const scoresButton = document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label', 'Global leaderboard'); scoresButton.title = 'Global leaderboard';
     document.getElementById('privacy-options').hidden = true;

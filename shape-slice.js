@@ -1,20 +1,20 @@
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=207';
-import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494238';
-import {createResultJournal} from './run-results.js?v=494238';
-import {beginModeTransition} from './mode-transition.js?v=494238';
-import {engagement,registerModeState} from './telemetry.js?v=494238';
-import {translate} from './localization.js?v=494238';
+import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494239';
+import {createResultJournal} from './run-results.js?v=494239';
+import {beginModeTransition} from './mode-transition.js?v=494239';
+import {engagement,registerModeState} from './telemetry.js?v=494239';
+import {translate} from './localization.js?v=494239';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494238';
-import {createMiniResults} from './mini-results.js?v=494238';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494239';
+import {createMiniResults} from './mini-results.js?v=494239';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {sliceViewport} from './slice-viewport.js';
 import {createSliceBurst,stepSliceEffects,drawSliceEffects,createBombImpact,stepBombImpacts,drawBombImpacts,bombCameraOffset,bombImpactPending,bombHaptic} from './slice-effects.js';
 import {drawSliceTrail,slicePointerPoint,sliceTrailColor,SLICE_TRAIL_LIFETIME} from './slice-trail.js';
 import {miniGameCoins} from './mini-game-rewards.js';
-import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494238';
+import {createSliceGame,sliceProgress,finishSliceProgress,SLICE_WIDTH as W,SLICE_HEIGHT as H} from './shape-slice-engine.js?v=494239';
 import {shapeArtReady,paintMiniShape} from './mini-shape-art.js';
 import {cutShape,splitFragment,stepFragments,artworkBox,polygonArea} from './slice-fragments.js';
 const bomb=new Image(),galaxy=new Image(),imageLoads=new WeakMap();
@@ -29,6 +29,8 @@ function loadSliceImage(image,src){
 async function prepareAssets(){return (await Promise.all([shapeArtReady,loadSliceImage(bomb,'assets/slice-bomb-v239.webp'),loadSliceImage(galaxy,'assets/slice-galaxy-v49476.webp')])).every(Boolean);}
 const KEY='shape-shift-slice-v1',colors=['#ff5878','#49ceff','#6bff89','#ffe56c'];
 export function initShapeSlice({getAdventureChallenge=()=>null,onAdventureResult=()=>({}),sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onProgress=()=>{},onQuestEvent:reportQuest=()=>{},onClose=()=>{},getLoadout=()=>({})}={}){
+ let preparedAssets;
+ function prepare(){return preparedAssets??=Promise.all([prepareAssets(),window.gameAudio?.prepareGameStart('slice')??true]).then(ready=>{if(!ready.every(Boolean))throw Error('Shape Slice assets unavailable');return true;}).catch(error=>{preparedAssets=null;throw error;});}
  const teaching=createMiniTutorial('slice');
  const practice=createModePractice('slice',{onComplete:()=>continuePracticeRun(game,()=>{engagement.startRun('slice');onQuestEvent({type:'start',mode:'slice',time:game.time});lastHud='';last=window.ShapeShiftPlatform.now();update();})});
  const onQuestEvent=event=>{if(!practice.active)reportQuest(event);};
@@ -105,18 +107,13 @@ export function initShapeSlice({getAdventureChallenge=()=>null,onAdventureResult
  function practicePoint(){const p=game.pieces.find(p=>!p.hazard);if(!p||!transform||!p.practiceSettled)return null;const r=canvas.getBoundingClientRect();return {x:r.left+transform.x+p.x*transform.scale,y:r.top+transform.y+p.y*transform.scale};}
  function startPractice(){if(!practice.active)return;const b=transform.bounds;game.spawn({x:(b.left+b.right)/2,y:b.bottom+38,vx:0,vy:-Math.sqrt(2*620*(b.bottom+38-(b.top+b.bottom)/2)),shape:0,color:1,angle:0,spin:0,r:33});practice.mount(dialog);practice.guide('Swipe through the shape.',practicePoint,'swipe');render();}
 
- async function start(){if(entering)return;entering=true;const gate=beginModeTransition('Shape Slice');try{await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate.dispose();entering=false;}}
- async function prepareRun(gate){if(!game&&!recoverResult()){const card=panel('Unable to save progress');card.append(button('Retry',start),button('Games',close));return;}if(game&&!save())return;const audioReady=window.gameAudio?.prepareGameStart('slice')?.catch(()=>false)??Promise.resolve(true);stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;swipeSeconds=0;swipeColor=sliceTrailColor(0);runId='shape-slice-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion');
+ async function start(){if(entering)return;entering=true;let gate;try{await prepare();gate=beginModeTransition('Shape Slice');await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}finally{gate?.dispose();entering=false;}}
+ async function prepareRun(gate){if(!game&&!recoverResult()){const card=panel('Unable to save progress');card.append(button('Retry',start),button('Games',close));return;}if(game&&!save())return;stop();const token=version;dialog.dataset.view='play';dialog.dataset.paused='false';dialog.replaceChildren();saved=false;pendingSave=null;paused=false;swipeSeconds=0;swipeColor=sliceTrailColor(0);runId='shape-slice-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion');
   const scenery=el('div','slice-scenery');sceneryTint=createSceneryTint(scenery,{garden:false,strength:.075});scenery.setAttribute('aria-hidden','true');scenery.append(el('div','slice-stars slice-stars-far'),el('div','slice-stars slice-stars-mid'),el('div','slice-stars slice-stars-near'));dialog.append(scenery);
   const hud=el('div','slice-play-hud'),pauseButton=button('',pause,'drop-icon drop-icon-pause');pauseButton.setAttribute('aria-label','Pause Shape Slice');scoreText=el('strong','slice-current-score','0');scoreText.setAttribute('aria-label','Current score');const best=el('div','slice-best');bestText=el('strong','','0');best.append(el('span','','BEST'),bestText);livesText=el('div','slice-lives');livesText.setAttribute('role','img');const coins=el('div','mini-run-coins'),coinIcon=el('img');coinIcon.src='assets/coin-v10.webp';coinIcon.alt='';coinText=el('strong','','0');coins.append(coinIcon,coinText);hud.append(pauseButton,scoreText,best,livesText,coins);dialog.append(hud);const stage=el('div','drop-stage');canvas=el('canvas','drop-canvas');canvas.tabIndex=0;canvas.setAttribute('role','application');stage.append(canvas);dialog.append(stage);ctx=canvas.getContext('2d');transform=null;trailCanvas=el('canvas','slice-trail-canvas');trailCanvas.setAttribute('aria-hidden','true');dialog.append(trailCanvas);trailCtx=trailCanvas.getContext('2d');
   const help=el('div','slice-help');notice=el('span','','Swipe shapes · Avoid the bombs');notice.setAttribute('aria-live','polite');help.append(notice);dialog.append(help);lifeNotice=el('div','slice-life-loss');lifeNotice.hidden=true;lifeNotice.setAttribute('role','status');lifeNotice.setAttribute('aria-live','assertive');lifeNotice.setAttribute('aria-atomic','true');dialog.append(lifeNotice);
-  const loading=panel('Getting ready…');loading.setAttribute('role','status');loading.append(button('Games',close));
-  let loadingTimer;
-  const ready=await Promise.race([Promise.all([prepareAssets(),audioReady]).then(values=>values.every(Boolean)),new Promise(resolve=>{loadingTimer=window.ShapeShiftPlatform.setTimeout(()=>resolve(false),10000);})]);
-  window.ShapeShiftPlatform.clearTimeout(loadingTimer);
   if(token!==version||!dialog.open)return;
-  if(!ready){const card=panel('Unable to load');card.append(el('p','','Check your connection and try again.'),button('Retry',start),button('Games',close));return;}
-  overlay?.remove();overlay=null;for(const child of dialog.children)child.inert=false;
+  overlay=null;for(const child of dialog.children)child.inert=false;
   settle();const {frame,upgrade}=getLoadout();game=createSliceGame({frame,upgrade,practice:practice.active,autoSpawn:!practice.active,onEvent:event,bounds:sliceViewport(canvas.clientWidth,canvas.clientHeight).bounds});if(!practice.active)engagement.startRun('slice');onQuestEvent({type:'start',mode:'slice',time:0});update();render();canvas.focus();window.gameAudio?.setScene('slice');await gate.reveal(()=>render());if(token!==version||!dialog.open)return;startPractice();canvas.focus();last=window.ShapeShiftPlatform.now();adventureRun.start(dialog);raf=window.ShapeShiftPlatform.requestAnimationFrame(tick);
   const point=e=>{const p=slicePointerPoint(e,canvas.getBoundingClientRect(),transform);return {...p,x:p.x-camera.x/transform.scale,y:p.y-camera.y/transform.scale};};
   const addTrail=e=>{const r=dialog.getBoundingClientRect();trail.push({x:e.clientX-r.left,y:e.clientY-r.top,time:game.time,stroke,color:swipeColor});};
@@ -151,5 +148,5 @@ export function initShapeSlice({getAdventureChallenge=()=>null,onAdventureResult
  const autoPause=()=>{if(dialog.open)pause();};window.addEventListener('unused-blur',autoPause);window.addEventListener('androidpause',autoPause);document.addEventListener('visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)autoPause();});window.addEventListener('pagehide',()=>{if(game&&!saved){if(continueOffer.isOffering()){resultJournal.write(runId,game);return;}game.end();save();}});new ResizeObserver(()=>{if(game){endGesture(true);render();}}).observe(dialog);
  settle();
  try{onProgress(progress);}catch{}
- return {async prepare(){const ready=await Promise.all([prepareAssets(),window.gameAudio?.prepareGameStart('slice')??true]);if(!ready.every(Boolean))throw Error('Shape Slice assets unavailable');},open(){if(dialog.open)return;return start();},close};
+ return {prepare,open(){if(dialog.open)return;return start();},close};
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ORIGINAL_SONGS,createSongSequence,brightenPianoSong,readPianoBar} from './piano-songs.js';
-import {createPianoGame,pianoSongTempo,PIANO_HIT_SECONDS} from './piano-flow-engine.js';
+import {createPianoGame,pianoSongTempo} from './piano-flow-engine.js';
 const config={stripTap:true,rhythm:true,melodicStrips:true,fullSongs:true,rng:()=>0};
 const advance=(g,seconds)=>{for(let i=0;i<Math.ceil(seconds*120);i++)g.step(1/120);};
 const shape=notes=>notes.map(n=>[n.pitch,n.duration,n.soundBeats,n.holdBeats,n.chord]);
@@ -113,12 +113,10 @@ test('countdown is stationary and unplayed notes never start backing',()=>{
  assert.equal(g.beat,start);assert.equal(g.notes[0].beat-start,2);assert(!g.pressStrip(g.notes[0].lane));
  advance(g,9);assert(!events.some(e=>['note','accompaniment'].includes(e.type)));assert(g.lives<g.maxLives);
 });
-test('timed playing cannot collect distant visible notes or replay their sound',()=>{
+test('written charts respond immediately to visible notes without deferred or repeated attacks',()=>{
  const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,3);
- const n=g.notes[0];assert(!g.pressStrip(n.lane));assert.equal(g.lives,g.maxLives);
- g.beat=n.beat-(PIANO_HIT_SECONDS-.02)*g.bpm/60;
- assert(g.pressStrip(n.lane));g.release(n.lane);assert.equal(n.status,'done');assert.equal(g.hits,1);
- advance(g,.3);assert.equal(events.filter(e=>e.type==='note').length,1);
+ const n=g.notes[0];assert(g.beat<n.beat);assert(g.pressStrip(n.lane));assert.equal(g.hits,1);g.release(n.lane);assert.equal(n.status,'done');
+ advance(g,.3);assert.equal(events.filter(e=>e.type==='note').length,1);assert.equal(g.lives,g.maxLives);
 });
 test('continuation retains earned progress and waits for a physical strike',()=>{
  const events=[],g=createPianoGame({...config,onEvent:e=>events.push(e)});g.start();advance(g,3);g.hits=12;g.score=12;

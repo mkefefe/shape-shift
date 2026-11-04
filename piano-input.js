@@ -4,30 +4,29 @@ export function pianoInputClock(eventTime,now,platformNow,previous=platformNow){
  const age=Number.isFinite(eventTime)&&eventTime>0&&eventTime<=now?Math.min(1000,now-eventTime):0;
  return Math.max(previous,platformNow-age);
 }
-// One physical input owns the active strip. A newer finger/key can take over
-// without an older pointer's eventual release cancelling the replacement.
+// Independent physical inputs can play different strips together. Reusing a
+// strip transfers only that strip, so an older finger cannot release its replacement.
 export function createPianoInput({getGame,enabled=()=>true,onChange=()=>{},onPress=()=>{}}){
- let owner=null;
+ const owners=new Map(),lanes=new Map();
  function release(id){
-  if(!owner||owner.id!==id)return;
-  const previous=owner;owner=null;
-  getGame()?.release(previous.lane);onChange();
+  const owner=owners.get(id);if(!owner)return;owners.delete(id);
+  if(lanes.get(owner.lane)===id){lanes.delete(owner.lane);getGame()?.release(owner.lane);}
+  onChange();
  }
- function reset(){if(owner)release(owner.id);}
+ function reset(){for(const id of [...owners.keys()])release(id);}
  function flush(){
-  const game=getGame();
-  if(!owner?.pending||!enabled()||!game?.started||game.paused||game.over||game.countdown>0)return;
-  const next=game.notes.find(n=>['waiting','partial','holding'].includes(n.status));
-  // A full-song press is judged once, at its physical time. Holding an early
-  // key must not silently turn it into a perfectly timed strike later.
-  if(game.fullSongs&&game.practice&&(!next||next.beat-game.beat>(game.inputWindow??4.4)))return;
-  owner.pending=false;game.pressStrip(owner.lane);onChange();
+  const game=getGame();if(!enabled()||!game?.started||game.paused||game.over||game.countdown>0)return;
+  let changed=false;
+  for(const owner of owners.values())if(owner.pending){owner.pending=false;game.pressStrip(owner.lane);changed=true;}
+  if(changed)onChange();
  }
  function press(lane,id){
   const game=getGame();
   if(!Number.isInteger(lane)||lane<0||lane>=4||!enabled()||!game?.started||game.paused||game.over)return false;
-  if(owner?.id===id)return true;
-  reset();owner={id,lane,pending:!(game.fullSongs&&!game.practice&&(game.countdown>0||game.recoverySeconds>0))};onPress(lane);flush();return true;
+  if(owners.has(id))return true;
+  if(lanes.has(lane))release(lanes.get(lane));
+  const owner={id,lane,pending:!(game.countdown>0||game.recoverySeconds>0)};
+  owners.set(id,owner);lanes.set(lane,id);onPress(lane);flush();return true;
  }
  return {press,release,reset,flush};
 }
@@ -36,7 +35,7 @@ export function bindPianoKeyboard({host,dialog,active,press,release,pause}){
  const media=host.matchMedia('(hover: hover) and (pointer: fine)');
  const keys=['a','s','d','f'],held=new Set();let row,keyboardUsed=false;
  const keyOf=event=>/^Key[ASDF]$/.test(event.code)?event.code.slice(3).toLowerCase():String(event.key||'').toLowerCase();
- const paint=lane=>row?.querySelectorAll('kbd').forEach((el,i)=>el.classList.toggle('pressed',i===lane));
+ const paint=lane=>row?.querySelectorAll('kbd').forEach((el,i)=>{if(lane<0)el.classList.remove('pressed');else if(i===lane)el.classList.add('pressed');});
  const reset=()=>{for(const key of held)release('key-'+key);held.clear();paint(-1);};
  function sync(){const visible=media.matches||keyboardUsed;dialog.classList.toggle('piano-desktop-keys',visible);if(row)row.hidden=!visible;}
  host.addEventListener('keydown',event=>{
@@ -57,7 +56,7 @@ export function bindPianoKeyboard({host,dialog,active,press,release,pause}){
  host.addEventListener('shape-shift-input-reset',reset);
  media.addEventListener('change',sync);
  return {reset,mount(){
-  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold the key for long notes.');
+  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold a key for an optional longer tone.');
   for(const key of keys){const label=dialog.ownerDocument.createElement('kbd');label.textContent=key.toUpperCase();row.append(label);}
   dialog.append(row);sync();return media.matches||keyboardUsed;
  }};

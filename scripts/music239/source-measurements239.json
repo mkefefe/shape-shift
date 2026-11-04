@@ -1,0 +1,117 @@
+[
+  {
+    "mode": "adventure",
+    "file": "adventure.ogg",
+    "sha256": "f6aaf1905e7bd0cee9ce64863004679eeef9cd7488ed1299d891bb2c3087aae6",
+    "seconds": 73.8461,
+    "sampleRate": 44100,
+    "channels": 2,
+    "rmsDbChannels": [
+      -18.207,
+      -17.571
+    ],
+    "peakDbChannels": [
+      -3.623,
+      -3.738
+    ],
+    "leftMinusRightDb": -0.636,
+    "correlation": 0.898538,
+    "sideToMidDb": -12.614,
+    "monoFoldLossDb": -0.232,
+    "lufs": -15.83,
+    "truePeakDbTP": -3.62,
+    "lra": 1.5
+  },
+  {
+    "mode": "endless",
+    "file": "endless.ogg",
+    "sha256": "6e9b6edf2a157f734a4c9b437742495152df7c2b7f5d3f73f44213419c0e6327",
+    "seconds": 54.8571,
+    "sampleRate": 44100,
+    "channels": 2,
+    "rmsDbChannels": [
+      -18.109,
+      -17.654
+    ],
+    "peakDbChannels": [
+      -4.784,
+      -5.124
+    ],
+    "leftMinusRightDb": -0.455,
+    "correlation": 0.884692,
+    "sideToMidDb": -12.086,
+    "monoFoldLossDb": -0.261,
+    "lufs": -15.72,
+    "truePeakDbTP": -4.78,
+    "lra": 1.5
+  },
+  {
+    "mode": "drop",
+    "file": "drop.ogg",
+    "sha256": "9c77618b6fd1ff57f4a1781f69f908b3528f80b55f4d74f4bb28679aee3d079d",
+    "seconds": 76.8,
+    "sampleRate": 44100,
+    "channels": 2,
+    "rmsDbChannels": [
+      -17.975,
+      -17.773
+    ],
+    "peakDbChannels": [
+      -5.753,
+      -5.455
+    ],
+    "leftMinusRightDb": -0.202,
+    "correlation": 0.852911,
+    "sideToMidDb": -10.995,
+    "monoFoldLossDb": -0.332,
+    "lufs": -15.64,
+    "truePeakDbTP": -5.45,
+    "lra": 1.2
+  },
+  {
+    "mode": "slice",
+    "file": "slice.ogg",
+    "sha256": "ed3545d495f0484c518541efdc0acb59ac56bca781fa34a59628a526ea107654",
+    "seconds": 61.9355,
+    "sampleRate": 44100,
+    "channels": 2,
+    "rmsDbChannels": [
+      -18.132,
+      -17.635
+    ],
+    "peakDbChannels": [
+      -4.43,
+      -4.479
+    ],
+    "leftMinusRightDb": -0.497,
+    "correlation": 0.905029,
+    "sideToMidDb": -12.953,
+    "monoFoldLossDb": -0.215,
+    "lufs": -15.79,
+    "truePeakDbTP": -4.43,
+    "lra": 1.4
+  },
+  {
+    "mode": "battle",
+    "file": "battle.ogg",
+    "sha256": "69e56a99f31e89a1097fa257367ef5412a07e024a2dbbc5c22d6e1bf4e594974",
+    "seconds": 66.2069,
+    "sampleRate": 44100,
+    "channels": 2,
+    "rmsDbChannels": [
+      -17.952,
+      -17.803
+    ],
+    "peakDbChannels": [
+      -5.112,
+      -5.234
+    ],
+    "leftMinusRightDb": -0.149,
+    "correlation": 0.901646,
+    "sideToMidDb": -12.857,
+    "monoFoldLossDb": -0.219,
+    "lufs": -15.71,
+    "truePeakDbTP": -5.11,
+    "lra": 1.2
+  }
+]

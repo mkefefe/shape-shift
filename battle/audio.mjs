@@ -1,6 +1,10 @@
 // Battle uses the same short rising match/pluck vocabulary as the main game,
 // while its isolated screen owns the soundtrack and audio lifecycle.
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+// Same recorded-music level and master as the parent game's gameplay scene.
+export const BATTLE_MUSIC_LEVEL=.56*.52;
+export const BATTLE_RECORDING_GAIN=10**((-20-(-15.71))/20);
+export const battleMusicVolume=value=>clamp(Number.isFinite(Number(value))?Number(value):40,0,100)/100;
 export function cueNotes(kind,combo=0,random=Math.random){
  const lift=2**((clamp(combo,0,6)*.025+random()*.20)/12);
  const note=(frequency,delay,length,volume,end=frequency,type='sine')=>({frequency,delay,length,volume,end,type});
@@ -39,7 +43,7 @@ export function duckEnvelope(previous,now,seconds,target=.62){
 export function createBattleAudio(music,getSettings,environment={}){
  const AudioContext=environment.AudioContext||globalThis.AudioContext||globalThis.webkitAudioContext;
  const hidden=environment.hidden||(()=>globalThis.document?.hidden===true);
- let context,effectsBus,musicBus,musicDuck,envelope,noiseBuffer,suspending;
+ let context,effectsBus,musicBus,musicDuck,envelope,noiseBuffer,suspending,preparing;
  const sources=new Set();
  function setup(){
   if(context)return context;
@@ -57,7 +61,7 @@ export function createBattleAudio(music,getSettings,environment={}){
  function sync(){
   const s=getSettings(),now=context.currentTime;
   effectsBus.gain.setTargetAtTime(s.muted||!s.effectsAllowed?0:clamp(s.effectsVolume,0,1)*1.25,now,.015);
-  musicBus.gain.setTargetAtTime(s.muted?0:clamp(s.musicVolume,0,.35),now,.05);
+  musicBus.gain.setTargetAtTime(s.muted?0:clamp(s.musicVolume,0,1)*BATTLE_MUSIC_LEVEL*BATTLE_RECORDING_GAIN,now,.05);
  }
  function resume(){
   if(!setup())return;
@@ -96,8 +100,8 @@ export function createBattleAudio(music,getSettings,environment={}){
   const now=context.currentTime;for(const note of cueNotes(kind,combo))tone(note,now);
   if(kind==='parry'||kind==='block')noise(now,.06,.055,1900,850,'bandpass');
   const duration={warning:.35,parry:.35,block:.25,shield:.4,shift:.25,reward:.4,win:.65,nova:.55};
-  // Contacts use only a shallow dip; important warnings/specials remain clear.
-  duck(duration[kind]??.18,kind==='hit'||kind==='click'?.82:.62);
+  // Repeated contacts must not repeatedly turn down the authored beat.
+  if(kind!=='hit'&&kind!=='click')duck(duration[kind]??.18,.62);
  }
  function physical(kind){
   if(!available())return;
@@ -118,11 +122,23 @@ export function createBattleAudio(music,getSettings,environment={}){
   if(hidden()||getSettings().muted)return;
   resume();void music.play().catch(()=>{});
  }
+ function prepare(){
+  if(music.readyState>=4)return Promise.resolve(true);
+  if(preparing)return preparing;
+  preparing=new Promise(resolve=>{
+   const clock=environment.setTimeout||globalThis.setTimeout,clear=environment.clearTimeout||globalThis.clearTimeout;
+   let timer,finished=false;
+   function finish(ok){if(finished)return;finished=true;clear(timer);music.removeEventListener('canplaythrough',ready);music.removeEventListener('error',failed);resolve(ok);}
+   const ready=()=>finish(true),failed=()=>finish(false);
+   music.addEventListener('canplaythrough',ready);music.addEventListener('error',failed);
+   timer=clock(failed,12000);music.preload='auto';music.load();
+  }).finally(()=>{preparing=null;});return preparing;
+ }
  function suspend(){
   music.pause();if(!context)return;
   for(const source of sources)try{source.stop();}catch{}
   envelope=null;musicDuck.gain.cancelScheduledValues(context.currentTime);musicDuck.gain.setValueAtTime(1,context.currentTime);
   suspending=context.suspend().catch(()=>{});suspending.finally(()=>{suspending=null;});
  }
- return {cue,physical,damage,playMusic,suspend};
+ return {cue,physical,damage,playMusic,suspend,prepare};
 }

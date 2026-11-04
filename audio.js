@@ -1,7 +1,7 @@
 /* Shape Shift — recorded-piano music and procedural game sound effects. */
 (() => {
   'use strict';
-  let context, master, musicBus, musicDuck, musicTone, musicBody, musicPresence, effectsBus, timer;
+  let context, master, musicBus, musicDuck, musicTone, musicBody, musicPresence, effectsBus, pianoLeadBus, timer;
   let lifecycleEpoch=0,suspendTimer=null,suspending=null,masterFade=null;
   const liveSources=new Set();
   function audioSource(oscillator=false){
@@ -28,14 +28,18 @@
     adaptiveState={intensity,stage:state.stage??state.picks??0,rewind};
     if(adaptiveMusic&&adaptiveModel){adaptiveMusic.setTempo(adaptiveModel.update(adaptiveState).targetBpm,newRun);adaptiveState.rewind=false;}
   }
-  function prepareAdaptive(){
-    if(adaptiveLoading||adaptiveMusic||context.currentTime<adaptiveRetryAt)return;
-    adaptiveLoading=import('./adaptive-music.js?v=494238').then(async module=>{
-      const player=await module.createAdaptiveMusic(context,musicBus);
+  function prepareAdaptive(retry=false){
+    if(adaptiveLoading)return adaptiveLoading;
+    if(adaptiveMusic)return Promise.resolve(true);
+    if(!retry&&context.currentTime<adaptiveRetryAt)return Promise.resolve(false);
+    adaptiveLoading=import('./adaptive-music.js?v=494239').then(async module=>{
+      const player=await module.createAdaptiveMusic(context,musicBus,{recordingGain:recordingGain('game')});
+      if(!await player.prepare()){player.dispose();throw Error('Endless audio unavailable');}
       adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();
       if(adaptiveState)player.setTempo(adaptiveModel.update(adaptiveState).targetBpm);
-      schedule();
-    }).catch(()=>{adaptiveRetryAt=context.currentTime+5;}).finally(()=>{adaptiveLoading=null;});
+      schedule();return true;
+    }).catch(()=>{adaptiveRetryAt=context.currentTime+5;return false;}).finally(()=>{adaptiveLoading=null;});
+    return adaptiveLoading;
   }
   let scene = 'menu',menuWorld='garden';
   let musicVolume=40,sfxVolume=65;
@@ -69,6 +73,7 @@
     // A centered mono effects bus feeds both output speakers equally.
     effectsBus.channelCount=1;effectsBus.channelCountMode='explicit';effectsBus.channelInterpretation='speakers';
     musicDuck=context.createGain();musicDuck.gain.value=1;
+    pianoLeadBus=context.createGain();pianoLeadBus.gain.value=effectsBus.gain.value;pianoLeadBus.connect(master);
     musicTone=context.createBiquadFilter();musicTone.type='lowpass';musicTone.frequency.value=4300;musicTone.Q.value=.55;
     musicBody=context.createBiquadFilter();musicBody.type='lowshelf';musicBody.frequency.value=220;musicBody.gain.value=0;
     musicPresence=context.createBiquadFilter();musicPresence.type='peaking';musicPresence.frequency.value=1800;musicPresence.Q.value=.7;musicPresence.gain.value=1.8;
@@ -254,7 +259,7 @@
       }
     }
     const convolver=context.createConvolver(),wet=context.createGain();convolver.normalize=false;convolver.buffer=pianoImpulse;wet.gain.value=accompaniment?.16:.22;
-    convolver.connect(wet);wet.connect(accompaniment?musicBus:effectsBus);pianoRooms.set(accompaniment,{convolver,wet});return convolver;
+    convolver.connect(wet);wet.connect(accompaniment?musicBus:pianoLeadBus);pianoRooms.set(accompaniment,{convolver,wet});return convolver;
   }
   async function preparePiano(){
     if(!setup())return false;
@@ -277,7 +282,7 @@
     const source=audioSource(),gain=context.createGain(),warmth=context.createBiquadFilter(),now=context.currentTime+Math.max(0,Number(delay)||0),hold=Math.max(.08,Math.min(5,Number(duration)||.35)),volume=(accompaniment?.72:.9)*volumeValue(velocity*100,100)/100;
     source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(volume,now+.008);gain.gain.setValueAtTime(volume,now+hold);gain.gain.exponentialRampToValueAtTime(.0001,now+hold+.48);
     warmth.type='lowpass';warmth.frequency.value=accompaniment?2900:4200;warmth.Q.value=.55;
-    source.connect(warmth);warmth.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
+    source.connect(warmth);warmth.connect(gain);gain.connect(accompaniment?musicBus:pianoLeadBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
     let released=false;const voice={accompaniment,release(){if(released)return;released=true;pianoVoices.delete(voice);const t=context.currentTime;gain.gain.cancelScheduledValues(t);if(t<now){gain.gain.setValueAtTime(0,t);try{source.stop(t);}catch{}return;}gain.gain.setTargetAtTime(0,t,.09);try{source.stop(t+.36);}catch{}}};
     pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();warmth.disconnect();gain.disconnect();};source.start(now);source.stop(now+hold+.5);return voice.release;
   }
@@ -298,7 +303,7 @@
     source.buffer=buffer;source.playbackRate.value=2**((note-key)/12);
     color.type='lowpass';color.frequency.value=accompaniment?4800:3800+5200*Math.sqrt(level);color.Q.value=.55;
     gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(volume,at+attack);gain.gain.setValueAtTime(volume,at+hold);gain.gain.exponentialRampToValueAtTime(.0001,at+hold+tail);
-    source.connect(color);color.connect(gain);gain.connect(accompaniment?musicBus:effectsBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
+    source.connect(color);color.connect(gain);gain.connect(accompaniment?musicBus:pianoLeadBus);const room=pianoRoom(accompaniment);if(room)gain.connect(room);
     let released=false;const voice={note,at,accompaniment,release(releaseTime=.10){if(released)return;released=true;pianoVoices.delete(voice);const now=context.currentTime;
       if(now<at){gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(0,now);try{source.stop(now);}catch{}return;}
       if(gain.gain.cancelAndHoldAtTime)gain.gain.cancelAndHoldAtTime(now);else{const elapsed=now-at,current=elapsed<attack?volume*elapsed/attack:elapsed<=hold?volume:volume*Math.pow(.0001/Math.max(.0001,volume),Math.min(1,(elapsed-hold)/tail));gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(Math.max(0,current),now);}
@@ -338,7 +343,11 @@
   }
 
   // Five new original mode themes are packaged with their scores and checksums.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-238.ogg',adventure:'assets/music/adventure-238.ogg',slice:'assets/music/shape-slice-238.ogg',drop:'assets/music/shape-drop-238.ogg'};
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-239.ogg',adventure:'assets/music/adventure-239.ogg',slice:'assets/music/shape-slice-239.ogg',drop:'assets/music/shape-drop-239.ogg'};
+  // Measured integrated loudness; replay gain changes no file, pitch or saved
+  // slider. A common -20 LUFS reference removes the 12 dB menu-world jump.
+  const musicLoudness={'menu-garden':-26.75,'menu-moon':-14.78,'menu-sunset':-17.98,game:-15.72,adventure:-15.83,slice:-15.79,drop:-15.64};
+  const recordingGain=name=>10**((-20-musicLoudness[name])/20);
   const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=.85;
   let musicMood=null;
   const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
@@ -346,7 +355,7 @@
   function updateMusicMix(){
     if(!musicTone||musicMood===scene)return;
     // The authored gameplay mixes are already balanced; keep their instrument colors intact.
-    const original=['game','adventure','slice','drop','piano'].includes(scene);
+    const original=['menu','game','adventure','slice','drop','piano'].includes(scene);
     musicBus.disconnect();musicBus.connect(original?musicDuck:scene==='menu'?musicPresence:musicTone);
     if(original||scene==='menu'){musicMood=scene;return;}
     const now=context.currentTime,position=musicVoice?musicPosition(musicVoice,now):0;
@@ -419,6 +428,9 @@
           }).catch(()=>{adaptiveMusic.stop();adaptiveRetryAt=context.currentTime+5;}).finally(()=>{adaptiveStarting=null;});
         }
       }else prepareAdaptive();
+      // Never play a second native-tempo copy while the pitch-preserving player
+      // is preparing or starting. Use the decoded fallback only after failure.
+      if(adaptiveLoading||adaptiveStarting)return;
     }
     settleMusicTransition();updateMusicMix();
     const name=musicTrack();
@@ -432,12 +444,12 @@
       const start=now;
       const offset=musicPositions[name]%buffer.duration;
       const fadeIn=from?MUSIC_CROSSFADE:(scene==='menu'?.85:.3);
-      const source=audioSource(),gain=context.createGain();
+      const source=audioSource(),gain=context.createGain(),trim=context.createGain();trim.gain.value=recordingGain(name);
       source.buffer=buffer;source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
       gain.gain.setValueAtTime(0,now);gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(1,start+fadeIn);
-      source.connect(gain);gain.connect(musicBus);
+      source.connect(gain);gain.connect(trim);trim.connect(musicBus);
       const voice={name,source,gain,offset,startedAt:start,fadeIn};musicVoice=voice;
-      source.onended=()=>{source.disconnect();gain.disconnect();if(musicVoice===voice)musicVoice=null;};
+      source.onended=()=>{source.disconnect();gain.disconnect();trim.disconnect();if(musicVoice===voice)musicVoice=null;};
       if(from){
         const fadeAt=start,end=start+MUSIC_CROSSFADE,fromLevel=voiceLevel(from,now);
         from.gain.gain.cancelScheduledValues(now);from.gain.gain.setValueAtTime(fromLevel,now);
@@ -485,7 +497,7 @@
   }
   function setSfx(value) {
     sfx = Boolean(value);if(!sfx||sfxVolume<=0){stopVoice();stopSlice();stopPiano(false);stopVictory();}
-    if (effectsBus) effectsBus.gain.setTargetAtTime(sfx ? SFX_LEVEL*sfxVolume/100 : 0, context.currentTime, 0.015);
+    for(const bus of [effectsBus,pianoLeadBus])if(bus)bus.gain.setTargetAtTime(sfx ? SFX_LEVEL*sfxVolume/100 : 0, context.currentTime, 0.015);
   }
   function setMusicVolume(value){musicVolume=volumeValue(value,40);setMusic(music);}
   function setSfxVolume(value){sfxVolume=volumeValue(value,65);setSfx(sfx);}
@@ -538,8 +550,8 @@
     const now = context.currentTime;
     const duckLengths={'slice-combo':.28,'slice-combo-big':.36,'slice-combo-max':.42,'slice-shred':.32,'victory':.3,'victory-panel':.22,'victory-transform':.18,'victory-gather':.3,'victory-burst':.9,'victory-spark':.7,'rock-crack':.28,'rock-break':.6,'streak-praise':.45,'lightning-finish':.65,'special-starburst':4.0,'special-reset':3.6,'special-heart':2.2,'special-crystal':1.15,'special-hourglass':1.25,'skill-points':.9,'quest-complete':.65,'quest-collect':.8,'quest-wallet':.65,'achievement-complete':.8,'colorstreak':.7,'bonus':.65,'over':.85,'gameover':.85,'level':.65,'levelup':.65,'start':.5,'wrong':.4,'error':.4,'purchase':.4,'shield':.6,'shield-hit':.65};
     // Routine contacts and slicing leave the backing music steady.
-    const steadyDrop=/^drop-/.test(name);
-    if(scene!=='menu'&&!steadyDrop&&!/^slice-(launch|fall|swish|cut|chip)$/.test(name)&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
+    const steadyContact=/^(drop-|slice-(launch|fall|swish|cut|chip)$)/.test(name)||['correct','match','click','tap','hover','select'].includes(name);
+    if(scene!=='menu'&&!steadyContact&&(scene!=='piano'||['piano-miss','wrong','error','over','gameover'].includes(name)))duckMusic(duckLengths[name]??.22);
     const notes = (list, spacing, length, volume = 0.2) => notePhrase(list,now,spacing,length,volume);
     switch (name) {
       case 'victory-transform': victoryCue('transform',now);break;
@@ -696,7 +708,7 @@
   const praiseClips={'Excellent!':'excellent','Impressive!':'impressive','Perfect!':'perfect'};
   const voiceBuffers=new Map();let voiceSource=null,voiceEpoch=0;
   function voiceBuffer(name){
-    if(!voiceBuffers.has(name))voiceBuffers.set(name,fetch('assets/praise/'+name+'.wav').then(r=>{if(!r.ok)throw Error('Voice unavailable');return r.arrayBuffer();}).then(data=>context.decodeAudioData(data)).catch(()=>{voiceBuffers.delete(name);return null;}));
+    if(!voiceBuffers.has(name))voiceBuffers.set(name,audioData('assets/praise/'+name+'.wav').then(data=>context.decodeAudioData(data)).catch(()=>{voiceBuffers.delete(name);return null;}));
     return voiceBuffers.get(name);
   }
   async function speakPraise(text,onStart=()=>{}){
@@ -740,17 +752,33 @@
     if(!window.ShapeShiftPlatform.audioAllowed||(!music&&!sfx))return true;
     if(!setup())return true;
     void start().catch(()=>{});
-    if(music&&musicVolume>0&&track!=='piano')void musicBuffer(musicTracks[track]?track:musicTrack());
+    if(music&&musicVolume>0&&track!=='piano'){
+      if(track==='game'&&adaptiveSupported())void prepareAdaptive();
+      else void musicBuffer(musicTracks[track]?track:musicTrack());
+    }
     return true;
   }
-  async function prepareCommon(){if(!setup())return false;const results=await Promise.all([...Object.keys(musicTracks).map(musicBuffer),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
-  const gateBuffers=new Map();
+  async function prepareCommon(){if(!setup())return false;const native=adaptiveSupported();const results=await Promise.all([...Object.keys(musicTracks).filter(name=>!native||name!=='game').map(musicBuffer),...(native?[prepareAdaptive(true)]:[]),...Object.values(praiseClips).map(voiceBuffer)]);return results.every(Boolean);}
+  const gateBuffers=new Map(),gateLoads=new Map();
   async function prepareGate(){
-    if(!setup())return;
-    await Promise.all(['enter','impact','turn','open'].map(async name=>{
-      if(gateBuffers.has(name))return;
-      try{const buffer=await context.decodeAudioData(await audioData('assets/audio/gate-'+name+'-v115.wav'));gateBuffers.set(name,buffer);}catch{}
-    }));
+    if(!setup())return false;
+    const ready=await Promise.all(['enter','impact','turn','open'].map(name=>{
+      if(gateBuffers.has(name))return true;
+      if(!gateLoads.has(name))gateLoads.set(name,audioData('assets/audio/gate-'+name+'-v115.wav').then(data=>context.decodeAudioData(data)).then(buffer=>{gateBuffers.set(name,buffer);return true;}).catch(()=>false).finally(()=>gateLoads.delete(name)));
+      return gateLoads.get(name);
+    }));return ready.every(Boolean);
+  }
+  let allWarm=null;
+  function prepareAll(){
+    if(!setup())return Promise.resolve(true);
+    if(allWarm)return allWarm;
+    // Readiness never resumes the context or starts a source. A failed or stalled
+    // optional asset leaves the cover retryable instead of waiting indefinitely.
+    let timeout;
+    const deadline=new Promise(resolve=>{timeout=window.setTimeout(()=>resolve(false),30000);});
+    const ready=Promise.all([prepareCommon(),preparePiano(),prepareGate(),prepareVictory()]).then(results=>results.every(Boolean)).catch(()=>false);
+    allWarm=Promise.race([ready,deadline]).finally(()=>{window.clearTimeout?.(timeout);allWarm=null;});
+    return allWarm;
   }
   function playGate(name,duration){
     const buffer=gateBuffers.get(name);
@@ -761,5 +789,5 @@
     source.onended=()=>{source.disconnect();gain.disconnect();};
     return ()=>{try{source.stop();}catch{}};
   }
-  window.gameAudio = Object.freeze({ get pianoBackingEpoch(){return pianoBackingEpoch;}, updateEndlessMusic, prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoPerformance, pianoRhythm, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  window.gameAudio = Object.freeze({ get pianoBackingEpoch(){return pianoBackingEpoch;}, updateEndlessMusic, prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareAll, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoPerformance, pianoRhythm, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

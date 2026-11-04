@@ -29,7 +29,7 @@ function harness(options={}){
   async resume(){if(options.resume)return options.resume();this.state='running';}
   async suspend(){this.state='suspended';}
  }
- let serial=0;const window={AudioContext,setTimeout(fn){state.delays.push(fn);return ++serial;},setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
+ let serial=0;const window={AudioContext:options.audioUnsupported?undefined:AudioContext,setTimeout(fn,ms){fn.delay=ms;state.delays.push(fn);return ++serial;},setInterval(fn){state.timers.set(++serial,fn);return serial;},clearInterval(id){state.timers.delete(id);}};
  window.ShapeShiftPlatform={audioAllowed:true,paused:false,setInterval:window.setInterval,clearInterval:window.clearInterval};state.platform=window.ShapeShiftPlatform;
  const fetch=async url=>{state.fetches.push(url);const r=options.fetch?await options.fetch(url):response();return {...r,arrayBuffer:async()=>{const data=await r.arrayBuffer();data.url=url;return data;}};};
  const math=Object.create(Math);math.random=options.random||Math.random;
@@ -147,7 +147,7 @@ test('piano room tails share a finite stereo impulse and respect independent mus
  for(let channel=0;channel<2;channel++){
   const data=lead.buffer.getChannelData(channel);assert(data.every(Number.isFinite));assert(data.some(value=>Math.abs(value)>.05));
  }
- assert.equal(lead.connections[0].connections[0],state.gains[2]);
+ assert.equal(lead.connections[0].connections[0],state.gains[4]);
  assert.equal(backing.connections[0].connections[0],state.gains[1]);
  audio.setSfx(false);assert.equal(lead.disconnects,1);assert.equal(backing.disconnects,0);
  audio.setMusic(false);assert.equal(backing.disconnects,1);
@@ -184,7 +184,7 @@ test('star rewards use the recorded victory family through the centered effects 
 
 
 test('starting a run does not wait for an uncached optional backing track',async()=>{
- let resolveTrack;const track='assets/music/endless-238.ogg';
+ let resolveTrack;const track='assets/music/endless-239.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track?new Promise(resolve=>resolveTrack=resolve):response()});
  assert.equal(await audio.prepareGameStart('game'),true);
  audio.setScene('game');await flush();assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -193,7 +193,7 @@ test('starting a run does not wait for an uncached optional backing track',async
 });
 
 test('an unavailable optional backing does not block gameplay and can retry later',async()=>{
- let fail=true;const track='assets/music/shape-slice-238.ogg';
+ let fail=true;const track='assets/music/shape-slice-239.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track&&fail?{ok:false}:response()});
  assert.equal(await audio.prepareGameStart('slice'),true);audio.setScene('slice');await flush();
  assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -332,7 +332,7 @@ test('each world hands off to the final dedicated Slice and Drop recordings',asy
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
   for(const mode of ['slice','drop','menu']){
    state.context.currentTime+=5;audio.setScene(mode);await flush();
-   assert.equal(tracks().at(-1).buffer.url,mode==='menu'?path(world):'assets/music/'+({slice:'shape-slice-238.ogg',drop:'shape-drop-238.ogg'})[mode]);
+   assert.equal(tracks().at(-1).buffer.url,mode==='menu'?path(world):'assets/music/'+({slice:'shape-slice-239.ogg',drop:'shape-drop-239.ogg'})[mode]);
    assert.equal(tracks().at(-1).startArgs[0],state.context.currentTime);
   }
  }
@@ -353,7 +353,7 @@ test('Piano Flow schedules authored support without a competing automatic pulse'
 test('entering gameplay switches recordings without added synthetic bridge notes',async()=>{
  const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=1.137;
  const voices=state.oscillators.length;audio.setScene('slice');await flush();
- assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-slice-238.ogg');
+ assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-slice-239.ogg');
  assert.equal(tracks().at(-1).startArgs[0],1.137);assert.equal(state.oscillators.length,voices);
 });
 
@@ -387,11 +387,11 @@ test('Piano Flow does not render song names or section captions',()=>{
 test('Endless loads its newly composed recording with no tone processing in every world',async()=>{
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);audio.setScene('game');await audio.start();await flush();
-  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/endless-238.ogg');
+  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/endless-239.ogg');
   assert.equal(state.gains[1].connections.at(-1),state.gains[3],'music routes directly to ducking, bypassing the new tone filters');
   state.context.currentTime=8;audio.pause();await audio.resume();await flush();assert.equal(tracks()[0],original);assert.equal(original.stops.length,0);
   audio.setScene('menu');await flush();state.context.currentTime=12;for(const tick of state.timers.values())tick();
-  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/endless-238.ogg');
+  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/endless-239.ogg');
  }
 });
 
@@ -399,18 +399,50 @@ test('Adventure uses its authored 104 BPM score instead of any menu world song',
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
   state.context.currentTime=8;audio.setScene('adventure');await flush();
-  assert.equal(tracks().at(-1).buffer.url,'assets/music/adventure-238.ogg');
+  assert.equal(tracks().at(-1).buffer.url,'assets/music/adventure-239.ogg');
   assert.equal(tracks().at(-1).startArgs[0],8);
  }
 });
 
-test('all menu themes use gentle melody presence without the muffling low-pass filter',async()=>{
- for(const world of ['garden','moon','sunset']){
-  const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
-  const presence=state.filters[2];assert.equal(presence.type,'peaking');assert.equal(presence.frequency.value,1800);assert.equal(presence.gain.value,1.8);
-  assert.equal(state.gains[1].connections.at(-1),presence);assert.equal(presence.connections[0],state.gains[3]);assert.equal(tracks()[0].buffer.url,path(world));
-  assert.equal(state.gains[2].connections[0],state.gains[0],'sound effects are not processed through menu EQ');
+test('all mastered recordings bypass tonal processing and retain both source channels',async()=>{
+ for(const scene of ['menu','adventure','slice','drop','game']){
+  const original=buffer(2,4);original.getChannelData(0).set([.1,.2,-.3,.4]);original.getChannelData(1).set([.4,-.3,.2,.1]);
+  const {audio,state,tracks}=harness({decode:()=>original});audio.setScene(scene);await audio.start();await flush();
+  assert.equal(state.gains[1].connections.at(-1),state.gains[3],'recording bypasses all EQ');
+  assert.equal(tracks()[0].buffer,original);assert.equal(tracks()[0].buffer.numberOfChannels,2);
+  assert.deepEqual([...original.getChannelData(1)],[...new Float32Array([.4,-.3,.2,.1])]);
+  assert.equal(state.gains[2].connections[0],state.gains[0]);
  }
+});
+
+test('measured replay gain aligns every recording without changing slider percentages or pitch',async()=>{
+ const readings={garden:[-26.75,-10],moon:[-14.78,-2.30],sunset:[-17.98,-1.84],adventure:[-15.83,-3.62],slice:[-15.79,-4.43],drop:[-15.64,-5.45],game:[-15.72,-4.78]};
+ for(const [name,[lufs,peak]] of Object.entries(readings)){
+  const {audio,state,tracks}=harness();if(['garden','moon','sunset'].includes(name))audio.setMenuWorld(name);else audio.setScene(name);
+  audio.setMusicVolume(63);await audio.start();await flush();const voice=tracks()[0],trim=voice.connections[0].connections[0];
+  assert(Math.abs(lufs+20*Math.log10(trim.gain.value)-(-20))<.001,name);
+  assert(peak+20*Math.log10(trim.gain.value)<0,'replay gain remains below full scale even before bus attenuation');
+  assert(Math.abs(state.gains[1].gain.value-(name in {garden:1,moon:1,sunset:1}?.55:.56)*.63)<1e-10);
+  assert.equal(voice.playbackRate.targets.length,0);assert.equal(voice.playbackRate.ramps.length,0);
+ }
+});
+
+test('rapid successful picks keep the beat steady while warnings and speech still duck',async()=>{
+ for(const scene of ['adventure','game']){
+  const {audio,state,tracks}=harness();audio.setScene(scene);await audio.start();await flush();const duck=state.gains[3],before=duck.gain.ramps.length;
+  for(let i=0;i<20;i++){state.context.currentTime+=.3;for(const cue of ['correct','match','click','tap'])audio.play(cue);}
+  assert.equal(duck.gain.ramps.length,before);assert.equal(tracks()[0].stops.length,0);
+  audio.play('wrong');assert(duck.gain.ramps.length>before);assert.equal(duck.gain.ramps.at(-1)[0],1);
+ }
+});
+
+test('all-assets readiness caches effects and gates without resuming or playing, and has a finite deadline',async()=>{
+ const {audio,state}=harness();const warming=audio.prepareAll();assert.equal(warming,audio.prepareAll());
+ for(let i=0;i<20;i++){await flush();const delay=state.delays.find(fn=>fn.delay===120&&!fn.done);if(delay){delay.done=true;delay();}}
+ assert.equal(await warming,true);assert.equal(state.context.state,'suspended');assert.equal(state.sources.length,0);
+ const count=state.fetches.length;assert.equal(await audio.prepareAll(),true);assert.equal(state.fetches.length,count);
+ const stuck=harness({fetch:()=>new Promise(()=>{})}),pending=stuck.audio.prepareAll();
+ stuck.state.delays.find(fn=>fn.delay===30000)();assert.equal(await pending,false);assert.equal(stuck.state.sources.length,0);
 });
 
 
@@ -457,7 +489,7 @@ test('performed piano preserves phase-safe samples, audible dynamics, and a quie
  assert.deepEqual([...loud.buffer.getChannelData(0)],[-.5,1,-.5]);assert.equal(loud.buffer.numberOfChannels,1);
  assert(loudColor.frequency.value>softColor.frequency.value,'soft notes soften the hammer brightness as well as level');
  assert(softGain.gain.ramps[0][0]<loudGain.gain.ramps[0][0]*.6,'passing notes must be distinctly quieter');
- assert.equal(loudGain.connections[0],state.gains[2]);assert.equal(supportGain.connections[0],state.gains[1]);
+ assert.equal(loudGain.connections[0],state.gains[4]);assert.equal(supportGain.connections[0],state.gains[1]);
  const leadMix=loudGain.gain.ramps[0][0]*state.gains[2].gain.value,supportMix=supportGain.gain.ramps[0][0]*state.gains[1].gain.value;
  assert(supportMix/leadMix<.16,'the left hand must leave room for the played melody');
  assert.equal(loud.stops.length,1,'a different pitch does not cut the previous natural tail');
@@ -527,4 +559,22 @@ test('rhythm rejects unknown or silent hits and polyphony evicts support before 
  assert.equal(lead.stops.length,1,'rapid backing never steals the held lead');
  assert(state.sources.slice(before+1).filter(s=>s.stops.length===1).length<=31,'queued support has bounded polyphony');
  audio.setMusicVolume(0);const count=state.sources.length;audio.pianoRhythm('kick');assert.equal(state.sources.length,count);
+});
+
+
+test('unsupported Web Audio never traps the startup readiness cover',async()=>{
+ const {audio,state}=harness({audioUnsupported:true});assert.equal(await audio.prepareAll(),true);assert.equal(state.fetches.length,0);assert.equal(state.contexts,0);
+});
+
+
+test('played Piano room retains its independent stereo channels while ordinary effects stay centered',async()=>{
+ const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();audio.pianoPerformance(72,.6,false,.9);
+ const room=state.convolvers[0],leadBus=room.connections[0].connections[0],effectBus=state.gains[2];
+ assert.notEqual(leadBus,effectBus);assert.equal(leadBus.channelCountMode,undefined);assert.equal(leadBus.connections[0],state.gains[0]);
+ assert.equal(effectBus.channelCountMode,'explicit');assert.equal(effectBus.channelCount,1);
+ const left=room.buffer.getChannelData(0),right=room.buffer.getChannelData(1);let ll=0,rr=0,lr=0;
+ for(let i=0;i<left.length;i++){ll+=left[i]*left[i];rr+=right[i]*right[i];lr+=left[i]*right[i];}
+ assert(ll>0&&rr>0);assert(Math.abs(lr/Math.sqrt(ll*rr))<.2,'room sides must remain distinct');
+ for(const percent of [0,25,65,100]){audio.setSfxVolume(percent);assert.equal(leadBus.gain.targets.at(-1)[0],2*percent/100);assert.equal(effectBus.gain.targets.at(-1)[0],2*percent/100);}
+ audio.setSfx(false);assert.equal(leadBus.gain.targets.at(-1)[0],0);assert.equal(room.disconnects,1);
 });

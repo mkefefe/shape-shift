@@ -1,8 +1,8 @@
-import {startWelcomeMusic} from './welcome-audio.js?v=494238';
-import {prepareBootstrap} from './startup-loader.js?v=494238';
-import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=494238';
-import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=494238';
-import {observeDeferredImages} from './deferred-images.js?v=494238';
+import {startWelcomeMusic} from './welcome-audio.js?v=494239';
+import {prepareBootstrap} from './startup-loader.js?v=494239';
+import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=494239';
+import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=494239';
+import {observeDeferredImages} from './deferred-images.js?v=494239';
 
 const sdk = window.ytgame;
 const live = Boolean(sdk?.IN_PLAYABLES_ENV);
@@ -108,9 +108,9 @@ async function start() {
     await prepareBootstrap({initialize:async()=>{
       await store.initialize();
       platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
-    },loadAudio:()=>loadScript('audio.js?v=494238')});
+    },loadAudio:()=>loadScript('audio.js?v=494239')});
   startWelcomeMusic();
-    await import('./game.js?v=494238');
+    await import('./game.js?v=494239');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

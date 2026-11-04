@@ -1,4 +1,5 @@
-import {createSceneryProgress,sceneryPalette} from './scenery-progress.js?v=494238';
+import {createSceneryProgress,sceneryPalette} from './scenery-progress.js?v=494239';
+import {decodeMenuImage} from './menu-preload.js?v=494239';
 // Gameplay-only scenery. Uses the game's clock so pause, ads and slow-time stay in sync.
 export function createGameplayScene(app){
  const canvas=document.createElement('canvas');canvas.id='gameplay-scene';canvas.setAttribute('aria-hidden','true');app.prepend(canvas);
@@ -7,8 +8,10 @@ export function createGameplayScene(app){
  let journey=createSceneryProgress(),mood={palette:sceneryPalette(0),speed:1},colorClock=0;
  let mode=null,level=1,w=1,h=1,dpr=1,phase=0,speed=1,lastDraw=0,backdropKey='';
  const particles=Array.from({length:90},(_,i)=>({x:((i*61.7)%101)/101,y:((i*37.3)%103)/103,z:.25+(i%7)/8,r:.6+(i%4)*.45}));
- // Load on first Adventure run; cache the painted sky at the viewport size.
+ // Prepare the source during startup; viewport paintings stay small and reusable.
  const sky=new Image();
+ let skyReady;
+ const preload=()=>skyReady??=(async()=>{sky.src='./assets/adventure-garden-v209.webp';await decodeMenuImage(sky);})().catch(error=>{skyReady=null;throw error;});
  sky.onload=()=>{if(mode==='adventure'){backdrop();draw();}};
  function backdrop(){
   const key=[mode,w,h,dpr,...(mode==='endless'?mood.palette:[sky.naturalWidth||0,level>60?2:level>25?1:0])].join('|');
@@ -42,5 +45,5 @@ export function createGameplayScene(app){
   }ctx.globalAlpha=1;
  }
  new ResizeObserver(resize).observe(app);
- return {async prepare(){if(mode==='adventure'){await sky.decode();}resize();draw();},scene(next,n=1){mode=next==='endless'||next==='adventure'?next:null;level=n;canvas.hidden=!mode;if(mode==='adventure'&&!sky.getAttribute('src'))sky.src='./assets/adventure-garden-v209.webp';if(mode){journey=createSceneryProgress();mood={palette:sceneryPalette(0),speed:1};colorClock=0;speed=1;phase=0;canvas.width=1;}resize();},tick(delta,state){if(!mode||window.ShapeShiftPlatform.paused)return;if(mode==='endless'){mood=journey.step(delta/1000,state.score,state.reduced);colorClock+=delta;if(colorClock>=200){colorClock=0;backdrop();}}const target=(mode==='endless'?Math.min(3.4,Math.max(.65,3200/Math.max(1100,state.duration))*mood.speed):1)*(state.slowRate??(state.slow?.5:1));speed+=(target-speed)*Math.min(1,delta/700);phase+=(state.reduced?0:delta)*(mode==='endless'?.015:.032)*speed;lastDraw+=delta;if(lastDraw>=32){lastDraw=0;draw();}}};
+ return {preload,async prepare(){if(mode==='adventure')await preload();resize();draw();},scene(next,n=1){mode=next==='endless'||next==='adventure'?next:null;level=n;canvas.hidden=!mode;if(mode){journey=createSceneryProgress();mood={palette:sceneryPalette(0),speed:1};colorClock=0;speed=1;phase=0;canvas.width=1;}resize();},tick(delta,state){if(!mode||window.ShapeShiftPlatform.paused)return;if(mode==='endless'){mood=journey.step(delta/1000,state.score,state.reduced);colorClock+=delta;if(colorClock>=200){colorClock=0;backdrop();}}const target=(mode==='endless'?Math.min(3.4,Math.max(.65,3200/Math.max(1100,state.duration))*mood.speed):1)*(state.slowRate??(state.slow?.5:1));speed+=(target-speed)*Math.min(1,delta/700);phase+=(state.reduced?0:delta)*(mode==='endless'?.015:.032)*speed;lastDraw+=delta;if(lastDraw>=32){lastDraw=0;draw();}}};
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBattleAudio,cueNotes,duckLevel,duckEnvelope} from './audio.mjs';
+import {createBattleAudio,cueNotes,duckLevel,duckEnvelope,battleMusicVolume,BATTLE_MUSIC_LEVEL,BATTLE_RECORDING_GAIN} from './audio.mjs';
 
 class Param{
  constructor(value=1){this.value=value;this.events=[];}
@@ -24,10 +24,11 @@ function harness(){
   createBuffer(channels,length){return {getChannelData:()=>new Float32Array(length)};}
   resume(){this.state='running';return Promise.resolve();}suspend(){this.state='suspended';return Promise.resolve();}
  }
- const settings={muted:false,effectsAllowed:true,effectsVolume:.25,musicVolume:.2};
- const music={volume:.2,currentTime:17,plays:0,pauses:0,play(){this.plays++;return Promise.resolve();},pause(){this.pauses++;}};
- const audio=createBattleAudio(music,()=>settings,{AudioContext:Context,hidden:()=>false});
- return {audio,settings,music,get context(){return context;}};
+ const settings={muted:false,effectsAllowed:true,effectsVolume:.25,musicVolume:.4};
+ const listeners=new Map(),timeouts=new Map();let serial=0;
+ const music={volume:.2,currentTime:17,plays:0,pauses:0,readyState:0,loads:0,addEventListener(type,fn){listeners.set(type,fn);},removeEventListener(type){listeners.delete(type);},load(){this.loads++;},play(){this.plays++;return Promise.resolve();},pause(){this.pauses++;}};
+ const audio=createBattleAudio(music,()=>settings,{AudioContext:Context,hidden:()=>false,setTimeout(fn){timeouts.set(++serial,fn);return serial;},clearTimeout(id){timeouts.delete(id);}});
+ return {audio,settings,music,listeners,timeouts,get context(){return context;}};
 }
 test('all effects respect zero, disabled, and muted settings before creating sources',()=>{
  for(const mode of ['zero','disabled','muted']){
@@ -57,9 +58,27 @@ test('ducking eases down and recovers without jumping or muting during rapid vol
 test('repeated impact effects leave the music playing at its existing position',()=>{
  const h=harness();h.audio.playMusic();for(let i=0;i<6;i++){h.context.currentTime+=.35;h.audio.cue('hit',i);}
  assert.equal(h.music.plays,1);assert.equal(h.music.pauses,0);assert.equal(h.music.currentTime,17);assert.equal(h.context.mediaCount,1);
- const duck=h.context.nodes.filter(n=>n.kind==='gain')[2];assert.ok(duck.gain.events.some(e=>e[0]==='linear'));assert.ok(!duck.gain.events.some(e=>e[1]===0));
+ const duck=h.context.nodes.filter(n=>n.kind==='gain')[2];assert.equal(duck.gain.events.length,0,'ordinary hits keep the soundtrack steady');h.audio.cue('warning');assert.ok(duck.gain.events.some(e=>e[0]==='linear'));assert.ok(!duck.gain.events.some(e=>e[1]===0));
 });
 test('background suspension stops short effects so their tails cannot replay on return',()=>{
  const h=harness();h.audio.cue('hit');h.audio.suspend();assert.equal(h.context.state,'suspended');
  assert.ok(h.context.nodes.filter(n=>n.kind==='osc').every(n=>n.stopped));assert.equal(h.music.pauses,1);
+});
+
+
+test('Battle shares gameplay calibration and keeps the full saved slider range',()=>{
+ const h=harness();
+ for(const percent of [0,40,70,100]){h.settings.musicVolume=battleMusicVolume(percent);h.audio.playMusic();const bus=h.context.nodes.filter(n=>n.kind==='gain')[1];assert.equal(bus.gain.value,percent/100*BATTLE_MUSIC_LEVEL*BATTLE_RECORDING_GAIN);}
+ assert.equal(battleMusicVolume(-10),0);assert.equal(battleMusicVolume(200),1);assert.equal(battleMusicVolume('invalid'),.4);
+ h.settings.muted=true;h.audio.cue('hit');assert.equal(h.settings.musicVolume,1,'mute must not rewrite preferences');
+});
+test('Battle preparation waits for decodable media, caches readiness, and never plays or creates an audio context',async()=>{
+ const h=harness(),first=h.audio.prepare();assert.equal(first,h.audio.prepare());assert.equal(h.music.loads,1);assert.equal(h.context,undefined);assert.equal(h.music.plays,0);
+ h.music.readyState=4;h.listeners.get('canplaythrough')();assert.equal(await first,true);assert.equal(h.listeners.size,0);assert.equal(h.timeouts.size,0);
+ assert.equal(await h.audio.prepare(),true);assert.equal(h.music.loads,1);assert.equal(h.music.plays,0);
+});
+test('Battle failed or stalled media preparation is bounded and retryable',async()=>{
+ const h=harness(),first=h.audio.prepare();h.listeners.get('error')();assert.equal(await first,false);
+ const second=h.audio.prepare();assert.equal(h.music.loads,2);[...h.timeouts.values()][0]();assert.equal(await second,false);assert.equal(h.listeners.size,0);
+ const third=h.audio.prepare();h.music.readyState=4;h.listeners.get('canplaythrough')();assert.equal(await third,true);assert.equal(h.music.plays,0);
 });

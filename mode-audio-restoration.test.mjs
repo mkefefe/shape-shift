@@ -79,3 +79,14 @@ test('the recorded Piano rhythm kit is present and matches release hashes',()=>{
   assert.equal(bytes.subarray(0,4).toString(),'OggS');assert.equal(createHash('sha256').update(bytes).digest('hex'),entry.sha256);
  }
 });
+
+
+test('actual runtime routes reference the manifest recordings, including the Battle Audio constructor',()=>{
+ const main=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8'),adaptive=fs.readFileSync(new URL('./adaptive-music.js',import.meta.url),'utf8'),battle=fs.readFileSync(new URL('./battle/app.mjs',import.meta.url),'utf8');
+ const mapping=main.match(/const musicTracks=(\{[^;]+\});/)[1];
+ for(const r of manifest.recordings){
+  if(r.mode==='battle'){const src=battle.match(/const music=new Audio\('([^']+)'\)/)[1];assert.equal('battle/'+src,r.file);}
+  else{const key=({'endless':'game','shape-drop':'drop','shape-slice':'slice'})[r.mode]||r.mode;assert(mapping.includes((key.startsWith('menu-')?"'"+key+"'":key)+":'"+r.file+"'"),r.mode);}
+ }
+ const endless=manifest.recordings.find(r=>r.mode==='endless');assert(adaptive.includes("new URL('./"+endless.file+"',import.meta.url)"));
+});

@@ -1,18 +1,22 @@
-import {createModePractice,continuePracticeRun} from '../mode-practice.js?v=494238';
+import {createModePractice,continuePracticeRun} from '../mode-practice.js?v=494239';
 import {burstPath} from '../burst.js';
-import {showEnemyHit} from './enemy-impact.mjs?v=494238';
-import {createBattleAudio} from './audio.mjs?v=494238';
+import {showEnemyHit} from './enemy-impact.mjs?v=494239';
+import {createBattleAudio,battleMusicVolume} from './audio.mjs?v=494239';
 import {createBattlePlatformState} from './platform-state.mjs';
-import {bindBoardKeyboard} from '../board-keyboard.js?v=494238';
-import {bindPauseKeyboard} from '../pause-keyboard.js?v=494238';
-import {encounter,stageEncounters} from './roster.mjs?v=494238';
-import {attackPosition,cameraAttackMotion,cameraRecoilMotion} from './attack-motion.mjs?v=494238';
+import {bindBoardKeyboard} from '../board-keyboard.js?v=494239';
+import {bindPauseKeyboard} from '../pause-keyboard.js?v=494239';
+import {encounter,stageEncounters} from './roster.mjs?v=494239';
+import {attackPosition,cameraAttackMotion,cameraRecoilMotion} from './attack-motion.mjs?v=494239';
 import {createBombImpact,stepBombImpacts,drawBombImpacts} from '../slice-effects.js';
-import {skinCanvas,setActiveSkin} from '../shape-skin-art.js';
-import {createRun,ENCOUNTERS,COLORS,SHAPES,matches,turnTime} from './combat.mjs?v=494238';
+import {skinCanvas,setActiveSkin,ensureSkinArt} from '../shape-skin-art.js';
+import {SHAPE_SKINS} from '../shape-skins.js?v=494239';
+import {prepareMenuImage,awaitReady} from '../menu-preload.js?v=494239';
+import {prepareBattleArt} from './readiness.mjs';
+import {createRun,ENCOUNTERS,COLORS,SHAPES,matches,turnTime} from './combat.mjs?v=494239';
 const $=id=>document.getElementById(id),app=$('app'),modal=$('overlay'),panel=$('panel');
 let run,specialAnimating=false,paused=true,busy=false,muted=false,epoch=0,last=performance.now(),noteTimer,needPause=false,warningPlayed=false;
 const embedded=new URLSearchParams(location.search).has('embedded');
+let activated=!embedded,preparingBattle=null;
 let tutorialSeen,practice,practiceStep;
 let cleared=0,battleDamage=10,pendingReward=null;
 function send(type,data={}){if(embedded)parent.postMessage({type:'battle:'+type,...data},location.origin);}
@@ -26,8 +30,8 @@ function fightMetric(outcome){metric(`fight_${run.state.set*5+run.state.stage+1}
 setInterval(()=>{if(run)send('telemetry',{action:'state',playing:run.state.status==='fight'&&!busy,paused:paused||document.hidden});},250);
 function remember(){if(run.state.status!=='won')return;cleared=Math.max(cleared,run.state.set+1);pendingReward=['bomb','starburst','shield'][Math.floor(Math.random()*3)];if(embedded)send('progress',{completedSets:cleared,reward:pendingReward});else try{localStorage.setItem('shape-shift-battle-sets',String(cleared));}catch{}}
 try{if(!embedded)cleared=Math.max(0,Number(localStorage.getItem('shape-shift-battle-sets'))||0);}catch{}
-const music=new Audio('assets/battle-color-guardians-v167.ogg');music.loop=true;
-let effectsAllowed=true,effectsVolume=.65,musicVolume=.2;let attackPose={enemyX:0,enemyY:0,index:-1},windMotion,lastEnemyStage=-1,attackSoundTimer;
+const music=new Audio('assets/battle-239.ogg');music.loop=true;music.preload='auto';
+let effectsAllowed=true,effectsVolume=.65,musicVolume=.4;let attackPose={enemyX:0,enemyY:0,index:-1},windMotion,lastEnemyStage=-1,attackSoundTimer;
 let battlePlatform;
 const battleAudio=createBattleAudio(music,()=>({muted:muted||battlePlatform?.audioAllowed===false,effectsAllowed,effectsVolume,musicVolume}));
 battlePlatform=createBattlePlatformState({suspendAudio:()=>battleAudio.suspend(),pauseGame:pause,playMusic:()=>battleAudio.playMusic(),isPlaying:()=>!!run&&!paused&&run.state.status==='fight'});
@@ -39,9 +43,35 @@ function sprite(node,t){node.style.setProperty('--x',t.shape);node.style.setProp
 function message(text,time=2200){if(practice?.active)return;clearTimeout(noteTimer);$('callout').textContent=text;if(time)noteTimer=setTimeout(()=>{if(run?.state.status==='fight')$('callout').textContent=run.state.combo>=3?`${run.state.combo} in a row · +4 attack`:'Match your shape OR color';},time);}
 function dialog(html){panel.innerHTML=html;let close=modal.querySelector('.original-close');if(!close){close=document.createElement('button');close.className='original-close';close.setAttribute('aria-label','Close');close.innerHTML='<img src="../assets/close-v45.webp" alt="">';modal.append(close);}close.onclick=()=>run?.state.status==='fight'?resume():embedded?send('close'):intro();if(!modal.open)modal.showModal();}
 function intro(){paused=true;music.pause();dialog(`<span class="eyebrow">Battle · Chapter 1</span><h2>The stolen<br>colors</h2><div class="shape-boss-preview" role="img" aria-label="The Root King, a green star monster"></div><p>The Root King and his guardians stole the land’s colors. Adventure restores the map. Here, you fight to bring those colors home.</p><span class="pill">3 lives · 5 fights · 6 choices</span><div class="campaign">${ENCOUNTERS.map((e,i)=>`<span class="${i<cleared?'restored':''}">${i<cleared?'✓':i+1} ${e.name}</span>`).join('')}</div><button class="gold" id="begin">Enter the Wildwood</button><button class="text-button" id="existing">Main menu</button>`);$('begin').onclick=start;$('existing').onclick=()=>embedded?send('close'):location.href='../';}
-async function start(){practice?.clear();practice=createModePractice('battle',{seen:tutorialSeen,sound:()=>cue('start'),onComplete:()=>continuePracticeRun(run,()=>{tutorialSeen=true;send('tutorial-complete');metric('start');fightMetric('start');sharedReward('match');practiceStep='done';warningPlayed=false;last=performance.now();message('Match your shape OR color to attack.',0);fitBoard();meter();},pendingReward)});practiceStep='attack';if(run?.state.status==='lost')metric('battle_retry');if(cleared>=6)cleared=0;windMotion?.cancel();epoch++;paused=true;busy=true;await loadStage(Math.min(cleared,5));busy=false;needPause=false;run=createRun(Math.random,battleDamage,cleared,practice.active?null:pendingReward,{practice:practice.active});metric('start');fightMetric('start');warningPlayed=false;$('fx').replaceChildren();modal.close();paused=false;app.classList.remove('paused');playMusic();cue('start');render();delete app.dataset.loading;$('board').tabIndex=-1;$('board').focus({preventScroll:true});send('visible');if(practice.active){practice.mount(app);practice.guide('Match YOUR shape or color to attack—not the enemy’s.',()=>{const index=run.state.board.findIndex(t=>matches(t,run.state.current));const r=$('board').children[index]?.getBoundingClientRect();return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;});fitBoard();}message('Match your shape OR color to attack.',0);last=performance.now();if(cleared<5)void loadStage(cleared+1);if(pendingReward&&!practice.active){paused=true;busy=true;$('pause').disabled=true;await rewardArrival();busy=false;paused=false;$('pause').disabled=false;last=performance.now();}}
+async function start(){if(embedded&&!activated)return;practice?.clear();practice=createModePractice('battle',{seen:tutorialSeen,sound:()=>cue('start'),onComplete:()=>continuePracticeRun(run,()=>{tutorialSeen=true;send('tutorial-complete');metric('start');fightMetric('start');sharedReward('match');practiceStep='done';warningPlayed=false;last=performance.now();message('Match your shape OR color to attack.',0);fitBoard();meter();},pendingReward)});practiceStep='attack';if(run?.state.status==='lost')metric('battle_retry');if(cleared>=6)cleared=0;windMotion?.cancel();const startToken=++epoch;paused=true;busy=true;await loadStage(Math.min(cleared,5));if(startToken!==epoch||!activated)return;busy=false;needPause=false;run=createRun(Math.random,battleDamage,cleared,practice.active?null:pendingReward,{practice:practice.active});metric('start');fightMetric('start');warningPlayed=false;$('fx').replaceChildren();modal.close();paused=false;app.classList.remove('paused');playMusic();cue('start');render();delete app.dataset.loading;$('board').tabIndex=-1;$('board').focus({preventScroll:true});send('visible');if(practice.active){practice.mount(app);practice.guide('Match YOUR shape or color to attack—not the enemy’s.',()=>{const index=run.state.board.findIndex(t=>matches(t,run.state.current));const r=$('board').children[index]?.getBoundingClientRect();return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;});fitBoard();}message('Match your shape OR color to attack.',0);last=performance.now();if(cleared<5)void loadStage(cleared+1);if(pendingReward&&!practice.active){paused=true;busy=true;$('pause').disabled=true;await rewardArrival();if(startToken!==epoch||!activated)return;busy=false;paused=false;$('pause').disabled=false;last=performance.now();}}
 const loadedStages=new Map();
-function loadStage(set){if(!loadedStages.has(set))loadedStages.set(set,Promise.all(stageEncounters({set}).map(e=>new Promise(resolve=>{const im=new Image();im.onload=()=>{im.decode().catch(()=>{}).then(resolve);};im.onerror=resolve;im.src=e.sprite;}))));return loadedStages.get(set);}
+function loadStage(set){
+ if(!loadedStages.has(set))loadedStages.set(set,Promise.all(stageEncounters({set}).map(e=>new Promise(resolve=>{
+  const im=new Image();let done=false;const timer=setTimeout(()=>finish(false),12000);
+  function finish(ok){if(done)return;done=true;clearTimeout(timer);im.onload=im.onerror=null;resolve(ok);}
+  im.onload=()=>im.decode().then(()=>finish(true),()=>finish(false));im.onerror=()=>finish(false);im.src=e.sprite;
+ }))).then(results=>{const ok=results.every(Boolean);if(!ok)loadedStages.delete(set);return ok;}));
+ return loadedStages.get(set);
+}
+function prepareBattle(){
+ if(!preparingBattle)preparingBattle=Promise.all([battleAudio.prepare(),prepareBattleArt(document,{prepareImage:prepareMenuImage,prepareSkin:ensureSkinArt,skins:SHAPE_SKINS,awaitReady}),...Array.from({length:6},(_,set)=>loadStage(set))]).then(results=>results.every(Boolean)).catch(()=>false).finally(()=>{preparingBattle=null;});
+ return preparingBattle;
+}
+function deactivateBattle(){
+ activated=false;epoch++;paused=true;busy=false;needPause=false;specialAnimating=false;
+ practice?.clear();practice=null;windMotion?.cancel();windMotion=null;clearTimeout(attackSoundTimer);clearTimeout(noteTimer);clearTimeout(rewardRetry);
+ rewardQueue.length=0;rewardRunId=null;rewardSeq=0;run=null;lastEnemyStage=-1;warningPlayed=false;
+ battleAudio.suspend();for(const node of app.querySelectorAll('*'))for(const animation of node.getAnimations())animation.cancel();modal.close();$('fx').replaceChildren();app.classList.remove('paused');
+}
+function applyBattleSettings(d){
+ battlePlatform.update({paused:d.platformPaused,audioAllowed:d.platformAudioAllowed});tutorialSeen=d.tutorialSeen===true;
+ if(typeof d.rewardRunId==='string')rewardRunId=d.rewardRunId;
+ cleared=Math.max(0,Math.floor(Number(d.completedSets)||0));muted=d.muted===true;effectsAllowed=d.sfx!==false;
+ effectsVolume=Math.max(0,Math.min(1,(d.sfxVolume??65)/100));musicVolume=d.music===false?0:battleMusicVolume(d.musicVolume??40);
+ battleDamage=Math.max(10,Math.min(30,Number(d.damage)||10));setActiveSkin(d.skin||'classic');pendingReward=['bomb','starburst','shield'].includes(d.reward)?d.reward:null;
+ $('sound').classList.toggle('muted',muted);$('sound').setAttribute('aria-label',muted?'Enable audio':'Mute audio');
+}
+
 function render(){
  const s=run.state,e=encounter(s);if(lastEnemyStage!==s.stage){windMotion?.cancel();lastEnemyStage=s.stage;warningPlayed=false;}$('journey').setAttribute('aria-label','Stage '+(s.stage+1)+' of 5');$('journey').innerHTML=stageEncounters(s).map((_,i)=>`<span class="${i<s.stage?'done':i===s.stage?'active':''}" ${i===s.stage?'aria-current="step"':''} aria-label="Fight ${i+1}${i===4?', boss':''}"><i style="background:url(${stageEncounters(s)[i].sprite}) center/contain no-repeat"></i></span>`).join('');
  $('chapter').textContent=e.title;$('enemy-name').textContent=e.name;$('enemy-hp').textContent=`${s.enemyHp} / ${s.enemyMaxHp}`;$('enemy-fill').style.width=s.enemyHp/s.enemyMaxHp*100+'%';
@@ -130,7 +160,19 @@ function tick(now){const dt=(now-last)/1000;last=now;if(run&&!battlePlatform.pau
 // Read-only diagnostics for local balancing and automated preview checks.
 window.combatPreview={snapshot:()=>run?structuredClone(run.state):null};
 if(!embedded){delete app.dataset.loading;intro();}
-window.addEventListener('message',e=>{if(e.source!==parent||e.origin!==location.origin)return;const d=e.data;if(d?.type==='battle:platform'){battlePlatform.update(d);return;}if(d?.type==='battle:reward-ack'){acknowledgeReward(d);return;}if(d?.type==='battle:init'){battlePlatform.update({paused:d.platformPaused,audioAllowed:d.platformAudioAllowed});tutorialSeen=d.tutorialSeen===true;if(!rewardRunId&&typeof d.rewardRunId==='string')rewardRunId=d.rewardRunId;cleared=Math.max(0,Math.floor(Number(d.completedSets)||0));muted=d.muted===true;effectsAllowed=d.sfx!==false;effectsVolume=Math.max(0,Math.min(1,(d.sfxVolume??65)/100));musicVolume=d.music===false?0:Math.min(.35,(d.musicVolume??40)/200);battleDamage=Math.max(10,Math.min(30,Number(d.damage)||10));setActiveSkin(d.skin||'classic');pendingReward=['bomb','starburst','shield'].includes(d.reward)?d.reward:null;if(!run)void start().then(()=>{if(battlePlatform.paused)pause();});}if(d?.type==='battle:save-error')message('Progress could not be saved on this device.',5000);if(d?.type==='battle:pause'){music.pause();battleAudio.suspend();pause();}});
+window.addEventListener('message',e=>{
+ if(e.source!==parent||e.origin!==location.origin)return;const d=e.data;
+ if(d?.type==='battle:platform'){battlePlatform.update(d);return;}
+ if(d?.type==='battle:reward-ack'){acknowledgeReward(d);return;}
+ if(d?.type==='battle:deactivate'){deactivateBattle();return;}
+ if(d?.type==='battle:init'||d?.type==='battle:activate'){
+  applyBattleSettings(d);
+  if(d.preload===true){void prepareBattle().then(ok=>send('prepared',{ok}));return;}
+  activated=true;if(!run)void start().then(()=>{if(battlePlatform.paused)pause();});return;
+ }
+ if(d?.type==='battle:save-error')message('Progress could not be saved on this device.',5000);
+ if(d?.type==='battle:pause'){music.pause();battleAudio.suspend();pause();}
+});
 send('ready');
 
 modal.addEventListener('click',e=>{if(run&&['won','lost'].includes(run.state.status)&&!e.target.closest('button')){cue('click');embedded?send('close'):intro();}});

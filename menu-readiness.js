@@ -1,5 +1,5 @@
-import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494238';
-import {loadDestination} from './destination-loader.js?v=494238';
+import {prepareMenuImage,decodeMenuImage} from './menu-preload.js?v=494239';
+import {loadDestination} from './destination-loader.js?v=494239';
 
 // A cached download is not necessarily decoded. Hold each destination until its
 // artwork can actually be painted, including the first visit after loading.
@@ -20,8 +20,14 @@ export function createAssetReadiness(prepare=prepareMenuImage){
 }
 
 export function bindPreparedDialog(dialog,{sources,assets,extra=async()=>{},paint=async()=>{},paintReady=()=>true,load=loadDestination}){
- const show=dialog.showModal.bind(dialog),close=dialog.close.bind(dialog);let generation=0,controller,extraReady=false;
- const prepare=async()=>{await Promise.all([assets.prepare(sources()),extraReady?Promise.resolve():extra().then(()=>{extraReady=true;})]);await paint();};
+ const show=dialog.showModal.bind(dialog),close=dialog.close.bind(dialog);let generation=0,controller,extraReady=false,extraPending,preparing;
+ const prepare=()=>{
+  if(!preparing)preparing=(async()=>{
+   if(!extraReady&&!extraPending)extraPending=Promise.resolve().then(extra).then(value=>{if(value===false)throw Error('Menu preparation failed');extraReady=true;}).finally(()=>{extraPending=null;});
+   await Promise.all([assets.prepare(sources()),extraPending]);await paint();
+  })().finally(()=>{preparing=null;});
+  return preparing;
+ };
  dialog.showModal=()=>{
   if(dialog.open||controller)return;
   const list=sources();
@@ -56,7 +62,7 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
   await assets.prepare(homeSources());homeImages().forEach(promoteImage);
   // Decode the actual lazy DOM nodes too, including the floating profile avatar
   // outside #home. A retained atlas alone does not make a new <img> paint ready.
-  await Promise.all(homeImages().map(async image=>{await decodeMenuImage(image);decodedHomeImages.add(image);}));
+  await Promise.all(homeImages().filter(image=>!decodedHomeImages.has(image)).map(async image=>{await decodeMenuImage(image);decodedHomeImages.add(image);}));
  };
  const menuSources=dialog=>{
   const id=dialog.id,list=[...COMMON,...dialogImages(dialog).map(image=>{promoteImage(image);return image.currentSrc||image.getAttribute('src')||image.src;}).filter(Boolean)];
@@ -70,7 +76,7 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
  const preparedDialogs=dialogs.map(dialog=>bindPreparedDialog(dialog,{assets,sources:()=>menuSources(dialog),extra:()=>/profile|shop/.test(dialog.id)?prepareSkins():Promise.resolve(),paintReady:()=>dialogImages(dialog).every(image=>decodedDialogImages.has(image)),paint:()=>Promise.all(dialogImages(dialog).map(async image=>{
   // Rendering the menu may have replaced its images while assets were loading.
   // Promote the actual nodes being decoded, not just the earlier source list.
-  promoteImage(image);await decodeMenuImage(image);decodedDialogImages.add(image);
+  promoteImage(image);if(!decodedDialogImages.has(image)){await decodeMenuImage(image);decodedDialogImages.add(image);}
  } ))}));
  return {
   homeReady:()=>assets.has(homeSources())&&homeImages().every(image=>decodedHomeImages.has(image)),

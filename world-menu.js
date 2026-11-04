@@ -1,12 +1,12 @@
 import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
-import {loadStartupAssets} from './startup-loader.js?v=494238';
-import {loadDestination} from './destination-loader.js?v=494238';
+import {loadStartupAssets} from './startup-loader.js?v=494239';
+import {loadDestination} from './destination-loader.js?v=494239';
 import {adventureChallenge,challengeTasks} from './adventure-challenges.js?v=207';
-import {starTasks} from './adventure-star-tasks.js?v=494238';
-import {COSMETICS} from './economy.js?v=494238';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494238';
-import {rewardMarkup} from './adventure-rewards.js?v=494238';
+import {starTasks} from './adventure-star-tasks.js?v=494239';
+import {COSMETICS} from './economy.js?v=494239';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494239';
+import {rewardMarkup} from './adventure-rewards.js?v=494239';
 export const GAMES_UNLOCK_LEVEL=10;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
@@ -204,8 +204,9 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   markMapSelection(restoreFocus);
  }
  function sizeMap(){const width=$('adventure-map').clientWidth||390;mapWidth=width;$('map-landscape').style.height=(50*width)+'px';mapWindow='';}
- let mapReady=false,mapOpening=false;
- async function map(){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',()=>loadStartupAssets(()=>{},{assets:['assets/map-meadow-v212.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']}));mapOpening=false;if(!loaded)return;mapReady=true;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
+ let mapReady=false,mapOpening=false,mapPreparation;
+ const prepare=()=>mapReady?Promise.resolve():mapPreparation??=(async()=>{await loadStartupAssets(()=>{},{assets:['assets/map-meadow-v212.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']});mapReady=true;})().finally(()=>{mapPreparation=null;});
+ async function map(){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',prepare);mapOpening=false;if(!loaded)return;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
  const mapNotice=document.createElement('div');mapNotice.id='map-notice';mapNotice.setAttribute('role','status');mapNotice.setAttribute('aria-live','polite');mapNotice.hidden=true;document.body.append(mapNotice);let mapNoticeAnimation;
  function showMapNotice(message){
  mapNoticeAnimation?.cancel();mapNotice.textContent=message;mapNotice.hidden=false;
@@ -225,7 +226,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  new ResizeObserver(()=>{if($('adventure-map').hidden)return;const width=$('adventure-map').clientWidth;if(width&&width!==mapWidth){const ratio=$('adventure-map').scrollTop/Math.max(1,mapWidth);sizeMap();$('adventure-map').scrollTop=ratio*width;paintMap();}}).observe($('adventure-map'));
  $('view-map').onclick=()=>{if(selected===0)map();};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
  document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-shop-tab]').forEach(t=>{const on=t===b;t.setAttribute('aria-selected',String(on));$(t.dataset.shopTab).hidden=!on;});sound('click');});
- refresh();return {refresh,map,openLevel,playAdventure,playMode,savePending:campaignSave.retry,hasPendingSave:campaignSave.hasPending,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
+ refresh();return {prepare,refresh,map,openLevel,playAdventure,playMode,savePending:campaignSave.retry,hasPendingSave:campaignSave.hasPending,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
 }
 
 // Two measured path-center anchors per square raster tile. Odd tiles mirror vertically.

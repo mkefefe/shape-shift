@@ -25,6 +25,8 @@ jobs:
         run: npm test
       - name: Verify Android media-pack publisher
         run: python3 scripts/test_android_content_pack.py
+      - name: Verify edition staging guard
+        run: python3 scripts/test_build_editions.py
       - uses: actions/configure-pages@v5
       - name: Restore verified game bundle
         run: python3 scripts/build-site.py

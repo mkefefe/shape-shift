@@ -117,3 +117,16 @@ test('music mute invalidates a queued future hit and unmute reschedules it witho
  assert.deepEqual(queued.map(e=>e.id),['now','future','future']);assert(Math.abs(queued.at(-1).delay-.06)<1e-9);
  scheduler.step(game);assert.equal(queued.length,3);
 });
+
+test('early visible performances earn points without moving or duplicating the percussion clock',()=>{
+ const game=createPianoGame(options);game.start();game.countdown=0;
+ const {scheduler,calls}=rhythm(game),bpm=game.bpm;
+ for(let i=0;i<2400&&game.beat<8.1;i++){
+  for(const lane of [3,1,0,2]){const n=game.notes.find(n=>n.lane===lane&&!n.scored&&n.status==='waiting'&&n.beat-game.beat<=4.4);if(n){const beat=game.beat;assert(game.pressStrip(lane));assert.equal(game.beat,beat);game.release(lane);}}
+  game.step(1/240);scheduler.step(game);
+ }
+ assert(game.hits>=4);assert.equal(game.lives,game.maxLives);
+ const kicks=calls.filter(e=>e.kind==='kick');assert.equal(kicks.length,2);
+ for(const [i,kick] of kicks.entries())assert(Math.abs(kick.scheduledAt-(2+i*4)*60/bpm)<1e-7);
+ assert.equal(new Set(calls.map(e=>e.id)).size,calls.length);
+});

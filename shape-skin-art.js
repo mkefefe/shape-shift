@@ -1,6 +1,6 @@
-import {prepareMenuImage} from './menu-preload.js?v=494238';
-import {SHAPE_SKINS} from './shape-skins.js?v=494238';
-import {ARTWORK_CROPS} from './artwork-crops.js?v=494238';
+import {prepareMenuImage} from './menu-preload.js?v=494239';
+import {SHAPE_SKINS} from './shape-skins.js?v=494239';
+import {ARTWORK_CROPS} from './artwork-crops.js?v=494239';
 const atlases=new Map(),loads=new Map();let active='classic';
 const atlasKey=(id,chained)=>chained?id+':wrapped':id;
 export function ensureSkinArt(id=active,chained=false){

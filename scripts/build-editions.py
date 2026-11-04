@@ -18,6 +18,23 @@ def write(path, text):
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def verify_shared_stage(root, site):
+    """Reject stale source overlays before an edition can copy the shared stage."""
+    if not site.is_dir():
+        raise RuntimeError('Shared browser stage is missing. Run build-site.py before build-editions.py.')
+    for line in read(root/'web-fix.sha256').splitlines():
+        expected, name = line.split('  ', 1)
+        source = root/name
+        if not source.is_file() or digest(source) != expected:
+            raise RuntimeError(f'Source manifest mismatch: {name}. Refresh web-fix.sha256, then run build-site.py before build-editions.py.')
+        relative = Path(name)
+        # build-site.py intentionally removes tests from these two runtime folders.
+        if relative.parent in (Path('.'), Path('battle')) and relative.match('*.test.*'):
+            continue
+        staged = site/name
+        if not staged.is_file() or digest(staged) != expected:
+            raise RuntimeError(f'Shared browser stage is stale: {name}. Run build-site.py before build-editions.py.')
+
 def catalog(root):
     names = sorted(p.relative_to(root).as_posix() for p in root.rglob('*')
         if p.is_file() and (p.is_relative_to(root/'assets') or p.parent == root) and p.suffix.lower() in MEDIA)
@@ -30,7 +47,7 @@ def main():
     parser.add_argument('--output-root',type=Path,required=True)
     args=parser.parse_args()
     site=ROOT/'_site'
-    assert site.is_dir(), 'Run build-site.py first'
+    verify_shared_stage(ROOT, site)
     version=json.loads(read(ROOT/'package.json'))['version']
     output=args.output_root.resolve()
     output.mkdir(parents=True,exist_ok=True)

@@ -39,17 +39,12 @@ test('Slice practice holds real targets for swiping and prevents bomb damage',()
  g.spawn({x:180,y:250,r:30,hazard:true});g.slice({x:130,y:250},{x:230,y:250});
  assert.equal(g.lives,g.maxLives);assert.equal(g.over,false);
 });
-test('Piano practice waits, ignores wrong strips, and requires a completed hold',()=>{
+test('Piano practice accepts visible notes immediately, ignores mistakes and makes holds optional',()=>{
  const g=createPianoGame({practice:true,fullSongs:true,melodicStrips:true,stripTap:true,rhythm:true,directTouch:true});g.start();
- for(let i=0;i<1200;i++)g.step(.05);
- assert.equal(g.beat,-.25);g.pressStrip(0);assert.equal(g.lives,g.maxLives);
- assert.equal(g.pressStrip(1),true);g.release(1);g.step(.05);
- assert.equal(g.hits,1);assert.equal(g.pressStrip(2),true);
- for(let i=0;i<10;i++)g.step(.05);g.release(2);
- assert.equal(g.hits,1);for(let i=0;i<1200;i++)g.step(.05);
- assert.equal(g.lives,g.maxLives);assert.equal(g.pressStrip(2),true);
- for(let i=0;i<50;i++)g.step(.05);
- assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
+ assert.equal(g.pressStrip(1),true);assert.equal(g.hits,1);g.release(1);
+ for(let i=0;i<1200;i++)g.step(.05);g.pressStrip(0);assert.equal(g.lives,g.maxLives);
+ assert.equal(g.pressStrip(2),true);assert.equal(g.hits,2);g.release(2);assert.equal(g.notes[1].status,'done');
+ for(let i=0;i<1200;i++)g.step(.05);assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
 });
 test('Normal Battle and Slice still deduct hearts',()=>{
  const run=createRun(()=>.4);const wrong=run.state.board.findIndex(t=>!matches(t,run.state.current));run.pick(wrong);assert.equal(run.state.hp,2);
@@ -107,7 +102,7 @@ test('Piano keeps the played notes, musical position, score and held keys when p
  assert.equal(new Set(g.notes.map(n=>n.id)).size,g.notes.length);
  const next=g.notes.find(n=>n.status==='waiting');assert(next.beat>=before.beat+1.5);assert(next.id>1);
  g.release(2);g.step(.05);assert(g.beat>before.beat);assert(g.bpm<90,'practice reading time does not accelerate the normal song');
- g.beat=next.beat-.1;g.pressStrip((next.lane+1)%4);assert.equal(g.lives,before.lives-1);
+ g.beat=next.beat-.1;const visibleLanes=new Set(g.notes.filter(n=>n.status==='waiting'&&n.beat-g.beat<=4.4).map(n=>n.lane));const emptyLane=[0,1,2,3].find(lane=>!visibleLanes.has(lane));assert.notEqual(emptyLane,undefined);g.pressStrip(emptyLane);assert.equal(g.lives,before.lives-1);
  const id='piano-flow-00000000-0000-4000-8000-000000000002',saved=finishPianoProgress({},g,id),paid=claimPianoReward(freshProfile(),saved.pending[0]);
  assert.equal(saved.runs,1);assert.equal(paid.coins,g.coins);assert.strictEqual(claimPianoReward(paid,saved.pending[0]),paid);
 });
