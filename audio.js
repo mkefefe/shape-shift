@@ -30,7 +30,7 @@
   }
   function prepareAdaptive(){
     if(adaptiveLoading||adaptiveMusic||context.currentTime<adaptiveRetryAt)return;
-    adaptiveLoading=import('./adaptive-music.js?v=494237').then(async module=>{
+    adaptiveLoading=import('./adaptive-music.js?v=494238').then(async module=>{
       const player=await module.createAdaptiveMusic(context,musicBus);
       adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();
       if(adaptiveState)player.setTempo(adaptiveModel.update(adaptiveState).targetBpm);
@@ -215,6 +215,7 @@
     for(const source of voice.sources)source.stop(now+.16);
   }
 
+  let pianoBackingEpoch=0;
   const pianoKeys=[36,42,48,57,60,66,69,72,78,81],pianoBuffers=new Map(),pianoPerformanceBuffers=new Map(),pianoLoads=new Map(),pianoVoices=new Set();
   // Some recorded keys have opposite stereo phases. Folding those to mono
   // cancels their body on phone speakers, so keep the stronger original channel.
@@ -257,14 +258,15 @@
   }
   async function preparePiano(){
     if(!setup())return false;
-    const ready=await Promise.all([...pianoKeys,'kick'].map(key=>{
+    const ready=await Promise.all([...pianoKeys,'kick','flow-kick','flow-snare','flow-hat'].map(key=>{
       if(pianoBuffers.has(key))return true;
-      const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':'assets/music/pop-'+key+'-v322.ogg';
+      const url=typeof key==='number'?'assets/music/keys/'+key+'.ogg':key.startsWith('flow-')?'assets/music/'+key+'-238.ogg':'assets/music/pop-'+key+'-v322.ogg';
       if(!pianoLoads.has(key))pianoLoads.set(key,audioData(url).then(data=>context.decodeAudioData(data)).then(buffer=>{pianoBuffers.set(key,typeof key==='number'?pianoMono(buffer):buffer);if(typeof key==='number')pianoPerformanceBuffers.set(key,performancePianoBuffer(buffer));return true;}).catch(()=>{pianoLoads.delete(key);return false;}));
       return pianoLoads.get(key);
     }));return ready.every(Boolean);
   }
   function stopPiano(accompaniment,preserveRoom=false){
+    if(accompaniment!==false)pianoBackingEpoch++;
     for(const voice of [...pianoVoices])if(accompaniment===undefined||voice.accompaniment===accompaniment)voice.release();
     for(const [kind,room] of pianoRooms)if(!preserveRoom&&(accompaniment===undefined||kind===accompaniment)){room.convolver.disconnect();room.wet.disconnect();pianoRooms.delete(kind);}
   }
@@ -305,6 +307,22 @@
     pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();color.disconnect();gain.disconnect();};source.start(at);source.stop(at+hold+tail+.02);return voice.release;
   }
 
+  // The score owns every beat. This sampler never runs a separate metronome,
+  // and its pending hits share the same pause/mute cleanup as piano support.
+  function pianoRhythm(kind,velocity=.4,delay=0){
+    if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!window.ShapeShiftPlatform.audioAllowed||!music||musicVolume<=0||!['kick','snare','hat'].includes(kind)||!(Number(velocity)>0))return false;
+    const buffer=pianoBuffers.get('flow-'+kind);if(!buffer)return false;
+    if(pianoVoices.size>=32)([...pianoVoices].find(voice=>voice.accompaniment)||pianoVoices.values().next().value).release(.035);
+    const source=audioSource(),gain=context.createGain(),at=context.currentTime+Math.max(0,Number(delay)||0),length=Math.max(.025,Math.min(.6,buffer.duration)),level=Math.min(1,Number(velocity));
+    source.buffer=buffer;gain.gain.setValueAtTime(0,at);gain.gain.linearRampToValueAtTime(level,at+.003);gain.gain.setValueAtTime(level,at+length-.015);gain.gain.linearRampToValueAtTime(0,at+length);
+    source.connect(gain);gain.connect(musicBus);let released=false;
+    const voice={at,accompaniment:true,release(){if(released)return;released=true;pianoVoices.delete(voice);const now=context.currentTime;
+      gain.gain.cancelScheduledValues(now);if(now<at){gain.gain.setValueAtTime(0,now);try{source.stop(now);}catch{}return;}
+      gain.gain.setValueAtTime(level*Math.max(0,Math.min(1,(now-at)/.003,(at+length-now)/.015)),now);gain.gain.linearRampToValueAtTime(0,now+.02);try{source.stop(now+.025);}catch{}
+    }};
+    pianoVoices.add(voice);source.onended=()=>{pianoVoices.delete(voice);source.disconnect();gain.disconnect();};source.start(at);source.stop(at+length+.005);return true;
+  }
+
   function pianoBeat(pulse,energy=1){
     if(!context||!active||scene!=='piano'||context.state!=='running'||window.ShapeShiftPlatform.paused||!music||musicVolume<=0||!Number.isInteger(pulse)||pulse<0)return;
     const step=pulse%8,bar=Math.floor(pulse/8);
@@ -320,7 +338,7 @@
   }
 
   // Five new original mode themes are packaged with their scores and checksums.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-237.ogg',adventure:'assets/music/adventure-237.ogg',slice:'assets/music/shape-slice-237.ogg',drop:'assets/music/shape-drop-237.ogg'};
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-238.ogg',adventure:'assets/music/adventure-238.ogg',slice:'assets/music/shape-slice-238.ogg',drop:'assets/music/shape-drop-238.ogg'};
   const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=.85;
   let musicMood=null;
   const musicTrack=()=>scene==='menu'?'menu-'+menuWorld:scene;
@@ -743,5 +761,5 @@
     source.onended=()=>{source.disconnect();gain.disconnect();};
     return ()=>{try{source.stop();}catch{}};
   }
-  window.gameAudio = Object.freeze({ updateEndlessMusic, prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoPerformance, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
+  window.gameAudio = Object.freeze({ get pianoBackingEpoch(){return pianoBackingEpoch;}, updateEndlessMusic, prepareGate, playGate, platformAudioChanged, start, stopVictory, prepareGameStart, prepareCommon, prepareVictory, preparePiano, pianoNote, pianoPerformance, pianoRhythm, pianoBeat, stopPiano, sliceMotion, stopSlice, stopPraise:stopVoice, speakPraise, setMenuWorld, setScene, setMusic, setSfx, setMusicVolume, setSfxVolume, play, ui, pause, resume });
 })();

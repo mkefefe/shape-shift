@@ -1,0 +1,42 @@
+{
+  "version": "238",
+  "originalSynthesis": true,
+  "samples": [
+    {
+      "kind": "kick",
+      "file": "flow-kick-238.ogg",
+      "seconds": 0.25,
+      "sampleRate": 44100,
+      "channels": 1,
+      "peak": 0.8953090906143188,
+      "rms": 0.2183122962803164,
+      "firstNonzeroFrame": 0,
+      "lastSample": -1.9891349438694306e-05,
+      "sha256": "c73c839881bee901f0d855f2ce3630c930a69d6b26332e1b9ab0fe672f2e54c6"
+    },
+    {
+      "kind": "snare",
+      "file": "flow-snare-238.ogg",
+      "seconds": 0.19,
+      "sampleRate": 44100,
+      "channels": 1,
+      "peak": 0.8962908983230591,
+      "rms": 0.09456974265819633,
+      "firstNonzeroFrame": 0,
+      "lastSample": -6.670276343356818e-05,
+      "sha256": "1f4e8587ee81e7df55ee8bb7c334e30bdad37359ac77a76fdde522076e27acb4"
+    },
+    {
+      "kind": "hat",
+      "file": "flow-hat-238.ogg",
+      "seconds": 0.07,
+      "sampleRate": 44100,
+      "channels": 1,
+      "peak": 0.9011391401290894,
+      "rms": 0.1374643053947669,
+      "firstNonzeroFrame": 0,
+      "lastSample": 0.0012811373453587294,
+      "sha256": "fe5836601635558e86fb0f08be94af10a1830be129a492fa85aabe985fe41f7f"
+    }
+  ]
+}

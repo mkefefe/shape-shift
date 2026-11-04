@@ -1,5 +1,5 @@
-import {TELEMETRY_BUILD} from './telemetry-config.js?v=494237';
-import {openSupportLink} from './privacy-content.js?v=494237';
+import {TELEMETRY_BUILD} from './telemetry-config.js?v=494238';
+import {openSupportLink} from './privacy-content.js?v=494238';
 
 export const SUPPORT_EMAIL='mk.studio.customersupport@gmail.com';
 export const REPORT_MODES=['Menus or settings','Endless','Adventure','Shape Drop','Shape Slice','Piano Flow','Battle','Other'];
@@ -19,7 +19,7 @@ export function buildBugReport({description,mode='Other',version=TELEMETRY_BUILD
 export function initBugReport(settingsRoot,sound=()=>{}){
  const doc=settingsRoot.ownerDocument;
  const existing=doc.getElementById('report-bug-open');if(existing)return existing;
- const sheet=doc.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./support-report.css?v=494237',import.meta.url).href;doc.head.append(sheet);
+ const sheet=doc.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('./support-report.css?v=494238',import.meta.url).href;doc.head.append(sheet);
  const button=doc.createElement('button');button.type='button';button.id='report-bug-open';button.className='secondary';button.textContent='Report a bug';button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls','bug-report-dialog');
  settingsRoot.querySelector('.settings-links').prepend(button);
  const dialog=doc.createElement('dialog');dialog.id='bug-report-dialog';dialog.dataset.nativeForm='true';dialog.setAttribute('aria-labelledby','bug-report-title');

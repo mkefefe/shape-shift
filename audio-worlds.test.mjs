@@ -184,7 +184,7 @@ test('star rewards use the recorded victory family through the centered effects 
 
 
 test('starting a run does not wait for an uncached optional backing track',async()=>{
- let resolveTrack;const track='assets/music/endless-237.ogg';
+ let resolveTrack;const track='assets/music/endless-238.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track?new Promise(resolve=>resolveTrack=resolve):response()});
  assert.equal(await audio.prepareGameStart('game'),true);
  audio.setScene('game');await flush();assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -193,7 +193,7 @@ test('starting a run does not wait for an uncached optional backing track',async
 });
 
 test('an unavailable optional backing does not block gameplay and can retry later',async()=>{
- let fail=true;const track='assets/music/shape-slice-237.ogg';
+ let fail=true;const track='assets/music/shape-slice-238.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track&&fail?{ok:false}:response()});
  assert.equal(await audio.prepareGameStart('slice'),true);audio.setScene('slice');await flush();
  assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -204,9 +204,9 @@ test('an unavailable optional backing does not block gameplay and can retry late
 test('piano prepares only its own samples and retries a failed key without reloading the rest',async()=>{
  let fail=true;const key='assets/music/keys/60.ogg';
  const {audio,state}=harness({fetch:url=>url===key&&fail?{ok:false}:response()});
- assert.equal(await audio.preparePiano(),false);assert.equal(state.fetches.length,11);
- assert(state.fetches.every(url=>url.includes('/keys/')||url.includes('/pop-')));
- fail=false;assert.equal(await audio.preparePiano(),true);assert.equal(state.fetches.length,12);
+ assert.equal(await audio.preparePiano(),false);assert.equal(state.fetches.length,14);
+ assert(state.fetches.every(url=>url.includes('/keys/')||url.includes('/pop-')||url.includes('/flow-')));
+ fail=false;assert.equal(await audio.preparePiano(),true);assert.equal(state.fetches.length,15);
  assert.equal(state.fetches.filter(url=>url===key).length,2);
 });
 
@@ -320,7 +320,7 @@ test('a resume promise cannot reactivate audio after a newer pause',async()=>{
  assert.equal(tracks().length,0);assert.equal(state.timers.size,0);
 });
 
-test('Piano backing has no clap or shaker samples and keeps only the quiet low pulse',async()=>{
+test('legacy piano pulse remains separate from the authored rhythm kit',async()=>{
  const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();
  assert(!state.fetches.some(url=>/pop-(clap|shaker)/.test(url)));
  const start=state.sources.length;for(let i=0;i<8;i++)audio.pianoBeat(i);
@@ -332,7 +332,7 @@ test('each world hands off to the final dedicated Slice and Drop recordings',asy
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
   for(const mode of ['slice','drop','menu']){
    state.context.currentTime+=5;audio.setScene(mode);await flush();
-   assert.equal(tracks().at(-1).buffer.url,mode==='menu'?path(world):'assets/music/'+({slice:'shape-slice-237.ogg',drop:'shape-drop-237.ogg'})[mode]);
+   assert.equal(tracks().at(-1).buffer.url,mode==='menu'?path(world):'assets/music/'+({slice:'shape-slice-238.ogg',drop:'shape-drop-238.ogg'})[mode]);
    assert.equal(tracks().at(-1).startArgs[0],state.context.currentTime);
   }
  }
@@ -345,7 +345,7 @@ test('Piano chord changes retain room tails but exiting stops them',async()=>{
  audio.pianoNote(53,1,true);assert.equal(state.convolvers.at(-1),room);
  audio.setScene('menu');assert(room.disconnects>0);
 });
-test('Piano Flow uses only piano accompaniment without adding percussion at high energy',()=>{
+test('Piano Flow schedules authored support without a competing automatic pulse',()=>{
  const flow=fs.readFileSync(new URL('./piano-flow.js',import.meta.url),'utf8');
  assert(!flow.includes('.pianoBeat('));
 });
@@ -353,7 +353,7 @@ test('Piano Flow uses only piano accompaniment without adding percussion at high
 test('entering gameplay switches recordings without added synthetic bridge notes',async()=>{
  const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=1.137;
  const voices=state.oscillators.length;audio.setScene('slice');await flush();
- assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-slice-237.ogg');
+ assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-slice-238.ogg');
  assert.equal(tracks().at(-1).startArgs[0],1.137);assert.equal(state.oscillators.length,voices);
 });
 
@@ -387,11 +387,11 @@ test('Piano Flow does not render song names or section captions',()=>{
 test('Endless loads its newly composed recording with no tone processing in every world',async()=>{
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);audio.setScene('game');await audio.start();await flush();
-  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/endless-237.ogg');
+  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/endless-238.ogg');
   assert.equal(state.gains[1].connections.at(-1),state.gains[3],'music routes directly to ducking, bypassing the new tone filters');
   state.context.currentTime=8;audio.pause();await audio.resume();await flush();assert.equal(tracks()[0],original);assert.equal(original.stops.length,0);
   audio.setScene('menu');await flush();state.context.currentTime=12;for(const tick of state.timers.values())tick();
-  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/endless-237.ogg');
+  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/endless-238.ogg');
  }
 });
 
@@ -399,7 +399,7 @@ test('Adventure uses its authored 104 BPM score instead of any menu world song',
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
   state.context.currentTime=8;audio.setScene('adventure');await flush();
-  assert.equal(tracks().at(-1).buffer.url,'assets/music/adventure-237.ogg');
+  assert.equal(tracks().at(-1).buffer.url,'assets/music/adventure-238.ogg');
   assert.equal(tracks().at(-1).startArgs[0],8);
  }
 });
@@ -496,4 +496,35 @@ test('pending performed notes cannot escape pause, scene exit, or host audio res
   assert(support.stops.length>1);assert(support.stops.at(-1)<support.startArgs[0]);
   const count=state.sources.length;audio.pianoPerformance(72,.3);assert.equal(state.sources.length,count);
  }
+});
+
+
+test('Piano rhythm uses the written hit time and independent music bus, never the played-key bus',async()=>{
+ const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();state.context.currentTime=5;
+ for(const kind of ['kick','snare','hat']){
+  audio.pianoRhythm(kind,.42,.25);const hit=state.sources.at(-1);
+  assert.equal(hit.startArgs[0],5.25);assert(hit.buffer.url.includes('flow-'+kind+'-238.ogg'));
+  assert.equal(hit.connections[0].connections[0],state.gains[1]);assert(hit.stops[0]<=5.86);
+ }
+ const hits=state.sources.slice(-3);audio.setSfx(false);assert(hits.every(s=>s.stops.length===1));
+ audio.setMusic(false);assert(hits.every(s=>s.stops.at(-1)<s.startArgs[0]));
+ const count=state.sources.length;audio.pianoRhythm('kick');assert.equal(state.sources.length,count);
+});
+
+test('pause, scene exit and host restrictions cancel future rhythm hits without delayed leaks',async()=>{
+ for(const stop of [(a,s)=>a.pause(),(a,s)=>a.setScene('menu'),(a,s)=>{s.platform.audioAllowed=false;a.platformAudioChanged();}]){
+  const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();
+  audio.pianoRhythm('snare',.3,1);const hit=state.sources.at(-1);stop(audio,state);
+  assert(hit.stops.at(-1)<hit.startArgs[0]);const count=state.sources.length;audio.pianoRhythm('kick');assert.equal(state.sources.length,count);
+ }
+});
+
+test('rhythm rejects unknown or silent hits and polyphony evicts support before the melody',async()=>{
+ const {audio,state}=harness();audio.setScene('piano');await audio.start();await audio.preparePiano();
+ const before=state.sources.length;audio.pianoRhythm('unknown');audio.pianoRhythm('kick',0);assert.equal(state.sources.length,before);
+ audio.pianoPerformance(72,2);const lead=state.sources.at(-1);
+ for(let i=0;i<40;i++)audio.pianoRhythm('hat',.08,.01*i);
+ assert.equal(lead.stops.length,1,'rapid backing never steals the held lead');
+ assert(state.sources.slice(before+1).filter(s=>s.stops.length===1).length<=31,'queued support has bounded polyphony');
+ audio.setMusicVolume(0);const count=state.sources.length;audio.pianoRhythm('kick');assert.equal(state.sources.length,count);
 });

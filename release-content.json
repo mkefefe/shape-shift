@@ -20,53 +20,53 @@
     },
     {
       "mode": "adventure",
-      "file": "assets/music/adventure-237.ogg",
-      "sha256": "8bbb9d55016cf8b4b1d3e2f26fe15b4456b7ac64e42cfb2a927ac219ce01b2ca",
+      "file": "assets/music/adventure-238.ogg",
+      "sha256": "4bf4d8851adbf132932afa1fdee1b5ce91bb572b04397b84ac4381faffa8be26",
       "title": "Sunbeam Avenue",
       "sourceBpm": 104,
       "key": "D major",
       "bars": 32,
-      "source": "New original melodic indie/electronic arrangement, November 4, 2026; full score retained in scripts/music237/scores."
+      "source": "Original melodic indie/electronic score with stronger rhythm-section energy mix requested November 4, 2026; reproducible source in scripts/music238."
     },
     {
       "mode": "endless",
-      "file": "assets/music/endless-237.ogg",
-      "sha256": "845140b33a5ce70d952d207f55aa322dbebc6dedb2c7d675076ff66fc210bb82",
+      "file": "assets/music/endless-238.ogg",
+      "sha256": "47385992454101a632170f13070e31f143387e9434f855412634507de30305ef",
       "title": "Bright Circuit",
       "sourceBpm": 140,
       "key": "A major",
       "bars": 32,
-      "source": "New original melodic indie/electronic arrangement, November 4, 2026; full score retained in scripts/music237/scores."
+      "source": "Original melodic indie/electronic score with stronger rhythm-section energy mix requested November 4, 2026; reproducible source in scripts/music238."
     },
     {
       "mode": "shape-drop",
-      "file": "assets/music/shape-drop-237.ogg",
-      "sha256": "94de21d2de3937ff046b255371866ae6a55a498d25afa4a9dd28d32d2af0317e",
+      "file": "assets/music/shape-drop-238.ogg",
+      "sha256": "d503f0b7add37c926f64aea5b7c19b16c550a8ce12606c0f00d9703291d8635c",
       "title": "Pocket Picnic",
       "sourceBpm": 100,
       "key": "F major",
       "bars": 32,
-      "source": "New original melodic indie/electronic arrangement, November 4, 2026; full score retained in scripts/music237/scores."
+      "source": "Original melodic indie/electronic score with stronger rhythm-section energy mix requested November 4, 2026; reproducible source in scripts/music238."
     },
     {
       "mode": "shape-slice",
-      "file": "assets/music/shape-slice-237.ogg",
-      "sha256": "3be0ae87454b8cce003ceb698dd6dab21d09e4a885abb97d8157354ee7c92b97",
+      "file": "assets/music/shape-slice-238.ogg",
+      "sha256": "988abf3517e418ea65c925422a047a9ed27d917dbb5e8dd678ec7fc7bfed5b7b",
       "title": "Ribbon Radio",
       "sourceBpm": 124,
       "key": "E Dorian",
       "bars": 32,
-      "source": "New original melodic indie/electronic arrangement, November 4, 2026; full score retained in scripts/music237/scores."
+      "source": "Original melodic indie/electronic score with stronger rhythm-section energy mix requested November 4, 2026; reproducible source in scripts/music238."
     },
     {
       "mode": "battle",
-      "file": "battle/assets/battle-237.ogg",
-      "sha256": "301a924069dc70284a46c9cabbd23cb8708303addeef10dc41ae6119af64a43b",
+      "file": "battle/assets/battle-238.ogg",
+      "sha256": "3a199c2237fb2abdd9a677e72d3811afce3e5959f99ea9a0fb4bbe45163fa19f",
       "title": "Color After Dark",
       "sourceBpm": 116,
       "key": "G minor with Dorian color",
       "bars": 32,
-      "source": "New original melodic indie/electronic arrangement, November 4, 2026; full score retained in scripts/music237/scores."
+      "source": "Original melodic indie/electronic score with stronger rhythm-section energy mix requested November 4, 2026; reproducible source in scripts/music238."
     }
   ],
   "piano": {
@@ -74,7 +74,7 @@
     "songFile": "piano-songs.js",
     "planFile": "piano-backing.js",
     "source": "Twenty authored scores in piano-song-data.js; harmony and beat-grid accompaniment retained without automatic major-key conversion.",
-    "behavior": "Written song tempos, expressive sampled lead with natural release, beat-aligned accompaniment, phrase breaths and explicit holds. Good timing window \u00b1220ms and Perfect \u00b180ms. Every new note requires a physical strike; pause and mute cancel scheduled audio.",
+    "behavior": "Written tempos, expressive sampled lead, beat-grid piano/bass and a game-clock-scheduled kick/snare/hat groove. Pitched accompaniment follows performed notes; the beat stays steady across small timing errors. Good timing \u00b1220ms, Perfect \u00b180ms; fresh physical strikes, bounded holds and complete pause/mute cleanup.",
     "keys": [
       "assets/music/keys/36.ogg",
       "assets/music/keys/42.ogg",
@@ -87,7 +87,21 @@
       "assets/music/keys/78.ogg",
       "assets/music/keys/81.ogg"
     ],
-    "dataFile": "piano-song-data.js"
+    "dataFile": "piano-song-data.js",
+    "rhythmSamples": [
+      {
+        "file": "assets/music/flow-hat-238.ogg",
+        "sha256": "fe5836601635558e86fb0f08be94af10a1830be129a492fa85aabe985fe41f7f"
+      },
+      {
+        "file": "assets/music/flow-kick-238.ogg",
+        "sha256": "c73c839881bee901f0d855f2ce3630c930a69d6b26332e1b9ab0fe672f2e54c6"
+      },
+      {
+        "file": "assets/music/flow-snare-238.ogg",
+        "sha256": "1f4e8587ee81e7df55ee8bb7c334e30bdad37359ac77a76fdde522076e27acb4"
+      }
+    ]
   },
   "effects": {
     "status": "Existing procedural gameplay cues, recorded victory stages, gate cues, recorded praise and Battle effects retained.",
@@ -97,5 +111,5 @@
       "battle/audio.mjs"
     ]
   },
-  "version": "4.94.237"
+  "version": "4.94.238"
 }

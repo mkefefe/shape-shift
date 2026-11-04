@@ -89,10 +89,10 @@ def main():
         for dest in (mobile,portal):
             assert digest(dest/name)==expected, f'{dest.name} drift: {name}'
     required=json.loads(read(ROOT/'release-content.json'))
-    for track in required['recordings']:
+    for track in required['recordings']+required['piano'].get('rhythmSamples',[]):
         for dest in (site,mobile,portal):
-            assert digest(dest/track['file'])==track['sha256'], f'Approved audio missing or changed: {track["mode"]} in {dest}'
-    receipt={'version':version,'android_version_code':args.android_version_code,'shared_files_verified':len(shared),'recordings':required['recordings'],
+            assert digest(dest/track['file'])==track['sha256'], f'Audio missing or changed: {track["file"]} in {dest}'
+    receipt={'version':version,'android_version_code':args.android_version_code,'shared_files_verified':len(shared),'recordings':required['recordings'],'rhythm_samples':required['piano'].get('rhythmSamples',[]),
         'shared_sha256':shared,'editions':{}}
     for name,dest in [('github',site),('android',mobile),('playgama',portal)]:
         receipt['editions'][name]={p.relative_to(dest).as_posix():digest(p) for p in dest.rglob('*')

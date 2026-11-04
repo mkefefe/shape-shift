@@ -1,5 +1,5 @@
-import {pianoIcon} from './piano-music.js?v=494237';
-import {PIANO_SCORES} from './piano-song-data.js?v=494237';
+import {pianoIcon} from './piano-music.js?v=494238';
+import {PIANO_SCORES} from './piano-song-data.js?v=494238';
 
 const CHORDS={C:[48,52,55],Cmaj7:[48,52,55,59],F:[53,57,60],Fmaj7:[53,57,60,64],G:[43,47,50],G7:[43,47,50,53],Am:[45,48,52],Am7:[45,48,52,55],Dm:[50,53,57],Dm7:[50,53,57,60],Em:[52,55,59],Em7:[52,55,59,62]};
 const SEMITONES={C:0,D:2,E:4,F:5,G:7,A:9,B:11};

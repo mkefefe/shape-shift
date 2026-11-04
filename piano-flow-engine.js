@@ -1,6 +1,6 @@
-import {createSongSequence} from './piano-songs.js?v=494237';
-import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=494237';
-import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494237';
+import {createSongSequence} from './piano-songs.js?v=494238';
+import {createPianoSequence,pianoDifficulty} from './piano-music.js?v=494238';
+import {maxLivesForFrame,frameRewardMultiplier} from './engine.js?v=494238';
 export const PIANO_LANES=3,PIANO_WINDOW=.38;
 // Judgement uses seconds so every written tempo gets the same finger tolerance.
 export const PIANO_HIT_SECONDS=.22,PIANO_PERFECT_SECONDS=.08,PIANO_STALL_SECONDS=1;
@@ -32,6 +32,42 @@ export function pianoSupportSchedule(events,{bpm=100,timingErrorSeconds=0,beat=0
   scheduled.push({...event,delay:Math.max(0,delay),seconds:event.duration*seconds});
  }
  return scheduled;
+}
+// Integrate the existing chart clock across any written tempo boundary. The
+// first beat of the next song arrives at the old tempo; its later beats use the new one.
+export function pianoSecondsToBeat(game,targetBeat){
+ const from=Math.min(game.beat,targetBeat),to=Math.max(game.beat,targetBeat);
+ let bpm=pianoSongTempo(0,game.bpm),cursor=from,seconds=0;
+ for(const note of game.notes){
+  if(!Number.isFinite(note.bpm))continue;
+  if(note.beat<=from)bpm=pianoSongTempo(0,note.bpm);
+  else if(note.beat<to){seconds+=(note.beat-cursor)*60/bpm;cursor=note.beat;bpm=pianoSongTempo(0,note.bpm);}
+  else break;
+ }
+ seconds+=(to-cursor)*60/bpm;
+ return targetBeat<game.beat?-seconds:seconds;
+}
+export function createPianoRhythmScheduler({plan,play,epoch=()=>0,lookahead=.14}){
+ const played=new Map();let previousBeat=null,generation;
+ function clear(){played.clear();previousBeat=null;generation=undefined;}
+ function cancelAhead(beat){if(!Number.isFinite(beat)){clear();return;}for(const [id,at] of played)if(at>beat)played.delete(id);previousBeat=beat;}
+ return {clear,cancelAhead,get pendingCount(){return played.size;},step(game){
+  if(!game?.started||game.practice||game.paused||game.over||game.countdown>0||game.recoverySeconds>0||game.notes.some(n=>n.status==='holding'&&n.awaiting))return;
+  if(previousBeat!==null&&game.beat<previousBeat-1e-8)clear();
+  const current=epoch();if(generation!==undefined&&current!==generation)cancelAhead(game.beat);generation=current;
+  previousBeat=game.beat;
+  for(const [id,beat] of played)if(beat<game.beat-8)played.delete(id);
+  for(const note of game.notes){
+   if(pianoSecondsToBeat(game,note.beat)>lookahead)break;
+   for(const event of plan(note)){
+    if(!['kick','snare','hat'].includes(event.kind)||played.has(event.id))continue;
+    const beat=note.beat+event.beat,delay=pianoSecondsToBeat(game,beat);
+    // A tiny late-frame allowance avoids crackling catch-up bursts after stalls.
+    if(delay<-.025||delay>lookahead)continue;
+    if(play({...event,delay:Math.max(0,delay)})!==false)played.set(event.id,beat);
+   }
+  }
+ }};
 }
 export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upgrade=0,directTouch=false,rhythm=false,stripTap=false,melodicStrips=false,fullSongs=false,practice=false,recoverWrongTap=false,brightSongs=false}={}){
  const resumableHolds=stripTap||melodicStrips;
