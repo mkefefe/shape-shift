@@ -18,17 +18,19 @@ def write(path, text):
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def playgama_index_html(frame, host):
-    # The portal owns the outer frame already. Put the actual game in its entry
-    # document so Bridge, the visible game and host instrumentation share a window.
-    # Bootstrap still awaits SDK initialization before preparing art/audio or saves.
+def playgama_index_html(shell, host):
+    # Preserve the established shell/game-frame separation used by release 220.
+    # Bridge belongs to the shell; the owned child awaits that same connection.
+    # Withhold its URL until SDK initialization, and retain the real preload
+    # barrier in the child before game_ready. Do not alter platform policy.
     sdk = '<script id="playgama-bridge-sdk" src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>'
     marker = '<head><meta charset="utf-8">'
-    assert frame.count(marker) == 1, 'Unexpected game document head'
-    assert '<main id="app"' in frame and 'id="startup-ready"' in frame, 'Expected the actual game document'
-    assert frame.count('src="playgama-bootstrap.js') == 1, 'Expected one portal bootstrap'
-    assert 'src="playables-bootstrap.js' not in frame, 'Browser bootstrap cannot initialize the portal'
-    return frame.replace(marker, marker + sdk + '<script id="playgama-host-loader">' + host + '</script>', 1)
+    assert shell.count(marker) == 1, 'Unexpected shell document head'
+    assert shell.count('<iframe src="game-frame.html') == 1, 'Expected one owned game frame'
+    assert 'playables-bootstrap.js' not in shell and 'playgama-bootstrap.js' not in shell, 'Bootstrap belongs in the game frame'
+    shell = shell.replace('<iframe src="game-frame.html', '<iframe data-playgama-src="game-frame.html', 1)
+    return shell.replace(marker, marker + sdk + '<script id="playgama-host-loader">' + host + '</script>', 1)
+
 
 def playgama_game_source(source):
     """Bound only the portal's initial render handoffs, after asset readiness."""
@@ -143,7 +145,7 @@ def main():
     portal_frame=portal_frame.replace('</head>',f'<link rel="stylesheet" href="feature-visibility.css?v={version.replace(".", "")}"></head>')
     write(portal/'game-frame.html',portal_frame)
     host=read(ROOT/'platforms/playgama/host-loader.js')
-    write(portal/'index.html',playgama_index_html(portal_frame,host))
+    write(portal/'index.html',playgama_index_html(read(site/'index.html'),host))
     write(portal/'telemetry-config.js',f"export const TELEMETRY_BUILD='{version}';\nexport const TELEMETRY_DISTRIBUTION='playgama';\n")
     # Bridge owns pause/resume on this portal (including ads); preserve that contract.
     for name in ('game.js','piano-flow.js','shape-drop.js','shape-slice.js'):

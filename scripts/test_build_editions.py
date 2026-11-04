@@ -28,9 +28,9 @@ class PortalStartupTests(unittest.TestCase):
         result = subprocess.run(['node', '--test', str(Path(__file__).with_name('playgama-audio-deadlines.test.mjs'))], capture_output=True, text=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
-    def test_normal_sdk_is_first_script_and_game_is_in_the_entry_document(self):
+    def test_sdk_precedes_owned_game_frame_and_defers_its_navigation(self):
         root = Path(__file__).resolve().parent.parent
-        source = (root/'game-frame.html').read_text(encoding='utf-8').replace('playables-bootstrap.js', 'playgama-bootstrap.js')
+        source = (root/'index.html').read_text(encoding='utf-8')
         output = build_editions.playgama_index_html(source, 'window.hostLoaderStarted=true;')
         class Tags(HTMLParser):
             def __init__(self):
@@ -45,24 +45,23 @@ class PortalStartupTests(unittest.TestCase):
         self.assertEqual(scripts[1]['id'], 'playgama-host-loader')
         self.assertEqual(sum('playgama-bridge.js' in attrs.get('src', '') for attrs in scripts), 1)
         frames = [attrs for tag, attrs in parsed.tags if tag == 'iframe']
-        self.assertEqual(frames, [])
-        self.assertIn(('main', {'id': 'app', 'data-screen': 'home'}), parsed.tags)
-        self.assertEqual(sum(attrs.get('id') == 'startup-ready' for _, attrs in parsed.tags), 1)
-        cache_version = json.loads((root/'package.json').read_text(encoding='utf-8'))['version'].replace('.', '')
-        self.assertEqual(scripts[-1], {'type': 'module', 'src': 'playgama-bootstrap.js?v=' + cache_version})
+        self.assertEqual(len(frames), 1)
+        self.assertNotIn('src', frames[0])
+        self.assertTrue(frames[0]['data-playgama-src'].startswith('game-frame.html?v='))
+        self.assertEqual(frames[0]['title'], 'Shape Shift game')
         self.assertLess(output.index('<meta charset="utf-8">'), 1024)
         self.assertNotIn('playgama-bridge-sdk', source)
-        self.assertNotIn('shell-keyboard.js', output)
-        # Injecting the SDK cannot discard or rewrite any of the actual game UI.
-        self.assertEqual(output[output.index('<body>'):], source[source.index('<body>'):])
+        self.assertIn('shell-keyboard.js', output)
+        self.assertNotIn('Content-Security-Policy', output)
+        self.assertEqual(output[output.index('<body>'):].replace('data-playgama-src=', 'src='), source[source.index('<body>'):])
 
     def test_unknown_shell_cannot_silently_ship_an_ungated_game(self):
-        with self.assertRaisesRegex(AssertionError, 'Expected the actual game document'):
+        with self.assertRaisesRegex(AssertionError, 'Expected one owned game frame'):
             build_editions.playgama_index_html('<head><meta charset="utf-8"></head><iframe></iframe>', '')
 
-    def test_browser_bootstrap_cannot_ship_as_a_portal_entry(self):
+    def test_direct_game_cannot_replace_the_owned_frame(self):
         root = Path(__file__).resolve().parent.parent
-        with self.assertRaisesRegex(AssertionError, 'Expected one portal bootstrap'):
+        with self.assertRaisesRegex(AssertionError, 'Expected one owned game frame'):
             build_editions.playgama_index_html((root/'game-frame.html').read_text(encoding='utf-8'), '')
 
     def test_shipped_host_loader_runtime_regressions(self):
