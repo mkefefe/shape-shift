@@ -114,4 +114,3 @@ test('the portal transform is restricted to the two startup waits and keeps late
  assert.match(sharedGame.slice(sharedStart,sharedEnd),/await firstGate\.reveal/);
  assert.match(read(root,'mode-transition.js'),/await new Promise\(resolve=>requestAnimationFrame\(\(\)=>requestAnimationFrame\(resolve\)\)\)/);
 });
-
