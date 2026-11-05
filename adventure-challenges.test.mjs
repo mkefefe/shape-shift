@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {adventureChallenge,challengeTasks,challengeFinished,challengeStats,challengeHud,createAdventureChallengeRun} from './adventure-challenges.js';
 import {freshProfile,grantAdventureBoosts,buyCosmetic} from './economy.js';
 import {normalizeAdventure,saveObjectiveStars,levelObjectives,levelRequirements,levelComplete,adventureMechanics,adventureDesign} from './world-menu.js';
-test('nineteen short special stages rotate all three games and ordinary levels stay matching',()=>{
+test('retained authored content remains valid for the separate game engines',()=>{
  let modes=[];for(let level=1;level<=100;level++){const c=adventureChallenge(level);assert.equal(!!c,level<100&&level%5===0);if(c){modes.push(c.mode);assert.equal(challengeTasks(c).length,3);assert(c.target>0&&c.target<60);}}
  assert.deepEqual(modes.slice(0,3),['drop','slice','piano']);assert.equal(modes.length,19);
 });
@@ -11,8 +11,8 @@ test('a score target or elapsed time cannot cut an authored stage short',()=>{
  assert(!challengeFinished({score:7,time:119},c));assert(!challengeFinished({score:800,time:1},c));assert(!challengeFinished({score:800,time:1200},c));
  assert(!challengeStats({score:800,time:1200,over:true},c).won);
  assert(!challengeFinished({stageComplete:true,practice:true},c));
- const stats=challengeStats({score:8,time:25,bestCombo:2,stageComplete:true},c);assert(stats.won);assert(levelObjectives(5,stats).every(o=>o.done));
- assert(!levelComplete(5,{challengeScore:800}));assert(levelComplete(5,stats));
+ const stats=challengeStats({score:8,time:25,bestCombo:2,stageComplete:true},c);assert(stats.won);
+ assert(!levelComplete(5,{challengeScore:800}));assert(!levelComplete(5,stats),'legacy special-mode scores cannot complete a matching level');
  assert(!challengeStats({score:7,time:25,stageComplete:true},c).won);
  assert(!challengeStats({score:800,time:25,stageComplete:true,lives:0},c).won);
 });
@@ -22,7 +22,7 @@ test('Piano goals require actual notes and the ending even with a score multipli
  assert(!challengeStats({score:1000,hits:c.target-1,time:30,stageComplete:true,lives:3},c).won);
  assert(!challengeStats({score:1000,hits:c.target,time:30,lives:3},c).won);
  const stats=challengeStats({score:1000,hits:c.noteCount,time:30,stageComplete:true,lives:3,maxLives:3},c);
- assert(stats.won);assert.equal(stats.challengeScore,c.noteCount);assert(levelObjectives(15,stats).every(o=>o.done));
+ assert(stats.won);assert.equal(stats.challengeScore,c.noteCount);assert(!levelComplete(15,stats));
  assert.match(challengeTasks(c)[0].label,/notes/);
 });
 test('the stage HUD keeps the remaining sequence visible after reaching the goal',()=>{

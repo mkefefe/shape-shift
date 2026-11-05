@@ -9,13 +9,14 @@ test('100 distinct plans, three optional stars, and no boost tasks before unlock
   assert(levelObjectives(level,stats).every(o=>o.done));assert(levelObjectives(level,{...stats,won:false}).every(o=>!o.done));
  }
 });
-test('special stages replace equipment stars with attainable score and skill goals',()=>{
- const tasks=levelTasks(40);assert.equal(tasks.length,3);assert.equal(tasks[0].type,'challengeScore');
- assert(!levelComplete(40,{challengeScore:tasks[0].target}));
- assert(!levelComplete(40,{challengeScore:tasks[0].target,stageComplete:0}));
- assert(levelComplete(40,{challengeScore:tasks[0].target,stageComplete:1}));
- assert(!levelComplete(40,{challengeScore:tasks[0].target-1,stageComplete:1}));
- assert(levelObjectives(40,{won:true,challengeScore:tasks[0].target,elapsed:50000,wrong:0,bestCombo:5}).every(o=>o.done));
+test('converted stage equipment stars remain optional to matching completion',()=>{
+ const tasks=levelTasks(40);assert.equal(tasks.length,3);assert(tasks.some(t=>t.type==='frame'));
+ const stats={collections:{},memoryCollected:0};
+ assert(!levelComplete(40,{challengeScore:999999,stageComplete:1}));
+ for(const goal of levelRequirements(40))if(goal.type==='collection')stats.collections[goal.color+':'+goal.shape]=goal.target;else stats.memoryCollected=goal.target;
+ assert(levelComplete(40,stats));
+ assert.equal(levelObjectives(40,{...stats,won:true}).find((_,i)=>tasks[i].type==='frame').done,false);
+ assert(levelObjectives(40,{...stats,won:true,elapsed:50000,shapeChanges:6,frame:'ice'}).every(o=>o.done));
 });
 test('all three boosts means three distinct successful activations in this run',()=>{
  let s={};for(let i=0;i<3;i++)s=trackLevelAbility(s,'shield');const at=levelTasks(28).findIndex(t=>t.type==='ability');assert.equal(levelTaskStatus(28,s)[at].value,'1 / 3');assert(!levelObjectives(28,{...s,won:true})[at].done);

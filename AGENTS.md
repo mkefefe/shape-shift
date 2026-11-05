@@ -69,3 +69,7 @@
 - First five Adventure levels focus on matching, without inventory abilities or random pickup tutorials, including replays with later unlocks. Later ability help is requested by tapping an ability, never by interrupting play or requiring a charge to be spent.
 - Tutorials use a finger and brief yellow HUD text (one or two lines), with no pop-up, Continue button or explanatory card. Apply to abilities and pickups as well as level mechanics.
 - Before victory, generate and display a fully fresh board, as at a normal new round; do not just restore the old picked tile. Keep this presentation separate from score, XP, inventory and saved gameplay state.
+
+## Adventure matching only — November 5, 2026
+- Remove Shape Drop, Shape Slice and Piano Flow stages from the Adventure map. All Adventure levels use the normal matching game, its collection/memory goals and missions. Preserve map numbering, earned stars and saved completion. The separate Games modes remain available. This supersedes the earlier Adventure special-stage requirements.
+- Slow the mission-to-star animation by another 30% relative to ui250; keep the countdown and energy/fireworks timing.

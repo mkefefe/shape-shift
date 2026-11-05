@@ -48,14 +48,13 @@ import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,ability
 import {fitBoard} from './board-fit.js?v=494241';
 import {analytics} from './analytics.js?v=494241';
 import {ensureTerms} from './terms.js?v=494241';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui250';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui251';
 import {observeBoard} from './board-fit.js?v=494241';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494241';
-import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?ui250';
+import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?ui251';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494241';
-import {adventureChallenge} from './adventure-challenges.js?ui250';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?ui250';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?ui251';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494241';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494241';
 
@@ -3847,7 +3846,7 @@ const storyUI=initStoryUI({document,storage:window.ShapeShiftPlatform.storage,ad
  beforeScene:()=>{$('app').dataset.storyActive='true';audio()?.pause();syncMenuBanner();},
  afterScene:()=>{delete $('app').dataset.storyActive;if(!window.ShapeShiftPlatform.paused&&!nativeBackground)audio()?.start();syncMenuBanner();}
 });
-worldUI=initWorldMenu({getGamesAccess:()=>worldSummary().access.games,getFrame:()=>profile.equipped.frame,openFrames:()=>$('profile-open').click(),drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}const challenge=mode==='adventure'?adventureChallenge(level):null;if(challenge){adventureMini=challenge;const mini={drop:shapeDrop,slice:shapeSlice,piano:pianoFlow}[challenge.mode];await mini.open();$('level-dialog').close();return;}adventureMini=null;runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);syncAdventureBoosts();applyCosmetics();}});
+worldUI=initWorldMenu({getGamesAccess:()=>worldSummary().access.games,getFrame:()=>profile.equipped.frame,openFrames:()=>$('profile-open').click(),drawShape:sprite,getPlayerLevel:()=>playerLevel(profile),canStart:()=>!counting&&!active&&!storyUI.isPlaying(),start:async(mode,level)=>{if(counting||active)return;if(mode==='rush'){uiSound('start');gamesHub.open();return;}adventureMini=null;runMode=mode;adventureLevel=level;return start();},home,screen,sound:uiSound,getBest:(difficulty='normal')=>difficulty==='normal'?best:Number(store.get('shape-shift-best-'+difficulty,0))||0,isAdmin:()=>profile.adminMode===true,onAdventureComplete:entry=>{storyUI.record(entry);syncAdventureBoosts();applyCosmetics();}});
 
 async function continueAdventureJourney(){
  if(counting||active||continueAdPending||storyUI.isPlaying())return;

@@ -1,4 +1,3 @@
-import {adventureChallenge} from './adventure-challenges.js';
 import {adventureDesign} from './world-menu.js';
 import test from 'node:test';import assert from 'node:assert/strict';import {normalizeAdventure,unlockedLevel,completeLevel,levelSpec,starTotal} from './world-menu.js';
 test('Adventure unlocks sequentially, keeps best stars, and caps at 100',()=>{let p=normalizeAdventure();assert.equal(unlockedLevel(p),1);assert.equal(completeLevel(p,2,0),p);p=completeLevel(p,1,0);assert.equal(unlockedLevel(p),2);p=completeLevel(p,1,2);assert.equal(p.stars[0],3);for(let n=2;n<=100;n++)p=completeLevel(p,n,0);assert.equal(unlockedLevel(p),100);assert.equal(starTotal(p),300);});
@@ -23,7 +22,7 @@ test('paused tasks separate collection progress from optional star conditions',(
  const tasks=levelTaskStatus(1,{turns:1000,elapsed:999999,wrong:9});assert.equal(tasks.filter(t=>t.state==='missed').length,2);assert.equal(tasks.find(t=>t.label.includes('row')).state,'active');
 });
 import {levelTasks,trackLevelPick} from './world-menu.js';
-test('all levels have three deterministic optional challenges, including minigames and finale',()=>{
+test('all levels have three deterministic optional challenges, including converted matching stages and finale',()=>{
  for(let n=1;n<=100;n++){const tasks=levelTasks(n);assert.equal(tasks.length,3);assert.deepEqual(tasks,levelTasks(n));assert(tasks.every(t=>!['collection','memoryCollected','picks'].includes(t.type)));if(n===100)assert.deepEqual(tasks.map(t=>t.target),[100,200,500]);
  const turns=tasks.find(t=>t.type==='turns');if(n<25)assert(!turns);if(turns)assert(turns.target>levelRequirements(n).reduce((sum,g)=>sum+g.target,0));}
 });
@@ -35,26 +34,23 @@ test('level pick tracking counts valid changes and streaks without crediting ski
  s=trackLevelPick(s,{color:3,shape:1},true,'correct');assert.equal(s.streak,1);assert.equal(s.colorChanges,2);
 });
 test('winning does not depend on optional challenges and every required collection matters',()=>{
- for(let n=1;n<100;n++){if(adventureChallenge(n))continue;const goals=levelRequirements(n),stats={collections:{},memoryCollected:0,score:999999,picks:999999,wrong:99,elapsed:999999,turns:999999};assert(!levelComplete(n,stats));
+ for(let n=1;n<100;n++){const goals=levelRequirements(n),stats={collections:{},memoryCollected:0,score:999999,picks:999999,wrong:99,elapsed:999999,turns:999999};assert(!levelComplete(n,stats));
  for(const g of goals)if(g.type==='collection')stats.collections[g.color+':'+g.shape]=g.target;else stats.memoryCollected=g.target;
  assert(levelComplete(n,stats));assert(levelObjectives(n,{...stats,won:true}).every(t=>!t.done));
  for(const g of goals){const partial={...stats,collections:{...stats.collections}};if(g.type==='collection')partial.collections[g.color+':'+g.shape]--;else partial.memoryCollected--;assert(!levelComplete(n,partial));}}
 });
 import {levelPrimaryGoal,levelComplete,adventureLayout} from './world-menu.js';
-test('matching levels end on collections; minigames require the score and authored ending; finale never auto-completes',()=>{
- for(let n=1;n<=100;n++){
-  const c=adventureChallenge(n),requirements=levelRequirements(n);
-  assert(requirements.every(g=>(c?['challengeScore','stageComplete']:['collection','memoryCollected']).includes(g.type)));
-  assert(!levelComplete(n,{score:999999,picks:999999}));
-  if(c){
-   assert.deepEqual(requirements.map(g=>g.type),['challengeScore','stageComplete']);
-   assert(!levelComplete(n,{challengeScore:c.target}));
-   assert(!levelComplete(n,{challengeScore:c.target,stageComplete:0}));
-   assert(!levelComplete(n,{challengeScore:c.target-1,stageComplete:1}));
-   assert(levelComplete(n,{challengeScore:c.target,stageComplete:1}));
-  }
+test('every Adventure stage uses matching goals, including all former special-stage slots',()=>{
+ for(let n=1;n<100;n++){
+  const requirements=levelRequirements(n);assert(requirements.length>0);
+  assert(requirements.every(g=>['collection','memoryCollected'].includes(g.type)));
+  assert(!levelComplete(n,{score:999999,picks:999999,challengeScore:999999,stageComplete:1}));
+  assert(!levelTasks(n).some(t=>['challengeScore','stageComplete','bestCombo'].includes(t.type)));
+  const stats={collections:{},memoryCollected:0};
+  for(const goal of requirements)if(goal.type==='collection')stats.collections[goal.color+':'+goal.shape]=goal.target;else stats.memoryCollected=goal.target;
+  assert(levelComplete(n,stats),'matching completion at Level '+n);
  }
- assert.deepEqual(levelRequirements(100),[]);
+ assert.deepEqual(levelRequirements(100),[]);assert(!levelComplete(100,{score:999999}));
 });
 test('Adventure boards retain complete grid footprints with authored blocks in stable cells',()=>{
  for(let n=1;n<=100;n++)for(const count of [1,2,3,4,6,9,12,16]){
@@ -110,9 +106,9 @@ test('nearby picks crack rocks, diagonal picks do not, and opened spaces persist
  assert.deepEqual(damageAdjacentRocks(opened,[1]),opened);assert.equal(start.rocks[0].hits,2);
 });
 
-test('collection quantities stay bounded instead of growing into point grinds',()=>{for(let n=1;n<100;n++){if(adventureChallenge(n))continue;const goals=levelRequirements(n);assert(goals.length>=1&&goals.length<=3);assert(goals.every(g=>g.target>=2&&g.target<=10));}});
+test('collection quantities stay bounded instead of growing into point grinds',()=>{for(let n=1;n<100;n++){const goals=levelRequirements(n);assert(goals.length>=1&&goals.length<=3);assert(goals.every(g=>g.target>=2&&g.target<=10));}});
 import {adventureTimeTarget,lightningFinish} from './world-menu.js';
-test('optional time challenges reflect collection workload and stay bounded',()=>{for(let n=1;n<=100;n++){const seconds=adventureTimeTarget(n);assert(seconds>=40&&seconds<=140);const time=levelTasks(n).find(t=>t.type==='time');if(time)assert.equal(time.target,adventureChallenge(n)?.starTime||seconds);}});
+test('optional time challenges reflect collection workload and stay bounded',()=>{for(let n=1;n<=100;n++){const seconds=adventureTimeTarget(n);assert(seconds>=40&&seconds<=140);const time=levelTasks(n).find(t=>t.type==='time');if(time)assert.equal(time.target,seconds);}});
 test('Lightning Finish requires all three stars on a winning run strictly under sixty seconds',()=>{
  assert(lightningFinish(true,59999,3));for(const elapsed of [60000,61000,NaN,undefined,-1])assert(!lightningFinish(true,elapsed,3));assert(!lightningFinish(false,10000,3));for(const stars of [0,1,2,undefined])assert(!lightningFinish(true,10000,stars));assert.equal(normalizeAdventure({stars:[2],lightning:[true]}).lightning[0],false);
  const progress=normalizeAdventure({stars:[3],lightning:[true]});assert(progress.lightning[0]);assert(completeLevel(progress,2,0).lightning[0]);assert.equal(normalizeAdventure().lightning.filter(Boolean).length,0);
@@ -160,7 +156,7 @@ test('rock fill columns run independently and untouched holes stay absent',async
 import {memoryLevelGoals,adventureMechanics,collectionCounters} from './world-menu.js';
 test('every memory level requires all collections, regardless of ordinary points',()=>{
  for(let level=1;level<=100;level++){
-  if(adventureChallenge(level))continue;const goals=memoryLevelGoals(level);assert.equal(goals.length>0,adventureMechanics(level).memory>0);if(!goals.length)continue;
+  const goals=memoryLevelGoals(level);assert.equal(goals.length>0,adventureMechanics(level).memory>0);if(!goals.length)continue;
   assert(goals.length===2||goals.length===3);
   const stats={score:999999,picks:999999,collections:{},memoryCollected:goals[0].target};
   for(const g of goals.slice(1))stats.collections[g.color+':'+g.shape]=g.target;
@@ -214,6 +210,6 @@ test('finale task panel explains endless completion and optional scores without 
  assert.deepEqual(levelTasks(100).map(t=>t.target),[100,200,500]);
 });
 test('mission panels keep required goal data without redundant headings',()=>{
- for(const level of [5,10,15,30,95]){const intro=levelTaskIntroduction(level);assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert.match(intro,/paused-level-requirements/);assert.equal(levelRequirements(level)[0].type,'challengeScore');}
+ for(const level of [5,10,15,30,95]){const intro=levelTaskIntroduction(level);assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert.match(intro,/paused-level-requirements/);assert(['collection','memoryCollected'].includes(levelRequirements(level)[0].type));}
  assert.match(levelTaskIntroduction(11),/Missions/);assert(!levelTaskIntroduction(11).includes('Collect to win'));
 });
