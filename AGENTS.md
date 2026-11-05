@@ -46,3 +46,5 @@
 ## Adventure classic presentation — November 5, 2026
 - User explicitly confirmed the original 4.40 / 4.50 / 4.60 series, not 4.94.40 / 50 / 60. Restore pause tasks and the victory/reward sequence using archived 4.60.0. This supersedes the November 4 panel and always-visible reward layout requests.
 - Keep the restored presentation separate from current music, authored stages, scores, loading and retained assets. Preserve accessible scrolling where the original fixed panel clipped controls.
+
+- November 5 clarification: retain the full energy-to-center transformation, explosion, fireworks and all celebration sound cues. Dock the logo at the top, show the level title and resolve three missions sequentially (earned star or red failure), then tally rewards and offer Next level. Place the return-to-map instruction outside the panel. The 4.60 reference is not authorization to remove this celebration.

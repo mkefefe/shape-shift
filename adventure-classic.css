@@ -147,3 +147,16 @@ html body #app #level-tasks-dialog .level-task-card progress::-webkit-progress-v
 html body #app #over-dialog#over-dialog.adventure-results .result-coins{display:flex!important;flex-direction:row}
 html body #app #over-dialog#over-dialog.adventure-results #level-progress::-webkit-progress-value,
 html body #app #level-tasks-dialog .level-task-card progress::-webkit-progress-value{background:linear-gradient(#fff3a5,#ffd342 65%,#f9be29)!important}
+
+/* The celebration docks into a real logo slot before missions begin. */
+html body #app #over-dialog#over-dialog.adventure-results.victory-result .result-mark{display:block!important;order:-1;width:110px;height:auto;min-height:0;max-height:none;object-fit:contain;margin:0 auto 4px}
+html body #app #over-dialog#over-dialog.adventure-results.victory-result .result-content{justify-content:flex-start}
+html body #app #over-dialog#over-dialog.adventure-results{overflow:visible;max-height:calc(100dvh - 76px)}
+html body #app #over-dialog#over-dialog.adventure-results .result-content{border-radius:24px;max-height:100%;overflow-y:auto}
+html body #app #over-dialog#over-dialog.adventure-results .result-home-hint{display:block;position:absolute;top:calc(100% + 12px);left:0;right:0;margin:0;padding:0 10px;color:white;font:900 13px/1.35 Nunito,sans-serif;text-shadow:0 2px 4px #00243c;text-align:center}
+html body #app #over-dialog#over-dialog.adventure-results:has(#adventure-result:not(.rewards-settled)) .result-home-hint{visibility:hidden}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.reward-failed{background:#f4d4db;border:1px solid #d98191;color:#8d273a;opacity:1;padding-right:30px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.reward-failed::before{content:'✕';position:absolute;right:10px;font-size:18px;font-weight:1000;color:#b63245}
+@media(max-height:650px){html body #app #over-dialog#over-dialog.adventure-results.victory-result .result-mark{width:76px}}
+
+html body #app #over-dialog#over-dialog.adventure-results .result-home-hint{bottom:auto;transform:none;width:100%;max-width:none;height:auto;min-height:0;box-sizing:border-box;text-transform:none;letter-spacing:0}

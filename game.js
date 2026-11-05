@@ -918,14 +918,14 @@ let cancelResultCountdown=null,cancelResultTally=null,cancelAdventureReveal=null
 function stopResultCountdown(){cancelVictory?.();cancelVictory=null;$('over-dialog').classList.remove('victory-result','victory-arriving');cancelAdventureReveal?.();cancelAdventureReveal=null;cancelResultTally?.();cancelResultTally=null;cancelResultCountdown?.();cancelResultCountdown=null;$('result-return-countdown').hidden=true;}
 
 let continueOfferOpen=false,continueOfferReady=false,continueAdPending=false;
-function dismissRunScreen(){
+async function dismissRunScreen(){
  if(continueAdPending)return;
  if(continueOfferOpen){
   if(!continueOfferReady)return;
   continueOfferOpen=false;uiSound('leave-result');finish(true);return;
  }
  if(!runSaved&&!recordRun()){$('ad-status').textContent='Your result could not be saved. Please retry saving.';return;}
- uiSound('leave-result');home();
+ uiSound('leave-result');const adventure=runMode==='adventure';if(await home()===false)return;if(adventure)await worldUI.map();
 }
 function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.resultMode=runMode;$('over-dialog').classList.remove('clear-results');
  if(!(runMode==='adventure'&&modeWon))audio()?.stopPraise();
@@ -962,7 +962,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
   return;
  }
  continueOfferOpen=false;$('over-dialog').classList.remove('continue-offer');
- document.querySelector('.result-home-hint').textContent='Tap anywhere else';
+ document.querySelector('.result-home-hint').textContent=runMode==='adventure'?'Tap outside to return to the level map':'Tap anywhere else';
  $('adventure-continue').hidden=runMode!=='adventure'&&runMode!=='endless';$('adventure-continue').textContent='Continue';
  if(runMode==='adventure'&&modeWon&&adventureLevel!==100)state=awardVictoryBoard(state,board,true);
  if(runMode==='adventure'&&modeWon&&!completionXpGranted){profile=adventureCompletionReward(profile,true);completionXpGranted=true;saveProfile();flushProfile();}
@@ -1070,6 +1070,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  };
  if(!resultStored||worldUI?.hasPendingSave()){$('ad-status').textContent='Your result could not be saved. Please free some storage and retry.';$('adventure-continue').hidden=false;$('adventure-continue').textContent='Save results';}
  const presentResults=(animateRewards=true)=>{
+  if(runMode==='adventure')document.querySelector('.result-home-hint').textContent='Tap outside to return to the level map';
   $('over-dialog').classList.toggle('adventure-results',runMode==='adventure');audio()?.setScene(runMode==='adventure'?'adventure':'game',{preservePraise:runMode==='adventure'&&modeWon});if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});
   if(!(runMode==='adventure'&&modeWon))sound('over');
   if(animateRewards)startResultRewards();
@@ -1077,7 +1078,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  if(runMode==='adventure'&&modeWon){
    cancelVictory=showAdventureVictory({document,points:state.victoryPoints,level:adventureLevel,drawShape:sprite,sound,stopSound:()=>audio()?.stopVictory?.(),
    visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground,reduced:prefs.motion,
-   done:()=>{cancelVictory=null;presentResults();}});
+   reveal:()=>presentResults(false),done:()=>{cancelVictory=null;startResultRewards();}});
  }else presentResults();
 
 
@@ -3207,7 +3208,7 @@ document.addEventListener('keydown',()=>audio()?.start(),{capture:true});
 
 
 
-for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',e=>{if(e.target.closest('button,input,label,a,select,textarea'))return;const r=dialog.getBoundingClientRect();const outside=e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;if(dialog.id==='tutorial-dialog'||dialog.id==='age-dialog'||dialog.id==='boost-lesson-dialog')return;if(dialog.id==='over-dialog'){dismissRunScreen();return;}if(outside){if(dialog.id==='coins-ad-dialog'&&coinRewardPending)return;uiSound('close');if(dialog.id==='pause-dialog')resume();else dialog.close();}});
+for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',e=>{if(e.target.closest('button,input,label,a,select,textarea'))return;const r=dialog.getBoundingClientRect();const outside=e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;if(dialog.id==='tutorial-dialog'||dialog.id==='age-dialog'||dialog.id==='boost-lesson-dialog')return;if(dialog.id==='over-dialog'){if(!dialog.classList.contains('adventure-results')||outside)dismissRunScreen();return;}if(outside){if(dialog.id==='coins-ad-dialog'&&coinRewardPending)return;uiSound('close');if(dialog.id==='pause-dialog')resume();else dialog.close();}});
 
 
 
