@@ -99,4 +99,8 @@ footer{justify-content:center}#nova{width:142px;min-height:54px;display:grid;gri
  #app>#callout.practice-callout{grid-column:2;grid-row:3;font-size:12px;line-height:1.25;margin:3px 0}
  #app>#board{grid-column:2;grid-row:4;width:100%;margin:0;align-self:center}
  #guard-tap,#guard-tap.warning,#guard-tap.ready{left:calc(50% + 45px);width:48px;height:48px}
+ #overlay:has(.pause-options){height:fit-content;max-height:calc(100dvh - 24px);padding:38px 24px 22px}
+ #overlay:has(.pause-options) h2{margin:0 28px 12px;font-size:26px}
+ #overlay .pause-options{flex-direction:row;gap:12px}
+ #overlay .pause-options .pause-option{width:50%;height:60px;aspect-ratio:auto;padding:5px;font-size:14px}
 }
