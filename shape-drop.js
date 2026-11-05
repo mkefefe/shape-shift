@@ -1,3 +1,4 @@
+import {awaitReady} from './menu-preload.js?v=494241';
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=494241';
 import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
 import {createResultJournal} from './run-results.js?v=494241';
@@ -27,7 +28,7 @@ const containerArt=new Image(),obstacleArt=new Image(),bombArt=new Image(),garde
 function loadDropImage(image,src){
  if(image.complete&&image.naturalWidth)return Promise.resolve(true);
  if(!imageLoads.has(image)){
-  const loading=new Promise(resolve=>{let done=false;const finish=ready=>{if(done)return;done=true;window.clearTimeout(timer);resolve(ready);};const timer=window.setTimeout(()=>{image.src='';finish(false);},12000);image.src=src;image.decode().then(()=>finish(true),()=>finish(false));});
+  image.src=src;const loading=awaitReady(image.decode(),'Mode artwork',20000).then(()=>true,()=>{image.src='';return false;});
   imageLoads.set(image,loading.then(ready=>{if(!ready)imageLoads.delete(image);return ready;}));
  }
  return imageLoads.get(image);

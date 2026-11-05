@@ -22,6 +22,7 @@ import {RESTORATION_KEY,migrateRestoration,restorationSummary,claimRestoration} 
 import {creditRestoration,creditBattleReward} from './world-rewards.js?v=494241';
 import {initRestorationUI} from './restoration-ui.js?v=494241';
 import {initMenuReadiness} from './menu-readiness.js?v=494241';
+import {CORE_STARTUP_ASSETS} from './startup-plan.js?v=494241';
 import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494241';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=494241';
 import {praiseDirector} from './praise-feedback.js?v=494241';
@@ -1040,10 +1041,10 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  if(runMode==='endless')$('ad-status').textContent='';
  if(['adventure','endless'].includes(runMode)){
   $('over-dialog').classList.add('clear-results');
-  $('result-next-goal').hidden=runMode==='adventure';
+  $('result-next-goal').hidden=true;
   const won=runMode==='adventure'&&modeWon;
   $('record').textContent=runMode==='adventure'?(won?'Level '+adventureLevel+' complete!':'Level '+adventureLevel+' · Out of hearts'):'Run complete';
-  $('result-next-goal').textContent=runMode==='adventure'?'':'Next goal: beat your best of '+$('final-best').textContent+'.';
+  $('result-next-goal').textContent='';
   $('adventure-continue').textContent=runMode==='adventure'?(won&&adventureLevel<100?'Next level':'Level map'):'Main menu';
   $('ad-status').textContent='';
  }
@@ -1700,7 +1701,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
- await Promise.all([effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginRankedRun(endlessDifficulty);}catch(error){error.rankingStart=true;throw error;}}if(token!==countdownToken)return;screen('game');
+ await Promise.all([audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginRankedRun(endlessDifficulty);}catch(error){error.rankingStart=true;throw error;}}if(token!==countdownToken)return;screen('game');
 
 
 
@@ -4001,20 +4002,12 @@ let allSkinsReady;
 function prepareAllSkins(){return allSkinsReady??=Promise.all(SHAPE_SKINS.flatMap(s=>[ensureSkinArt(s.id),ensureSkinArt(s.id,true)])).then(ready=>{if(ready.some(value=>!value))throw Error('Shape artwork unavailable');}).catch(error=>{allSkinsReady=null;throw error;});}
 menuReadiness=initMenuReadiness({getProfile:()=>profile,skinSources:SHAPE_SKINS.flatMap(s=>[s.art,s.chainedArt]),prepareSkins:prepareAllSkins,idle:()=>!document.hidden&&!transitioning&&!window.ShapeShiftPlatform.paused&&!active&&!counting&&!document.querySelector('dialog[open]')});
 const startupReadiness=createStartupReadiness([
- {id:'art',label:'game artwork',prepare:()=>loadStartupAssets()},
- {id:'sound',label:'music and effects',prepare:()=>audio().prepareAll()},
- {id:'menus',label:'menus and cosmetics',prepare:async()=>{await menuReadiness.prepareAll();await gamesHub.prepare();if(!await loadPrivacyContent($('privacy-policy-content')))throw Error('Privacy policy unavailable');}},
- {id:'scenery',label:'Adventure scenery',prepare:()=>gameplayScene.preload()},
- {id:'drop',label:'Shape Drop',prepare:async()=>{await prepareAllSkins();await shapeDrop.prepare();}},
- {id:'slice',label:'Shape Slice',prepare:async()=>{await prepareAllSkins();await shapeSlice.prepare();}},
- {id:'piano',label:'Piano Flow',prepare:async()=>{await prepareAllSkins();await pianoFlow.prepare();}},
- {id:'world',label:'Adventure and islands',prepare:async()=>{await worldUI.prepare();if(!await restorationUI.warm())throw Error('Island artwork unavailable');}},
- {id:'story',label:'restoration scenes',prepare:async()=>{await loadStoryAssets();await loadStartupAssets(()=>{},{assets:['assets/story-beacon/restoration-score-v206.ogg','assets/story-beacon/restoration-score-final-v206.ogg']});}},
- {id:'battle',label:'Battle',prepare:()=>battleMenu.prepare()},
+ {id:'art',label:'game artwork',prepare:()=>loadStartupAssets(()=>{},{assets:CORE_STARTUP_ASSETS})},
+ {id:'menus',label:'main menu',prepare:()=>menuReadiness.prepareHome()},
  {id:'fonts',label:'game lettering',prepare:()=>awaitReady(document.fonts.ready,'Font preparation')}
 ],{concurrency:2});
-// Release controls only after every local destination is actually ready. A retry
-// reuses successful groups and never presents a playable partially loaded game.
+// Only the opening destination gates startup. Other modes prepare on selection;
+// their existing launch barriers keep gameplay clocks stopped until ready.
 async function prepareStartup(){
  const cover=document.getElementById('startup-ready');if(!cover)return;
  cover.hidden=false;document.documentElement.classList.add('startup-loading');document.getElementById('app').inert=true;const retry=cover.querySelector('button');retry.hidden=true;

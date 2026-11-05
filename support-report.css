@@ -41,3 +41,20 @@ body #report-inbox-dialog{box-sizing:border-box;width:min(640px,calc(100vw - 24p
 #report-inbox-dialog [hidden]{display:none!important}
 #bug-report-dialog button:disabled,#report-inbox-dialog button:disabled{opacity:.65;cursor:default}
 @media(max-width:420px){#report-inbox-dialog .support-report-form{padding:14px}#report-inbox-dialog .report-inbox-card{padding:10px}}
+
+/* Use the same painted controls as the game's other dialogs. */
+body #bug-report-dialog{width:min(420px,calc(100vw - 24px));font-family:Nunito,sans-serif}
+#bug-report-dialog .support-report-form{padding:26px 24px 20px;gap:10px}
+#bug-report-dialog h2{text-align:center;padding:0 32px;font-size:25px}
+#bug-report-dialog header{position:relative;min-height:40px}
+#bug-report-dialog .support-report-close{position:absolute;right:-9px;top:-10px;width:44px;height:44px;border:0;border-radius:0;background:transparent url('assets/close-v45.webp') center/contain no-repeat;color:transparent;box-shadow:none}
+#bug-report-dialog .support-report-intro{text-align:center;font-weight:800;color:#12566d}
+#bug-report-dialog label{font-size:15px}
+#bug-report-dialog :is(select,textarea){background:linear-gradient(135deg,#f3ffff,#d5f4f7);border:2px solid #53b9cc;box-shadow:inset 0 2px 4px #228aa326,0 2px 0 #ffffff8c;font:800 16px/1.4 Nunito,sans-serif;color:#12566d;border-radius:16px}
+#bug-report-dialog textarea{resize:none;min-height:100px;max-height:26dvh}
+#bug-report-dialog textarea::placeholder{color:#517e8b;opacity:1;font-weight:600}
+#bug-report-dialog .support-report-actions .support-report-send{width:min(270px,100%);aspect-ratio:3/1;height:auto;min-height:0;margin:0 auto;padding:0;border:0;background:transparent url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;box-shadow:none;font:1000 23px/1.1 Nunito,sans-serif;color:#704909}
+#bug-report-dialog .support-report-note{text-align:center;font:700 11px/1.35 Nunito,sans-serif}
+@media(max-height:600px){#bug-report-dialog .support-report-form{padding:18px;gap:6px}#bug-report-dialog textarea{min-height:76px}#bug-report-dialog .support-report-actions .support-report-send{width:210px;font-size:20px}}
+
+@media(min-width:600px) and (max-height:500px){body #bug-report-dialog{width:min(600px,calc(100vw - 24px))}#bug-report-dialog .support-report-form{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);column-gap:18px;padding:18px 24px}#bug-report-dialog header,#bug-report-dialog .support-report-intro{grid-column:1/-1}#bug-report-dialog label[for="bug-report-mode"]{grid-column:1;grid-row:3}#bug-report-dialog select{grid-column:1;grid-row:4}#bug-report-dialog label[for="bug-report-description"]{grid-column:2;grid-row:3}#bug-report-dialog textarea{grid-column:2;grid-row:4/6;min-height:100px}#bug-report-dialog .support-report-note{grid-column:1;grid-row:5}#bug-report-dialog .support-report-actions{grid-column:1/-1}#bug-report-dialog .support-report-status{grid-column:1/-1}}

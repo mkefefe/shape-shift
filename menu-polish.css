@@ -558,13 +558,13 @@ html body #app #level-dialog #level-play{width:min(240px,100%);height:60px;min-h
  html body #app #level-dialog #level-play{grid-area:action;height:48px;min-height:48px;margin:auto}
 }
 
-/* Adventure missions sit directly on the painted panel. */
+/* Framed mission cards keep each star attached to its task. */
 html body #app #level-dialog #level-goal:has(>strong:empty){display:none}
 html body #app :is(#level-dialog,#level-tasks-dialog) .star-tasks-heading{font-size:19px;color:#075570;margin:4px 0}
 html body #app #level-dialog #level-objectives .star-challenge,
 html body #app #level-tasks-dialog .level-task-card,
 html body #app #level-tasks-dialog .level-task-card.complete{
- background:transparent;border:0;border-radius:0;box-shadow:none;padding:10px 2px;
+ background:linear-gradient(135deg,#edffff,#bcebf0);border:2px solid #4fbaca;border-radius:16px;box-shadow:inset 0 2px 0 #ffffffc9,0 3px 0 #238c9c38;padding:12px 10px;
 }
 html body #app #level-dialog #level-objectives .star-challenge{font-size:15px;line-height:1.35;grid-template-columns:40px minmax(0,1fr);gap:12px}
 html body #app #level-tasks-dialog .level-task-card strong{font-size:15px;line-height:1.35}
@@ -591,3 +591,13 @@ html body #app #level-tasks-dialog #tasks-resume{
  html body #app #level-dialog #level-requirements>strong{font-size:14px}
  html body #app #level-dialog #level-requirements>span:not(.collection-counter){font-size:11px}
 }
+
+html body #app :is(#level-requirements,#paused-level-requirements){flex-direction:column;gap:8px;padding:0;width:100%}
+html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .collection-counter{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;width:100%;height:auto;min-height:58px;padding:8px 14px;box-sizing:border-box;border:2px solid #e5b344;border-radius:16px;background:linear-gradient(130deg,#fff8cb,#ffe899);box-shadow:inset 0 2px #fffce8,0 3px #b58a2830}
+html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .sprite{width:44px;height:44px}
+html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .collection-remaining{display:none}
+html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .requirement-caption{font:900 16px/1.3 Nunito,sans-serif;color:#6b4b16;text-align:left}
+html body #app :is(#level-requirements,#paused-level-requirements):has(>strong){box-sizing:border-box;padding:10px 14px;border:2px solid #e5b344;border-radius:16px;background:linear-gradient(130deg,#fff8cb,#ffe899);color:#6b4b16;gap:4px}
+@media(max-height:500px){html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .collection-counter{min-height:46px;padding:5px 8px;grid-template-columns:32px minmax(0,1fr);gap:6px}html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .sprite{width:32px;height:32px}html body #app :is(#level-dialog,#level-tasks-dialog) .level-requirements .requirement-caption{font-size:13px}}
+
+@media(max-width:360px){html body #app #level-dialog #level-objectives .star-challenge{padding-top:9px;padding-bottom:9px}}

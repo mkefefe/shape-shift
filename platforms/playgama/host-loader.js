@@ -149,7 +149,7 @@ function createPlaygamaConnectionNotice(host) {
     if (failed) retry.focus();
   }
   return {
-    pending() { current = {kind: 'pending'}; render(); },
+    pending() { current = null; removePanels(); },
     slow() { current = {kind: 'slow'}; render(); },
     failed() { current = {kind: 'failed'}; render(); },
     clear() { current = null; removePanels(); },

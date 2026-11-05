@@ -227,11 +227,9 @@ function fakeDocument({body = true} = {}) {
   return {doc, ids, listeners};
 }
 
-test('SDK initialization shows connection progress while the game document is withheld',()=>{
+test('normal SDK initialization does not flash a connection notice',()=>{
   const {doc,ids}=fakeDocument();const notice=createPlaygamaConnectionNotice({document:doc});
-  notice.pending();const panel=ids.get('platform-load-status');assert(panel);
-  assert.equal(panel.children[0].textContent,'Connecting…');
-  assert.equal(panel.children.find(node=>node.tag==='button').hidden,true);
+  notice.pending();assert.equal(ids.has('platform-load-status'),false);
   notice.slow();assert.equal(ids.get('platform-load-status').children.find(node=>node.tag==='button').hidden,false);
   notice.clear();assert.equal(ids.has('platform-load-status'),false);
 });

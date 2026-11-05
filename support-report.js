@@ -59,10 +59,10 @@ export function initBugReport(settingsRoot,sound=()=>{}){
  const dialog=doc.createElement('dialog');dialog.id='bug-report-dialog';dialog.dataset.nativeForm='true';dialog.setAttribute('aria-labelledby','bug-report-title');
  dialog.innerHTML=`<form class="support-report-form">
   <header><h2 id="bug-report-title">Report a bug</h2><button type="button" class="support-report-close" aria-label="Close bug report">×</button></header>
-  <p class="support-report-intro">Tell us what happened and what you expected.</p>
+  <p class="support-report-intro">Help us fix your game.</p>
   <label for="bug-report-mode">Where did it happen?</label><select id="bug-report-mode"></select>
-  <label for="bug-report-description">What went wrong?</label><textarea id="bug-report-description" rows="5" maxlength="2000" required placeholder="For example: the music stopped when I opened Shape Drop."></textarea>
-  <p class="support-report-note">Your message, game mode and version are sent to the developer. No email needed. Please leave out personal details.</p>
+  <label for="bug-report-description">What went wrong?</label><textarea id="bug-report-description" rows="3" maxlength="2000" required placeholder="For example: the music stopped when I opened Shape Drop."></textarea>
+  <p class="support-report-note">Sent directly to the developer with your game mode and version. No email needed. Please leave out personal details.</p>
   <div class="support-report-actions"><button type="submit" class="support-report-send">Send report</button></div>
   <p class="support-report-status" role="status" aria-live="polite"></p>
  </form>`;

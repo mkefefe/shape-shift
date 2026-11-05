@@ -62,3 +62,8 @@
  #app #over-dialog.adventure-results .reward-objectives{gap:4px}
  #app #over-dialog.adventure-results .reward-objectives li{min-height:28px;padding:3px 8px}
 }
+
+/* A finished run needs its score and rewards, without another goal or timer. */
+#app #over-dialog.clear-results :is(#result-next-goal,#result-survival,.result-keyboard-hint){display:none!important}
+#app #over-dialog #result-progress{font:900 16px/1.3 Nunito,sans-serif!important;color:#12566d;opacity:1}
+#app #over-dialog.clear-results .result-content{gap:12px}

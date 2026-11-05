@@ -1,5 +1,5 @@
 import {markStartup} from './experience-metrics.js';
-import {FULL_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS} from './startup-plan.js?v=494241';
+import {CORE_STARTUP_ASSETS,BACKGROUND_ASSETS,OPENING_ASSETS} from './startup-plan.js?v=494241';
 import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494241';
 const loaded=new Set(),pending=new Map();
 const assetKey=src=>new URL(src,globalThis.document?.baseURI||import.meta.url).href;
@@ -35,7 +35,7 @@ async function loadFont(src,fetcher){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
  try{const response=await fetcher(src,{signal:controller.signal});if(!response.ok)throw Error('Could not load '+src);await response.arrayBuffer();}finally{clearTimeout(timer);}
 }
-export async function loadStartupAssets(progress=()=>{},{fetcher=fetch,prepareImage=prepareMenuImage,assets=FULL_STARTUP_ASSETS}={}){
+export async function loadStartupAssets(progress=()=>{},{fetcher=fetch,prepareImage=prepareMenuImage,assets=CORE_STARTUP_ASSETS}={}){
  assets=[...new Map(assets.filter(Boolean).map(src=>[assetKey(src),src])).values()];
  let cursor=0,complete=0;
  async function worker(){while(cursor<assets.length){
@@ -56,14 +56,13 @@ export async function loadStartupAssets(progress=()=>{},{fetcher=fetch,prepareIm
  const failed=results.find(r=>r.status==='rejected');if(failed)throw failed.reason;
 }
 
-// Warm the shared art while the player reads welcome screens. The full session
-// barrier also prepares each mode's retained images, geometry and audio.
+// Optional callers may warm core art, never the full destination catalog.
 // Failures are retried by the awaited startup barrier; they never count as ready.
 export function warmFirstPlayAssets(){return loadStartupAssets().catch(()=>false);}
 
 // These independent prerequisites must overlap. In particular, a platform save
 // request must not delay the first image or audio-script request.
-export async function prepareBootstrap({initialize=()=>Promise.resolve(),loadAudio,opening=prepareOpeningScreen,warm=warmFirstPlayAssets}={}){
+export async function prepareBootstrap({initialize=()=>Promise.resolve(),loadAudio,opening=prepareOpeningScreen,warm=()=>{}}={}){
  await Promise.all([initialize(),loadAudio(),opening()]);
  void warm();
 }
@@ -84,7 +83,7 @@ export function loadBackgroundAssets({assets=BACKGROUND_ASSETS,fetcher=fetch,
  schedule(pump);return {stop(){stopped=true;controller?.abort();}};
 }
 
-// Finish opening resources before presenting first-run setup.
+// Finish the small opening resource set before presenting first-run setup.
 export async function prepareOpeningScreen(){
  const cover=document.getElementById('startup-ready');
  if(!cover)return;

@@ -27,7 +27,7 @@
 
 ## Readiness and audio presentation
 
-- Complete local mode, menu, artwork, music and effect preparation before enabling play. Never start a gameplay clock while required assets are still loading.
+- Updated November 4: load only core artwork and the main menu at startup. Prepare other modes, music and scenery on demand before their gameplay clocks begin. Do not preload all destinations or recordings on launch.
 - Keep preparation deduplicated, concurrency bounded and failures retryable. A failed preparation cannot be marked ready.
 - Preserve saved music/SFX preferences. Match recorded-track loudness before those controls; preserve stereo and pitch. Ordinary correct taps must not repeatedly halve the music.
 - Verify actual runtime audio routes, not just the presence of a recording in a package. Browser, native and portal builds must derive from the same verified source manifest.

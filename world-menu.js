@@ -394,7 +394,8 @@ export function renderLevelRequirements(container,level,stats,draw){
   const art=document.createElement('span');art.className='sprite';art.setAttribute('aria-hidden','true');
   if(goal.type==='memoryCollected'){art.classList.add('collection-memory');art.textContent='?';}else draw(art,goal);
   const count=document.createElement('strong');count.className='collection-remaining';count.textContent=collectionCountLabel(goal.remaining);
-  item.classList.toggle('requirement-complete',!goal.remaining);item.append(art,count);container.append(item);
+  const caption=document.createElement('span');caption.className='requirement-caption';caption.textContent=goal.remaining?'Collect '+goal.remaining+' '+label.toLowerCase():'Collected';
+  item.classList.toggle('requirement-complete',!goal.remaining);item.append(art,count,caption);container.append(item);
  }
 }
 export function renderCollectionCounters(hud,goals,collections,draw,runKey){

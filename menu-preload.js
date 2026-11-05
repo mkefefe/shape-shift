@@ -9,9 +9,14 @@ export function createMenuPreloader({idle, schedule=fn=>window.ShapeShiftPlatfor
  return {add(key,job){if(keys.has(key))return;keys.add(key);jobs.push(job);if(!running){running=true;schedule(pump);}}};
 }
 export async function awaitReady(promise,label='Game assets',timeout=20000){
- let timer;
- try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label+' timed out')),timeout);})]);}
- finally{clearTimeout(timer);}
+ const doc=globalThis.document;let timer,remaining=timeout,started;
+ let visibility;
+ try{return await Promise.race([promise,new Promise((_,reject)=>{
+  const arm=()=>{started=performance.now();timer=setTimeout(()=>reject(Error(label+' timed out')),remaining);};
+  visibility=()=>{clearTimeout(timer);if(started!==undefined){remaining=Math.max(0,remaining-(performance.now()-started));started=undefined;}if(!doc?.hidden)arm();};
+  doc?.addEventListener?.('visibilitychange',visibility);
+  if(!doc?.hidden)arm();
+ })]);}finally{clearTimeout(timer);doc?.removeEventListener?.('visibilitychange',visibility);}
 }
 export function createPreparationQueue(limit=4){
  const queue=[];let active=0;

@@ -1,3 +1,4 @@
+import {prepareMenuImage} from './menu-preload.js?v=494241';
 import {pianoBackingPlan} from './piano-backing.js?v=494241';
 import {createAdventureChallengeRun} from './adventure-challenges.js?v=494241';
 import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
@@ -22,7 +23,7 @@ import {pianoLayout,pianoTarget,pianoStripAt} from './piano-flow-touch.js';
 const STRIP_LINGER=1.6,STRIP_FADE=1.3;
 let skyReady;
 function prepareSky(){
- if(!skyReady)skyReady=new Promise(resolve=>{const image=new Image();let done=false;const finish=ready=>{if(done)return;done=true;window.clearTimeout(timer);resolve(ready);};const timer=window.setTimeout(()=>{image.src='';finish(false);},12000);image.src='assets/piano-sky-v281.webp';image.decode().then(()=>finish(true),()=>finish(false));}).then(ready=>{if(!ready)skyReady=null;return ready;});
+ if(!skyReady)skyReady=prepareMenuImage('assets/piano-sky-v281.webp').then(()=>true).catch(()=>{skyReady=null;return false;});
  return skyReady;
 }
 

@@ -30,10 +30,10 @@ test('startup includes live mode, map and cosmetic artwork without decoding arch
  for(const source of ['assets/slice-galaxy-v49476.webp','assets/piano-sky-v281.webp','assets/skin-classic-wrapped-v318.webp','assets/drop-garden-v491.webp']){assert(FULL_STARTUP_ASSETS.includes(source));assert(!BACKGROUND_ASSETS.includes(source));}
  assert.equal(new Set(FULL_STARTUP_ASSETS).size,FULL_STARTUP_ASSETS.length);
 });
-test('startup waits for the complete live art set before reporting completion',async()=>{
- let release,finished=false;const waiting=new Promise(resolve=>{release=resolve;}),sources=[],delayed='assets/delivery-v144/settings-v351.webp';
+test('startup waits for core artwork without requesting other destinations',async()=>{
+ let release,finished=false;const waiting=new Promise(resolve=>{release=resolve;}),sources=[],delayed='assets/delivery-v144/shapes-v2.webp';
  const work=loadStartupAssets(()=>{},{prepareImage:async source=>{sources.push(source);if(source===delayed)await waiting;},fetcher:async source=>{sources.push(source);return {ok:true,arrayBuffer:async()=>new ArrayBuffer(0)};}}).then(()=>{finished=true;});
- await new Promise(resolve=>setImmediate(resolve));assert.equal(finished,false);assert(sources.includes(delayed));assert(!sources.some(src=>BACKGROUND_ASSETS.includes(src)));release();await work;assert.equal(finished,true);assert.deepEqual(new Set(sources),new Set(FULL_STARTUP_ASSETS));
+ await new Promise(resolve=>setImmediate(resolve));assert.equal(finished,false);assert(sources.includes(delayed));assert(!sources.some(src=>BACKGROUND_ASSETS.includes(src)));release();await work;assert.equal(finished,true);assert.deepEqual(new Set(sources),new Set(CORE_STARTUP_ASSETS));
 });
 test('stalled preparation rejects instead of leaving an endless loading screen',async()=>{
  await assert.rejects(awaitReady(new Promise(()=>{}),'Test artwork',5),/Test artwork timed out/);
@@ -161,4 +161,10 @@ test('retained images share relative and absolute URL aliases without a second d
  globalThis.document={baseURI:'https://game.example/preview/'};
  globalThis.Image=class{async decode(){calls++;}};
  try{const one=await prepareMenuImage('test-canonical.webp'),two=await prepareMenuImage('https://game.example/preview/test-canonical.webp');assert.equal(one,two);assert.equal(calls,1);}finally{globalThis.Image=originalImage;globalThis.document=originalDocument;}
+});
+
+test('hidden tab time does not expire an image preparation deadline',async()=>{
+ const original=globalThis.document;const doc=new EventTarget();doc.hidden=true;globalThis.document=doc;
+ let release;const pending=new Promise(resolve=>release=resolve);
+ try{const job=awaitReady(pending,'Background image',15);await new Promise(r=>setTimeout(r,40));doc.hidden=false;doc.dispatchEvent(new Event('visibilitychange'));release('decoded');assert.equal(await job,'decoded');}finally{globalThis.document=original;}
 });
