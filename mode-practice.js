@@ -44,7 +44,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
   @keyframes practice-trail{0%,15%{clip-path:inset(0 100% 0 0);opacity:0}20%{opacity:.85}75%{clip-path:inset(0);opacity:.85}100%{clip-path:inset(0);opacity:0}}
   @keyframes practice-hold{50%{filter:drop-shadow(0 0 6px #fff5aa);opacity:.85}}
   `;document.head.append(style);}
-  root=document.createElement('div');root.className='mode-practice';root.innerHTML='<div class="mode-practice-copy" role="status"><small>Practice</small><strong></strong></div><i class="mode-practice-trail" aria-hidden="true"></i><span class="mode-practice-pointer"><img class="mode-practice-hand" alt=""></span>';parent.append(root);
+  root=document.createElement('div');root.className='mode-practice';root.innerHTML='<div class="mode-practice-copy" role="status"><strong></strong></div><i class="mode-practice-trail" aria-hidden="true"></i><span class="mode-practice-pointer"><img class="mode-practice-hand" alt=""></span>';parent.append(root);
   hand=root.querySelector('.mode-practice-pointer');hand.querySelector('img').src=art;copy=root.querySelector('.mode-practice-copy');host=mode==='battle'?parent.querySelector('#callout'):null;
   if(mode!=='battle')copy.style.fontSize='clamp(15px,3.5vw,19px)';
   if(host){host.classList.add('practice-callout');host.replaceChildren(copy);copy.style.cssText='position:relative;top:0;left:auto;transform:none;width:100%;max-width:100%;margin:auto';}
@@ -60,14 +60,14 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
     const size=Math.min(56,Math.max(42,p.width*.14)),pos=practiceHandPosition(tip,p,size);
     hand.style.width=hand.style.height=size+'px';hand.style.left=pos.left+'px';hand.style.top=pos.top+'px';hand.style.setProperty('--hand-rotation',pos.rotation+'deg');
     trail.style.left=tip.x-p.left-motion.length+'px';trail.style.top=tip.y-p.top+'px';trail.style.width=motion.length+'px';trail.style.opacity=gesture==='swipe'?motion.opacity:0;
-    if(mode!=='battle'){copy.hidden=false;copy.style.top=Math.min(p.height-46,Math.max(110,r.y-p.top+68))+'px';}
+    if(mode!=='battle'){copy.hidden=false;const header=parent.querySelector('header')?.getBoundingClientRect();copy.style.top=Math.max(96,(header?.bottom??p.top+93)-p.top+3)+'px';}
    }else if(mode!=='battle')copy.hidden=!finished;
    raf=requestAnimationFrame(position);
   };position();
  }
  return {get active(){return active;},get finished(){return active&&finished;},mount,clear,
   guide(text,getTarget,gesture='tap'){target=getTarget;gestureStart=performance.now();if(root){root.dataset.gesture=gesture;copy.querySelector('strong').textContent=text;}},
-  finish(){if(!active||finished)return;finished=true;doneTime=0;target=null;if(root){copy.querySelector('small').textContent='Practice complete';copy.querySelector('strong').textContent='Your level starts now';hand.hidden=true;}},
+  finish(){if(!active||finished)return;finished=true;doneTime=0;target=null;if(root){copy.querySelector('strong').textContent='Ready! Your level starts now';hand.hidden=true;}},
   complete
  };
 }

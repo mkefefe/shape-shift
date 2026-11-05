@@ -1,4 +1,4 @@
-import {revealAdventureRewards} from './adventure-rewards.js?ui249';
+import {revealAdventureRewards} from './adventure-rewards.js?ui250';
 import {formatSurvivalTime} from './survival-clock.js?v=494241';
 import {playerProgress} from './economy.js?v=494241';
 import {startResultTally} from './countdown.js?v=494241';
@@ -20,7 +20,7 @@ export function createMiniResults({host=window}={}){
   watch.hidden=true;watch.disabled=false;
   next.hidden=false;next.disabled=false;next.textContent=stored&&!saveError?(adventure?nextLabel:'Continue'):'Save results';
   if(adventureMarkup){get('adventure-result').hidden=false;get('adventure-result').classList.remove('rewards-revealed','rewards-settled');get('adventure-result').innerHTML=adventureMarkup;d.classList.add('adventure-results');}
-  hint.hidden=false;hint.textContent=stored?'Tap anywhere else':'Tap Save results to save your run.';
+  hint.hidden=false;hint.textContent=stored?'Tap anywhere to continue':'Tap Save results to save your run.';
   get('ad-status').textContent=saveError||(!stored?'Could not save this run. Free some storage and retry.':pending?'Reward saved. Wallet sync will retry.':'');
   get('result-xp-bar').classList.remove('xp-level-up');
   function update(a,b,t){get('final-score').textContent=a.toLocaleString();get('final-coins').textContent='+'+b.toLocaleString();const p=playerProgress(xpBefore+Math.floor(Math.max(0,xpAfter-xpBefore)*t));get('result-progress').textContent='Level '+p.level;get('level-progress').max=p.required||1;get('level-progress').value=p.capped?1:p.current;get('result-xp-label').textContent=p.capped?'MAX LEVEL':p.current+' / '+p.required+' XP';get('level-progress').setAttribute('aria-label','Level '+p.level+': '+get('result-xp-label').textContent);}

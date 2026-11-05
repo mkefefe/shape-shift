@@ -62,3 +62,10 @@
 - Refill the visible Adventure choice artwork before it transforms into energy. This is presentation only: do not advance the engine, grant another turn, or alter score/XP.
 - Each physical press activates one action and one tap cue. Consume compatibility clicks across screen changes; shared result controls must preserve each mode's handler.
 - Shape Drop's entry and paused requirements share an illustrated numeric goal using existing game artwork.
+
+## Tutorial and victory corrections — November 5, 2026
+- Keep Adventure points goals and existing gameplay board sizes. Remove the new Shape Drop goal icons.
+- Slow the current star-animation playback rate by 30%. Use the prompt “Tap anywhere to continue”; tapping the result background returns to the map.
+- First five Adventure levels focus on matching, without inventory abilities or random pickup tutorials, including replays with later unlocks. Later ability help is requested by tapping an ability, never by interrupting play or requiring a charge to be spent.
+- Tutorials use a finger and brief yellow HUD text (one or two lines), with no pop-up, Continue button or explanatory card. Apply to abilities and pickups as well as level mechanics.
+- Before victory, generate and display a fully fresh board, as at a normal new round; do not just restore the old picked tile. Keep this presentation separate from score, XP, inventory and saved gameplay state.

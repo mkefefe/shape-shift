@@ -12,11 +12,7 @@ export function adventureChallenge(level){
 }
 export const challengeMetric=(game,c)=>Math.max(0,Number(c.mode==='piano'?game.hits:game.score)||0);
 export const challengeGoal=c=>c.mode==='piano'?'Play '+c.target+' notes':'Reach '+c.target+' points';
-export function renderChallengeRequirement(container,c){
- if(c.mode!=='drop'){const goal=document.createElement('strong');goal.textContent=challengeGoal(c);container.append(goal);return;}
- container.classList.add('challenge-goal');container.setAttribute('aria-label',challengeGoal(c));
- container.innerHTML='<span class="challenge-goal-badge" aria-hidden="true"><i class="goal-shape"></i><i class="goal-shape"></i></span><span class="challenge-goal-value"><strong>'+c.target+'</strong><span>points</span></span>';
-}
+export function renderChallengeRequirement(container,c){const goal=document.createElement('strong');goal.textContent=challengeGoal(c);container.append(goal);}
 export const challengeEnding=c=>({piano:'Finish the piece',slice:'Complete every wave',drop:'Use every drop and let the board settle'})[c.mode];
 export function challengeDescription(c){return c.mode==='piano'?c.title+' · '+c.noteCount+' notes':c.mode==='slice'?c.title+' · '+c.waveCount+' waves':c.title+' · '+c.pieceCount+' drops';}
 export function challengeTasks(c){

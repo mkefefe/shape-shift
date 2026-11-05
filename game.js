@@ -1,3 +1,4 @@
+import {guidedMatch} from './guided-match.js?v=494241';
 import {nativeWelcome,runWelcome} from './welcome-platform.js?v=208';
 import {flushResultStorage} from './result-storage.js?v=494241';
 import {checkpointRunResult,finalizeRunResult,recoverRunResult} from './run-results.js?v=494241';
@@ -26,7 +27,7 @@ import {CORE_STARTUP_ASSETS} from './startup-plan.js?v=494241';
 import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494241';
 import {ADMIN_COINS,adminProfile} from './admin-mode.js?v=494241';
 import {praiseDirector} from './praise-feedback.js?v=494241';
-import {showAdventureVictory} from './adventure-victory.js?ui249';
+import {showAdventureVictory,freshVictoryBoard} from './adventure-victory.js?ui250';
 import {initStoryUI} from './story-ui.js?v=494241';
 import {initTouchUI} from './touch-ui.js?v=494241';
 import {bindLaunchTap,consumePointerClick,syncMenuBanner as updateMenuBanner} from './menu-navigation.js?ui249';
@@ -37,24 +38,24 @@ import {initInputFeedback} from './input-feedback.js?ui249';
 import {createSurvivalClock,formatSurvivalTime} from './survival-clock.js?v=494241';
 import {difficultyUnlocked,availableDifficulty} from './difficulty-unlocks.js?v=494241';
 import {enableHoldBuying} from './hold-buy.js?v=494241';
-import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?v=494241';
+import {settleMemoryGuess,createMemoryMissReveal} from './ability-guide.js?ui250';
 import {rankingLoadMessage,readPublicRankings,readPersonalRanking} from './leaderboard-cache.js?v=494241';
 import {loadPrivacyContent} from './privacy-content.js?v=494241';
 import {initSettingsExtras} from './settings-extras.js?v=494241';
 import {initGamesHub} from './games-hub.js?v=494241';
 import {normalizeMiniQuestEvent} from './mini-quest-events.js?v=494241';
-import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?v=494241';
+import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,abilityGuideVisible,adventureAbilitiesAvailable,adventurePickupBoard,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?ui250';
 import {fitBoard} from './board-fit.js?v=494241';
 import {analytics} from './analytics.js?v=494241';
 import {ensureTerms} from './terms.js?v=494241';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui249';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui250';
 import {observeBoard} from './board-fit.js?v=494241';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494241';
-import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?ui249';
+import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?ui250';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494241';
-import {adventureChallenge} from './adventure-challenges.js?ui249';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?ui249';
+import {adventureChallenge} from './adventure-challenges.js?ui250';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?ui250';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494241';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494241';
 
@@ -82,7 +83,7 @@ import {createStarburst,showFloatingPoints,clearFloatingPoints} from './burst.js
 
 
 
-import {resetProgressOnce,TUTORIAL_KEY,LESSONS} from './onboarding.js?v=494241';
+import {resetProgressOnce,TUTORIAL_KEY} from './onboarding.js?v=494241';
 
 
 
@@ -344,7 +345,7 @@ function paintCurrentShape(){
 }
 
 const currentLevelStats=()=>({...levelPickStats,picks:modePicks,turns:modeTurns,elapsed:modeElapsed,wrong:modeWrong,score:state?.score||0,frame:state?.frame});
-const runBoostUnlocked=name=>(starBoosts[name]||0)>0||runBoostLevel>=BOOST_UNLOCK_LEVELS[name];
+const runBoostUnlocked=name=>(runMode!=='adventure'||adventureAbilitiesAvailable(adventureLevel))&&((starBoosts[name]||0)>0||runBoostLevel>=BOOST_UNLOCK_LEVELS[name]);
 let runStartXp=0,completionXpGranted=false;
 const survivalClock=createSurvivalClock();
 function renderSurvivalClock(){
@@ -548,6 +549,7 @@ function update(){
 
 
 
+  $(name).hidden=runMode==='adventure'&&!adventureAbilitiesAvailable(adventureLevel);
   $(name+'-charges').textContent=runBoostUnlocked(name)?boostCharges(name):'Map '+BOOST_UNLOCK_LEVELS[name];$(name).classList.toggle('level-locked',!runBoostUnlocked(name));
 
 
@@ -594,6 +596,7 @@ function update(){
 
 
 
+ document.querySelector('.abilities').hidden=runMode==='adventure'&&!adventureAbilitiesAvailable(adventureLevel);
  for(const name of Object.keys(PRICES)){$(name).disabled=locked||rockFills.length>0||paused||counting||(runBoostUnlocked(name)&&!autoPowers.has(name)&&!abilityActive(state,name)&&boostCharges(name)===0);$(name).setAttribute('aria-pressed',String(autoPowers.has(name)||abilityActive(state,name)));}
 
 
@@ -772,6 +775,7 @@ function nextBoard(){for(const node of $('board').children)node.classList.remove
 
 
 
+ if(runMode==='adventure')board=adventurePickupBoard(adventureLevel,board,state.current);
  boardSerial++;const serial=boardSerial;
 
 
@@ -962,7 +966,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
   return;
  }
  continueOfferOpen=false;$('over-dialog').classList.remove('continue-offer');
- document.querySelector('.result-home-hint').textContent=runMode==='adventure'?'Tap outside to return to the level map':'Tap anywhere else';
+ document.querySelector('.result-home-hint').textContent=runMode==='adventure'?'Tap anywhere to continue':'Tap anywhere else';
  $('adventure-continue').hidden=runMode!=='adventure'&&runMode!=='endless';$('adventure-continue').textContent='Continue';
  if(runMode==='adventure'&&modeWon&&adventureLevel!==100)state=awardVictoryBoard(state,board,true);
  if(runMode==='adventure'&&modeWon&&!completionXpGranted){profile=adventureCompletionReward(profile,true);completionXpGranted=true;saveProfile();flushProfile();}
@@ -1070,13 +1074,15 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  };
  if(!resultStored||worldUI?.hasPendingSave()){$('ad-status').textContent='Your result could not be saved. Please free some storage and retry.';$('adventure-continue').hidden=false;$('adventure-continue').textContent='Save results';}
  const presentResults=(animateRewards=true)=>{
-  if(runMode==='adventure')document.querySelector('.result-home-hint').textContent='Tap outside to return to the level map';
+  if(runMode==='adventure')document.querySelector('.result-home-hint').textContent='Tap anywhere to continue';
   $('over-dialog').classList.toggle('adventure-results',runMode==='adventure');audio()?.setScene(runMode==='adventure'?'adventure':'game',{preservePraise:runMode==='adventure'&&modeWon});if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});
   if(!(runMode==='adventure'&&modeWon))sound('over');
   if(animateRewards)startResultRewards();
  };
  if(runMode==='adventure'&&modeWon){
-   cancelVictory=showAdventureVictory({document,points:state.victoryPoints,tiles:board,level:adventureLevel,drawShape:sprite,sound,stopSound:()=>audio()?.stopVictory?.(),
+   const previewState=advanceBoard(state),previewCount=adventureDesign(adventureLevel)?.size??Math.min(boardSize(previewState),levelSpec(adventureLevel).maxChoices);
+   const previewTiles=freshVictoryBoard(previewState,board,previewCount,runRng);
+   cancelVictory=showAdventureVictory({document,points:state.victoryPoints,tiles:previewTiles,layout:adventureLayout(adventureLevel,previewCount),fitBoard,level:adventureLevel,drawShape:sprite,sound,stopSound:()=>audio()?.stopVictory?.(),
    visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground,reduced:prefs.motion,
    reveal:()=>presentResults(false),done:()=>{cancelVictory=null;startResultRewards();}});
  }else presentResults();
@@ -1214,6 +1220,7 @@ function resolve(index){
  const b=$('board').children[index];b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:220});sound('click');return;
  }
  }
+ if(runMode==='adventure'&&index!==null&&board[index]?.special&&!store.get('special-practice-v1-'+board[index].special,false)){const key=board[index].special;showAbilityGuide($('board').children[index],SPECIAL_LESSONS[key],()=>store.set('special-practice-v1-'+key,true),{optional:true});return;}
  const practiceWasActive=openingCoach?.active;
  if(practiceWasActive&&!openingCoach.accept(index))return;
  if(practiceWasActive&&!openingCoach.active&&runMode==='endless'){
@@ -1576,7 +1583,7 @@ function chargePower(name){
 
 
 function ability(name){
- if(abilityGuideOpen())return;
+ if(abilityGuideOpen()||runMode==='adventure'&&!adventureAbilitiesAvailable(adventureLevel))return;
 
 
 
@@ -1602,6 +1609,8 @@ function ability(name){
 
 
  if(boostCharges(name)<=0)return;
+ const lessonKey='ability-practice-v1-'+name;
+ if(runMode==='adventure'&&!store.get(lessonKey,false)){showAbilityGuide($(name),BOOST_LESSONS[name],()=>store.set(lessonKey,true),{optional:true});return;}
 
 
 
@@ -1822,7 +1831,7 @@ function pause(){
 
 
 
- if(abilityGuideOpen()||$('tutorial-dialog').open||$('boost-lesson-dialog').open)return;
+ if($('tutorial-dialog').open||$('boost-lesson-dialog').open)return;
 
 
 
@@ -3208,7 +3217,7 @@ document.addEventListener('keydown',()=>audio()?.start(),{capture:true});
 
 
 
-for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',e=>{if(e.target.closest('button,input,label,a,select,textarea'))return;const r=dialog.getBoundingClientRect();const outside=e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;if(dialog.id==='tutorial-dialog'||dialog.id==='age-dialog'||dialog.id==='boost-lesson-dialog')return;if(dialog.id==='over-dialog'){if(!dialog.classList.contains('adventure-results')||outside)dismissRunScreen();return;}if(outside){if(dialog.id==='coins-ad-dialog'&&coinRewardPending)return;uiSound('close');if(dialog.id==='pause-dialog')resume();else dialog.close();}});
+for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',e=>{if(e.target.closest('button,input,label,a,select,textarea'))return;const r=dialog.getBoundingClientRect();const outside=e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;if(dialog.id==='tutorial-dialog'||dialog.id==='age-dialog'||dialog.id==='boost-lesson-dialog')return;if(dialog.id==='over-dialog'){dismissRunScreen();return;}if(outside){if(dialog.id==='coins-ad-dialog'&&coinRewardPending)return;uiSound('close');if(dialog.id==='pause-dialog')resume();else dialog.close();}});
 
 
 
@@ -3673,72 +3682,15 @@ updateQuestBadge();
 
 
 
-let lessonIndex=0,tutorialStartsRun=false,tutorialReturnPaused=false,tutorialCompletion=null,tutorialFromSettings=false;
-const tutorialClose=document.createElement('button');tutorialClose.id='tutorial-close';tutorialClose.className='close';tutorialClose.setAttribute('aria-label','Close how to play');tutorialClose.innerHTML='<img src="assets/close-v45.webp" alt="" aria-hidden="true">';tutorialClose.onclick=()=>{uiSound('close');closeTutorialReplay();};
-
-
-
-function openTutorial(startRun=false,fromSettings=false){
- lessonIndex=0;tutorialStartsRun=startRun;tutorialReturnPaused=paused;tutorialFromSettings=fromSettings;
- const dialog=$('tutorial-dialog');dialog.dataset.replay=String(fromSettings);dialog.setAttribute('aria-labelledby','tutorial-title');
- if(fromSettings)dialog.prepend(tutorialClose);else tutorialClose.remove();
- closeDialogs();renderLesson();dialog.showModal();audio()?.start();
+let replayingHelp=false;
+async function openTutorial(){
+ if(replayingHelp)return;replayingHelp=true;
+ const previousScreen=$('app').dataset.screen,hadRun=active||counting;
+ try{if(hadRun&&!paused)pause();closeDialogs();screen('game');await skinArtReady;await guidedMatch({doc:document,sprite,sound:uiSound});}
+ finally{replayingHelp=false;if(hadRun){paused=true;$('pause-dialog').showModal();}else screen(previousScreen);openSettings();}
 }
-function closeTutorialReplay(){
- if(!tutorialFromSettings)return;
- tutorialFromSettings=false;$('tutorial-dialog').close();tutorialClose.remove();
- if(tutorialReturnPaused&&!$('pause-dialog').open)$('pause-dialog').showModal();
- openSettings();$('how-to-play-open').focus({preventScroll:true});
-}
-
-
-
-function renderLesson(){
-
-
-
- const done=lessonIndex>=LESSONS.length;$('tutorial-board').replaceChildren();$('tutorial-note').textContent='';$('tutorial-step').textContent=done?'Ready to play':('Practice '+(lessonIndex+1)+' / '+LESSONS.length);
-
-
-
- $('tutorial-current').hidden=done;$('tutorial-board').hidden=done;$('tutorial-dialog').classList.toggle('tutorial-ready',done);$('tutorial-next').hidden=!done&&LESSONS[lessonIndex].answer!==null;
-
-
-
- if(done){$('tutorial-title').textContent='You have got it!';$('tutorial-copy').textContent='Match the shape OR color. Every correct pick earns 1 score and 1 coin. A wrong pick or missed available match costs a life. Lost lives stay lost. Watch the timer, and try your quests!';$('tutorial-next').textContent=tutorialStartsRun?'Start my run':'Done';return;}
-
-
-
- const lesson=LESSONS[lessonIndex];$('tutorial-title').textContent=lesson.title;$('tutorial-copy').textContent=lesson.copy;$('tutorial-next').textContent='Let this board pass';
-
-
-
- const current=document.createElement('div');current.className='sprite';sprite(current,lesson.current);const name=document.createElement('strong');name.textContent='You are: '+tileName(lesson.current);$('tutorial-current').replaceChildren(current,name);
-
-
-
- lesson.choices.forEach((tile,index)=>{const b=document.createElement('button');b.className='choice tutorial-choice';b.setAttribute('aria-label',tileName(tile));const art=document.createElement('div');art.className='sprite';sprite(art,tile);b.append(art);if(index===lesson.answer){b.classList.add('tutorial-target');const hand=document.createElement('img');hand.className='tutorial-hand';hand.src='assets/delivery-v144/ability-hand-v169.webp';hand.alt='';hand.setAttribute('aria-hidden','true');hand.style.setProperty('--hand-angle','-90deg');hand.style.setProperty('--hand-left',index===0?'38%':'50%');b.append(hand);}b.onclick=()=>{if(index!==lesson.answer){uiSound('wrong');$('tutorial-note').textContent='That matches neither. No life lost in practice. Try the highlighted choice.';if(lesson.answer===null)$('tutorial-note').textContent='Neither matches. Use Let this board pass instead.';return;}uiSound('correct');lessonIndex++;renderLesson();};$('tutorial-board').append(b);});
-
-
-
-}
-
-
-
-$('tutorial-next').onclick=()=>{if(lessonIndex<LESSONS.length){lessonIndex++;renderLesson();return;}if(tutorialFromSettings){closeTutorialReplay();return;}store.set(TUTORIAL_KEY,true);firstJourney.complete();$('tutorial-dialog').close();if(tutorialStartsRun){const complete=tutorialCompletion;tutorialCompletion=null;complete?.(true);}else if(tutorialReturnPaused)$('pause-dialog').showModal();};
-
-
-
-$('tutorial-dialog').addEventListener('cancel',e=>{e.preventDefault();closeTutorialReplay();});
-$('tutorial-dialog').addEventListener('keydown',event=>{
- if(!tutorialFromSettings||event.code!=='Escape'||event.repeat||event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
- event.preventDefault();event.stopPropagation();closeTutorialReplay();
-});
 
 $('privacy-policy-open').onclick=()=>{$('privacy-policy-dialog').showModal();loadPrivacyContent($('privacy-policy-content'));};
-
-
-
 function syncRankingSettings(){$('rankings-enable-open').hidden=leaderboardAllowed();}
 function openSettings(){$('privacy-status').textContent='';syncRankingSettings();$('settings-dialog').showModal();}
 $('settings-dialog').addEventListener('close',()=>{$('privacy-status').textContent='';});
@@ -3946,15 +3898,15 @@ function pendingAdventureLesson(){
  return !!(memoryLesson || state.matchRule&&!store.get('adventure-live-v2-'+state.matchRule,false) || config.memory&&!store.get('adventure-live-v2-memory',false) || config.wheel&&!store.get('adventure-live-v2-wheel',false));
 }
 function maybeAbilityGuide(){
- if(!tutorialBoardReady()||pendingAdventureLesson())return false;
+ if(runMode==='adventure'||abilityGuideVisible()||!tutorialBoardReady()||pendingAdventureLesson())return false;
  for(const name of ['shield','freeze','boost']){
   const key='ability-practice-v1-'+name;
   if(runBoostUnlocked(name)&&profile.inventory[name]>0&&!store.get(key,false)){
-   showAbilityGuide($(name),BOOST_LESSONS[name],()=>{store.set(key,true);ability(name);});return true;
+   showAbilityGuide($(name),BOOST_LESSONS[name],()=>store.set(key,true),{optional:true});return true;
   }
  }
  const index=nextSpecialLesson(board,special=>store.get('special-practice-v1-'+special,false));
- if(index>=0){const special=board[index].special;showAbilityGuide($('board').children[index],SPECIAL_LESSONS[special],()=>{store.set('special-practice-v1-'+special,true);resolve(index);});return true;}
+ if(index>=0){const special=board[index].special;showAbilityGuide($('board').children[index],SPECIAL_LESSONS[special],()=>store.set('special-practice-v1-'+special,true),{optional:true});return true;}
  return false;
 }
 for(const name of ['shield','freeze','boost'])document.querySelector('.abilities').append($(name));
@@ -3965,13 +3917,13 @@ initTouchUI(document);
 initInputFeedback();
 
 function maybeAdventureGuide(){
- if(runMode!=='adventure'||!tutorialBoardReady())return false;
+ if(runMode!=='adventure'||abilityGuideVisible()||!tutorialBoardReady())return false;
  if(memoryLesson){
   const index=memoryLesson.index,tile=board[index];
   if(!tile?.memory||!tile.peeked){memoryLesson=null;return false;}
   // A guided matching turn follows the real peek; the card stays covered in its original slot.
   state.current={...state.current,color:tile.color,shape:tile.shape};paintCurrentShape();paintAdventureMechanic();
-  showBoardGuide($('board').children[index],['Memory card: match','Your shape now matches the card you saw. Tap that covered card again to collect it. You cannot peek again.'],()=>{
+  showBoardGuide($('board').children[index],['Memory card: match','Your shape matches the card you saw. Tap that covered card to collect it.'],()=>{
    memoryLesson=null;resolve(index);if(state.outcome==='correct')store.set('adventure-live-v2-memory',true);
   },{focus:$('current-sprite'),wrong:'Tap the covered card you remembered.'});return true;
  }
@@ -3981,7 +3933,7 @@ function maybeAdventureGuide(){
  const index=kind==='memory'?board.findIndex(t=>t.memory&&!t.peeked):board.findIndex(t=>!t.special&&!t.memory&&!t.collected&&(state.matchRule?t[state.matchRule]===state.current[state.matchRule]:t.shape===state.current.shape||t.color===state.current.color));
  if(index<0)return false;
  const colorName=['red','blue','green','yellow'][state.current.color];
- const copy=kind==='memory'?'Tap once to peek. Remember the card: you cannot peek again. Later taps are guesses. A wrong guess costs a heart.':kind==='wheel'?'After 3 turns, your color changes. This bar fills one step each turn. Check your new color before tapping.':kind==='shape'?'While the chains are here, match the SHAPE only. The same color with a different shape will not count.':('While this lock is here, match '+colorName+' only. The same shape in another color will not count.');
+ const copy=kind==='memory'?'Tap once to peek. Remember it: your next tap is a guess.':kind==='wheel'?'Your color changes every 3 turns. Check it before tapping.':kind==='shape'?'Chains mean match the SHAPE only.':('Match '+colorName+' only while this lock is here.');
  const title=({memory:'Memory card: peek',wheel:'Color change',shape:'Shape lock',color:'Color lock'})[kind];
  showBoardGuide($('board').children[index],[title,copy],()=>{
   if(kind==='memory'){memoryLesson={index};resolve(index);return;}

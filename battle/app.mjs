@@ -1,4 +1,4 @@
-import {createModePractice,continuePracticeRun} from '../mode-practice.js?ui248';
+import {createModePractice,continuePracticeRun} from '../mode-practice.js?ui250';
 import {burstPath} from '../burst.js';
 import {showEnemyHit} from './enemy-impact.mjs?v=494241';
 import {createBattleAudio,battleMusicVolume} from './audio.mjs?v=494241';

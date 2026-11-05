@@ -1,5 +1,5 @@
 import {awaitReady} from './menu-preload.js?v=494241';
-import {createAdventureChallengeRun} from './adventure-challenges.js?ui249';
+import {createAdventureChallengeRun} from './adventure-challenges.js?ui250';
 import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
 import {createResultJournal} from './run-results.js?v=494241';
 import {beginModeTransition} from './mode-transition.js?v=494241';
@@ -7,8 +7,8 @@ import {engagement,registerModeState} from './telemetry.js?v=494241';
 import {translate} from './localization.js?v=494241';
 import {createSceneryTint} from './scenery-progress.js';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?ui248';
-import {createMiniResults} from './mini-results.js?v=494241';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?ui250';
+import {createMiniResults} from './mini-results.js?ui250';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {sliceViewport} from './slice-viewport.js';

@@ -1,4 +1,4 @@
-import {practiceKey} from './mode-practice.js?ui248';
+import {practiceKey} from './mode-practice.js?ui250';
 import {engagement,registerModeState} from './telemetry.js?v=494241';
 import {createBattleRewards} from './battle-rewards.js?v=494241';
 export function createBattlePreloader({load,unload,timeout=30000}){
