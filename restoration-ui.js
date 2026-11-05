@@ -1,4 +1,5 @@
-import {prepareRestorationFilm,restorationPresentation,restorationEase,restorationTransition} from './restoration-film.js?v=494241';
+import {createRestorationEffects} from './restoration-audio.js?ui254';
+import {prepareRestorationFilm,restorationPresentation,restorationEase,restorationTransition} from './restoration-film.js?ui254';
 import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494241';
 import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494241';
 const bounded=value=>Math.max(0,Math.min(100,Number(value)||0));
@@ -104,21 +105,22 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
   overlay.innerHTML='<canvas width="720" height="1280"></canvas>';
   const surface=overlay.querySelector('canvas'),q=surface.getContext('2d');celebrationOverlay=overlay;Object.assign(overlay.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});surface.width=Math.round(rect.width);surface.height=Math.round(rect.height);film.draw(q,0,0);document.body.append(overlay);overlay.showModal();overlay.addEventListener('cancel',event=>event.preventDefault());
   const startRect={x:rect.left,y:rect.top,w:rect.width,h:rect.height};
-  const nextArtwork=warm(); // Prepare the next card behind the still-playing film.
+  let nextArtworkReady=false;const nextArtwork=warm().finally(()=>{nextArtworkReady=true;}); // Prepare the next card behind the still-playing film.
   const settings=getAudioSettings(),media=new Audio(new URL('./assets/story-beacon/'+film.soundtrack().file,import.meta.url).href);
   const musicVolume=settings.music===false?0:Math.max(0,Math.min(1,(settings.musicVolume??40)/100));media.volume=musicVolume;media.preload='auto';
   const unregister=window.ShapeShiftPlatform?.registerMedia?.(media);let stopped=false;
-  const effects=film.cues.map(({name,at})=>{const audio=new Audio(new URL('./assets/audio/victory-'+name+'-v4947.ogg',import.meta.url).href);audio.volume=settings.sfx===false?0:Math.max(0,Math.min(1,(settings.sfxVolume??65)/100))*.6;return {audio,at,fired:false,off:window.ShapeShiftPlatform?.registerMedia?.(audio)};});
-  const stopSound=()=>{if(stopped)return;stopped=true;for(const cue of effects){cue.audio.pause();cue.audio.removeAttribute('src');cue.audio.load();cue.off?.();}media.pause();media.removeAttribute('src');media.load();unregister?.();window.gameAudio?.resume();};stopFilmSound=stopSound;
+  const effects=createRestorationEffects({cues:film.cues,volume:settings.sfx===false?0:Math.max(0,Math.min(1,(settings.sfxVolume??65)/100)),registerMedia:audio=>window.ShapeShiftPlatform?.registerMedia?.(audio)});
+  const stopSound=()=>{if(stopped)return;stopped=true;effects.stop();media.pause();media.removeAttribute('src');media.load();unregister?.();window.gameAudio?.resume();};stopFilmSound=stopSound;
   await new Promise(resolve=>{if(media.readyState>=3)return resolve();const timeout=setTimeout(done,5000);function done(){clearTimeout(timeout);media.removeEventListener('canplaythrough',done);media.removeEventListener('error',done);resolve();}media.addEventListener('canplaythrough',done,{once:true});media.addEventListener('error',done,{once:true});media.load();});
   if(token!==epoch){stopSound();return;}window.gameAudio?.pause();
+  let finalFilmSeconds=0,finalImageFrame;
   await new Promise(resolve=>{finishAnimation=resolve;let elapsed=0,last=performance.now(),soundStarted=false;
    function frame(now){
     if(token!==epoch||!panel.open){stopSound();resolve();return;}
     const dt=Math.max(0,Math.min(100,now-last));last=now;
     const paused=document.hidden||window.ShapeShiftPlatform?.paused;
     if(!paused)elapsed+=dt;
-    if(paused){media.pause();for(const cue of effects)cue.audio.pause();}else if(soundStarted&&media.paused&&!media.ended&&media.volume>0)media.play().catch(()=>{});
+    if(paused){media.pause();}else if(soundStarted&&media.paused&&!media.ended&&media.volume>0)media.play().catch(()=>{});
     const bounds={width:window.innerWidth,height:window.innerHeight};
     const seconds=Math.max(0,(elapsed-1050)/1000),pose=restorationPresentation(seconds,island.index);
     const expand=Math.min(1,elapsed/1050),e=restorationEase(expand)*(1-pose.dock);
@@ -127,33 +129,43 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
     overlay.style.width=motion.w+'px';overlay.style.height=motion.h+'px';
     const pixelRatio=Math.min(2,window.devicePixelRatio||1),width=Math.round(motion.w*pixelRatio),height=Math.round(motion.h*pixelRatio);
     if(surface.width!==width||surface.height!==height){surface.width=width;surface.height=height;}
-    film.draw(q,pose.filmSeconds,e,{x:motion.image.x*pixelRatio,y:motion.image.y*pixelRatio,size:motion.image.size*pixelRatio});
+    finalFilmSeconds=pose.filmSeconds;finalImageFrame={x:motion.image.x*pixelRatio,y:motion.image.y*pixelRatio,size:motion.image.size*pixelRatio};
+    film.draw(q,finalFilmSeconds,e,finalImageFrame);
+    effects.step(pose.filmSeconds,{paused:paused||expand<1,enabled:window.ShapeShiftPlatform?.audioAllowed!==false});
     if(expand>=1){
      if(!soundStarted){soundStarted=true;if(media.volume>0)media.play().catch(()=>{});}
      media.volume=musicVolume*Math.min(1,Math.max(0,pose.duration-seconds));
      overlay.setAttribute('aria-label',film.describe(pose.filmSeconds));
     }
-    if(elapsed<1050+pose.duration*1000+240)animation=requestAnimationFrame(frame);
+    if(elapsed<1050+pose.duration*1000+240||!nextArtworkReady)animation=requestAnimationFrame(frame);
     else {stopSound();finishAnimation=null;resolve();}
    }animation=requestAnimationFrame(frame);
   });
   stopFilmSound=null;if(token!==epoch)return;
   await nextArtwork;if(token!==epoch)return;
-  // Keep the final rendered island visible at its exact card size, then slide
-  // both pictures inside the card's clipping boundary rather than swapping.
+  // Keep drawing the outgoing island during the slide; its lanterns never freeze.
   const artBox=panel.querySelector('.restoration-art'),oldPicture=document.createElement('canvas');
-  oldPicture.width=surface.width;oldPicture.height=surface.height;oldPicture.getContext('2d').drawImage(surface,0,0);
+  oldPicture.className='restoration-outgoing-island';oldPicture.width=surface.width;oldPicture.height=surface.height;oldPicture.getContext('2d').drawImage(surface,0,0);
   Object.assign(oldPicture.style,{position:'absolute',inset:'0',width:'100%',height:'100%',zIndex:'3',pointerEvents:'none'});
   artBox.append(oldPicture);canvas.style.visibility='hidden';
   overlay.remove();celebrationOverlay=null;celebrating=false;panel.classList.remove('is-restoring');
   if(!summary().completed){
    canvas.style.visibility='';
-   const options={duration:700,easing:'cubic-bezier(.22,.7,.25,1)',fill:'both'};
-   const outgoing=oldPicture.animate([{transform:'translateX(0)'},{transform:'translateX(-105%)'}],options);
-   const incoming=canvas.animate([{transform:'translateX(105%)'},{transform:'translateX(0)'}],options);
-   await Promise.allSettled([outgoing.finished,incoming.finished]);outgoing.cancel();incoming.cancel();
+   const outgoingContext=oldPicture.getContext('2d');
+   await new Promise(resolve=>{finishAnimation=resolve;let elapsed=0,last=performance.now();
+    const frame=now=>{
+     if(token!==epoch||!panel.open){resolve();return;}
+     const paused=document.hidden||window.ShapeShiftPlatform?.paused;
+     if(!paused)elapsed+=Math.max(0,Math.min(100,now-last));last=now;
+     const progress=restorationEase(elapsed/700);
+     film.draw(outgoingContext,finalFilmSeconds+elapsed/1000,0,finalImageFrame);
+     oldPicture.style.transform=`translateX(${-105*progress}%)`;canvas.style.transform=`translateX(${105*(1-progress)}%)`;
+     if(elapsed<700)animation=requestAnimationFrame(frame);else{finishAnimation=null;resolve();}
+    };animation=requestAnimationFrame(frame);
+   });
+
   }
-  oldPicture.remove();canvas.style.visibility='';if(token!==epoch)return;
+  oldPicture.remove();canvas.style.visibility='';canvas.style.transform='';if(token!==epoch)return;
   panel.querySelector('#restoration-title').textContent=summary().completed?'Color comes home':'A new island awaits';
   earned.hidden=true;selectedMode=summary().requiredMode||'adventure';refresh();
  }

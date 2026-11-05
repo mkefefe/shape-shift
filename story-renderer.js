@@ -113,7 +113,8 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  const finale=sceneId==='ending',intro=sceneId==='intro';
  const chapter={garden:1,river:2,village:3,sky:4}[sceneId]||0;
  const level={garden:10,river:25,village:50,sky:75}[sceneId]||0;
- const rise=restorationPhase?ease(t,2.4,4.4):finale?ease(t,2.7,7.2):ease(t,1,3.2);
+ const passTime=restorationPhase?.time??t;
+ const rise=restorationPhase?ease(passTime,.8,3.9):finale?ease(t,2.7,7.2):ease(t,1,3.2);
  // The one finale begins with the whole island uncolored. The sky brightens
  // with the outward color wave, rather than inheriting a previous chapter.
  const skyPower=restorationPhase ? .15+.85*(restorationPhase.index+rise)/4:finale?mix(.035,1,ease(t,4.5,8)):sceneId==='sky'?mix(.035,.65,rise):.035;
@@ -130,7 +131,7 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  const glow=(x,y,size,color=4,alpha=1)=>image(a.glows[color],x,y,size,size,alpha);
  const text=(str,x,y,size,alpha=1,color='#fff5df')=>{if(alpha<=.001)return;ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.font=`900 ${size}px BeaconStory`;ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(str,x,y);ctx.restore();};
  const shape=(i,x,y,size,alpha=1,angle=0)=>{if(alpha<=.001)return;const cell=a.shapes.width/4,col=[2,0,1,3][i];ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.shapes,col*cell,i*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
- const lantern=(i,x,y,size,alpha=1,angle=0)=>{const cell=a.lanterns.width/2;ctx.save();ctx.globalAlpha=clamp(alpha)*restorationOpening;ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.lanterns,(i%2)*cell,Math.floor(i/2)*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
+ const lantern=(i,x,y,size,alpha=1,angle=0,persistent=false)=>{const cell=a.lanterns.width/2;ctx.save();ctx.globalAlpha=clamp(alpha)*(persistent?1:restorationOpening);ctx.translate(x,y);ctx.rotate(angle);ctx.drawImage(a.lanterns,(i%2)*cell,Math.floor(i/2)*cell,cell,cell,-size/2,-size/2,size,size);ctx.restore();};
  const particles=(x,y,age,color=4,count=14,range=115)=>{if(age<0||age>2)return;const p=clamp(age/2),alpha=Math.sin(Math.PI*Math.min(1,p*3))*(1-p);for(let i=0;i<count;i++){const angle=i*2.39996,r=(18+range*(.6+(i%3)*.15))*smooth(p);glow(x+Math.cos(angle)*r,y+Math.sin(angle)*r-age*9,9+(i%3)*5,color,alpha*.7);}};
  const ambientTime=reduced?0:restorationClock??t;
  for(let i=0;i<20;i++){const x=40+i*191%650,y=90+i*213%1090;glow(x+Math.sin(ambientTime*.23+i)*5,y,6,i%4,.19+.1*Math.sin(ambientTime+i));}
@@ -157,7 +158,7 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   else if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(destination.x,destination.y,Math.max(0,radius-140),destination.x,destination.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
   ctx.drawImage(a.reveal,0,0,720,1280);
  }
- const fill=restorationPhase?(restorationPhase.index+ease(t,1.4,1.9))/4:intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
+ const fill=restorationPhase?ease(restorationClock,1.4,1.9):intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
  ctx.save();ctx.globalAlpha=restorationOpening;ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();
  const glass=ctx.createRadialGradient(lamp.x-20,lamp.y-20,0,lamp.x,lamp.y,100*u*2);glass.addColorStop(0,'#254e67');glass.addColorStop(1,'#102e43');ctx.fillStyle=glass;ctx.fillRect(lamp.x-80,lamp.y-80,160,160);
  const waterTop=lamp.y+lamp.ry-2-lamp.ry*1.9*fill;
@@ -167,12 +168,12 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  glow(lamp.x,lamp.y,150+(restorationPhase?Math.sin(ambientTime*1.4)*.15+.85:rise)*80,4,.14+fill*.3);
  // After the shapes reach the beacon, a traveling spark leads the light to
  // the next district. Color expands from that landing point, not the tower.
- if(restorationPhase&&t>=1.6&&t<3.1){
-  const p=ease(t,1.6,2.4),bend=-80,at=u=>({x:mix(lamp.x,destination.x,u),y:mix(lamp.y,destination.y,u)+Math.sin(u*Math.PI)*bend});
-  for(let j=10;j>=0;j--){const u=Math.max(0,p-j*.025),v=at(u);glow(v.x,v.y,12+(10-j)*1.6,restorationPhase.shape,(1-j/12)*(1-ease(t,2.4,3.1)));}
-  const v=at(p);glow(v.x,v.y,42,restorationPhase.shape,1-ease(t,2.4,3.1));
+ if(restorationPhase&&passTime>=0&&passTime<1.5){
+  const p=ease(passTime,0,.8),bend=-80,at=u=>({x:mix(lamp.x,destination.x,u),y:mix(lamp.y,destination.y,u)+Math.sin(u*Math.PI)*bend});
+  for(let j=10;j>=0;j--){const u=Math.max(0,p-j*.025),v=at(u);glow(v.x,v.y,12+(10-j)*1.6,restorationPhase.shape,(1-j/12)*(1-ease(passTime,.8,1.5)));}
+  const v=at(p);glow(v.x,v.y,42,restorationPhase.shape,1-ease(passTime,.8,1.5));
  }
- if(restorationPhase&&!reduced)particles(destination.x,destination.y,t-2.4,restorationPhase.shape,20,110);
+ if(restorationPhase&&!reduced)particles(destination.x,destination.y,passTime-.8,restorationPhase.shape,20,110);
  // Water and cottage lights wake only after the complete island is colored.
  const active=restorationPhase?0:finale?ease(t,7.2,8):chapter>1?1:0;
  if(active){
@@ -180,15 +181,27 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   if(chapter>=3||finale)for(const [x,y]of[[402,500],[855,474],[923,623],[300,567]])glow(ix+x*u,iy+y*u,45*u*1.8,4,active*.47);
  }
  ctx.restore();
- // A readable match-to-beacon action links the story directly to the game.
- const hit=intro?3.2:finale?1.3:.7,age=t-hit;
- if(t<hit){const p=ease(t,Math.max(0,hit-1.1),hit),gap=mix(160,23,p),index=restorationPhase?restorationPhase.shape:intro?0:finale?shapeIndex:(chapter-1);shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
- if(age>=0&&age<.9){const p=ease(age,0,.9),x=360+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(360+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));}
+ // One matching pair becomes one traveling shape and fills the whole beacon.
+ const chargeClock=restorationPhase?restorationClock:t,hit=intro?3.2:finale?1.3:.7,age=chargeClock-hit;
+ const chargeShape=restorationPhase?restorationPhase.chargeShape:intro?0:finale?shapeIndex:(chapter-1);
+ if(chargeClock<hit){const p=ease(chargeClock,Math.max(0,hit-1.1),hit),gap=mix(160,23,p);shape(chargeShape,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(chargeShape,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
+ if(age>=0&&age<.9){const p=ease(age,restorationPhase?.12:0,.9),x=mix(360,lamp.x,p)+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(mix(360,lamp.x,pp)+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,restorationPhase?chargeShape:(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));if(restorationPhase)shape(chargeShape,x,y,mix(102,25,p),1-ease(age,.72,.9));}
  if(!reduced)particles(lamp.x,lamp.y,age-.7,4,14,100);
  // Lanterns celebrate only after the whole island and sky are restored.
  if(finale&&t>8){
   const start=8,count=reduced?8:22;
-  for(let i=0;i<count;i++){const born=start+i*.61,age=t-born;if(age<0)continue;const side=i%2?-1:1,x=reduced?360+side*250:360+side*(215+(i%3)*26)+Math.sin(age*.55+i)*16,y=reduced?1115-Math.floor(i/2)*210:1230-age*94;if(y< -130)continue;const size=92+(i%3)*17;glow(x,y-4,size*1.2,i%4,.2*(reduced?ease(age,0,.5):1));lantern(i%4,x,y,size,ease(age,0,.5),reduced?0:Math.sin(age*.7+i)*.065);}
+  for(let i=0;i<count;i++){
+   const born=start+i*.61,age=t-born;if(age<0)continue;const side=i%2?-1:1;
+   let x=reduced?360+side*250:360+side*(215+(i%3)*26)+Math.sin(age*.55+i)*16,y=reduced?1115-Math.floor(i/2)*210:(fullScreen?1080:1230)-age*94,size=92+(i%3)*17;
+   if(y< -130)continue;
+   if(fullScreen){
+    // Attach the flight to the island, so it survives the camera pullback and card slide.
+    x=ix+(x-10)*iw/700;y=iy+(y-410)*iw/700;size*=iw/700;
+    ctx.save();ctx.globalAlpha=.2*(reduced?ease(age,0,.5):1);ctx.drawImage(a.glows[i%4],x-size*.6,y-size*.6,size*1.2,size*1.2);ctx.restore();
+   }else glow(x,y-4,size*1.2,i%4,.2*(reduced?ease(age,0,.5):1));
+   lantern(i%4,x,y,size,ease(age,0,.5),reduced?0:Math.sin(age*.7+i)*.065,fullScreen);
+  }
+
  }
  if(intro){
   const first=ease(t,0,.6)*(1-ease(t,4.6,5.2));text('A little world.',360,160,43,first);text('Waiting for color.',360,214,40,first,'#c9e5e5');

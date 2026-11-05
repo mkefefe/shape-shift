@@ -82,3 +82,11 @@
 - Shop tabs share the same bounded outer frame and header. Scroll only their contents; avoid tall empty panels and viewport overflow.
 - Achievement scrolling ends after the currently visible rewards. Reserve extra clearance only while a real Collect all button is visible; future tiers do not reserve blank rows.
 - Piano Flow long notes say HOLD, not TAP / HOLD. Retain required sustained input for full note credit.
+
+## Shape skin selection - November 5, 2026
+- Remove Starlight from the selectable skins. Keep exactly Classic, Candy Swirl, Cartoon Pop and Tiny Bots. Existing removed-skin selections fall back to Classic.
+
+## Cloud Beacon celebration - November 5, 2026
+- A single matching pair merges into one shape, fills the beacon completely, then the beacon sends four sequential beams that restore the island districts. Do not repeat the shape intake for each district.
+- Lanterns keep rising during the camera pullback and the outgoing island slide, until that old island leaves the screen. Do not fade them with the camera or freeze them into a snapshot.
+- Play synchronized effects for the merge, energy travel, beacon fill, beam launches and arrivals, honoring SFX settings independently of music.

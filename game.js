@@ -21,7 +21,7 @@ import {loadStoryAssets} from './story-renderer.js?v=494241';
 import {firstEndlessLaunch as firstJourneyLaunch} from './first-endless.js?v=494241';
 import {RESTORATION_KEY,migrateRestoration,restorationSummary,claimRestoration} from './world-restoration.js?v=494241';
 import {creditRestoration,creditBattleReward} from './world-rewards.js?v=494241';
-import {initRestorationUI} from './restoration-ui.js?v=494241';
+import {initRestorationUI} from './restoration-ui.js?ui254';
 import {initMenuReadiness} from './menu-readiness.js?v=494241';
 import {CORE_STARTUP_ASSETS} from './startup-plan.js?v=494241';
 import {prepareMenuImage,awaitReady} from './menu-preload.js?v=494241';

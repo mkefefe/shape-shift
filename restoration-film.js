@@ -1,10 +1,20 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?v=494241';
+import {loadStoryAssets,drawStory} from './story-renderer.js?ui254';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
-export const RESTORATION_PHASE_SECONDS=4.4;
-export const RESTORATION_COLOR_SECONDS=RESTORATION_PHASE_SECONDS*4;
+export const RESTORATION_CHARGE_SECONDS=2;
+export const RESTORATION_PHASE_SECONDS=3.9;
+export const RESTORATION_COLOR_SECONDS=RESTORATION_CHARGE_SECONDS+RESTORATION_PHASE_SECONDS*4;
+export const RESTORATION_CUES=Object.freeze([
+ {id:'merge',at:.7,file:'victory-transform-v4947.ogg',gain:.85},
+ {id:'travel',at:.95,file:'victory-gather-v4947.ogg',gain:.65},
+ {id:'charge',at:1.6,file:'victory-resolve-v4947.ogg',gain:.8},
+ ...STAGES.flatMap((stage,i)=>[
+  {id:'beam-'+i,at:RESTORATION_CHARGE_SECONDS+i*RESTORATION_PHASE_SECONDS,file:'victory-reward-flight-v49459.ogg',gain:.8},
+  {id:'bloom-'+i,at:RESTORATION_CHARGE_SECONDS+i*RESTORATION_PHASE_SECONDS+.8,file:'victory-spark'+i+'-v49436.ogg',gain:.6}
+ ])
+].map(Object.freeze));
 export function restorationFilmFrame(seconds,islandIndex=0){
- const finalIsland=islandIndex===9,duration=finalIsland?34.6:22.6,t=Math.max(0,Math.min(duration,seconds));
- if(t<RESTORATION_COLOR_SECONDS){const index=Math.floor(t/RESTORATION_PHASE_SECONDS);return {duration,kind:'restore',index,time:t-index*RESTORATION_PHASE_SECONDS,scene:['garden','river','village','sky'][index],...STAGES[index]};}
+ const finalIsland=islandIndex===9,duration=finalIsland?34.6:22.6,t=Math.max(0,seconds);
+ if(t<RESTORATION_COLOR_SECONDS){const index=Math.max(0,Math.min(3,Math.floor((t-RESTORATION_CHARGE_SECONDS)/RESTORATION_PHASE_SECONDS))),launch=RESTORATION_CHARGE_SECONDS+index*RESTORATION_PHASE_SECONDS;return {duration,kind:'restore',index,time:t-launch,chargeShape:STAGES[0].shape,scene:['garden','river','village','sky'][index],...STAGES[index]};}
  return {duration,kind:finalIsland&&t>=22.1?'credits':'lanterns',time:8+t-RESTORATION_COLOR_SECONDS,scene:'ending',finalIsland};
 }
 export function restorationPixelGroup(stage,r,g,b){
@@ -31,9 +41,9 @@ export async function prepareRestorationFilm(art,island){
  return {
   duration:restorationFilmFrame(0,island.index).duration,
   soundtrack:()=>({file:island.index===9?'restoration-score-final-v206.ogg':'restoration-score-v206.ogg',offset:0}),
-  // No per-pass musical stingers: one uninterrupted score spans the entire film.
-  cues:[],
-  describe:t=>{const f=restorationFilmFrame(t,island.index);return f.kind==='restore'?`Restoration ${f.index+1} of 4: ${f.title}`:f.kind==='credits'?'Final island ending and credits':island.title+' restored — lanterns rising';},
+  // The score stays continuous; effects follow the same visual clock as the action.
+  cues:RESTORATION_CUES,
+  describe:t=>{const f=restorationFilmFrame(t,island.index);return f.kind==='restore'?(t<RESTORATION_CHARGE_SECONDS?'One spark fills the beacon':`Beam ${f.index+1} of 4: ${f.title}`):f.kind==='credits'?'Final island ending and credits':island.title+' restored; lanterns rising';},
   draw(ctx,t,opening=1,imageFrame){const f=restorationFilmFrame(t,island.index);drawStory(ctx,assets,f.scene,f.time,{restorationTitle:island.title,restorationImageFrame:imageFrame,restorationClock:t,restorationOpening:opening,restorationPhase:f.kind==='restore'?{...f,target:targets[f.index]}:null,finalIsland:island.index===9,suppressCredits:island.index!==9});}
  };
 }

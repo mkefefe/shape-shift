@@ -4,7 +4,6 @@ export const SHAPE_SKINS=Object.freeze([
  {id:'candy',level:5,name:'Candy Swirl',price:300,art:'assets/skin-candy-v273.webp',chainedArt:'assets/skin-candy-wrapped-v318.webp'},
  {id:'crystal',level:15,name:'Cartoon Pop',price:700,art:'assets/skin-cartoon-v315.webp',chainedArt:'assets/skin-cartoon-wrapped-v318.webp'},
  {id:'robots',level:30,name:'Tiny Bots',price:1200,art:'assets/skin-robots-v272.webp',chainedArt:'assets/skin-robots-wrapped-v318.webp'},
- {id:'starlight',level:50,name:'Starlight',price:1800,art:'assets/skin-starlight-v273.webp',chainedArt:'assets/skin-starlight-wrapped-v318.webp'}
 ]);
 const migratedSkin=id=>id==='pals'?'candy':id==='monsters'?'starlight':id==='whiskers'?'crystal':id;
 export function normalizeSkins(p){

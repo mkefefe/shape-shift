@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {restorationFilmFrame,restorationPixelGroup} from './restoration-film.js';
-test('every island has exactly four complete restoration cycles before lanterns',()=>{
+test('one charge precedes four sequential outward beams on every island',()=>{
  for(let island=0;island<10;island++){
-  for(let i=0;i<4;i++){const f=restorationFilmFrame(i*4.4,island);assert.equal(f.kind,'restore');assert.equal(f.index,i);assert(Math.abs(f.time)<1e-9);assert.equal(restorationFilmFrame(i*4.4+4.39,island).index,i);}
+  for(const t of [0,.7,1.6,1.99]){const f=restorationFilmFrame(t,island);assert.equal(f.kind,'restore');assert.equal(f.index,0);assert(f.time<0);}
+  for(let i=0;i<4;i++){const launch=2+i*3.9,f=restorationFilmFrame(launch,island);assert.equal(f.kind,'restore');assert.equal(f.index,i);assert(Math.abs(f.time)<1e-9);assert.equal(f.chargeShape,2);assert.equal(restorationFilmFrame(launch+3.89,island).index,i);}
   assert.equal(restorationFilmFrame(17.6,island).kind,'lanterns');
+  assert(restorationFilmFrame(24,island).time>restorationFilmFrame(23,island).time,'lantern clock keeps moving if the next island loads late');
  }
 });
 test('only the tenth island proceeds into the ending credits',()=>{
