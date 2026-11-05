@@ -223,7 +223,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
    if(n.hold&&p.y+p.size/2>=top-12){
     // This stays visible as soon as the shape enters, even before its tail does.
-    const label=held?'SUSTAINING':'TAP / HOLD',badgeY=Math.min(layout.missLine-26,p.y+p.size/2+7),badgeW=Math.min(lane-8,Math.max(76,ctx.measureText(translate(label)).width+16));
+    const label=held?'SUSTAINING':'HOLD',badgeY=Math.min(layout.missLine-26,p.y+p.size/2+7),badgeW=Math.min(lane-8,Math.max(76,ctx.measureText(translate(label)).width+16));
     ctx.fillStyle=started?'#183348ee':'#edf2f4ee';round(p.x-badgeW/2,badgeY,badgeW,22,11);ctx.fill();
     ctx.fillStyle=started?color:'#253747';ctx.textAlign='center';ctx.font='900 10px Nunito,sans-serif';ctx.fillText(translate(label),p.x,badgeY+14);
    }

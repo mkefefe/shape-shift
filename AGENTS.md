@@ -77,3 +77,8 @@
 ## Open map and world access — November 5, 2026
 - Endless is available without Adventure progress. Unlock all 100 Adventure levels and all three background worlds for both new and existing saves. Keep earned stars, completed levels, wallet, XP, inventory and restoration achievements factual; access is not completion.
 - Slow the mission-to-star animation by another 20% relative to ui251.
+
+## Shop and achievement layout - November 5, 2026
+- Shop tabs share the same bounded outer frame and header. Scroll only their contents; avoid tall empty panels and viewport overflow.
+- Achievement scrolling ends after the currently visible rewards. Reserve extra clearance only while a real Collect all button is visible; future tiers do not reserve blank rows.
+- Piano Flow long notes say HOLD, not TAP / HOLD. Retain required sustained input for full note credit.
