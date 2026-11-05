@@ -27,11 +27,13 @@ export function createPreparationQueue(limit=4){
 }
 const prepareArt=createPreparationQueue(4),decoding=new WeakMap();
 export function decodeMenuImage(image){
- if(!decoding.has(image)){
-  const pending=prepareArt(()=>awaitReady(image.decode(),'Image preparation'));
-  decoding.set(image,pending);pending.then(()=>decoding.delete(image),()=>decoding.delete(image));
- }
- return decoding.get(image);
+ const source=[image.src,image.srcset,image.sizes].join("|");
+ const cached=decoding.get(image);
+ if(cached&&cached.source===source)return cached.promise;
+ const promise=prepareArt(()=>awaitReady(image.decode(),'Image preparation'));
+ const entry={source,promise};decoding.set(image,entry);
+ promise.catch(()=>{if(decoding.get(image)===entry)decoding.delete(image);});
+ return promise;
 }
 // Retain decoded art and share concurrent requests; a failed load may be retried.
 const retained=new Map(),pending=new Map();

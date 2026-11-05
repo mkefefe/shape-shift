@@ -37,3 +37,8 @@
 - Recorded October 31, 2026: “the indie song” / “indie background pack” for Shift Shift refers to `indie-game-soundtrack-251864.mp3`.
 - Original: `C:/Users/kmoee/Downloads/Shift Shift - Indie Background Music/indie-game-soundtrack-251864.mp3`. Provenance and checksum are in `READ_ME.txt` and `asset-manifest.json` beside it.
 - Reserve it for Shift Shift and exclude it from Chess Defense. Retain its existing use here; this note alone does not authorize adding it to another product or context.
+
+## Adventure presentation and retained assets - November 4, 2026
+- Entry and pause missions share framed cards and filled gold stars; pause uses Resume. Collection requirements are centered shape/count icons in one tray.
+- Show the entire result panel, including coins, player level, XP and Next level, throughout task-to-star animation.
+- Keep successfully prepared images and map sections across navigation/scrolling. Only first use or an actual failure needs preparation; do not expose fallback scenery before Adventure art is drawable.

@@ -994,7 +994,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
 
 
  const startProgress=playerProgress(runStartXp);$('result-xp-label').textContent=startProgress.capped?'MAX LEVEL':startProgress.current+' / '+startProgress.required+' XP';$('result-xp-bar').classList.remove('xp-level-up');
- $('final-score').textContent='0';$('final-coins').textContent='+0';$('final-best').textContent=state.difficulty==='normal'?best:Math.max(state.score,Number(store.get('shape-shift-best-'+state.difficulty,0))||0);$('result-progress').textContent='Level '+startProgress.level;$('level-progress').max=startProgress.required||1;$('level-progress').value=startProgress.capped?1:startProgress.current;$('level-progress').setAttribute('aria-label',$('result-xp-label').textContent);
+ $('final-score').textContent='0';$('final-coins').textContent='+0';$('final-best').textContent=state.difficulty==='normal'?best:Math.max(state.score,Number(store.get('shape-shift-best-'+state.difficulty,0))||0);$('result-progress').textContent='Player level '+startProgress.level;$('level-progress').max=startProgress.required||1;$('level-progress').value=startProgress.capped?1:startProgress.current;$('level-progress').setAttribute('aria-label',$('result-xp-label').textContent);
 
 
 
@@ -1010,7 +1010,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
 
 
 
- $('continue-ad').disabled=!window.ShapeShiftAds; 
+ $('continue-ad').disabled=!window.ShapeShiftAds;
 
 
 
@@ -1701,7 +1701,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
- await Promise.all([audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginRankedRun(endlessDifficulty);}catch(error){error.rankingStart=true;throw error;}}if(token!==countdownToken)return;screen('game');
+ await Promise.all([runMode==='adventure'?gameplayScene.preload():null,audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginRankedRun(endlessDifficulty);}catch(error){error.rankingStart=true;throw error;}}if(token!==countdownToken)return;screen('game');
 
 
 
