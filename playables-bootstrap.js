@@ -110,7 +110,7 @@ async function start() {
       platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
     },loadAudio:()=>loadScript('audio.js?v=494241')});
   startWelcomeMusic();
-    await import('./game.js?v=494241');
+    await import('./game.js?v=ui246');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';
