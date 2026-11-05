@@ -1077,7 +1077,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  if(runMode==='adventure'&&modeWon){
    cancelVictory=showAdventureVictory({document,points:state.victoryPoints,level:adventureLevel,drawShape:sprite,sound,stopSound:()=>audio()?.stopVictory?.(),
    visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground,reduced:prefs.motion,
-   reveal:()=>presentResults(false),done:()=>{cancelVictory=null;startResultRewards();}});
+   done:()=>{cancelVictory=null;presentResults();}});
  }else presentResults();
 
 
@@ -3657,7 +3657,7 @@ $('quests-open').onclick=()=>{questTab='daily';$('quest-list').scrollTop=0;rende
 $('pause-quests').onclick=()=>{
  if(runMode!=='adventure'){renderQuests();$('quests-dialog').showModal();return;}
  const stats=currentLevelStats();$('level-tasks-title').textContent='Level '+adventureLevel;
- $('level-task-list').innerHTML=levelTaskIntroduction(adventureLevel)+levelTaskStatus(adventureLevel,stats).map(t=>'<div class="level-task-card '+t.state+'"><strong>'+t.label+'</strong><span>'+t.value+'</span><progress max="1" value="'+t.progress+'" aria-label="'+t.label+'"></progress></div>').join('');
+ $('level-task-list').innerHTML='<h3 class="collection-heading">Collect to win</h3><div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Star tasks</h3>'+levelTaskStatus(adventureLevel,stats).map(t=>'<div class="level-task-card '+t.state+'"><strong>'+t.label+'</strong><span>'+t.value+'</span><progress max="1" value="'+t.progress+'" aria-label="'+t.label+'"></progress></div>').join('');
  const requirements=$('paused-level-requirements');if(requirements)renderLevelRequirements(requirements,adventureLevel,stats,sprite);$('level-tasks-dialog').showModal();
 };
 $('tasks-resume').onclick=()=>{$('level-tasks-dialog').close();resume();};

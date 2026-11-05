@@ -42,3 +42,7 @@
 - Entry and pause missions share framed cards and filled gold stars; pause uses Resume. Collection requirements are centered shape/count icons in one tray.
 - Show the entire result panel, including coins, player level, XP and Next level, throughout task-to-star animation.
 - Keep successfully prepared images and map sections across navigation/scrolling. Only first use or an actual failure needs preparation; do not expose fallback scenery before Adventure art is drawable.
+
+## Adventure classic presentation — November 5, 2026
+- User explicitly confirmed the original 4.40 / 4.50 / 4.60 series, not 4.94.40 / 50 / 60. Restore pause tasks and the victory/reward sequence using archived 4.60.0. This supersedes the November 4 panel and always-visible reward layout requests.
+- Keep the restored presentation separate from current music, authored stages, scores, loading and retained assets. Preserve accessible scrolling where the original fixed panel clipped controls.

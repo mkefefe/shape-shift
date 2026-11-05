@@ -1,0 +1,149 @@
+/* Adventure presentation restored from the archived 4.60.0 APK.
+   Current gameplay, music, saved progress and retained media stay independent. */
+html body #app #level-tasks-dialog,html body #app #over-dialog#over-dialog.adventure-results{--panel-width:min(380px,calc(100vw - 24px),calc((100dvh - 24px)*2/3));width:var(--panel-width);height:calc(var(--panel-width)*1.5);min-height:0;max-height:calc(100dvh - 24px);padding:0;overflow:hidden;border-image:none!important;background:transparent url('assets/delivery-v144/menu-panel-v240.webp') center/100% 100% no-repeat!important}
+html body #app #level-tasks-dialog .dialog-content,html body #app #over-dialog#over-dialog.adventure-results .result-content{display:flex;flex-direction:column;height:100%;max-height:100%;min-height:0;margin:0;box-sizing:border-box;overflow-y:auto}
+html body #app #level-tasks-dialog h2{display:block!important}
+html body #app #level-tasks-dialog .level-task-card::before{content:none;display:none}
+html body #app #level-tasks-dialog :is(.tasks-paused,.tasks-note){display:block}
+html body #app #level-tasks-dialog #level-task-list{display:grid;grid-template-columns:1fr;grid-template-rows:none;gap:10px}
+html body #app #level-tasks-dialog #level-task-list>*{grid-column:auto;grid-row:auto}
+html body #app #level-tasks-dialog .level-task-card{min-height:0;box-shadow:none;opacity:1}
+html body #app #level-tasks-dialog .level-task-card :is(span,progress){display:block}
+html body #app #level-tasks-dialog #paused-level-requirements{display:flex;flex-direction:row;justify-content:center;width:100%;padding:0;border:0;background:none;box-shadow:none;gap:18px}
+html body #app #level-tasks-dialog .level-requirements .collection-counter{display:block;position:relative;width:52px;height:52px;min-height:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+html body #app #level-tasks-dialog .level-requirements .sprite{width:48px;height:48px}
+html body #app #level-tasks-dialog .level-requirements .collection-remaining{position:absolute;right:-8px;bottom:-8px;display:block;color:white;font:1000 20px Nunito,sans-serif;text-shadow:0 2px 2px #075570,-1px 0 #075570,1px 0 #075570}
+html body #app #level-tasks-dialog .level-requirements .requirement-caption{display:none}
+html body #app #level-tasks-dialog :is(.collection-heading,.star-tasks-heading){font:900 14px/1.4 Nunito,sans-serif;margin:0;color:#12566d}
+html body #app #level-tasks-dialog #tasks-resume{aspect-ratio:3;height:auto;max-width:100%;flex:none;background-size:contain}
+html body #app #over-dialog#over-dialog.adventure-results .result-mark,html body #app #over-dialog#over-dialog.adventure-results :is(.best-line,#result-next-goal,#result-survival,.result-keyboard-hint){display:none!important}
+html body #app #over-dialog#over-dialog.adventure-results #final-score{display:block!important;font-size:30px;line-height:1;margin:7px 0 14px}
+html body #app #over-dialog#over-dialog.adventure-results #final-score::before{content:none}
+html body #app #over-dialog#over-dialog.adventure-results #result-progress{font:400 13px Nunito,sans-serif!important;color:#12465b}
+html body #app #over-dialog#over-dialog.adventure-results .result-coins{display:flex;align-items:center;justify-content:center;gap:10px;margin:-5px 0 9px;font:900 14px Nunito,sans-serif}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-continue{height:auto;aspect-ratio:3;background-size:contain;font-size:19px}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-result .reward-objectives{display:grid;opacity:1;margin:0;max-height:190px!important;transition:max-height .6s ease,opacity .3s ease}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-result.rewards-revealed .reward-objectives{max-height:0!important;margin:0!important;opacity:0}
+html body #app #over-dialog#over-dialog.adventure-results:has(#adventure-result:not(.rewards-settled)) :is(#final-score,.result-coins,#result-progress,#result-xp-bar,#ad-status,#adventure-continue){display:none!important}
+html body #app #over-dialog#over-dialog.adventure-results .result-content{justify-content:center;gap:5px;padding:20px}
+html body #app #over-dialog#over-dialog.adventure-results #record{order:0;font-size:18px}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-result{order:1;display:block;width:100%;position:relative}
+html body #app #over-dialog#over-dialog.adventure-results #final-score{order:2;font-size:30px}
+html body #app #over-dialog#over-dialog.adventure-results .result-coins{order:3}
+html body #app #over-dialog#over-dialog.adventure-results #result-progress{order:4}
+html body #app #over-dialog#over-dialog.adventure-results #level-progress{order:5}
+html body #app #over-dialog#over-dialog.adventure-results #ad-status{order:6}
+html body #app #over-dialog#over-dialog.adventure-results .result-home-hint{order:7}
+html body #app #over-dialog#over-dialog.adventure-results #result-return-countdown{order:8}
+html body #app #over-dialog#over-dialog.adventure-results .reward-star-slots{display:flex;justify-content:center;gap:8px;margin:8px 0 14px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-star{display:block;width:60px;height:60px;flex:none;background:url("assets/stars-v101.webp") -303px -147px/362px 271.5px no-repeat}
+html body #app #over-dialog#over-dialog.adventure-results .reward-star.earned{background-position:0 -77px;filter:drop-shadow(0 0 8px #ffc94388)}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li{position:relative;overflow:hidden;border:1px solid #73cddd;border-radius:12px;min-height:42px;display:grid;place-items:center;background:#d3f3f5;color:#125b6e;font:900 13px/1.25 Nunito,sans-serif;padding:5px 10px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li>i{position:absolute;inset:0;background:linear-gradient(90deg,#ffd641,#fff1a5);transform:scaleX(var(--fill,0));transform-origin:left}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li>span{position:relative;z-index:1}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li:after{content:"";position:absolute;inset:-10px 0;background:linear-gradient(110deg,transparent 30%,#ffffffdd 50%,transparent 70%);transform:translateX(var(--shine,-100%))}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.reward-converted{opacity:.24;transition:opacity .35s}
+html body #app #over-dialog#over-dialog.adventure-results .flying-reward-star{position:absolute;left:0;top:0;z-index:5;pointer-events:none;will-change:transform}
+html body #app #over-dialog#over-dialog.adventure-results .star-landed{animation:reward-land .48s ease-out}
+@media (max-height:620px){html body #app #over-dialog#over-dialog.adventure-results .result-content{gap:2px;padding:12px 18px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives{gap:5px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li{min-height:34px;font-size:12px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-star-slots{margin:2px 0 5px}
+}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li{margin:0!important}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.reward-converted{opacity:0}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives{max-height:170px;transition:max-height .5s ease,margin .5s ease;overflow:hidden}
+html body #app #over-dialog#over-dialog.adventure-results .rewards-revealed:has(li[data-earned="true"]):not(:has(li[data-earned="false"])) .reward-objectives{max-height:0;margin:0}
+html body #app #level-tasks-dialog .dialog-content{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;padding:28px 22px;overflow:hidden}
+html body #app #level-tasks-dialog h2{margin:0;font-size:27px;line-height:1.2}
+html body #app #level-tasks-dialog .level-task-card{margin:0;padding:12px 10px;border:1px solid #75c9d5;border-radius:14px;background:#e6faffb8;color:#12566d;font:900 14px/1.4 Nunito,sans-serif;text-align:center}
+html body #app #level-tasks-dialog #tasks-resume{width:190px;min-height:54px;margin:4px 0 0;font-size:19px}
+html body #app #level-tasks-dialog #level-task-list{display:grid;gap:10px;width:100%}
+html body #app #level-tasks-dialog .level-task-card{display:flex;flex-direction:column;gap:6px;align-items:center}
+html body #app #level-tasks-dialog .level-task-card strong{font-size:14px}
+html body #app #level-tasks-dialog .level-task-card span{font-size:13px;color:#347083}
+html body #app #level-tasks-dialog .level-task-card progress{width:90%;height:9px;accent-color:#20bfb5;border:0;border-radius:8px;overflow:hidden}
+html body #app #level-tasks-dialog .level-task-card.missed{opacity:.65}
+html body #app #level-tasks-dialog .level-task-card.missed span{color:#9b4148}
+html body #app #level-tasks-dialog .level-task-card.complete{border-color:#37bba3;background:#d4f8df}
+html body #app #level-tasks-dialog .tasks-paused,html body #app #level-tasks-dialog .tasks-note{margin:0;font:800 12px/1.4 Nunito,sans-serif;color:#377383}
+@media (max-height:620px){html body #app #level-tasks-dialog .dialog-content{gap:7px;padding:24px 18px}
+html body #app #level-tasks-dialog #level-task-list{gap:6px}
+html body #app #level-tasks-dialog .level-task-card{padding:8px;gap:3px}
+html body #app #level-tasks-dialog h2{font-size:23px}
+}
+html body #app #level-tasks-dialog .level-task-card progress{appearance:none;-webkit-appearance:none;background:#b6dce3;box-shadow:inset 0 1px 2px #387e9133}
+html body #app #level-tasks-dialog .level-task-card progress::-webkit-progress-bar{background:#b6dce3;border-radius:8px}
+html body #app #level-tasks-dialog .level-task-card progress::-webkit-progress-value{background:linear-gradient(90deg,#12b7c9,#6ce4d6);border-radius:8px}
+html body #app #level-tasks-dialog .level-task-card progress::-moz-progress-bar{background:#25c8c6;border-radius:8px}
+html body #app #level-tasks-dialog .level-task-card.complete progress::-webkit-progress-value{background:linear-gradient(90deg,#eeb735,#ffe378)}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-continue{order:7;width:min(260px,100%);min-height:54px;align-self:center;margin-top:8px}
+html body #app #over-dialog#over-dialog.adventure-results .result-home-hint{display:none}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-bar{position:relative;display:block;width:100%;max-width:300px;height:44px;min-height:44px;flex-shrink:0;align-self:center;margin:6px auto 10px;border:3px solid #075570;border-radius:22px;overflow:hidden;background:#d0edf5;box-shadow:0 2px 0 #07395326}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-bar #level-progress{appearance:none;-webkit-appearance:none;position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-bar #level-progress::-webkit-progress-value{background:linear-gradient(180deg,#64efff,#1ab9e9 50%,#0785ce);border-radius:0}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-label{position:absolute;inset:0;display:grid;place-items:center;font:1000 17px/1 Nunito,sans-serif;white-space:nowrap;color:#073e62;text-shadow:0 1px 1px #ffffffcc;pointer-events:none}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-bar{order:5}
+html body #app #over-dialog#over-dialog.adventure-results .rewards-revealed .reward-objectives{max-height:0!important;margin:0!important;opacity:0;transition:max-height .6s ease,opacity .3s ease}
+html body #app #over-dialog#over-dialog.adventure-results .rewards-revealed .reward-objectives li[data-earned="false"]{background:#f4d4db;border-color:#d98191}
+html body #app #over-dialog#over-dialog.adventure-results .result-content{justify-content:safe center;padding:14px 20px;gap:4px}
+html body #app #over-dialog#over-dialog.adventure-results #record{line-height:1.25;max-width:100%;letter-spacing:1px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives{max-height:190px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li{min-height:40px;font-size:12px}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-continue{margin-top:4px}
+@media (max-width:360px),(max-height:660px){html body #app #over-dialog#over-dialog.adventure-results .result-content{padding:10px 18px;gap:3px}
+html body #app #over-dialog#over-dialog.adventure-results #record{font-size:16px}
+html body #app #over-dialog#over-dialog.adventure-results .reward-star-slots{margin:4px 0 8px}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-bar{height:38px;min-height:38px;margin:4px auto}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-label{font-size:15px}
+html body #app #over-dialog#over-dialog.adventure-results #ad-status{font-size:10px;line-height:12px}
+}
+html body #app #over-dialog#over-dialog.adventure-results:has(#adventure-result:not(.rewards-settled)) .result-content{justify-content:flex-start}
+html body #app #over-dialog#over-dialog.adventure-results .rewards-settled .lightning-finish{display:block;animation:rockOpenReveal .55s ease-out both}
+html body #app #over-dialog#over-dialog.adventure-results:has(#adventure-result:not(.rewards-settled)) :is(#final-score,.result-coins,#result-progress,#result-xp-bar,#ad-status,#adventure-continue){display:none}
+html body #app #over-dialog#over-dialog.adventure-results #app #coins-ad-dialog .reward-preview{width:78px;height:78px;flex:none;object-fit:contain;margin:0}
+html body #app #over-dialog#over-dialog.adventure-results #app #coins-ad-dialog .coin-reward-amount{font-size:30px;line-height:1.2;white-space:nowrap}
+@media (max-width:350px){html body #app #over-dialog#over-dialog.adventure-results #app #coins-ad-dialog .coin-reward-amount{font-size:27px}
+}
+@media (max-height:500px) and (min-width:550px){html body #app #over-dialog#over-dialog.adventure-results #app #coins-ad-dialog .reward-preview{width:62px;height:62px}
+}
+html body #app #level-tasks-dialog .star-tasks-heading,html body #app #level-tasks-dialog .collection-heading{margin:0;font:900 14px/1.2 Nunito,sans-serif;color:#12566d}
+html body #app #level-tasks-dialog .tasks-note{margin:0;font-size:12px}
+@media (max-height:620px){html body #app #level-tasks-dialog .tasks-paused{margin:0}
+}
+@media (max-height:740px){html body #app #level-tasks-dialog .dialog-content{gap:5px;padding:24px 18px 18px}
+html body #app #level-tasks-dialog h2{font-size:22px;line-height:1.15}
+html body #app #level-tasks-dialog .tasks-paused{margin:0;font-size:11px;line-height:1.2}
+html body #app #level-tasks-dialog #level-task-list{gap:5px}
+html body #app #level-tasks-dialog .level-task-card{padding:6px 8px;gap:2px;line-height:1.2}
+html body #app #level-tasks-dialog .level-task-card strong{font-size:12px}
+html body #app #level-tasks-dialog .level-task-card span{font-size:11px;line-height:1.2}
+html body #app #level-tasks-dialog .level-task-card progress{height:6px;margin:2px 0}
+html body #app #level-tasks-dialog .level-requirements{padding:0 0 4px}
+html body #app #level-tasks-dialog .collection-counter{width:48px;height:48px}
+html body #app #level-tasks-dialog .level-requirements .sprite{width:43px;height:43px}
+html body #app #level-tasks-dialog .collection-remaining{font-size:20px}
+html body #app #level-tasks-dialog #tasks-resume{min-height:46px;height:46px;font-size:17px;flex-shrink:0}
+html body #app #level-tasks-dialog .tasks-note{font-size:11px;line-height:1.2}
+}
+@media (max-height:620px){html body #app #level-tasks-dialog .dialog-content{padding-top:16px;padding-bottom:10px}
+}
+/* Preserve the old layout while keeping its title and Resume reachable on phones. */
+html body #app #level-tasks-dialog .dialog-content{height:100%;justify-content:safe center;padding:28px 22px;gap:12px;overflow-y:auto}
+html body #app #level-tasks-dialog .dialog-content>*{flex-shrink:0}
+html body #app #level-tasks-dialog .level-task-card{display:flex;flex-direction:column;text-align:center;gap:6px}
+html body #app #level-tasks-dialog .level-task-card strong{font-size:14px}
+html body #app #level-tasks-dialog{height:min(740px,calc(100dvh - 24px));width:min(380px,calc(100vw - 24px))}
+html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.reward-converted{opacity:0}
+html body #app #over-dialog#over-dialog.adventure-results #result-xp-bar{order:5}
+html body #app #over-dialog#over-dialog.adventure-results #ad-status{order:6}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-continue{order:7}
+
+html body #app #over-dialog#over-dialog.adventure-results .result-coins{display:flex}
+html body #app #over-dialog#over-dialog.adventure-results #adventure-result:not(.rewards-settled)~.result-coins{display:none}
+html body #app #level-tasks-dialog .level-task-card progress::-webkit-progress-value,html body #app #over-dialog#over-dialog.adventure-results #level-progress::-webkit-progress-value{background:linear-gradient(#fff3a5,#ffd342 65%,#f9be29)}
+
+html body #app #over-dialog#over-dialog.adventure-results .result-coins{display:flex!important;flex-direction:row}
+html body #app #over-dialog#over-dialog.adventure-results #level-progress::-webkit-progress-value,
+html body #app #level-tasks-dialog .level-task-card progress::-webkit-progress-value{background:linear-gradient(#fff3a5,#ffd342 65%,#f9be29)!important}
