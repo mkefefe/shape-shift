@@ -44,9 +44,9 @@ function keyboardFixture(f,{fine=true}={}){
  return {keyboard,dialog,row:dialog.children[0],dispatch,get pauses(){return pauses;},setActive:value=>{active=value;},setFine(value){media.matches=value;for(const fn of mediaListeners)fn();}};
 }
 
-test('all four pointer strips score a tap or long note immediately high on screen',()=>{
+test('all four pointer strips start notes immediately high on screen and require holding long notes',()=>{
  for(let lane=0;lane<4;lane++)for(const hold of [0,2]){
-  const a=note(900,4,lane,hold),f=fixture([a],{beat:0});assert(f.input.press(lane,17));assert.equal(f.game.hits,1);assert.equal(f.game.coins,1);
+  const a=note(900,4,lane,hold),f=fixture([a],{beat:0});assert(f.input.press(lane,17));assert.equal(f.game.hits,hold?0:1);if(hold)advance(f,hold+.05);assert.equal(f.game.hits,1);assert.equal(f.game.coins,1);
   f.input.release(17);assert.equal(a.status,'done');assert.equal(f.game.pressed.size,0);assert.equal(f.game.lives,f.game.maxLives);
  }
 });
@@ -73,10 +73,10 @@ test('releasing a pending tap during countdown or before the input window cancel
 
 test('different fingers keep independent strips and replacing one strip ignores the old finger release',()=>{
  const a=note(900,2,0,2),b=note(901,3,1,2),c=note(902,4,0,2),f=fixture([a,b,c],{beat:0});
- f.input.press(0,41);f.input.press(1,42);assert.equal(f.game.hits,2);assert.deepEqual([...f.game.pressed],[0,1]);
- f.input.press(0,43);assert.equal(f.game.hits,3);assert.equal(a.status,'done');assert.equal(c.status,'holding');
+ f.input.press(0,41);f.input.press(1,42);advance(f,2.05);assert.equal(f.game.hits,2);assert.deepEqual([...f.game.pressed],[0,1]);
+ f.input.press(0,43);assert.equal(f.game.hits,2);assert.equal(a.status,'done');assert.equal(c.status,'holding');
  f.input.release(41);assert(c.status==='holding');assert(f.game.pressed.has(0));assert(f.game.pressed.has(1));
- f.input.release(42);assert.equal(b.status,'done');assert(c.status==='holding');f.input.release(43);assert.equal(c.status,'done');assert.equal(f.game.pressed.size,0);
+ f.input.release(42);assert.equal(b.status,'done');assert(c.status==='holding');advance(f,4.1);f.input.release(43);assert.equal(c.status,'done');assert.equal(f.game.pressed.size,0);
 });
 
 test('a wrong physical press is charged once and flush or repeated events do not retry it',()=>{
@@ -97,7 +97,7 @@ test('holding or repeating the same physical press cannot collect successive sho
 
 test('reset clears every active input and reused pointer IDs can play the next visible note',()=>{
  const a=note(900,2,0,1),b=note(901,3,1,1),c=note(902,4,0),f=fixture([a,b,c],{beat:0});
- f.input.press(0,71);f.input.press(1,72);f.input.reset();assert.equal(f.game.pressed.size,0);assert.equal(a.status,'done');assert.equal(b.status,'done');
+ f.input.press(0,71);f.input.press(1,72);advance(f,1.05);f.input.reset();assert.equal(f.game.pressed.size,0);assert.equal(a.status,'done');assert.equal(b.status,'done');
  assert(f.input.press(0,71));assert.equal(c.status,'done');assert.equal(f.game.hits,3);f.input.reset();f.input.reset();
  const pending=fixture([note(901,2,1)],{beat:-3,countdown:3});pending.input.press(1,72);pending.input.reset();advance(pending,-2.2);assert.equal(pending.game.hits,0);
 });
@@ -123,21 +123,21 @@ test('A S D F tap all four strips on touch-primary hardware and reveal keyboard 
  assert.equal(f.game.hits,4);assert.equal(f.game.lives,f.game.maxLives);
 });
 
-test('ASDF optional holds score immediately on all four strips and survive pointer capability changes',()=>{
+test('ASDF holds require sustained input on all four strips and survive pointer capability changes',()=>{
  for(const [lane,key] of ['a','s','d','f'].entries()){
   const a=note(900,2,lane,1),f=fixture([a]),k=keyboardFixture(f);
   k.dispatch('keydown',key);advance(f,2.2);k.setFine(false);advance(f,2.4);
   assert(a.heldBeats>.39);assert.equal(a.status,'holding');
-  k.dispatch('keyup',key);assert.equal(a.status,'done');assert.equal(f.game.pressed.size,0);assert.equal(f.game.hits,1);
+  advance(f,3.05);k.dispatch('keyup',key);assert.equal(a.status,'done');assert.equal(f.game.pressed.size,0);assert.equal(f.game.hits,1);
  }
 });
 
 test('simultaneous A S D F keydowns each score and show an independent held hint',()=>{
  const notes=[0,1,2,3].map(lane=>note(900+lane,2+lane*.2,lane,2)),f=fixture(notes,{beat:0}),k=keyboardFixture(f);
  for(const key of ['f','s','a','d'])k.dispatch('keydown',key);
- assert.equal(f.game.hits,4);assert.equal(f.game.pressed.size,4);assert(k.row.children.every(e=>e.classList.contains('pressed')));
- k.dispatch('keyup','s');assert.equal(notes[1].status,'done');assert.equal(notes[0].status,'holding');assert(k.row.children[0].classList.contains('pressed'));
- for(const key of ['a','d','f'])k.dispatch('keyup',key);assert.equal(f.game.pressed.size,0);assert.equal(f.game.hits,4);
+ assert.equal(f.game.hits,0);assert.equal(f.game.pressed.size,4);assert(k.row.children.every(e=>e.classList.contains('pressed')));
+ k.dispatch('keyup','s');assert.equal(notes[1].status,'partial');assert.equal(notes[0].status,'holding');assert(k.row.children[0].classList.contains('pressed'));
+ k.dispatch('keydown','s');advance(f,2.05);for(const key of ['a','s','d','f'])k.dispatch('keyup',key);assert.equal(f.game.pressed.size,0);assert.equal(f.game.hits,4);
 });
 
 test('keyboard repeat does not retrigger a note, and reset recovers a stale held key',()=>{
@@ -149,15 +149,15 @@ test('keyboard repeat does not retrigger a note, and reset recovers a stale held
  k.dispatch('keydown','a',{repeat:true});assert.equal(b.status,'done');assert.equal(f.game.hits,2);
 });
 
-test('blur ends optional sustain and pauses without losing its point; the next visible key works on resume',()=>{
+test('blur preserves partial hold progress and resume requires finishing it',()=>{
  const a=note(900,2,2,1),b=note(901,3,2),f=fixture([a,b]),k=keyboardFixture(f);
- k.dispatch('keydown','d');advance(f,2.2);k.dispatch('blur');assert.equal(k.pauses,1);assert(f.game.paused);assert.equal(a.status,'done');assert.equal(f.game.hits,1);
- const beat=f.game.beat;f.game.step(.05);assert.equal(f.game.beat,beat);f.game.resume();k.dispatch('keydown','d');assert.equal(b.status,'done');assert.equal(f.game.hits,2);
+ k.dispatch('keydown','d');advance(f,2.2);k.dispatch('blur');assert.equal(k.pauses,1);assert(f.game.paused);assert.equal(a.status,'partial');assert.equal(f.game.hits,0);
+ const beat=f.game.beat;f.game.step(.05);assert.equal(f.game.beat,beat);f.game.resume();k.dispatch('keydown','d');advance(f,3.1);k.dispatch('keyup','d');k.dispatch('keydown','d');assert.equal(b.status,'done');assert.equal(f.game.hits,2);
 });
 
 test('ad reset releases held keys without another pause menu and never replays an earned note',()=>{
  const a=note(900,2,2,1),b=note(901,3,2),f=fixture([a,b]),k=keyboardFixture(f);
- k.dispatch('keydown','d');k.dispatch('shape-shift-input-reset');assert.equal(k.pauses,0);assert.equal(f.game.pressed.size,0);assert.equal(a.status,'done');
+ k.dispatch('keydown','d');advance(f,3.05);k.dispatch('shape-shift-input-reset');assert.equal(k.pauses,0);assert.equal(f.game.pressed.size,0);assert.equal(a.status,'done');
  k.dispatch('keydown','d');assert.equal(b.status,'done');assert.equal(f.game.hits,2);
 });
 

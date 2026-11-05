@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
-const path=world=>'assets/music/'+({garden:'indie-game-soundtrack-251864.mp3',moon:'game-background-359782.mp3',sunset:'game-music-loop-4-144341.mp3'})[world];
+const path=world=>'assets/music/'+({garden:'indie-game-soundtrack-251864.mp3',moon:'menu-moon-efficient-v245.ogg',sunset:'game-music-loop-4-144341.mp3'})[world];
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 const nonVictory=state=>state.fetches.filter(url=>!url.includes('/victory-')&&!url.includes('piano-bridge-'));
 const response=()=>({ok:true,arrayBuffer:async()=>new ArrayBuffer(8)});

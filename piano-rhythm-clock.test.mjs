@@ -122,7 +122,8 @@ test('early visible performances earn points without moving or duplicating the p
  const game=createPianoGame(options);game.start();game.countdown=0;
  const {scheduler,calls}=rhythm(game),bpm=game.bpm,origin=game.beat;
  for(let i=0;i<2400&&game.beat<8.1;i++){
-  for(const lane of [3,1,0,2]){const n=game.notes.find(n=>n.lane===lane&&!n.scored&&n.status==='waiting'&&n.beat-game.beat<=4.4);if(n){const beat=game.beat;assert(game.pressStrip(lane));assert.equal(game.beat,beat);game.release(lane);}}
+  for(const lane of [3,1,0,2]){const n=game.notes.find(n=>n.lane===lane&&!n.scored&&n.status==='waiting'&&n.beat-game.beat<=4.4);if(n&&!game.pressed.has(lane)){const beat=game.beat;assert(game.pressStrip(lane));assert.equal(game.beat,beat);if(!n.hold)game.release(lane);}}
+  for(const lane of [...game.pressed])if(!game.notes.some(n=>n.lane===lane&&n.status==='holding'))game.release(lane);
   game.step(1/240);scheduler.step(game);
  }
  assert(game.hits>=4);assert.equal(game.lives,game.maxLives);

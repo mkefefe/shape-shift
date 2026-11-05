@@ -21,17 +21,24 @@ function fixture(){
  root.querySelectorAll=s=>s==='li'?rows:slots;root.closest=()=>d;
  const platform={paused:false,now:()=>time,requestAnimationFrame:fn=>{frames.set(++serial,fn);return serial;},cancelAnimationFrame:id=>frames.delete(id),setInterval:fn=>{timers.set(++serial,fn);return serial;},clearInterval:id=>timers.delete(id)};
  const host={document:{getElementById:get,body:make(),createElement:make},ShapeShiftPlatform:platform,gameAudio:{ui(){}}};
- return {host,get,d,root,slots,platform,advance(ms){for(let passed=0;passed<ms;passed+=20){time+=20;const work=[...frames.values()];frames.clear();work.forEach(fn=>fn(time));[...timers.values()].forEach(fn=>fn());}}};
+ return {host,get,d,root,rows,slots,platform,advance(ms){for(let passed=0;passed<ms;passed+=20){time+=20;const work=[...frames.values()];frames.clear();work.forEach(fn=>fn(time));[...timers.values()].forEach(fn=>fn());}}};
 }
 
-test('compact Adventure results reveal stars one by one, pause in the background, then start XP',()=>{
+test('Adventure fills missions, flies earned stars, marks failures red, then starts XP',()=>{
  const f=fixture(),cues=[];let done=0;
- revealAdventureRewards(f.root,cue=>cues.push(cue),()=>done++,{compact:true,visible:()=>!f.platform.paused,raf:f.platform.requestAnimationFrame,caf:f.platform.cancelAnimationFrame,now:f.platform.now});
- assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,0);
- f.advance(200);assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,1);assert.equal(done,0);
- f.platform.paused=true;f.advance(2000);assert.equal(cues.length,1);assert.equal(done,0);
- f.platform.paused=false;f.advance(1800);assert.deepEqual(cues,['star-land-1','star-land-2','star-land-3']);assert.equal(done,1);assert(f.root.classList.contains('rewards-settled'));
- f.advance(2000);assert.equal(done,1);
+ const oldDocument=globalThis.document;globalThis.document=f.host.document;
+ f.rows[1].dataset.earned='false';
+ try{
+  revealAdventureRewards(f.root,cue=>cues.push(cue),()=>done++,{visible:()=>!f.platform.paused,raf:f.platform.requestAnimationFrame,caf:f.platform.cancelAnimationFrame,now:f.platform.now});
+  f.advance(200);assert(f.rows[0].classList.contains('reward-charging'));assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,0);
+  f.platform.paused=true;f.advance(2000);assert.deepEqual(cues,['objective-fill']);assert.equal(done,0);
+  f.platform.paused=false;f.advance(400);assert(f.rows[0].classList.contains('reward-converted'));assert.deepEqual(cues,['objective-fill','star-flight']);
+  f.advance(300);assert(f.slots[0].classList.contains('earned'));assert.equal(done,0);
+  f.advance(200);assert(f.rows[1].classList.contains('reward-failed'));
+  f.advance(1700);assert.deepEqual(cues,['objective-fill','star-flight','star-land-1','objective-fill','star-flight','star-land-2']);
+  assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,2);assert.equal(done,1);assert(f.root.classList.contains('rewards-settled'));
+  f.advance(2000);assert.equal(done,1);
+ }finally{globalThis.document=oldDocument;}
 });
 
 for(const skip of [false,true])test('mini Adventure XP starts after stars become visible'+(skip?' when skipped':''),()=>{

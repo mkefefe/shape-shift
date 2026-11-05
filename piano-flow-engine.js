@@ -126,7 +126,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   else if(recoverWrongTap&&fullSongs&&reason==='wrong'&&damaged&&expected){
    recovery={note:expected,from:g.beat,to:Math.min(g.beat,expected.beat-2.2),elapsed:0};
    g.recoverySeconds=1;g.pressed.clear();performed=null;
-   for(const held of g.notes)if(held.scored&&held.status==='holding'){emit('release',{note:held,optional:true});complete(held);}
+   for(const held of g.notes)if(held.status==='holding'){held.status='partial';emit('release',{note:held});}
    emit('recover',{note:expected,seconds:1});
   }
  }
@@ -154,7 +154,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(!g.started||g.countdown>0)cueAtTop();
  }
  const deadline=note=>fullSongs?note.beat+(note.hold||0)+(g.lateWindow??.65):note.beat+(resumableHolds?note.hold:PIANO_WINDOW);
- const visible=note=>note.status==='waiting'&&!note.scored&&note.beat-g.beat<=(g.inputWindow??4.4)&&g.beat<=deadline(note);
+ const visible=note=>(['waiting','partial'].includes(note.status)||note.status==='holding'&&note.awaiting)&&!note.scored&&note.beat-g.beat<=(g.inputWindow??4.4)&&g.beat<=deadline(note);
  const visibleInLane=lane=>g.notes.find(n=>n.lane===lane&&visible(n));
  function songAtBeat(beat){let song=g.notes[0];for(const note of g.notes){if(note.beat>beat)break;song=note;}return song;}
  function advanceSong(seconds){
@@ -194,7 +194,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(note.hold&&resumableHolds){note.heldBeats=0;note.holdLength=note.hold;note.status='holding';}
   else if(note.hold){note.holdStarted=g.beat;note.end=rhythm&&!stripTap?note.beat+note.hold:g.beat+note.hold;note.holdLength=note.end-g.beat;note.status='holding';}
   emit('input',{note});soundNote(note);
-  if(note.hold){emit('hold',{note});if(fullSongs)credit(note);}else complete(note);
+  if(note.hold)emit('hold',{note});else complete(note);
  }
  function pressNote(id){
   if(!g.started||g.countdown>0||g.recoverySeconds>0||!fullSongs&&g.beat<(rhythm?-PIANO_WINDOW:0)||g.paused||g.over)return false;
@@ -221,7 +221,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
  function pressStrip(lane){
   if(!Number.isInteger(lane)||lane<0||lane>=g.lanes||!g.started||g.countdown>0||g.recoverySeconds>0||g.paused||g.over||(fullSongs?g.pressed.has(lane):g.pressed.size))return false;
   if(fullSongs){
-   const note=visibleInLane(lane);if(note)return pressNote(note.id);
+   const note=g.notes.find(n=>n.lane===lane&&n.status==='holding'&&n.awaiting)||visibleInLane(lane);if(note)return pressNote(note.id);
    if(!g.notes.some(visible)||g.time-(completedAt.get(lane)??-Infinity)<=.45)return false;
    return wrongStrip();
   }
@@ -234,7 +234,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   if(fullSongs&&g.time-(completedAt.get(lane)??-Infinity)<=.45)return false;
   return wrongStrip();
  }
- function release(lane){g.pressed.delete(lane);if(g.paused||g.over)return;const n=g.notes.find(n=>n.lane===lane&&n.status==='holding'&&!n.awaiting);if(n){if(fullSongs&&n.scored){emit('release',{note:n,optional:true});complete(n);return;}if(resumableHolds){n.status='partial';emit('release',{note:n});return;}if(g.beat<n.end-.16)fail(n,'released');else complete(n);}}
+ function release(lane){g.pressed.delete(lane);if(g.paused||g.over)return;const n=g.notes.find(n=>n.lane===lane&&n.status==='holding'&&!n.awaiting);if(n){if(resumableHolds){n.status='partial';emit('release',{note:n});return;}if(g.beat<n.end-.16)fail(n,'released');else complete(n);}}
  function step(dt){
   if(!Number.isFinite(dt)||dt<=0)return;
   if(!g.started||g.paused||g.over||g.notes.some(n=>n.status==='holding'&&n.awaiting))return;
@@ -271,8 +271,8 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
    if(g.over)break;
 
 
-   if(fullSongs&&n.scored){
-    if(n.status==='holding'){n.heldSeconds=(n.heldSeconds||0)+seconds;n.heldBeats=Math.min(n.hold,n.heldSeconds*(n.bpm||g.bpm)/60);if(n.heldBeats>=n.hold-1e-8)complete(n);}
+   if(fullSongs&&(n.scored||n.status==='holding')){
+    if(n.status==='holding'&&!n.awaiting){n.heldSeconds=(n.heldSeconds||0)+seconds;n.heldBeats=Math.min(n.hold,(n.heldBeats||0)+seconds*(n.bpm||g.bpm)/60);if(n.heldBeats>=n.hold-1e-8)complete(n);}
     continue;
    }
    if(resumableHolds){
@@ -316,7 +316,7 @@ export function createPianoGame({rng=Math.random,onEvent=()=>{},frame='none',upg
   backingPulse=Math.max(backingPulse,Math.ceil((g.beat-backingOrigin)*2));
   fill();return true;
  }
- return Object.assign(g,{setViewport,completePractice,revive(){if(stage||!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();performed=null;completedAt.clear();if(fullSongs){const next=g.notes.find(n=>!n.scored&&(['waiting','partial','holding'].includes(n.status)||n.soundPending));if(next){g.beat=next.beat-(g.cueWindow??entryWindow());for(const n of g.notes)if(!n.scored&&!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;n.soundPending=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;cueAtTop();g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding'){if(fullSongs&&n.scored){emit('release',{note:n,optional:true});complete(n);}else n.awaiting=true;}}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
+ return Object.assign(g,{setViewport,completePractice,revive(){if(stage||!g.over||g.lives>0)return false;g.over=false;g.paused=false;damageUntil=-1;g.lives=g.maxLives;g.combo=0;g.pressed.clear();performed=null;completedAt.clear();if(fullSongs){const next=g.notes.find(n=>!n.scored&&(['waiting','partial','holding'].includes(n.status)||n.soundPending));if(next){g.beat=next.beat-(g.cueWindow??entryWindow());for(const n of g.notes)if(!n.scored&&!['done','missed'].includes(n.status)){n.status='waiting';n.heldBeats=0;n.awaiting=false;n.soundPending=false;}}}else{g.notes=[];measures.length=0;cursor=g.beat+4;}backingPulse=Math.max(0,Math.ceil((g.beat-backingOrigin)*2));g.countdown=3;fill();return true;},press,pressStrip,pressNote,release,step,end,start(){if(g.started||g.over)return;cueAtTop();g.started=true;emit('start');if(g.countdown)emit('countdown',{count:Math.ceil(g.countdown)});},pause(){if(!g.started||g.over||g.paused)return;g.paused=true;g.pressed.clear();for(const n of g.notes){if(n.status==='holding'){n.awaiting=true;}}},resume(){if(!g.over){g.paused=false;g.pressed.clear();}},dispose(){g.over=true;g.notes=[];g.pressed.clear();}});
 }
 const safe=n=>Number.isSafeInteger(n)&&n>=0?n:0;
 const receipt=e=>e&&/^piano-flow-[a-f0-9-]{36}$/.test(e.id)&&Number.isSafeInteger(e.coins)&&e.coins>=0&&e.coins<=100000;

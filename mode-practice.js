@@ -29,7 +29,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
   .mode-practice{position:absolute;inset:0;z-index:70;pointer-events:none;text-align:center}
   .mode-practice-copy{pointer-events:none;font:900 clamp(15px,4vw,21px)/1.2 Nunito,sans-serif;color:#fff3b3;text-shadow:0 2px 3px #001b39;text-align:center;position:absolute;top:92px;left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:440px;box-sizing:border-box;padding:0;background:none;border:0;box-shadow:none}
   #callout.practice-callout{position:relative;width:auto;height:auto;overflow:visible;clip-path:none;margin:7px 0;padding:0;flex:none;z-index:70}
-  .mode-practice-copy strong{display:block}.mode-practice-copy small{display:none}
+  .mode-practice-copy strong{display:block}.mode-practice-copy small{display:block;font-size:12px;margin-bottom:5px}
   .mode-practice-pointer{position:absolute;width:56px;height:56px;pointer-events:none;--hand-rotation:-90deg}
   .mode-practice-hand{width:100%;height:100%;object-fit:contain;transform:rotate(var(--hand-rotation));filter:drop-shadow(0 2px 2px #001a3866)}
   .mode-practice[data-gesture=tap] .mode-practice-hand{animation:practice-tap 1.15s ease-in-out infinite}
@@ -41,7 +41,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
   @keyframes practice-trail{0%,15%{clip-path:inset(0 100% 0 0);opacity:0}20%{opacity:.85}75%{clip-path:inset(0);opacity:.85}100%{clip-path:inset(0);opacity:0}}
   @keyframes practice-hold{50%{filter:drop-shadow(0 0 6px #fff5aa);opacity:.85}}
   `;document.head.append(style);}
-  root=document.createElement('div');root.className='mode-practice';root.innerHTML='<div class="mode-practice-copy" role="status"><strong></strong></div><i class="mode-practice-trail" aria-hidden="true"></i><span class="mode-practice-pointer"><img class="mode-practice-hand" alt=""></span>';parent.append(root);
+  root=document.createElement('div');root.className='mode-practice';root.innerHTML='<div class="mode-practice-copy" role="status"><small>Practice</small><strong></strong></div><i class="mode-practice-trail" aria-hidden="true"></i><span class="mode-practice-pointer"><img class="mode-practice-hand" alt=""></span>';parent.append(root);
   hand=root.querySelector('.mode-practice-pointer');hand.querySelector('img').src=art;copy=root.querySelector('.mode-practice-copy');host=mode==='battle'?parent.querySelector('#callout'):null;
   if(mode!=='battle')copy.style.fontSize='clamp(15px,3.5vw,19px)';
   if(host){host.classList.add('practice-callout');host.replaceChildren(copy);copy.style.cssText='position:relative;top:0;left:auto;transform:none;width:100%;max-width:100%;margin:auto';}
@@ -63,7 +63,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
  }
  return {get active(){return active;},get finished(){return active&&finished;},mount,clear,
   guide(text,getTarget,gesture='tap'){target=getTarget;gestureStart=performance.now();if(root){root.dataset.gesture=gesture;copy.querySelector('strong').textContent=text;}},
-  finish(){if(!active||finished)return;finished=true;doneTime=0;target=null;if(root){copy.querySelector('strong').textContent='Nice! Let’s play.';hand.hidden=true;}},
+  finish(){if(!active||finished)return;finished=true;doneTime=0;target=null;if(root){copy.querySelector('small').textContent='Practice complete';copy.querySelector('strong').textContent='Your level starts now';hand.hidden=true;}},
   complete
  };
 }

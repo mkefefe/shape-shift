@@ -12,7 +12,7 @@
 
 - A visible note is playable immediately with its matching A/S/D/F key or strip tap, anywhere on the visible board. Do not require it to reach a bottom line or a narrow rhythm window.
 - Select the earliest visible unplayed note in the pressed lane. A visible note in another lane must remain playable even if an earlier note or an optional sustain exists elsewhere.
-- Award the point and sound the note on the press. Long-note holds are optional expression; releasing must not remove the point or impose a required hold.
+- Updated November 4 after live testing: short notes score on press; long notes require completing the hold for full note credit. Their heads remain playable immediately anywhere visible. Sound begins on press, and the trail must visibly remain through the hold. This supersedes the earlier optional-hold requirement.
 - One fresh physical press collects one note. A held key must not collect later notes automatically. Different keys/fingers can work independently.
 - Gameplay and help text must describe these rules. Rhythm backing must accommodate the player's immediate performance without delayed or duplicated melody/support attacks.
 - Build recognizable musical phrases: repeat a two-bar melody/chord hook two or three times before a deliberate variation or turnaround. Bass, arpeggio voicing and percussion must reinforce the repeated phrase.

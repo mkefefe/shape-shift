@@ -349,7 +349,7 @@
   }
 
   // Five new original mode themes are packaged with their scores and checksums.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/game-background-359782.mp3','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-239.ogg',adventure:'assets/music/adventure-239.ogg',slice:'assets/music/shape-slice-239.ogg',drop:'assets/music/shape-drop-239.ogg'};
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/menu-moon-efficient-v245.ogg','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-239.ogg',adventure:'assets/music/adventure-239.ogg',slice:'assets/music/shape-slice-239.ogg',drop:'assets/music/shape-drop-239.ogg'};
   // Measured integrated loudness; replay gain changes no file, pitch or saved
   // slider. A common -20 LUFS reference removes the 12 dB menu-world jump.
   const musicLoudness={'menu-garden':-26.75,'menu-moon':-14.78,'menu-sunset':-17.98,game:-15.72,adventure:-15.83,slice:-15.79,drop:-15.64};

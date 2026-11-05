@@ -27,8 +27,21 @@ function quietBar(measure){
  const a=measure.notes[0],b=measure.notes.find(n=>n.offset>=2)||measure.notes.at(-1);
  return {...measure,notes:[{...a,duration:2,soundBeats:1.1,holdBeats:0,restAfter:.9,offset:0},{...b,duration:2,soundBeats:1.7,holdBeats:1.5,restAfter:.3,offset:2}]};
 }
+// Repeat a small call inside the bar as well as repeating the whole two-bar
+// phrase. The answer, chord changes and returning chorus stay authored below.
+function motifBar(measure){
+ const source=measure.notes,slow=source[0].duration>=1.5||source.length<3;
+ const durations=slow?(source[0].duration===1.5?[1.5,.5]:[1,1]):[.5,.5,1],call=source.slice(0,durations.length);
+ let offset=0;
+ const notes=[...call,...call].map((n,i)=>{
+  const duration=durations[i%call.length],soundBeats=duration*.82;
+  const result={...n,duration,soundBeats,holdBeats:n.holdBeats?Math.max(0,soundBeats-.2):0,restAfter:duration-soundBeats,offset};offset+=duration;return result;
+ });
+ return {...measure,notes};
+}
 function compose([id,title,bpm,tonicName,style,verseScore,verseEnding,chorusScore,chorusEnding,bridgeScore]){
  const tonic=scorePitch(tonicName),a=verseScore.map(readPianoBar),b=chorusScore.map(readPianoBar),cadence=readPianoBar(verseEnding),chorusCadence=readPianoBar(chorusEnding),bridge=bridgeScore.map(readPianoBar);
+ a[0]=motifBar(a[0]);b[0]=motifBar(b[0]);
  // Establish a short, recognizable melodic/harmonic hook before answering it.
  // A B | A B | A B | turnaround home: three complete identical statements,
  // including note lengths and rests. Changing a chord every unfamiliar bar

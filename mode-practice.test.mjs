@@ -39,11 +39,11 @@ test('Slice practice holds real targets for swiping and prevents bomb damage',()
  g.spawn({x:180,y:250,r:30,hazard:true});g.slice({x:130,y:250},{x:230,y:250});
  assert.equal(g.lives,g.maxLives);assert.equal(g.over,false);
 });
-test('Piano practice accepts visible notes immediately, ignores mistakes and makes holds optional',()=>{
+test('Piano practice accepts visible notes immediately, ignores mistakes and teaches required holds',()=>{
  const g=createPianoGame({practice:true,fullSongs:true,melodicStrips:true,stripTap:true,rhythm:true,directTouch:true});g.start();
  assert.equal(g.pressStrip(1),true);assert.equal(g.hits,1);g.release(1);
  for(let i=0;i<1200;i++)g.step(.05);g.pressStrip(0);assert.equal(g.lives,g.maxLives);
- assert.equal(g.pressStrip(2),true);assert.equal(g.hits,2);g.release(2);assert.equal(g.notes[1].status,'done');
+ const long=g.notes.find(n=>n.hold);assert.equal(g.pressStrip(2),true);assert.equal(g.hits,1);for(let i=0;i<40;i++)g.step(.05);assert.equal(g.hits,2);g.release(2);assert.equal(long.status,'done');
  for(let i=0;i<1200;i++)g.step(.05);assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);
 });
 test('Normal Battle and Slice still deduct hearts',()=>{

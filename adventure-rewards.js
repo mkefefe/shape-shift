@@ -2,9 +2,8 @@ import {playerProgress} from './economy.js?v=494241';
 // Presentation only: saved stars, currency and XP are awarded by the game.
 export function rewardMarkup(objectives,lightning=false){return '<div class="reward-star-slots" aria-label="Level stars">'+[0,1,2].map(()=>'<span class="reward-star" aria-label="Empty star"></span>').join('')+'</div><ul class="reward-objectives">'+objectives.map(o=>'<li data-earned="'+!!o.done+'"><i></i><span>'+o.label+'</span></li>').join('')+'</ul>';}
 export function rewardSteps(completed){let time=120,slot=0;return completed.map((earned,row)=>{const step={row,earned,slot:earned?slot++:null,start:time,flight:time+350,land:time+750,end:time+(earned?900:420)};time=step.end;return step;});}
-export function revealAdventureRewards(root,cue,done,{visible=()=>!window.ShapeShiftPlatform.paused,raf=window.ShapeShiftPlatform.requestAnimationFrame,caf=window.ShapeShiftPlatform.cancelAnimationFrame,now=()=>window.ShapeShiftPlatform.now(),compact=false}={}){
+export function revealAdventureRewards(root,cue,done,{visible=()=>!window.ShapeShiftPlatform.paused,raf=window.ShapeShiftPlatform.requestAnimationFrame,caf=window.ShapeShiftPlatform.cancelAnimationFrame,now=()=>window.ShapeShiftPlatform.now()}={}){
  const rows=[...root.querySelectorAll('li')],slots=[...root.querySelectorAll('.reward-star')],steps=rewardSteps(rows.map(r=>r.dataset.earned==='true'));let elapsed=0,last=now(),frame,stopped=false,flying=null,settled=false;
- if(compact)steps.forEach((step,i)=>{step.start=120+i*550;step.end=step.start+450;});
  const finish=steps.at(-1)?.end??120;
  const panel=root.closest?.('dialog')||root;
  function detach(){panel.removeEventListener?.('click',skip,true);panel.removeEventListener?.('keydown',key,true);}
@@ -14,7 +13,6 @@ export function revealAdventureRewards(root,cue,done,{visible=()=>!window.ShapeS
  panel.addEventListener?.('click',skip,true);panel.addEventListener?.('keydown',key,true);
  function tick(t){if(stopped)return;const delta=Math.min(80,Math.max(0,t-last));last=t;if(visible())elapsed+=delta;
   for(const step of steps){const row=rows[step.row],slot=slots[step.slot];
-   if(compact){if(elapsed>=step.start&&!step.started){step.started=true;row.classList.add(step.earned?'reward-converted':'reward-failed');if(step.earned){slot.classList.add('earned','star-landed');slot.setAttribute('aria-label','Earned star');cue('star-land-'+(step.slot+1));}}continue;}
    if(!step.earned){if(elapsed>=step.start&&!step.started){step.started=true;row.classList?.add('reward-failed');}continue;}
    if(elapsed>=step.start&&!step.started){step.started=true;row.classList.add('reward-charging');cue('objective-fill');}
    if(step.started&&!step.launched){const p=Math.min(1,(elapsed-step.start)/300);row.style.setProperty('--fill',p);row.style.setProperty('--shine',Math.max(-100,Math.min(220,(elapsed-step.start-200)*1.2))+'%');}

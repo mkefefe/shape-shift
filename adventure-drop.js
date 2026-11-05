@@ -2,13 +2,13 @@
 // board, score, equipped frame or an RNG; a retry starts this same sequence.
 const phrases={
  coral:[[0,0,25,0],[0,1,25,0]],
- lagoon:[[2,1,28,0],[1,1,28,Math.PI/6]],
- meadow:[[1,2,28,-Math.PI/6],[1,3,28,Math.PI/6]],
- sunlight:[[3,3,28,0],[2,3,28,Math.PI/4]],
- dusk:[[2,0,30,Math.PI/4],[2,2,30,0]],
- sky:[[3,1,30,Math.PI/10],[0,1,30,0]],
- bloom:[[0,2,32,0],[3,2,32,-Math.PI/10]],
- ember:[[1,0,32,Math.PI/6],[3,0,32,0]],
+ lagoon:[[2,1,28,0],[1,1,28,0]],
+ meadow:[[1,2,28,0],[1,3,28,0]],
+ sunlight:[[3,3,28,0],[2,3,28,0]],
+ dusk:[[2,0,30,0],[2,2,30,0]],
+ sky:[[3,1,30,0],[0,1,30,0]],
+ bloom:[[0,2,32,0],[3,2,32,0]],
+ ember:[[1,0,32,0],[3,0,32,0]],
  lock:[[2,0,32,0,'obstacle']],
  bomb:[[0,0,24,0,'bomb']]
 };

@@ -59,7 +59,7 @@ export function bindPianoKeyboard({host,dialog,active,press,release,pause}){
  host.addEventListener('shape-shift-input-reset',reset);
  media.addEventListener('change',sync);
  return {reset,mount(){
-  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold a key for an optional longer tone.');
+  reset();row=dialog.ownerDocument.createElement('div');row.className='piano-key-labels';row.setAttribute('aria-label','Keyboard strips, left to right: A, S, D, F. Hold long notes until their trails fill to earn the point.');
   for(const key of keys){const label=dialog.ownerDocument.createElement('kbd');label.textContent=key.toUpperCase();row.append(label);}
   dialog.append(row);sync();return media.matches||keyboardUsed;
  }};

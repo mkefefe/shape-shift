@@ -8,9 +8,12 @@
     },
     {
       "mode": "menu-moon",
-      "file": "assets/music/game-background-359782.mp3",
-      "sha256": "ce4619f4ad7706172d139cc5caa56bd825921bfd4858c64387bbd27c9aad4767",
-      "source": "retained selected Moon music"
+      "file": "assets/music/menu-moon-efficient-v245.ogg",
+      "sha256": "553940a24b4009149990cd612bbf3770d54aa10878e73098ff4ba98fcd72d535",
+      "source": "retained selected Moon music",
+      "sourceFile": "assets/music/game-background-359782.mp3",
+      "sourceSha256": "ce4619f4ad7706172d139cc5caa56bd825921bfd4858c64387bbd27c9aad4767",
+      "encoding": "Vorbis quality 5; original duration, sample rate, channels and playback pitch retained"
     },
     {
       "mode": "menu-sunset",
@@ -89,7 +92,7 @@
     "songFile": "piano-songs.js",
     "planFile": "piano-backing.js",
     "source": "Twenty authored scores in piano-song-data.js. Verse and Chorus repeat the same two-bar melody and chord progression three times, followed by a two-bar answer and tonic cadence; Intro and Bridge repeat twice. Bass, arpeggio voicing and percussion repeat with the hook. Runtime chart export and listening renderer are in scripts/music240.",
-    "behavior": "Any visible unplayed note in the pressed A/S/D/F lane scores and sounds immediately, independently of other lanes or position. One fresh press per note; holding is optional and never delays the point. Count-in begins with the first note at the top entry edge. Pitched support follows the actual press, with steady percussion, pause/mute cleanup and stereo room.",
+    "behavior": "Visible notes sound immediately when their A/S/D/F lane is pressed. Short notes score on press; long notes require completing the hold. Early release retains partial progress while the note remains available. Independent lanes, one fresh press per note, top-entry countdown and foreground-stall protection remain. Short repeating figures establish each phrase before its answer and returning chorus.",
     "keys": [
       "assets/music/keys/36.ogg",
       "assets/music/keys/42.ogg",
@@ -145,6 +148,6 @@
       "adventure-piano.js"
     ],
     "behavior": "Fixed authored piece orders, waves and Piano phrases. Success is evaluated after the complete stage and its sound, physics and effect tails, never at the first score threshold. Tutorial content resets before the authored opening. Standalone Games and the separate Battle campaign keep their existing content.",
-    "piano": "Six written nine-bar arrangements: repeated two-bar hook, turnaround, sustained tonic. Immediate visible A/S/D/F input and optional holds are retained; goals count actual notes."
+    "piano": "Six written nine-bar arrangements with repeated short motifs, a repeated two-bar hook, turnaround and sustained tonic. Visible A/S/D/F input stays immediate; long notes require holding for credit. Goals count completed notes."
   }
 }

@@ -147,7 +147,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   if(!isAdmin()&&n>unlockedLevel(progress)){sound('map-locked');showMapNotice('Complete Level '+(n-1)+' to unlock Level '+n+'.');return;}
   level=n;$('level-title').textContent='Level '+n;
   const challenge=adventureChallenge(n),goal=$('level-goal');goal.replaceChildren();
-  const goalName=document.createElement('strong');goalName.textContent=n===100?'Endless finale':challenge?challenge.name:'Collect to win';goal.append(goalName);
+  const goalName=document.createElement('strong');goalName.textContent=n===100?'Endless finale':challenge?challenge.name:'';goal.append(goalName);
   if(n===100){const note=document.createElement('span');note.textContent='Survive as long as you can. Ending the run completes Adventure.';goal.append(note);}
   if(challenge){const duration=document.createElement('span');duration.textContent=challengeDescription(challenge);goal.append(duration);}
   let designNote=$('level-design');if(!designNote){designNote=document.createElement('p');designNote.id='level-design';$('level-goal').after(designNote);}
@@ -155,8 +155,8 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   designNote.textContent=design?design.name+' · Black blocks break after '+design.hits+' adjacent '+(design.hits===1?'match':'matches')+'. No bomb needed.':'';
   let requirements=$('level-requirements');if(!requirements){requirements=document.createElement('div');requirements.id='level-requirements';$('level-goal').after(requirements);}
   renderLevelRequirements(requirements,n,{},drawShape);
-  let goals=$('level-objectives');if(!goals){const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Star tasks';goals=document.createElement('ul');goals.id='level-objectives';requirements.after(heading,goals);}
-  $('level-dialog').querySelector('.star-tasks-heading').textContent=n===100?'Optional star milestones':'Bonus stars (optional)';
+  let goals=$('level-objectives');if(!goals){const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Missions';goals=document.createElement('ul');goals.id='level-objectives';requirements.after(heading,goals);}
+  $('level-dialog').querySelector('.star-tasks-heading').textContent='Missions';
   goals.innerHTML=levelTasks(n).map(task=>'<li class="star-challenge"><span class="map-star earned" aria-hidden="true"><img src="assets/stars-v101.webp" alt=""></span><span>'+task.label+'</span></li>').join('');
   let frameNote=$('level-frame-requirement');if(!frameNote){frameNote=document.createElement('p');frameNote.id='level-frame-requirement';frameNote.setAttribute('role','status');$('level-goal').after(frameNote);}
   let frameButton=$('level-choose-frame');if(!frameButton){frameButton=document.createElement('button');frameButton.id='level-choose-frame';frameButton.className='secondary';frameButton.textContent='Choose frame';frameNote.after(frameButton);frameButton.onclick=()=>{$('level-dialog').close();openFrames();};}
@@ -234,9 +234,8 @@ export function mapNodePosition(level,width){const section=Math.floor((level-1)/
 export function visibleMapSections(scroll,height,width){const first=Math.max(0,Math.floor(scroll/width)-1),last=Math.min(49,Math.ceil((scroll+height)/width)+1);return [Math.max(0,49-last),Math.min(49,49-first)];}
 
 export function levelTaskIntroduction(level){
- if(Number(level)===100)return '<h3 class="collection-heading">Endless finale</h3><p>Survive as long as you can. Ending the run completes Adventure.</p><h3 class="star-tasks-heading">Optional score stars</h3>';
- const heading=adventureChallenge(level)?'Level goal':'Collect to win';
- return '<h3 class="collection-heading">'+heading+'</h3><div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Star tasks</h3>';
+ if(Number(level)===100)return '<h3 class="collection-heading">Endless finale</h3><p>Survive as long as you can. Ending the run completes Adventure.</p><h3 class="star-tasks-heading">Missions</h3>';
+ return '<div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Missions</h3>';
 }
 
 export function levelTaskStatus(level,stats={}){return taskStatus(levelTasks(level),stats);}

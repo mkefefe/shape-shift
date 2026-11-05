@@ -145,7 +145,6 @@ export function initShapeSlice({getAdventureChallenge=()=>null,onAdventureResult
 
  }
  window.addEventListener('shape-shift-input-reset',()=>endGesture(true));
- dialog.addEventListener('pointerdown',e=>{if(e.button===0&&!e.target.closest('button,a,input,select,textarea'))play('surface-tap');});
  dialog.addEventListener('cancel',e=>{e.preventDefault();if(game&&!game.over){if(paused)resume();else pause();}else close();});dialog.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='p'&&game&&!game.over){e.preventDefault();paused?resume():pause();}});
  const autoPause=()=>{if(dialog.open)pause();};window.addEventListener('unused-blur',autoPause);window.addEventListener('androidpause',autoPause);document.addEventListener('visibilitychange',()=>{if(window.ShapeShiftPlatform.paused)autoPause();});window.addEventListener('pagehide',()=>{if(game&&!saved){if(continueOffer.isOffering()){resultJournal.write(runId,game);return;}game.end();save();}});new ResizeObserver(()=>{if(game){endGesture(true);render();}}).observe(dialog);
  settle();

@@ -210,10 +210,10 @@ test('center-card double taps start once and ignore slow or interrupted pairs',(
 
 import {levelTaskIntroduction} from './world-menu.js';
 test('finale task panel explains endless completion and optional scores without an empty collection section',()=>{
- const intro=levelTaskIntroduction(100);assert.match(intro,/Endless finale/);assert.match(intro,/Ending the run completes Adventure/);assert.match(intro,/Optional score stars/);assert(!intro.includes('Collect to win'));assert(!intro.includes('paused-level-requirements'));
+ const intro=levelTaskIntroduction(100);assert.match(intro,/Endless finale/);assert.match(intro,/Ending the run completes Adventure/);assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert(!intro.includes('paused-level-requirements'));
  assert.deepEqual(levelTasks(100).map(t=>t.target),[100,200,500]);
 });
-test('minigame tasks use a score goal heading while matching lessons keep collections',()=>{
- for(const level of [5,10,15,30,95]){const intro=levelTaskIntroduction(level);assert.match(intro,/Level goal/);assert(!intro.includes('Collect to win'));assert.match(intro,/paused-level-requirements/);assert.equal(levelRequirements(level)[0].type,'challengeScore');}
- assert.match(levelTaskIntroduction(11),/Collect to win/);
+test('mission panels keep required goal data without redundant headings',()=>{
+ for(const level of [5,10,15,30,95]){const intro=levelTaskIntroduction(level);assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert.match(intro,/paused-level-requirements/);assert.equal(levelRequirements(level)[0].type,'challengeScore');}
+ assert.match(levelTaskIntroduction(11),/Missions/);assert(!levelTaskIntroduction(11).includes('Collect to win'));
 });

@@ -1,4 +1,4 @@
-// Visual feedback observes input only; it never dispatches gameplay actions or blocks gestures.
+// Shared tap feedback observes input only; it never dispatches gameplay actions or blocks gestures.
 export function initInputFeedback(){
  const selector='button,a[href],[role="button"],input[type="checkbox"],input[type="radio"],input[type="range"],label[for]';
  const pointers=new Map(),releases=new Map(),keys=new Map();
@@ -67,6 +67,7 @@ export function initInputFeedback(){
  }
  document.addEventListener('pointerdown',event=>{
   if(event.button!==0)return;
+  window.gameAudio?.ui('surface-tap');
   const slicing=event.target instanceof Element&&event.target.closest('#shape-slice[data-view=play][data-paused=false]')&&!find(event.target)&&!event.target.closest('.drop-overlay');
   if(!slicing)ring(event.clientX,event.clientY);
   const control=press(find(event.target));pointers.set(event.pointerId,{control,x:event.clientX,y:event.clientY,repeat:control?.dataset.repeatBuy});

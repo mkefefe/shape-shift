@@ -45,3 +45,12 @@ test('the opening and contrasting bridge repeat twice while the full song still 
   assert.equal(song.beats,128);assert.equal(song.notes.at(-1).pitch,song.tonic);
  }
 });
+
+test('each verse and chorus begins with a repeated short figure inside its first bar',()=>{
+ for(const song of ORIGINAL_SONGS)for(const section of song.sections.filter(s=>['Verse','Chorus'].includes(s.name))){
+  const notes=notesAt(song,section.beat,1),half=notes.length/2;
+  assert(Number.isInteger(half)&&half>=2);
+  const figure=ns=>ns.map(n=>[n.pitch,n.duration,n.soundBeats,n.holdBeats]);
+  assert.deepEqual(figure(notes.slice(0,half)),figure(notes.slice(half)),song.id);
+ }
+});

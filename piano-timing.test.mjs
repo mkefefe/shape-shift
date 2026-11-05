@@ -38,7 +38,7 @@ test('the actual view paints a solid first note throughout 3/2/1 and descends co
   }
   advance(game,.99);assert.equal(game.countdown,0);assert.deepEqual(paint(),first);assert(text.includes('GO!'));
   game.step(1/60);const moving=paint();assert(moving.y>first.y);assert(moving.y-first.y<6,'GO advances one ordinary frame without a jump');
-  assert(game.pressStrip(game.notes[0].lane));assert.equal(game.hits,1);
+  assert(game.pressStrip(game.notes[0].lane));assert.equal(game.hits,1);game.release(game.notes[0].lane);
   assert(game.inputWindow>game.cueWindow,'the full visible input window remains larger than the staged cue');
   const waiting=game.notes.find(n=>n.status==='waiting');game.beat=waiting.beat-game.inputWindow+.001;
   assert(game.pressStrip(waiting.lane),'later notes remain playable at their first visible sliver');
@@ -55,11 +55,11 @@ function playAdventure(g,{skip=new Set(),observe=()=>{}}={}){
    seen.set(n.id,chartNote(n));
    if(!skip.has(n.id)&&n.status==='waiting'&&n.beat-g.beat<=(g.inputWindow??4.4)&&g.countdown===0){
     const first=g.notes.find(other=>other.lane===n.lane&&other.status==='waiting'&&other.beat-g.beat<=(g.inputWindow??4.4));
-    if(first!==n)continue;
-    assert(g.pressNote(n.id),'authored visible note must be playable');g.release(n.lane);
+    if(first!==n||g.pressed.has(n.lane))continue;
+    assert(g.pressNote(n.id),'authored visible note must be playable');if(!n.hold)g.release(n.lane);
    }
   }
-  observe(g);g.step(1/120);
+  for(const lane of [...g.pressed])if(!g.notes.some(n=>n.lane===lane&&n.status==='holding'))g.release(lane);observe(g);g.step(1/120);
  }
  assert(g.over,'finite Adventure must terminate');return [...seen.values()];
 }
@@ -101,14 +101,15 @@ test('a last visible Adventure note can play after the nominal ending and its co
  const challenge=adventureChallenge(15),events=[],g=createPianoGame({adventure:challenge,onEvent:e=>events.push(e)}),lastId=challenge.noteCount-1;
  g.setViewport({lateWindow:3});g.start();
  for(let frames=0;g.beat<g.stageEndBeat+1.8&&frames<10000;frames++){
-  for(const n of g.notes)if(n.id!==lastId&&n.status==='waiting'&&n.beat-g.beat<=4.4&&g.countdown===0){assert(g.pressNote(n.id));g.release(n.lane);}
+  for(const lane of [...g.pressed])if(!g.notes.some(n=>n.lane===lane&&n.status==='holding'))g.release(lane);
+  for(const n of g.notes)if(!g.pressed.has(n.lane)&&n.id!==lastId&&n.status==='waiting'&&n.beat-g.beat<=4.4&&g.countdown===0){assert(g.pressNote(n.id));if(!n.hold)g.release(n.lane);}
   g.step(1/120);
  }
  assert.equal(g.over,false);assert.equal(g.stageComplete,false);assert.equal(g.hits,challenge.noteCount-1);
  const last=g.notes.find(n=>n.id===lastId);assert(last&&last.status==='waiting');
- const playedAt=g.time;assert(g.pressStrip(last.lane));assert.equal(g.hits,challenge.noteCount);g.release(last.lane);
- assert.equal(last.status,'done');const tail=last.duration*60/last.bpm+PIANO_STAGE_RELEASE_SECONDS;
- advance(g,tail-.03);assert.equal(g.over,false);assert.equal(g.stageComplete,false);
+ const playedAt=g.time;assert(g.pressStrip(last.lane));assert.equal(g.hits,challenge.noteCount-1);
+ const tail=last.duration*60/last.bpm+PIANO_STAGE_RELEASE_SECONDS;
+ advance(g,tail-.03);assert.equal(last.status,'done');assert.equal(g.hits,challenge.noteCount);g.release(last.lane);assert.equal(g.over,false);assert.equal(g.stageComplete,false);
  advance(g,.05);assert(g.over&&g.stageComplete);assert(g.time>=playedAt+tail);
  assert.equal(events.filter(e=>e.type==='note'&&e.note.id===lastId).length,1);assert.equal(g.lives,g.maxLives);
 });
@@ -124,14 +125,14 @@ test('one or two missed Adventure notes resolve naturally without truncating the
 
 test('losing the final heart after the written endpoint remains failure rather than natural completion',()=>{
  const challenge=adventureChallenge(15),g=createPianoGame({adventure:challenge});g.setViewport({lateWindow:1.6});
- playAdventure(g,{skip:new Set([0,8,25])});
+ playAdventure(g,{skip:new Set([0,8,challenge.noteCount-1])});
  assert.equal(g.lives,0);assert.equal(g.stageComplete,false);assert.equal(g.stageProgress.done,challenge.noteCount);
  assert(g.beat>g.stageEndBeat);assert.equal(g.revive(),false);assert.equal(g.stageComplete,false);
 });
 
 test('Adventure practice hands off to the exact first authored note with clean score and no tutorial credit',()=>{
  const challenge=adventureChallenge(45),events=[],g=createPianoGame({...options,practice:true,onEvent:e=>events.push(e)});
- g.setViewport({inputWindow:5.2});g.start();advance(g,10);assert(g.pressStrip(1));g.release(1);advance(g,4);assert(g.pressStrip(2));g.release(2);
+ g.setViewport({inputWindow:5.2});g.start();advance(g,10);assert(g.pressStrip(1));g.release(1);advance(g,4);assert(g.pressStrip(2));advance(g,2);g.release(2);
  assert.equal(g.hits,2);assert.equal(g.stageProgress,null);assert(g.completePractice(challenge));assert.equal(g.completePractice(challenge),false);
  const fresh=createPianoGame({adventure:challenge});fresh.setViewport({inputWindow:5.2});
  assert.deepEqual(g.notes.map(chartNote),fresh.notes.map(chartNote));assert.equal(g.beat,fresh.beat);assert.equal(g.countdown,3);
@@ -140,7 +141,7 @@ test('Adventure practice hands off to the exact first authored note with clean s
  playAdventure(g);assert.equal(g.hits,challenge.noteCount);assert(g.stageComplete);
 });
 
-test('Adventure retains top-entry immediate ASDF scoring, optional holds and foreground stall protection',()=>{
+test('Adventure retains top-entry immediate ASDF scoring, required holds and foreground stall protection',()=>{
  const g=createPianoGame({adventure:adventureChallenge(60)}),layout=pianoLayout(390,844,true,true,true);
  const inputWindow=4+(layout.size/2+12)/layout.unit;g.setViewport({inputWindow});g.start();advance(g,3);
  const first=g.notes[0],entry=pianoTarget(first,g.beat,layout);assert(Math.abs(entry.y+entry.size/2-(layout.top-12))<1e-8);
@@ -161,10 +162,10 @@ test('every visible lane plays immediately from the upper screen, at every song 
 test('visible notes in different lanes can be played in any order, with independent simultaneous holds',()=>{
  const a=note(900,2,0,2),b=note(901,3,1,2),c=note(902,4,2),d=note(903,4.2,3),{g,events}=fixture([a,b,c,d],{beat:0});
  for(const lane of [3,1,2,0])assert(g.pressStrip(lane));
- assert.equal(g.hits,4);assert.equal(g.lives,g.maxLives);assert.equal(g.pressed.size,4);
+ assert.equal(g.hits,2);assert.equal(g.lives,g.maxLives);assert.equal(g.pressed.size,4);
  assert.deepEqual(events.filter(e=>e.type==='note').map(e=>e.note.id),[903,901,902,900]);
- g.release(0);assert.equal(a.status,'done');assert.equal(b.status,'holding');assert(g.pressed.has(1));
- g.release(1);assert.equal(g.hits,4);assert.equal(g.coins,4);
+ g.release(0);assert.equal(a.status,'partial');assert.equal(b.status,'holding');assert(g.pressed.has(1));
+ assert(g.pressStrip(0));advance(g,1.3);g.release(0);g.release(1);assert.equal(g.hits,4);assert.equal(g.coins,4);
 });
 test('each fresh press selects the earliest visible unplayed note only within its own lane',()=>{
  const notes=[note(900,2,0),note(901,3,1),note(902,3.5,1),note(903,9,2)],{g,input}=fixture(notes,{beat:0});
@@ -173,21 +174,22 @@ test('each fresh press selects the earliest visible unplayed note only within it
  input.release('finger');input.press(1,'finger');assert.equal(notes[2].status,'done');assert.equal(g.hits,2);
  assert(!g.pressNote(903));assert.equal(notes[3].status,'waiting');
 });
-test('a long visible note awards its point on attack and lifting it cannot remove or duplicate that point',()=>{
- for(const length of [0,.03,.4,1.5]){
-  const a=note(900,4,0,2),{g,events}=fixture([a],{beat:0});assert(g.pressStrip(0));
-  assert.equal(g.hits,1);assert.equal(g.coins,1);assert.equal(a.status,'holding');
-  advance(g,length);g.release(0);assert.equal(a.status,'done');assert.equal(g.lives,g.maxLives);
-  assert(!g.pressStrip(0));assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='complete').length,1);
+test('a long note sounds on press but earns credit only after its required hold',()=>{
+ for(const length of [0,.03,.4]){
+  const a=note(900,4,0,2),{g,events}=fixture([a],{beat:0});assert(g.pressStrip(0));assert.equal(g.hits,0);
+  advance(g,length);g.release(0);assert.equal(a.status,'partial');assert.equal(g.hits,0);
+  assert(g.pressStrip(0));advance(g,1.21-length);assert.equal(a.status,'done');assert.equal(g.hits,1);g.release(0);
+  assert(!g.pressStrip(0));assert.equal(events.filter(e=>e.type==='complete').length,1);
  }
 });
+
 test('short notes and the visible tail of long notes remain playable until they exit the viewport',()=>{
  for(const [w,h] of [[320,568],[390,844],[1200,800]])for(const hold of [0,2]){
   const layout=pianoLayout(w,h,true,true,true),window=4+(layout.size/2+12)/layout.unit,late=(h-layout.hit+layout.size/2)/layout.unit;
   for(const position of ['top','bottom']){
    const a=note(900,4,0,hold),beat=position==='top'?4-window+.01:4+hold+late-.01,{g}=fixture([a],{beat});g.inputWindow=window;g.lateWindow=late;
    const p=pianoTarget(a,g.beat,layout);assert(p.y+p.size/2>=layout.top-12);assert(p.y-hold*layout.unit-p.size/2<h);
-   assert(g.pressStrip(0),`${w}x${h} ${position} hold ${hold}`);assert.equal(g.hits,1);
+   assert(g.pressStrip(0),`${w}x${h} ${position} hold ${hold}`);assert.equal(g.hits,hold?0:1);if(hold){advance(g,1.21);assert.equal(g.hits,1);}
   }
   const a=note(900,4,0,hold),{g}=fixture([a],{beat:4+hold+late+.01});g.lateWindow=late;assert(!g.pressNote(a.id));g.step(.01);
   assert.equal(a.status,'missed');assert.equal(g.lives,g.maxLives-1);
@@ -196,7 +198,7 @@ test('short notes and the visible tail of long notes remain playable until they 
 test('a held key never collects the next note, and a press made before visibility is never buffered',()=>{
  const a=note(900,4,0,.5),b=note(901,5,0),{g,input,events}=fixture([a,b],{beat:-1});
  input.press(0,'key');g.beat=0;input.flush();assert.equal(g.hits,0);
- input.release('key');input.press(0,'key');assert.equal(g.hits,1);advance(g,1);g.beat=5;
+ input.release('key');input.press(0,'key');assert.equal(g.hits,0);advance(g,1);g.beat=5;
  input.press(0,'key');input.flush();assert.equal(b.status,'waiting');assert.equal(g.hits,1);
  input.release('key');input.press(0,'key');assert.equal(g.hits,2);assert.equal(events.filter(e=>e.type==='note').length,2);
 });
@@ -206,14 +208,14 @@ test('wrong-lane recovery freezes and rewinds once, then an early visible retry 
  g.pause();const frozen=g.recoverySeconds;advance(g,.5);assert.equal(g.recoverySeconds,frozen);g.resume();advance(g,.6);
  input.release('bad');input.press(0,'good');assert.equal(g.hits,1);assert.equal(events.filter(e=>e.type==='recover').length,1);assert.equal(events.filter(e=>e.type==='note').length,1);
 });
-test('pause ends optional sustain, retains its point and resumes the clock without demanding another hold',()=>{
+test('pause preserves hold progress without awarding its point',()=>{
  const a=note(900,4,0,2),b=note(901,5,1),{g,events}=fixture([a,b],{beat:2});g.pressStrip(0);advance(g,.1);g.pause();
- const beat=g.beat;advance(g,.5);assert.equal(g.beat,beat);assert.equal(g.hits,1);assert.equal(a.status,'done');
- g.resume();advance(g,.1);assert(g.beat>beat);assert(g.pressStrip(1));assert.equal(g.hits,2);assert.equal(events.filter(e=>e.type==='note').length,2);
+ const beat=g.beat;advance(g,.5);assert.equal(g.beat,beat);assert.equal(g.hits,0);assert.equal(a.status,'holding');
+ g.resume();assert(g.pressStrip(0));advance(g,1.2);assert(g.beat>beat);assert(g.pressStrip(1));assert.equal(g.hits,2);assert.equal(events.filter(e=>e.type==='note').length,3);
 });
-test('revive preserves all earned taps and optional holds without replaying or rescoring them',()=>{
+test('revive preserves all earned taps and required holds without replaying or rescoring them',()=>{
  const a=note(900,4,0),b=note(901,5,1,2),c=note(902,7,2),{g,events}=fixture([a,b,c]);
- g.pressStrip(0);g.release(0);g.pressStrip(1);g.lives=0;g.end();assert(g.revive());
+ g.pressStrip(0);g.release(0);g.pressStrip(1);advance(g,1.21);g.lives=0;g.end();assert(g.revive());
  assert.equal(a.status,'done');assert.equal(b.status,'done');assert.equal(g.hits,2);events.length=0;advance(g,3);
  assert.equal(events.filter(e=>e.type==='note').length,0);assert.equal(g.hits,2);g.beat=4;assert(g.pressStrip(2));assert.equal(g.hits,3);
 });
@@ -248,7 +250,7 @@ test('count-in resize and rewarded continuation both cue the next unplayed note 
  advance(g,2);g.pressStrip(g.notes[0].lane);g.release(g.notes[0].lane);const earned=g.hits,next=g.notes.find(n=>!n.scored);
  g.lives=0;g.end();assert(g.revive());assert.equal(g.hits,earned);assert.equal(g.countdown,3);
  assert(Math.abs(pianoTarget(next,g.beat,layout).y+layout.size/2-(layout.top-12))<1e-8);
- advance(g,3);const before=g.beat;g.step(1/60);assert(g.beat>before);assert(g.pressStrip(next.lane));assert.equal(g.hits,earned+1);
+ advance(g,3);const before=g.beat;g.step(1/60);assert(g.beat>before);assert(g.pressStrip(next.lane));if(next.hold)advance(g,next.hold*60/next.bpm+.01);assert.equal(g.hits,earned+1);
 });
 
 test('an explicit background pause still freezes the chart across a stall until resume',()=>{
@@ -257,7 +259,7 @@ test('an explicit background pause still freezes the chart across a stall until 
  g.resume();g.step(.02);assert(!g.paused);assert(g.beat>2);assert(g.pressStrip(0));
 });
 test('lead attacks get their full authored articulation immediately, even before or after nominal onset',()=>{
- for(const beat of [0,4.5]){const a=note(900,4,0,2),{g,events}=fixture([a],{beat});g.pressStrip(0);const sound=events.find(e=>e.type==='note');assert.equal(sound.remainingSound,a.soundBeats);assert.equal(sound.time,0);assert.equal(g.hits,1);}
+ for(const beat of [0,4.5]){const a=note(900,4,0,2),{g,events}=fixture([a],{beat});g.pressStrip(0);const sound=events.find(e=>e.type==='note');assert.equal(sound.remainingSound,a.soundBeats);assert.equal(sound.time,0);assert.equal(g.hits,0);}
 });
 test('performed support sounds on the press and cancels stale future figures when the player moves on',()=>{
  let now=0;const calls=[],cancelled=[];const support=createPianoPerformedSupport({now:()=>now,play:event=>{calls.push(event);return ()=>cancelled.push(event.id);}});
@@ -269,9 +271,9 @@ test('performed support sounds on the press and cancels stale future figures whe
  support.schedule([{id:'next-bass',beat:0,duration:1}],{bpm:120,beat:0});assert.equal(calls.length,5,'pause clears cancelled support ownership');
 });
 
-test('wrong-strip recovery releases optional sustains without removing their earned point',()=>{
+test('wrong-strip recovery releases incomplete holds without awarding their point',()=>{
  const a=note(900,2,0,3),b=note(901,3,1),{g,events}=fixture([a,b],{beat:0,recoverWrongTap:true});
- g.pressStrip(0);assert.equal(g.hits,1);assert.equal(a.status,'holding');g.pressStrip(3);
- assert.equal(a.status,'done');assert.equal(g.pressed.size,0);assert.equal(g.hits,1);assert.equal(g.recoverySeconds,1);
- assert.equal(events.filter(e=>e.type==='release'&&e.note===a).length,1);advance(g,1.1);g.pressStrip(1);assert.equal(g.hits,2);
+ g.pressStrip(0);assert.equal(g.hits,0);assert.equal(a.status,'holding');g.pressStrip(3);
+ assert.equal(a.status,'partial');assert.equal(g.pressed.size,0);assert.equal(g.hits,0);assert.equal(g.recoverySeconds,1);
+ assert.equal(events.filter(e=>e.type==='release'&&e.note===a).length,1);advance(g,1.1);g.pressStrip(1);assert.equal(g.hits,1);
 });

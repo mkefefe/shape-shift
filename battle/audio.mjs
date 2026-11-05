@@ -10,6 +10,7 @@ export function cueNotes(kind,combo=0,random=Math.random){
  const note=(frequency,delay,length,volume,end=frequency,type='sine')=>({frequency,delay,length,volume,end,type});
  switch(kind){
   case 'hit': return [note(1046*lift,0,.13,.15,1172*lift),note(1569*lift,.025,.10,.045)];
+  case 'surface-tap': return [note(720,0,.045,.045,980)];
   case 'click': return [note(720,0,.065,.13,1040),note(1440,.012,.045,.025)];
   case 'start': return [note(784,0,.14,.11),note(1046,.07,.18,.085),note(1568,.15,.20,.04)];
   case 'warning': return [note(784,0,.10,.10,880,'triangle'),note(1046,.14,.13,.085)];

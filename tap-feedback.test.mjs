@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import fs from 'node:fs';
 const source=fs.readFileSync(new URL('./input-feedback.js',import.meta.url),'utf8');
 function harness(mode){
- const handlers={},animations=[];
+ const handlers={},animations=[],sounds=[];
  class Element{
   constructor(){this.children=[];this.style={};this.attributes={};this.classList={contains:()=>false,add(){},remove(){}};}
   setAttribute(k,v){this.attributes[k]=v;} removeAttribute(k){delete this.attributes[k];}
@@ -14,10 +14,10 @@ function harness(mode){
   animate(frames,options){animations.push({frames,options});return {finished:new Promise(()=>{})};}
  }
  const body=new Element(),modal=new Element(),doc={body,addEventListener:(k,f)=>handlers[k]=f,querySelectorAll:()=>[modal],createElement:()=>{const e=new Element();if(mode!=='missing'){e.showPopover=()=>{if(mode==='throws')throw Error('popover unavailable');e.shown=true;};e.hidePopover=()=>{e.shown=false;};}return e;}};
- const context={document:doc,window:{ShapeShiftPlatform:{clearTimeout(){},setTimeout(){}},addEventListener(){}},Element,MutationObserver:class{observe(){}},console,Math,Promise};
+ const context={document:doc,window:{gameAudio:{ui:name=>sounds.push(name)},ShapeShiftPlatform:{clearTimeout(){},setTimeout(){}},addEventListener(){}},Element,MutationObserver:class{observe(){}},console,Math,Promise};
  vm.runInNewContext(source.replace('export function','function')+'\ninitInputFeedback();',context);
  handlers.pointerdown({button:0,pointerType:'touch',pointerId:1,clientX:120,clientY:250,target:body});
- return {layer:body.children[0],modal,animations};
+ return {layer:body.children[0],modal,animations,sounds};
 }
 for(const mode of ['missing','throws','supported'])test('touch ripple and eight sparks render with popover '+mode,()=>{
  const {layer,modal,animations}=harness(mode);assert.equal(animations.length,9);assert.equal(layer.children.length,1);assert.equal(layer.children[0].style.left,'120px');assert.equal(layer.children[0].style.top,'250px');
@@ -27,3 +27,5 @@ for(const mode of ['missing','throws','supported'])test('touch ripple and eight 
 test('base effect layout does not depend on a supported popover pseudo-class',()=>{
  const css=fs.readFileSync(new URL('./input-feedback.css',import.meta.url),'utf8');assert(css.includes('#tap-effects{position:fixed;'));assert(!css.includes(':popover-open'));
 });
+
+test('blank screen taps use the shared sound path even without a button handler',()=>{assert.deepEqual(harness('supported').sounds,['surface-tap']);});

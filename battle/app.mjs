@@ -36,6 +36,7 @@ let battlePlatform;
 const battleAudio=createBattleAudio(music,()=>({muted:muted||battlePlatform?.audioAllowed===false,effectsAllowed,effectsVolume,musicVolume}));
 battlePlatform=createBattlePlatformState({suspendAudio:()=>battleAudio.suspend(),pauseGame:pause,playMusic:()=>battleAudio.playMusic(),isPlaying:()=>!!run&&!paused&&run.state.status==='fight'});
 const cue=(kind,combo=0)=>battleAudio.cue(kind,combo);
+document.addEventListener('pointerdown',event=>{if(event.button===0&&activated)cue('surface-tap');},{capture:true,passive:true});
 const physicalSound=kind=>battleAudio.physical(kind);
 const damageSound=()=>battleAudio.damage();
 const playMusic=()=>battleAudio.playMusic();

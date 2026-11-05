@@ -1040,10 +1040,10 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  if(runMode==='endless')$('ad-status').textContent='';
  if(['adventure','endless'].includes(runMode)){
   $('over-dialog').classList.add('clear-results');
-  $('result-next-goal').hidden=false;
+  $('result-next-goal').hidden=runMode==='adventure';
   const won=runMode==='adventure'&&modeWon;
   $('record').textContent=runMode==='adventure'?(won?'Level '+adventureLevel+' complete!':'Level '+adventureLevel+' · Out of hearts'):'Run complete';
-  $('result-next-goal').textContent=runMode==='adventure'?(won?(adventureLevel===100?'All 100 Adventure levels complete.': 'Next: Level '+(adventureLevel+1)+' · '+levelRequirements(adventureLevel+1).map(g=>g.label).join(' · ')):'Goal: '+levelRequirementStatus(adventureLevel,currentLevelStats()).map(g=>g.label+' ('+g.value+')').join(' · ')):'Next goal: beat your best of '+$('final-best').textContent+'.';
+  $('result-next-goal').textContent=runMode==='adventure'?'':'Next goal: beat your best of '+$('final-best').textContent+'.';
   $('adventure-continue').textContent=runMode==='adventure'?(won&&adventureLevel<100?'Next level':'Level map'):'Main menu';
   $('ad-status').textContent='';
  }
@@ -1064,7 +1064,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  if(runMode==='rush'&&resultStored){$('result-return-countdown').hidden=false;cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent='Main menu in '+n+'s';},()=>{uiSound('leave-result');home();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!restorationUI?.isOpen()});}
  };
  const startResultRewards=()=>{
-  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!restorationUI?.isOpen(),compact:$('over-dialog').classList.contains('clear-results')});
+  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!restorationUI?.isOpen()});
   else tally();
  };
  if(!resultStored||worldUI?.hasPendingSave()){$('ad-status').textContent='Your result could not be saved. Please free some storage and retry.';$('adventure-continue').hidden=false;$('adventure-continue').textContent='Save results';}
@@ -3199,7 +3199,6 @@ document.addEventListener('keydown',()=>audio()?.start(),{capture:true});
 
 
 
-$('app').addEventListener('click',e=>{if($('app').dataset.screen==='home'&&!e.target.closest('button,a,input,label,dialog'))uiSound('surface-tap');});
 
 
 

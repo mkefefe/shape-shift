@@ -117,3 +117,5 @@ test('Drop UI renders and announces the empty queue without dereferencing a miss
  vm.runInNewContext([fn('dropHint'),fn('render'),fn('update'),fn('release'),'render();update();release();result=dropHint();'].join('\n'),scope);
  assert.match(scope.result,/final matches settle/);assert.match(attributes['aria-label'],/none, waiting for final matches/);assert.equal(g.drops,g.stageProgress.total);g.dispose();
 });
+
+test('every authored Drop piece enters upright before player rotation or collisions',()=>{for(const level of levels)assert(adventureDropSequence(level).every(piece=>piece.angle===0));});
