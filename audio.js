@@ -750,8 +750,8 @@
     if(!window.ShapeShiftPlatform.audioAllowed)pause();else void start();
   }
   const resume = start;
-  let uiEpoch=0;
-  async function ui(name='click'){const epoch=++uiEpoch,requestedAt=Date.now();if(context?.state==='running'){play(name);if(!active)await start();return;}await start();if(epoch===uiEpoch&&!window.ShapeShiftPlatform.paused&&Date.now()-requestedAt<180)play(name);}
+  let uiEpoch=0,clickPending=false;
+  async function ui(name='click'){if(name==='click'){if(clickPending)return;clickPending=true;queueMicrotask(()=>{clickPending=false;});}const epoch=++uiEpoch,requestedAt=Date.now();if(context?.state==='running'){play(name);if(!active)await start();return;}await start();if(epoch===uiEpoch&&!window.ShapeShiftPlatform.paused&&Date.now()-requestedAt<180)play(name);}
   async function prepareGameStart(track='game'){
     // Resume inside the launch gesture. Music streams in independently, so a
     // slow or unavailable optional recording never prevents a playable run.

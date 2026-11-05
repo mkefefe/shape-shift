@@ -78,9 +78,12 @@ function launchClickGate(doc){
  },true);
  return gate;
 }
-export function bindLaunchTap(button,action){
+// Consume the compatibility click when an immediate board press changes the screen.
+export function consumePointerClick(doc=document){launchClickGate(doc).blocked=true;}
+export function bindLaunchTap(button,action,{enabled=()=>true}={}){
+ if(button.dataset)button.dataset.launchTap='true';
  const doc=button.ownerDocument,host=doc.defaultView,gate=launchClickGate(doc);let press=null,consumeClick=false;
- const available=()=>!button.disabled&&button.isConnected&&!button.closest('[inert]')&&button.getClientRects().length>0;
+ const available=()=>enabled()&&!button.disabled&&button.isConnected&&!button.closest('[inert]')&&button.getClientRects().length>0;
  const clear=()=>{
   press=null;
   host.removeEventListener('pointermove',move);host.removeEventListener('pointerup',up);

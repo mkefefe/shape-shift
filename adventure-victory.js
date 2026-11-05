@@ -10,15 +10,25 @@ export function victoryTimeline(done,{visible=()=>true,update=()=>{},raf=request
  frame=raf(tick);return {finish,cancel(){ended=true;caf(frame);}};
 }
 
-export function showAdventureVictory({document,points=[],level,sound,stopSound=()=>{},done,reveal=()=>{},resultDialog=document.getElementById('over-dialog'),visible=()=>!window.ShapeShiftPlatform.paused,reduced=false}){
+export function refreshVictoryChoices(root,tiles,drawShape){
+ const choices=[...root.querySelectorAll('.choice')];
+ root.classList.remove('success','miss','burst-clear','rewind-active');
+ choices.forEach((choice,index)=>{
+  const tile=tiles[index];if(!tile)return;
+  const art=root.ownerDocument.createElement('span');art.className='sprite';art.setAttribute('aria-hidden','true');drawShape(art,{...tile,collected:false});
+  choice.replaceChildren(art);choice.classList.remove('collected','picked-tile','memory-open','memory-correct','pickup-flip','input-pressed');choice.removeAttribute('aria-hidden');choice.disabled=true;choice.style.opacity='';choice.style.transform='';
+ });
+ return choices;
+}
+export function showAdventureVictory({document,points=[],tiles=[],drawShape,level,sound,stopSound=()=>{},done,reveal=()=>{},resultDialog=document.getElementById('over-dialog'),visible=()=>!window.ShapeShiftPlatform.paused,reduced=false}){
  const dialog=document.createElement('dialog');dialog.id='adventure-victory';dialog.setAttribute('aria-labelledby','victory-title');
  const glow=document.createElement('div');glow.className='victory-glow';glow.setAttribute('aria-hidden','true');dialog.append(glow);
  const title=document.createElement('h2');title.id='victory-title';title.textContent='Level '+level+' complete!';
  const logo=document.createElement('img');logo.className='victory-logo';logo.src='assets/delivery-v144/logo-v2-cut.webp';logo.alt='Shape Shift';logo.draggable=false;dialog.append(logo,title);
+ if(drawShape&&tiles.length)refreshVictoryChoices(document.getElementById('board'),tiles,drawShape);
  const pieces=[],orbs=[],choices=[];
  {
   for(const [index,choice] of [...document.querySelectorAll('#board .choice')].entries()){
-   if(points.length&&!(points[index]>0))continue;
    const rect=choice.getBoundingClientRect();if(!rect.width||!rect.height)continue;
    const orb=document.createElement('i');orb.className='victory-orb';orb.setAttribute('aria-hidden','true');dialog.append(orb);orbs.push({orb,x:rect.x+rect.width/2,y:rect.y+rect.height/2});choices.push({choice,transform:choice.style.transform,opacity:choice.style.opacity});
   }
@@ -50,7 +60,7 @@ export function showAdventureVictory({document,points=[],level,sound,stopSound=(
  const cues=new Set();
  const timeline=victoryTimeline(()=>{if(finished)return;finished=true;prepareResults();clean();done();},{visible,update:p=>{
   const ms=p*VICTORY_DURATION,pose=victoryPose(ms),{w,h}=layout;
-  for(const [at,name] of [[0,'victory-transform'],[600,'victory-gather'],[1450,'victory-burst'],[1700,'victory'],[2000,'victory-spark'],[2300,'victory-spark'],[2600,'victory-spark'],[2900,'victory-spark'],[3900,'victory-panel']]){if(ms>=at&&!cues.has(at)){cues.add(at);sound(name);}}
+  for(const [at,name] of [[180,'victory-transform'],[600,'victory-gather'],[1450,'victory-burst'],[1700,'victory'],[2000,'victory-spark'],[2300,'victory-spark'],[2600,'victory-spark'],[2900,'victory-spark'],[3900,'victory-panel']]){if(ms>=at&&!cues.has(at)){cues.add(at);sound(name);}}
   if(ms>=3650)prepareResults();
   if(revealed&&resultDialog){
    if(!target){const previous=resultDialog.style.transform;resultDialog.style.transform='none';const mark=resultDialog.querySelector('.result-mark')?.getBoundingClientRect();resultDialog.style.transform=previous;if(mark)target={x:mark.x,y:mark.y,width:mark.width,height:mark.height};}
@@ -65,11 +75,11 @@ export function showAdventureVictory({document,points=[],level,sound,stopSound=(
   logo.style.transform=`translate(-50%,-50%) scale(${reduced?1:.82+pose.enter*.18+Math.sin(pose.enter*Math.PI)*.1})`;
   dialog.style.setProperty('--victory-dim',String(revealed?0:pose.dim));
   glow.style.opacity=String(pose.enter*(1-pose.dock)*.8);glow.style.transform=`translate(-50%,-50%) rotate(${reduced?0:p*30}deg)`;
-  const shrink=ease(ms/500);
+  const shrink=ease((ms-180)/320);
   for(const {choice} of choices){choice.style.transform=`scale(${1-shrink*.85})`;choice.style.opacity=String(1-shrink);}
   for(const {orb,x:ox,y:oy} of orbs){
    orb.style.left=(ox+(center.x-ox)*pose.gather)+'px';orb.style.top=(oy+(center.y-oy)*pose.gather)+'px';
-   orb.style.opacity=String(ease(ms/350)*(1-ease((ms-1400)/160)));
+   orb.style.opacity=String(ease((ms-180)/170)*(1-ease((ms-1400)/160)));
    orb.style.transform=`translate(-50%,-50%) scale(${.5+shrink*.7-pose.gather*.3})`;
   }
   const field=layout.field;

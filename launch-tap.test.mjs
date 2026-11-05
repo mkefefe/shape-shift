@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {bindLaunchTap} from './menu-navigation.js';
-function fixture(){
+import {bindLaunchTap,consumePointerClick} from './menu-navigation.js';
+function fixture(options){
  const button=new EventTarget(),host=new EventTarget(),doc=new EventTarget();doc.defaultView=host;button.ownerDocument=doc;
  button.isConnected=true;button.disabled=false;button.closest=()=>null;button.getClientRects=()=>[{}];button.getBoundingClientRect=()=>({left:10,right:110,top:10,bottom:60});let calls=0;
- bindLaunchTap(button,()=>calls++);
+ bindLaunchTap(button,()=>calls++,options);
  function send(type,values={},target=type==='pointerdown'||type==='click'?button:host){const e=new Event(type,{cancelable:true});Object.assign(e,{pointerId:1,isPrimary:true,button:0,clientX:50,clientY:30,detail:1,...values});target.dispatchEvent(e);return e;}
  return {button,host,doc,send,get calls(){return calls;}};
 }
@@ -28,4 +28,13 @@ test('an ad input reset releases an old launch click gate and accepts the next t
  assert.equal(f.send('click',{},f.doc).defaultPrevented,true);
  f.send('shape-shift-input-reset');assert.equal(f.send('click',{},f.doc).defaultPrevented,false);
  f.send('pointerdown');f.send('pointerup');assert.equal(f.calls,2);
+});
+
+test('an immediate board press consumes its trailing click before it can hit a new screen',()=>{
+ const f=fixture();consumePointerClick(f.doc);assert.equal(f.send('click',{},f.doc).defaultPrevented,true);
+ f.send('pointerdown',{},f.doc);assert.equal(f.send('click',{},f.doc).defaultPrevented,false);
+});
+
+test('a shared result button leaves mini-game gestures to their own handler',()=>{
+ const f=fixture({enabled:()=>false});f.send('pointerdown');f.send('pointerup');assert.equal(f.calls,0);assert.equal(f.send('click',{},f.doc).defaultPrevented,false);
 });

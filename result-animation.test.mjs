@@ -30,12 +30,12 @@ test('Adventure fills missions, flies earned stars, marks failures red, then sta
  f.rows[1].dataset.earned='false';
  try{
   revealAdventureRewards(f.root,cue=>cues.push(cue),()=>done++,{visible:()=>!f.platform.paused,raf:f.platform.requestAnimationFrame,caf:f.platform.cancelAnimationFrame,now:f.platform.now});
-  f.advance(160);assert(f.rows[0].classList.contains('reward-charging'));assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,0);
+  f.advance(64);assert(f.rows[0].classList.contains('reward-charging'));assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,0);
   f.platform.paused=true;f.advance(2000);assert.deepEqual(cues,['objective-fill']);assert.equal(done,0);
-  f.platform.paused=false;f.advance(320);assert(f.rows[0].classList.contains('reward-converted'));assert.deepEqual(cues,['objective-fill','star-flight']);
-  f.advance(320);assert(f.slots[0].classList.contains('earned'));assert.equal(done,0);
-  f.advance(80);assert(f.rows[1].classList.contains('reward-failed'));
-  f.advance(1400);assert.deepEqual(cues,['objective-fill','star-flight','star-land-1','objective-fill','star-flight','star-land-2']);
+  f.platform.paused=false;f.advance(128);assert(f.rows[0].classList.contains('reward-converted'));assert.deepEqual(cues,['objective-fill','star-flight']);
+  f.advance(128);assert(f.slots[0].classList.contains('earned'));assert.equal(done,0);
+  f.advance(32);assert(f.rows[1].classList.contains('reward-failed'));
+  f.advance(560);assert.deepEqual(cues,['objective-fill','star-flight','star-land-1','objective-fill','star-flight','star-land-2']);
   assert.equal(f.slots.filter(s=>s.classList.contains('earned')).length,2);assert.equal(done,1);assert(f.root.classList.contains('rewards-settled'));
   f.advance(2000);assert.equal(done,1);
  }finally{globalThis.document=oldDocument;}
@@ -45,10 +45,22 @@ for(const skip of [false,true])test('mini Adventure XP starts after stars become
  const f=fixture(),oldWindow=globalThis.window,oldDocument=globalThis.document;globalThis.window=f.host;globalThis.document=f.host.document;let left=0;
  try{
   createMiniResults({host:f.host}).show({title:'Complete',score:32,best:38,coins:8,xpBefore:0,xpAfter:20,adventure:true,adventureMarkup:'three earned stars',finish:()=>left++,restart:()=>left++});
-  const initial=f.get('result-xp-label').textContent;f.advance(1000);assert.equal(f.get('result-xp-label').textContent,initial,'hidden XP must not count before the star reveal');
-  if(skip){f.d.emit('click');assert.equal(left,0,'first tap completes the star animation without dismissing the result');assert(f.d.open);}else f.advance(1800);
+  const initial=f.get('result-xp-label').textContent;f.advance(400);assert.equal(f.get('result-xp-label').textContent,initial,'hidden XP must not count before the star reveal');
+  if(skip){f.d.emit('click');assert.equal(left,0,'first tap completes the star animation without dismissing the result');assert(f.d.open);}else f.advance(720);
   assert(f.root.classList.contains('rewards-settled'));f.advance(500);assert.notEqual(f.get('result-xp-label').textContent,initial,'visible XP animates');
   f.advance(2000);assert.equal(f.get('level-progress').value,20);assert.equal(f.get('final-coins').textContent,'+8');
   f.d.emit('click');assert.equal(left,1);assert.equal(f.d.open,false);
  }finally{globalThis.window=oldWindow;globalThis.document=oldDocument;}
+});
+
+
+test('victory repaints the last picked and collected cells without awarding another turn',async()=>{
+ const {refreshVictoryChoices}=await import('./adventure-victory.js');
+ const tiles=[{shape:0,color:0},{shape:2,color:1,collected:true}],saved=structuredClone(tiles),drawn=[];
+ const choices=tiles.map(()=>({classList:{remove(...names){this.removed=names;}},style:{opacity:'0',transform:'scale(0)'},replaceChildren(art){this.art=art;},removeAttribute(){}}));
+ const root={classList:{remove(){}},ownerDocument:{createElement:()=>({setAttribute(){}})},querySelectorAll:()=>choices};
+ refreshVictoryChoices(root,tiles,(_,tile)=>drawn.push(tile));
+ assert.deepEqual(tiles,saved,'victory presentation cannot mutate collected state or create another turn');
+ assert.equal(drawn.length,2);assert(drawn.every(tile=>tile.collected===false));
+ for(const choice of choices){assert.equal(choice.art.className,'sprite');assert.equal(choice.disabled,true);assert(choice.classList.removed.includes('picked-tile'));assert(choice.classList.removed.includes('collected'));assert.equal(choice.style.opacity,'');}
 });

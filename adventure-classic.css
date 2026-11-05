@@ -162,7 +162,7 @@ html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.
 html body #app #over-dialog#over-dialog.adventure-results .result-home-hint{bottom:auto;transform:none;width:100%;max-width:none;height:auto;min-height:0;box-sizing:border-box;text-transform:none;letter-spacing:0}
 
 /* Faster task resolution; rewards rise within the clipped panel instead of popping in. */
-html body #app #over-dialog#over-dialog.adventure-results .star-landed{animation-duration:.192s}
+html body #app #over-dialog#over-dialog.adventure-results .star-landed{animation-duration:.077s}
 html body #app #over-dialog#over-dialog.adventure-results #adventure-result .reward-objectives{transition:max-height .24s ease,opacity .12s ease}
 html body #app #over-dialog#over-dialog.adventure-results:has(.rewards-settled) :is(#final-score,.result-coins,#result-progress,#result-xp-bar,#adventure-continue){animation:adventure-reward-rise .38s cubic-bezier(.2,.7,.25,1) both}
 html body #app #over-dialog#over-dialog.adventure-results:has(.rewards-settled) #result-progress{animation-delay:.04s}
@@ -208,3 +208,11 @@ html body #app #level-tasks-dialog #level-task-list{gap:12px}
 html body #app #level-tasks-dialog .paused-task-cards{display:grid;gap:8px}
 html body #app #level-tasks-dialog .star-tasks-heading{font:900 19px/1.2 Nunito,sans-serif;margin:4px 0;color:#075570}
 html body #app #level-tasks-dialog h2{font:1000 26px/1.2 Nunito,sans-serif}
+
+/* Shape Drop score goals use gem artwork and a clear numeric target. */
+html body .challenge-goal{display:flex!important;align-items:center;justify-content:center;gap:18px;min-height:124px!important}
+html body .challenge-goal-badge{position:relative;display:block;flex:none;width:84px;height:84px;border:2px solid #e1bd68;border-radius:14px;background:linear-gradient(#fffdf0,#fff0bd);box-shadow:inset 0 2px #fff,0 2px #bc963b26}
+html body .challenge-goal-badge .goal-shape{position:absolute;display:block;width:48px;height:48px;left:5px;top:23px;background:url('assets/delivery-v144/shapes-v2.webp') 0 33.333%/400% 400% no-repeat}
+html body .challenge-goal-badge .goal-shape+ .goal-shape{width:56px;height:56px;left:27px;top:5px}
+html body .challenge-goal-value{display:flex;flex-direction:column;align-items:center;color:#075570;font:900 17px/1.2 Nunito,sans-serif}
+html body .challenge-goal-value strong{font:1000 34px/1.1 Nunito,sans-serif}

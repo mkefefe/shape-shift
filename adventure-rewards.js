@@ -11,7 +11,7 @@ export function revealAdventureRewards(root,cue,done,{visible=()=>!window.ShapeS
  function skip(e){if(stopped)return;e.preventDefault();e.stopImmediatePropagation();settle();}
  function key(e){if(e.key==='Enter'||e.key===' ')skip(e);}
  panel.addEventListener?.('click',skip,true);panel.addEventListener?.('keydown',key,true);
- function tick(t){if(stopped)return;const delta=Math.min(80,Math.max(0,t-last));last=t;if(visible())elapsed+=delta*2.5;
+ function tick(t){if(stopped)return;const delta=Math.min(80,Math.max(0,t-last));last=t;if(visible())elapsed+=delta*6.25;
   for(const step of steps){const row=rows[step.row],slot=slots[step.slot];
    if(!step.earned){if(elapsed>=step.start&&!step.started){step.started=true;row.classList?.add('reward-failed');}continue;}
    if(elapsed>=step.start&&!step.started){step.started=true;row.classList.add('reward-charging');cue('objective-fill');}

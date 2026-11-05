@@ -1,6 +1,6 @@
 import {prepareMenuImage} from './menu-preload.js?v=494241';
 import {pianoBackingPlan} from './piano-backing.js?v=494241';
-import {createAdventureChallengeRun} from './adventure-challenges.js?ui248';
+import {createAdventureChallengeRun} from './adventure-challenges.js?ui249';
 import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
 import {createResultJournal} from './run-results.js?v=494241';
 import {beginModeTransition} from './mode-transition.js?v=494241';

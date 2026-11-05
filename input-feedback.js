@@ -67,7 +67,8 @@ export function initInputFeedback(){
  }
  document.addEventListener('pointerdown',event=>{
   if(event.button!==0)return;
-  window.gameAudio?.ui('surface-tap');
+  // Controls play their activation/outcome cue; empty space still has tap feedback.
+  if(!enabled(find(event.target)))window.gameAudio?.ui('surface-tap');
   const slicing=event.target instanceof Element&&event.target.closest('#shape-slice[data-view=play][data-paused=false]')&&!find(event.target)&&!event.target.closest('.drop-overlay');
   if(!slicing)ring(event.clientX,event.clientY);
   const control=press(find(event.target));pointers.set(event.pointerId,{control,x:event.clientX,y:event.clientY,repeat:control?.dataset.repeatBuy});

@@ -12,6 +12,11 @@ export function adventureChallenge(level){
 }
 export const challengeMetric=(game,c)=>Math.max(0,Number(c.mode==='piano'?game.hits:game.score)||0);
 export const challengeGoal=c=>c.mode==='piano'?'Play '+c.target+' notes':'Reach '+c.target+' points';
+export function renderChallengeRequirement(container,c){
+ if(c.mode!=='drop'){const goal=document.createElement('strong');goal.textContent=challengeGoal(c);container.append(goal);return;}
+ container.classList.add('challenge-goal');container.setAttribute('aria-label',challengeGoal(c));
+ container.innerHTML='<span class="challenge-goal-badge" aria-hidden="true"><i class="goal-shape"></i><i class="goal-shape"></i></span><span class="challenge-goal-value"><strong>'+c.target+'</strong><span>points</span></span>';
+}
 export const challengeEnding=c=>({piano:'Finish the piece',slice:'Complete every wave',drop:'Use every drop and let the board settle'})[c.mode];
 export function challengeDescription(c){return c.mode==='piano'?c.title+' · '+c.noteCount+' notes':c.mode==='slice'?c.title+' · '+c.waveCount+' waves':c.title+' · '+c.pieceCount+' drops';}
 export function challengeTasks(c){
@@ -36,7 +41,7 @@ export function createAdventureChallengeRun({getChallenge=()=>null,onResult=()=>
  return {start(dialog){challenge=getChallenge();outcome=null;hud?.remove();hud=null;if(challenge){hud=document.createElement('div');hud.className='adventure-challenge-hud';dialog.append(hud);}},
  step(game){if(!challenge||!game)return;if(hud){const copy=challengeHud(game,challenge);if(hud.textContent!==copy)hud.textContent=copy;}if(!game.over&&challengeFinished(game,challenge))game.end('stage-complete');},
  result(game,stored){if(!challenge)return {};if(!stored)return {};outcome??=onResult(challenge,challengeStats(game,challenge));return outcome;},
- goals(card){if(!challenge)return;const goal=document.createElement('div');goal.className='adventure-pause-requirement';goal.textContent=challengeGoal(challenge);card.append(goal);const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Missions';card.append(heading);const list=document.createElement('ul');list.className='adventure-pause-goals';for(const task of challengeTasks(challenge)){const row=document.createElement('li');row.className='star-challenge';const star=document.createElement('span');star.className='map-star earned';star.setAttribute('aria-hidden','true');const img=document.createElement('img');img.src='assets/stars-v101.webp';img.alt='';star.append(img);const label=document.createElement('span');label.textContent=task.label;row.append(star,label);list.append(row);}card.append(list);},
+ goals(card){if(!challenge)return;const goal=document.createElement('div');goal.className='adventure-pause-requirement';renderChallengeRequirement(goal,challenge);card.append(goal);const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Missions';card.append(heading);const list=document.createElement('ul');list.className='adventure-pause-goals';for(const task of challengeTasks(challenge)){const row=document.createElement('li');row.className='star-challenge';const star=document.createElement('span');star.className='map-star earned';star.setAttribute('aria-hidden','true');const img=document.createElement('img');img.src='assets/stars-v101.webp';img.alt='';star.append(img);const label=document.createElement('span');label.textContent=task.label;row.append(star,label);list.append(row);}card.append(list);},
  pause(card,{panel,button,resume,exit}){if(!challenge)return false;
   const showTasks=()=>{const view=panel('Level '+challenge.level);view.classList.add('adventure-task-panel');this.goals(view);view.append(button('Resume',resume));view.querySelector('button').focus();};
   card.append(button('Resume',resume),button('Level tasks',showTasks),button('Main menu',exit));return true;

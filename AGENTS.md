@@ -55,3 +55,10 @@
 - Practice hands, trails and teaching text must hide behind every pause, tasks and other modal menu, then resume without resetting the practice. Apply this to all modes.
 - Paused Adventure missions match the compact level-entry layout: three framed cards, filled gold star icons, the shared goal tray and gold Resume button. Do not add a fourth finishing-instruction row or oversized progress rows. This supersedes the restored 4.60 pause-task layout; keep the victory sequence.
 - A leaderboard connection failure must not block Endless play or put a connection-error paragraph over the home controls. Only server-verified runs can enter the online ranking.
+
+## Results and single-tap input — November 5, 2026
+- Endless results use the label Continue. Keep the existing completed-run exit destination.
+- Speed up the mission-to-star phase by a further 2.5x; the user clarified this does not mean the gameplay countdown.
+- Refill the visible Adventure choice artwork before it transforms into energy. This is presentation only: do not advance the engine, grant another turn, or alter score/XP.
+- Each physical press activates one action and one tap cue. Consume compatibility clicks across screen changes; shared result controls must preserve each mode's handler.
+- Shape Drop's entry and paused requirements share an illustrated numeric goal using existing game artwork.

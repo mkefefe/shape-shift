@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
 const source=fs.readFileSync(new URL('./input-feedback.js',import.meta.url),'utf8');
-function harness(mode){
+function harness(mode,control=false){
  const handlers={},animations=[],sounds=[];
  class Element{
-  constructor(){this.children=[];this.style={};this.attributes={};this.classList={contains:()=>false,add(){},remove(){}};}
+  constructor(){this.children=[];this.dataset={};this.style={};this.attributes={};this.classList={contains:()=>false,add(){},remove(){}};}
   setAttribute(k,v){this.attributes[k]=v;} removeAttribute(k){delete this.attributes[k];}
   append(el){el.parent=this;this.children.push(el);} replaceChildren(){this.children=[];}
   get childElementCount(){return this.children.length;} closest(){return null;}
@@ -14,6 +14,7 @@ function harness(mode){
   animate(frames,options){animations.push({frames,options});return {finished:new Promise(()=>{})};}
  }
  const body=new Element(),modal=new Element(),doc={body,addEventListener:(k,f)=>handlers[k]=f,querySelectorAll:()=>[modal],createElement:()=>{const e=new Element();if(mode!=='missing'){e.showPopover=()=>{if(mode==='throws')throw Error('popover unavailable');e.shown=true;};e.hidePopover=()=>{e.shown=false;};}return e;}};
+ if(control)body.closest=()=>body;
  const context={document:doc,window:{gameAudio:{ui:name=>sounds.push(name)},ShapeShiftPlatform:{clearTimeout(){},setTimeout(){}},addEventListener(){}},Element,MutationObserver:class{observe(){}},console,Math,Promise};
  vm.runInNewContext(source.replace('export function','function')+'\ninitInputFeedback();',context);
  handlers.pointerdown({button:0,pointerType:'touch',pointerId:1,clientX:120,clientY:250,target:body});
@@ -29,3 +30,13 @@ test('base effect layout does not depend on a supported popover pseudo-class',()
 });
 
 test('blank screen taps use the shared sound path even without a button handler',()=>{assert.deepEqual(harness('supported').sounds,['surface-tap']);});
+
+test("button presses leave sound to their activation cue instead of playing two taps",()=>{assert.deepEqual(harness("supported",true).sounds,[]);});
+
+test('duplicate generic click cues in one activation play once and the next activation still sounds',()=>{
+ const audio=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
+ const start=audio.indexOf('  let uiEpoch=');const end=audio.indexOf('\n',audio.indexOf("  async function ui(",start));
+ const played=[],microtasks=[],scope={context:{state:'running'},active:true,play:name=>played.push(name),start:async()=>{},queueMicrotask:fn=>microtasks.push(fn),Date,window:{ShapeShiftPlatform:{paused:false}}};
+ vm.runInNewContext(audio.slice(start,end)+'\nui("click");ui("click");',scope);assert.deepEqual(played,['click']);
+ microtasks.splice(0).forEach(fn=>fn());vm.runInNewContext('ui("click");',scope);assert.deepEqual(played,['click','click']);
+});

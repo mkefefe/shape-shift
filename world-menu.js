@@ -2,11 +2,11 @@ import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
 import {loadStartupAssets} from './startup-loader.js?v=494241';
 import {loadDestination} from './destination-loader.js?v=494241';
-import {adventureChallenge,challengeTasks,challengeGoal,challengeEnding} from './adventure-challenges.js?ui248';
+import {adventureChallenge,challengeTasks,challengeGoal,challengeEnding,renderChallengeRequirement} from './adventure-challenges.js?ui249';
 import {starTasks} from './adventure-star-tasks.js?v=494241';
 import {COSMETICS} from './economy.js?v=494241';
-import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494241';
-import {rewardMarkup} from './adventure-rewards.js?v=494241';
+import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?ui249';
+import {rewardMarkup} from './adventure-rewards.js?ui249';
 export const GAMES_UNLOCK_LEVEL=10;
 export const gamesUnlocked=level=>Number.isFinite(level)&&level>=GAMES_UNLOCK_LEVEL;
 export const MODES=['adventure','endless','rush'];
@@ -142,7 +142,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   try{await start(mode,level);}finally{launching=false;$('level-play').disabled=false;$('level-play').removeAttribute('aria-busy');if($('app').dataset.screen==='home')refresh();}
  }
 
- function openLevel(n){
+ function openLevel(n,{silent=false}={}){
   if(launching||!canStart()||!['home','map','game'].includes($('app').dataset.screen))return;
   if(!isAdmin()&&n>unlockedLevel(progress)){sound('map-locked');showMapNotice('Complete Level '+(n-1)+' to unlock Level '+n+'.');return;}
   level=n;$('level-title').textContent='Level '+n;
@@ -162,7 +162,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   frameNote.textContent=required?(ready?'Frame star ready. Any frame can play.':'Optional frame star. Any frame can play.'):'';
   let worldReward=$('level-world-reward');if(!worldReward){worldReward=document.createElement('p');worldReward.id='level-world-reward';$('level-play').before(worldReward);}worldReward.hidden=![25,60].includes(n);worldReward.textContent=n===25?'World reward: Moonlit Forest':n===60?'World reward: Sunset Islands':'';
   $('level-play').disabled=false;$('level-play').textContent='Play level';
-  if(!$('level-dialog').open)$('level-dialog').showModal();$('level-play').focus({preventScroll:true});sound('click');
+  if(!$('level-dialog').open)$('level-dialog').showModal();$('level-play').focus({preventScroll:true});if(!silent)sound('click');
  }
  $('level-close').onclick=()=>$('level-dialog').close();bindLaunchTap($('level-play'),()=>startMode('adventure'));
  let mapWindow='',mapFrame=0,mapWidth=0,mapSelected=1,mapKeyboard=false;
@@ -204,7 +204,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  function sizeMap(){const width=$('adventure-map').clientWidth||390;if(mapWidth!==width)mapWindow='';mapWidth=width;$('map-landscape').style.height=(50*width)+'px';}
  let mapReady=false,mapOpening=false,mapPreparation;
  const prepare=()=>mapReady?Promise.resolve():mapPreparation??=(async()=>{await loadStartupAssets(()=>{},{assets:['assets/map-meadow-v212.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']});mapReady=true;})().finally(()=>{mapPreparation=null;});
- async function map(){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',prepare);mapOpening=false;if(!loaded)return;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();sound('click');}
+ async function map({silent=false}={}){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',prepare);mapOpening=false;if(!loaded)return;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();if(!silent)sound('click');}
  const mapNotice=document.createElement('div');mapNotice.id='map-notice';mapNotice.setAttribute('role','status');mapNotice.setAttribute('aria-live','polite');mapNotice.hidden=true;document.body.append(mapNotice);let mapNoticeAnimation;
  function showMapNotice(message){
  mapNoticeAnimation?.cancel();mapNotice.textContent=message;mapNotice.hidden=false;
@@ -218,11 +218,10 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
  $('adventure-map').addEventListener('click',e=>{
  const dragged=e.detail!==0&&mapGesture&&(mapGesture.moved||Math.abs($('adventure-map').scrollTop-mapGesture.scroll)>10);mapGesture=null;
  if(dragged){e.preventDefault();e.stopImmediatePropagation();return;}
- if(!e.target.closest('button,a,input'))sound('surface-tap');
  },true);
  $('adventure-map').addEventListener('scroll',()=>{if(!mapFrame)mapFrame=window.ShapeShiftPlatform.requestAnimationFrame(paintMap);},{passive:true});
  new ResizeObserver(()=>{if($('adventure-map').hidden)return;const width=$('adventure-map').clientWidth;if(width&&width!==mapWidth){const ratio=$('adventure-map').scrollTop/Math.max(1,mapWidth);sizeMap();$('adventure-map').scrollTop=ratio*width;paintMap();}}).observe($('adventure-map'));
- $('view-map').onclick=()=>{if(selected===0)map();};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
+ $('view-map').onclick=()=>{if(selected===0)map({silent:true});};$('map-back').onclick=()=>{mapNoticeAnimation?.cancel();mapNotice.hidden=true;home();refresh();sound('click');};
  document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-shop-tab]').forEach(t=>{const on=t===b;t.setAttribute('aria-selected',String(on));$(t.dataset.shopTab).hidden=!on;});sound('click');});
  refresh();return {prepare,refresh,map,openLevel,playAdventure,playMode,savePending:campaignSave.retry,hasPendingSave:campaignSave.hasPending,snapshot:()=>JSON.parse(JSON.stringify(progress)),completed:()=>{const i=progress.cleared.findIndex(n=>!n);return i<0?100:i;},finish(mode,won,state,stats={}){const previouslyCleared=progress.cleared[level-1]===true;const objectives=levelObjectives(level,{...stats,won});if(mode==='adventure'&&won)progress=saveObjectiveStars(progress,level,objectives.filter(o=>o.done).length);if(mode==='rush')progress.rushBest=Math.max(progress.rushBest,state.score);const lightning=mode==='adventure'&&lightningFinish(won,stats.elapsed,objectives.filter(o=>o.done).length);if(lightning)progress.lightning[level-1]=true;save();if(mode==='adventure')onAdventureComplete({level,mode,won,previouslyCleared,admin:isAdmin()});refresh();return mode==='adventure'?rewardMarkup(objectives,lightning):'';},rushBest:()=>progress.rushBest};
 }
@@ -383,7 +382,7 @@ export function collectionCounters(goals,collections={}){
 }
 export function renderLevelRequirements(container,level,stats,draw){
  container.replaceChildren();container.className='level-requirements';container.setAttribute('role','list');container.setAttribute('aria-label','Items left to collect');
- const challenge=adventureChallenge(level);if(challenge){const goal=document.createElement('strong');goal.textContent=challengeGoal(challenge);container.append(goal);return;}
+ const challenge=adventureChallenge(level);if(challenge){renderChallengeRequirement(container,challenge);return;}
  const counts={...stats.collections,memory:stats.memoryCollected||0};
  for(const goal of collectionCounters(levelRequirements(level),counts)){
   const item=document.createElement('span');item.className='collection-counter';item.setAttribute('role','listitem');
