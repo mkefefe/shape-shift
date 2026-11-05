@@ -956,7 +956,7 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
   $('ad-status').textContent=window.ShapeShiftAds?'Watch a video to refill your lives.':'Continue is available in the Android app.';
   document.querySelector('.result-home-hint').textContent='Tap anywhere else';
   $('result-return-countdown').hidden=true;
-  audio()?.setScene('menu');if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});sound('over');
+  audio()?.setScene(runMode==='adventure'?'adventure':'game');if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});sound('over');
 
   return;
  }
@@ -1064,17 +1064,12 @@ function finish(finalize=false){openingCoach?.close();$('over-dialog').dataset.r
  if(runMode==='rush'&&resultStored){$('result-return-countdown').hidden=false;cancelResultCountdown=startResultCountdown(n=>{$('result-return-countdown').textContent='Main menu in '+n+'s';},()=>{uiSound('leave-result');home();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!restorationUI?.isOpen()});}
  };
  const startResultRewards=()=>{
-  if($('over-dialog').classList.contains('clear-results')){
-   const root=$('adventure-result');root.classList.add('rewards-revealed','rewards-settled');
-   const earned=[...root.querySelectorAll('li')].filter(row=>row.dataset.earned==='true').length;
-   [...root.querySelectorAll('.reward-star')].forEach((star,i)=>{star.classList.toggle('earned',i<earned);star.setAttribute('aria-label',i<earned?'Earned star':'Empty star');});tally();return;
-  }
-  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&!restorationUI?.isOpen()});
+  if(runMode==='adventure')cancelAdventureReveal=revealAdventureRewards($('adventure-result'),sound,()=>{tally();},{visible:()=>!window.ShapeShiftPlatform.paused&&!nativeBackground&&$('over-dialog').open&&!restorationUI?.isOpen(),compact:$('over-dialog').classList.contains('clear-results')});
   else tally();
  };
  if(!resultStored||worldUI?.hasPendingSave()){$('ad-status').textContent='Your result could not be saved. Please free some storage and retry.';$('adventure-continue').hidden=false;$('adventure-continue').textContent='Save results';}
  const presentResults=(animateRewards=true)=>{
-  $('over-dialog').classList.toggle('adventure-results',runMode==='adventure');audio()?.setScene('menu',{preservePraise:runMode==='adventure'&&modeWon});if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});
+  $('over-dialog').classList.toggle('adventure-results',runMode==='adventure');audio()?.setScene(runMode==='adventure'?'adventure':'game',{preservePraise:runMode==='adventure'&&modeWon});if(!$('over-dialog').open)$('over-dialog').showModal();$('record').focus({preventScroll:true});
   if(!(runMode==='adventure'&&modeWon))sound('over');
   if(animateRewards)startResultRewards();
  };
@@ -1859,7 +1854,7 @@ function pause(){
 
 
 
- paused=true;audio()?.setScene('menu');window.ShapeShiftPlatform.cancelAnimationFrame(frame);update();$('pause-quests').querySelector('span').textContent=runMode==='adventure'?'Level Tasks':'Quests';$('pause-dialog').showModal();
+ paused=true;window.ShapeShiftPlatform.cancelAnimationFrame(frame);update();$('pause-quests').querySelector('span').textContent=runMode==='adventure'?'Level Tasks':'Quests';$('pause-dialog').showModal();
 
 
 

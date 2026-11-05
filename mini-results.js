@@ -24,8 +24,9 @@ export function createMiniResults({host=window}={}){
   get('ad-status').textContent=saveError||(!stored?'Could not save this run. Free some storage and retry.':pending?'Reward saved. Wallet sync will retry.':'');
   get('result-xp-bar').classList.remove('xp-level-up');
   function update(a,b,t){get('final-score').textContent=a.toLocaleString();get('final-coins').textContent='+'+b.toLocaleString();const p=playerProgress(xpBefore+Math.floor(Math.max(0,xpAfter-xpBefore)*t));get('result-progress').textContent='Level '+p.level;get('level-progress').max=p.required||1;get('level-progress').value=p.capped?1:p.current;get('result-xp-label').textContent=p.capped?'MAX LEVEL':p.current+' / '+p.required+' XP';get('level-progress').setAttribute('aria-label','Level '+p.level+': '+get('result-xp-label').textContent);}
-  let cancelStars=null;
-  const cancelTally=startResultTally(score,coins,update,cue=>host.gameAudio?.ui(cue),{visible:()=>!window.ShapeShiftPlatform.paused&&d.open,reduced:doc.body.classList.contains('reduce-motion')});
+  let cancelStars=null,cancelTally=null;
+  update(0,0,0);
+  const tally=()=>{cancelTally=startResultTally(score,coins,update,cue=>host.gameAudio?.ui(cue),{visible:()=>!host.ShapeShiftPlatform.paused&&d.open,reduced:doc.body.classList.contains('reduce-motion')});};
   let leaving=false;
   function leave(fn){
    if(leaving)return;if(beforeLeave()===false){get('ad-status').textContent=saveError||'Adventure progress could not be saved. Free some storage and retry.';next.textContent='Save results';return;}leaving=true;next.disabled=true;host.gameAudio?.ui('click');
@@ -34,12 +35,12 @@ export function createMiniResults({host=window}={}){
    const complete=ok=>{if(ok===false){recover();return;}if(cleanup===ownedCleanup){cleanup=null;ownedCleanup?.();}};
    try{const pending=fn();if(pending&&typeof pending.then==='function')pending.then(complete,recover);else complete(pending);}catch{recover();}
   }
-  function click(e){e.stopImmediatePropagation();e.preventDefault();if(next.contains(e.target))leave(stored?(adventure&&typeof restart==='function'?restart:finish):retry);else if(stored)leave(finish);}
+  function click(e){if(adventureMarkup&&!get('adventure-result').classList.contains('rewards-settled'))return;e.stopImmediatePropagation();e.preventDefault();if(next.contains(e.target))leave(stored?(adventure&&typeof restart==='function'?restart:finish):retry);else if(stored)leave(finish);}
   function leaveMode(){if(stored)leave(finish);}
   d.addEventListener('restoration:leave-mode',leaveMode);
   function cancel(e){e.stopImmediatePropagation();e.preventDefault();if(stored)leave(finish);}
   d.addEventListener('click',click,true);d.addEventListener('cancel',cancel,true);
-  cleanup=()=>{d.removeEventListener('restoration:leave-mode',leaveMode);if(oldResultMode===undefined)delete d.dataset.resultMode;else d.dataset.resultMode=oldResultMode;cancelStars?.();cancelTally();d.removeEventListener('click',click,true);d.removeEventListener('cancel',cancel,true);if(d.open)d.close();d.className=oldClass;hint.textContent=oldHint;watch.querySelector('strong').textContent=oldButton;next.textContent=oldNext;bestLine.firstChild.textContent=oldBest;for(const s of snapshots){s.node.hidden=s.hidden;if(s.disabled!==undefined)s.node.disabled=s.disabled;}};
-  if(!d.open)d.showModal();d.querySelector('.result-content').scrollTop=0;get('record').focus({preventScroll:true});if(adventureMarkup)cancelStars=revealAdventureRewards(get('adventure-result'),cue=>host.gameAudio?.ui(cue),()=>{});
+  cleanup=()=>{d.removeEventListener('restoration:leave-mode',leaveMode);if(oldResultMode===undefined)delete d.dataset.resultMode;else d.dataset.resultMode=oldResultMode;cancelStars?.();cancelTally?.();d.removeEventListener('click',click,true);d.removeEventListener('cancel',cancel,true);if(d.open)d.close();d.className=oldClass;hint.textContent=oldHint;watch.querySelector('strong').textContent=oldButton;next.textContent=oldNext;bestLine.firstChild.textContent=oldBest;for(const s of snapshots){s.node.hidden=s.hidden;if(s.disabled!==undefined)s.node.disabled=s.disabled;}};
+  if(!d.open)d.showModal();d.querySelector('.result-content').scrollTop=0;get('record').focus({preventScroll:true});if(adventureMarkup)cancelStars=revealAdventureRewards(get('adventure-result'),cue=>host.gameAudio?.ui(cue),tally,{visible:()=>!host.ShapeShiftPlatform.paused&&d.open});else tally();
  }};
 }
