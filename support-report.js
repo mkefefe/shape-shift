@@ -1,5 +1,5 @@
 import {TELEMETRY_BUILD,TELEMETRY_DISTRIBUTION} from './telemetry-config.js?v=494241';
-import {REPORT_MODES,submitBugReport,supportErrorMessage} from './support-api.js?v=494241';
+import {REPORT_MODES,submitBugReport,supportErrorMessage} from './support-api.js?ui248';
 export {REPORT_MODES};
 export const REPORT_DRAFT_KEY='shape-shift-report-draft-v2';
 

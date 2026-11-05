@@ -185,3 +185,26 @@ html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#p
 /* Special-level goals use the same bold teal text as the mission cards. */
 html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements):has(>strong){display:flex;align-items:center;justify-content:center;min-height:88px;padding:18px 16px;box-sizing:border-box;border:2px solid #e5b344;border-radius:16px;background:linear-gradient(130deg,#fff8cb,#ffe899);box-shadow:inset 0 2px #fffce8,0 3px #b58a2830}
 html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements)>strong{font:900 20px/1.3 Nunito,sans-serif;color:#075570;text-align:center}
+
+/* Pause missions share the compact entry layout in every Adventure mode. */
+html body #app #level-tasks-dialog{width:min(420px,calc(100vw - 24px));height:fit-content;max-height:calc(100dvh - 24px)}
+html body #app #level-tasks-dialog .dialog-content{height:auto;max-height:calc(100dvh - 24px);padding:30px 24px 24px;gap:12px;justify-content:flex-start;overflow-y:auto}
+html body #app #level-tasks-dialog :is(.tasks-paused,.tasks-note){display:none}
+html body #app #level-tasks-dialog .level-task-card{display:flex;flex-direction:row;align-items:center;gap:12px;padding:12px 10px;min-height:0;border:2px solid #5db5c5;border-radius:16px;background:#bcebf0;box-shadow:inset 0 2px #ffffffba,0 3px #2aa6b533;text-align:left}
+html body #app #level-tasks-dialog .level-task-card strong{font:900 15px/1.35 Nunito,sans-serif}
+html body #app #level-tasks-dialog .level-task-card .map-star{display:block;flex:none}
+html body #app #level-tasks-dialog #tasks-resume{width:min(288px,100%);height:auto;aspect-ratio:3;min-height:0;font:1000 24px/1.15 Nunito,sans-serif;margin:8px auto 0}
+html body :is(#shape-drop,#shape-slice,#piano-flow)[data-view='play'] .drop-panel.adventure-task-panel{width:min(420px,100%);height:auto;min-height:0;max-height:calc(100dvh - 36px);box-sizing:border-box;padding:30px 24px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;overflow-y:auto;border:0;border-image:url('assets/delivery-v144/menu-panel-v240.webp') 96 fill / 28px / 0 stretch;background:none;border-radius:24px;color:#075570}
+html body :is(#shape-drop,#shape-slice,#piano-flow)[data-view='play'] .drop-panel.adventure-task-panel h2{font:1000 26px/1.2 Nunito,sans-serif;color:#075570;margin:0}
+html body .adventure-task-panel .star-tasks-heading{font:900 19px/1.2 Nunito,sans-serif;color:#075570;margin:4px 0}
+html body .adventure-task-panel .adventure-pause-requirement{width:100%;box-sizing:border-box;padding:18px 12px;min-height:88px;display:grid;place-items:center;border:2px solid #e5b344;border-radius:16px;background:linear-gradient(130deg,#fff8cb,#ffe899);font:900 20px/1.3 Nunito,sans-serif;color:#075570}
+html body .adventure-task-panel .adventure-pause-goals{display:grid;gap:8px;list-style:none;margin:0;padding:0;width:100%;flex:none}
+html body .adventure-task-panel .adventure-pause-goals li{display:flex;align-items:center;gap:12px;min-height:0;margin:0;padding:12px 10px;border:2px solid #5db5c5;border-radius:16px;background:#bcebf0;box-shadow:inset 0 2px #ffffffba,0 3px #2aa6b533;font:900 15px/1.35 Nunito,sans-serif;color:#075570;text-align:left}
+html body .adventure-task-panel .map-star{flex:none}
+html body :is(#shape-drop,#shape-slice,#piano-flow)[data-view='play'] .drop-panel.adventure-task-panel button{width:min(288px,100%);height:auto;min-height:0;aspect-ratio:3;margin:8px auto 0;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent url('assets/delivery-v144/action-v45.webp') center/contain no-repeat;color:#684200;font:1000 24px/1.15 Nunito,sans-serif;text-shadow:0 1px #fff4b0}
+html body [data-paused=true] :is(.mode-practice,.mini-teaching),html body .mode-practice[inert]{display:none!important}
+
+html body #app #level-tasks-dialog #level-task-list{gap:12px}
+html body #app #level-tasks-dialog .paused-task-cards{display:grid;gap:8px}
+html body #app #level-tasks-dialog .star-tasks-heading{font:900 19px/1.2 Nunito,sans-serif;margin:4px 0;color:#075570}
+html body #app #level-tasks-dialog h2{font:1000 26px/1.2 Nunito,sans-serif}

@@ -1,4 +1,4 @@
-import {REPORT_FILTERS,REPORT_TOKEN_KEY,loadReportInbox,updateReportStatus} from './support-api.js?v=494241';
+import {REPORT_FILTERS,REPORT_TOKEN_KEY,loadReportInbox,updateReportStatus} from './support-api.js?ui248';
 
 export function createReportInbox({load=loadReportInbox,update=updateReportStatus,isCurrent=()=>true,onChange=()=>{}}={}){
  let filter='new',reports=[],next=null,unread=0,error='',loading=false,generation=0,controller=null;

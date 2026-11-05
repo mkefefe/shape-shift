@@ -10,7 +10,7 @@ import {createEndlessCoach} from './endless-coach.js?v=494241';
 let openingCoach=null,firstLossRecorded=false;
 import {animateQuestRedemption} from './quest-redemption.js?v=494241';
 import {initLivingMenu} from './menu-polish.js?v=494241';
-import {bindPauseKeyboard} from './pause-keyboard.js?v=494241';
+import {bindPauseKeyboard} from './pause-keyboard.js?ui248';
 import {bindBoardKeyboard} from './board-keyboard.js?v=494241';
 import {ABILITY_KEYS,bindBackKeyboard} from './keyboard-help.js?v=494241';
 import {bindResultKeyboard} from './result-keyboard.js?v=494241';
@@ -47,14 +47,14 @@ import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL
 import {fitBoard} from './board-fit.js?v=494241';
 import {analytics} from './analytics.js?v=494241';
 import {ensureTerms} from './terms.js?v=494241';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=ui247';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui248';
 import {observeBoard} from './board-fit.js?v=494241';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494241';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=494241';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494241';
-import {adventureChallenge} from './adventure-challenges.js?v=494241';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=ui247';
+import {adventureChallenge} from './adventure-challenges.js?ui248';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?ui248';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494241';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494241';
 
@@ -66,7 +66,7 @@ import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=
 
 
 
-import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?v=494241';
+import {compactPlayerId,currentPlayerId,identifyLeaderboardEntries,personalRanking} from './leaderboard.js?ui248';
 
 
 
@@ -90,7 +90,7 @@ import {ensureQuests,trackQuests,claimQuest,claimAllQuests,canClaimAllQuests,new
 
 
 
-import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?v=494241';
+import {getIdentity,protectLocalIdentity,setIdentityFrame,cleanName,randomName,avatarElement,leaderboardAvatar,saveIdentity,renderHomeIdentity,syncIdentity,readPhoto} from './profile.js?ui248';
 
 
 
@@ -122,7 +122,7 @@ import {freshProfile,normalizeProfile,AVATARS,unlockLevelAvatars,preserveStarter
 
 
 
-import {prepareRankedRun,beginRankedRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadRankingPanels,deleteOnlineProfile,resetRankedSession,saveOnlineProfile,rankedSessionVersion,flushPendingRankedScores} from './leaderboard.js?v=494241';
+import {prepareRankedRun,beginPlayableRun,submitRankedRun,trackRankedActions,ownerAccess,setOwnerAdmin,loadRankingPanels,deleteOnlineProfile,resetRankedSession,saveOnlineProfile,rankedSessionVersion,flushPendingRankedScores} from './leaderboard.js?ui248';
 
 
 
@@ -1702,7 +1702,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
- await Promise.all([runMode==='adventure'?gameplayScene.preload():null,audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginRankedRun(endlessDifficulty);}catch(error){error.rankingStart=true;throw error;}}if(token!==countdownToken)return;screen('game');
+ await Promise.all([runMode==='adventure'?gameplayScene.preload():null,audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginPlayableRun(endlessDifficulty);}catch(error){ranked=null;}}if(token!==countdownToken)return;screen('game');
 
 
 
@@ -1807,7 +1807,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
  }catch(error){
   console.error('Unable to start run',error);
   if(forceTutorial&&document.documentElement.classList.contains('startup-loading')){counting=false;active=false;throw error;}
-  if(token===countdownToken){home(true);const message=document.createElement('p');message.id='run-load-error';message.setAttribute('role','status');message.textContent=error.rankingStart?'Could not connect your score to the leaderboard. Tap Play to retry.':'Could not load the game. Tap Play to try again.';$('play').after(message);}
+  if(token===countdownToken){home(true);const message=document.createElement('p');message.id='run-load-error';message.setAttribute('role','status');message.textContent='Could not load the game. Tap Play to try again.';$('play').after(message);}
  }finally{if(token===countdownToken){$('play').disabled=false;$('game').removeAttribute('aria-busy');}}
 }
 
@@ -3658,7 +3658,7 @@ $('quests-open').onclick=()=>{questTab='daily';$('quest-list').scrollTop=0;rende
 $('pause-quests').onclick=()=>{
  if(runMode!=='adventure'){renderQuests();$('quests-dialog').showModal();return;}
  const stats=currentLevelStats();$('level-tasks-title').textContent='Level '+adventureLevel;
- $('level-task-list').innerHTML='<h3 class="collection-heading">Collect to win</h3><div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Star tasks</h3>'+levelTaskStatus(adventureLevel,stats).map(t=>'<div class="level-task-card '+t.state+'"><strong>'+t.label+'</strong><span>'+t.value+'</span><progress max="1" value="'+t.progress+'" aria-label="'+t.label+'"></progress></div>').join('');
+ $('level-task-list').innerHTML='<div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Missions</h3><div class="paused-task-cards">'+levelTaskStatus(adventureLevel,stats).map(t=>'<div class="level-task-card"><span class="map-star earned" aria-hidden="true"><img src="assets/stars-v101.webp" alt=""></span><strong>'+t.label+'</strong></div>').join('')+'</div>';
  const requirements=$('paused-level-requirements');if(requirements)renderLevelRequirements(requirements,adventureLevel,stats,sprite);$('level-tasks-dialog').showModal();
 };
 $('tasks-resume').onclick=()=>{$('level-tasks-dialog').close();resume();};

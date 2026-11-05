@@ -36,10 +36,9 @@ export function createAdventureChallengeRun({getChallenge=()=>null,onResult=()=>
  return {start(dialog){challenge=getChallenge();outcome=null;hud?.remove();hud=null;if(challenge){hud=document.createElement('div');hud.className='adventure-challenge-hud';dialog.append(hud);}},
  step(game){if(!challenge||!game)return;if(hud){const copy=challengeHud(game,challenge);if(hud.textContent!==copy)hud.textContent=copy;}if(!game.over&&challengeFinished(game,challenge))game.end('stage-complete');},
  result(game,stored){if(!challenge)return {};if(!stored)return {};outcome??=onResult(challenge,challengeStats(game,challenge));return outcome;},
- goals(card){if(!challenge)return;const list=document.createElement('ul');list.className='adventure-pause-goals';for(const task of [{label:challengeEnding(challenge)},...challengeTasks(challenge)]){const row=document.createElement('li');row.textContent=task.label;list.append(row);}card.append(list);},
+ goals(card){if(!challenge)return;const goal=document.createElement('div');goal.className='adventure-pause-requirement';goal.textContent=challengeGoal(challenge);card.append(goal);const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Missions';card.append(heading);const list=document.createElement('ul');list.className='adventure-pause-goals';for(const task of challengeTasks(challenge)){const row=document.createElement('li');row.className='star-challenge';const star=document.createElement('span');star.className='map-star earned';star.setAttribute('aria-hidden','true');const img=document.createElement('img');img.src='assets/stars-v101.webp';img.alt='';star.append(img);const label=document.createElement('span');label.textContent=task.label;row.append(star,label);list.append(row);}card.append(list);},
  pause(card,{panel,button,resume,exit}){if(!challenge)return false;
-  const showPause=()=>{const view=panel('Paused');view.classList.add('drop-pause-panel');this.pause(view,{panel,button,resume,exit});};
-  const showTasks=()=>{const view=panel('Level '+challenge.level+' tasks');view.classList.add('adventure-task-panel');this.goals(view);view.append(button('Back',showPause));view.querySelector('button').focus();};
+  const showTasks=()=>{const view=panel('Level '+challenge.level);view.classList.add('adventure-task-panel');this.goals(view);view.append(button('Resume',resume));view.querySelector('button').focus();};
   card.append(button('Resume',resume),button('Level tasks',showTasks),button('Main menu',exit));return true;
  },
  active:()=>!!challenge};

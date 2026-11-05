@@ -137,3 +137,8 @@ test('Drop keeps the released physics body and next tile when its practice ends'
  for(const [key,value] of Object.entries(before))assert.equal(g[key],value,key);
  const y=body.position.y;g.step(.05);assert(body.position.y>y);g.dispose();
 });
+
+test('practice stays behind pause, task overlays and other dialogs',async()=>{
+ const {practiceObscured}=await import('./mode-practice.js');const parent={dataset:{paused:'false'},classList:{contains:()=>false},querySelector:()=>null};const doc={querySelectorAll:()=>[parent]};
+ assert.equal(practiceObscured(parent,doc),false);parent.dataset.paused='true';assert.equal(practiceObscured(parent,doc),true);parent.dataset.paused='false';parent.querySelector=()=>({});assert.equal(practiceObscured(parent,doc),true);parent.querySelector=()=>null;doc.querySelectorAll=()=>[parent,{contains:()=>false}];assert.equal(practiceObscured(parent,doc),true);
+});

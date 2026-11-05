@@ -18,6 +18,9 @@ export function practiceSwipeFrame(ms){
  const progress=travel*travel*(3-2*travel);
  return {offset:-48+96*progress,length:Math.min(64,96*progress),opacity:phase<.12?0:phase>.8?Math.max(0,(1-phase)/.2):.9};
 }
+export function practiceObscured(parent,doc=document){
+ return parent.dataset?.paused==='true'||parent.classList?.contains('paused')||!!parent.querySelector?.('.drop-overlay')||[...doc.querySelectorAll('dialog[open]')].some(dialog=>dialog!==parent&&!dialog.contains(parent));
+}
 export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.storage||window.localStorage,seen,onComplete=()=>{},sound=()=>window.gameAudio?.ui('click')}={}){
  if(seen===undefined){try{seen=storage.getItem(practiceKey(mode))==='done';}catch{}}
  let active=!seen,finished=false,root,hand,copy,target,host,raf=0,doneTime=0,last=0,gestureStart=0;
@@ -26,7 +29,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
  function mount(parent){
   clear();if(!active)return;finished=false;doneTime=0;last=performance.now();gestureStart=last;
   if(!document.getElementById('mode-practice-style')){const style=document.createElement('style');style.id='mode-practice-style';style.textContent=`
-  .mode-practice{position:absolute;inset:0;z-index:70;pointer-events:none;text-align:center}
+  .mode-practice{position:absolute;inset:0;z-index:3;pointer-events:none;text-align:center}
   .mode-practice-copy{pointer-events:none;font:900 clamp(15px,4vw,21px)/1.2 Nunito,sans-serif;color:#fff3b3;text-shadow:0 2px 3px #001b39;text-align:center;position:absolute;top:92px;left:50%;transform:translateX(-50%);width:calc(100% - 40px);max-width:440px;box-sizing:border-box;padding:0;background:none;border:0;box-shadow:none}
   #callout.practice-callout{position:relative;width:auto;height:auto;overflow:visible;clip-path:none;margin:7px 0;padding:0;flex:none;z-index:70}
   .mode-practice-copy strong{display:block}.mode-practice-copy small{display:block;font-size:12px;margin-bottom:5px}
@@ -35,7 +38,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
   .mode-practice[data-gesture=tap] .mode-practice-hand{animation:practice-tap 1.15s ease-in-out infinite}
   .mode-practice[data-gesture=hold] .mode-practice-hand{animation:practice-hold 1.2s ease-in-out infinite;transform-origin:87% 9%}
   .mode-practice-trail{position:absolute;width:64px;height:10px;border-radius:10px;background:linear-gradient(90deg,#eaf0ff00,#eaf0ff99 55%,#fff);box-shadow:0 2px 4px #152b3d25;opacity:0;transform:translateY(-50%)}
-  .mode-practice-copy [hidden],.mode-practice [hidden]{display:none!important}
+  .mode-practice[hidden],.mode-practice[inert],[data-paused=true] .mode-practice,[data-paused=true] .mini-teaching,.paused .mode-practice,.mode-practice-copy [hidden],.mode-practice [hidden]{display:none!important}
   @keyframes practice-tap{50%{transform:translate(-4px,4px) rotate(var(--hand-rotation))}}
   @keyframes practice-swipe{0%,15%{transform:translateX(-44px)}75%,100%{transform:translateX(44px)}}
   @keyframes practice-trail{0%,15%{clip-path:inset(0 100% 0 0);opacity:0}20%{opacity:.85}75%{clip-path:inset(0);opacity:.85}100%{clip-path:inset(0);opacity:0}}
@@ -48,6 +51,7 @@ export function createModePractice(mode,{storage=window.ShapeShiftPlatform?.stor
   const position=()=>{
    if(!root)return;
    const now=performance.now(),dt=Math.min(50,now-last);last=now;
+   const obscured=practiceObscured(parent);root.hidden=obscured;if(host)copy.hidden=obscured;if(obscured){raf=requestAnimationFrame(position);return;}
    if(finished&&!document.hidden&&parent.dataset.paused!=='true'&&!parent.classList.contains('paused')){doneTime+=dt;if(doneTime>=900){complete();return;}}
    const p=parent.getBoundingClientRect(),r=target?.(),trail=root.querySelector('.mode-practice-trail');
    hand.hidden=finished||!r;trail.hidden=hand.hidden;

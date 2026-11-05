@@ -161,3 +161,10 @@ test('a real run checkpoints its complete actions before finish and personal loo
  assert.equal((await board.loadPersonalRanking()).entry.score,1);
  assert.deepEqual(paths,['/api/run','/api/checkpoint','/api/finish','/api/personal-rank']);
 });
+
+test('Endless can start without ranking when the score service rejects or stalls',async()=>{
+ const {beginPlayableRun}=await import('./leaderboard.js');
+ assert.equal(await beginPlayableRun('normal',{start:async()=>{throw Error('offline')}}),null);
+ assert.equal(await beginPlayableRun('normal',{start:()=>new Promise(()=>{}),timeoutMs:10}),null);
+ const run={id:'verified',protocol:2};assert.equal(await beginPlayableRun('normal',{start:async()=>run}),run);
+});

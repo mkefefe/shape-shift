@@ -33,6 +33,10 @@ export async function beginRankedRun(difficulty='normal'){
  if(run?.protocol!==2)throw Error('Could not start a verified run.');
  saveProof(run.id,{nonce:run.nonce,count:0});return run;
 }
+// Rankings enhance a run; a slow or unavailable service must never block playing.
+export async function beginPlayableRun(difficulty='normal',{start=beginRankedRun,timeoutMs=1500}={}){
+ let timer;try{return await Promise.race([start(difficulty),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),timeoutMs);})]);}catch{return null;}finally{clearTimeout(timer);}
+}
 export function resetRankedSession(){sessionEpoch++;for(const controller of inFlight)controller.abort();inFlight.clear();preparedRuns.clear();queues.clear();scheduled.clear();clearPersonalRanking();window.ShapeShiftPlatform.storage.removeItem('shape-shift-run-proofs-v2');}
 const proofKey='shape-shift-run-proofs-v2';
 const queues=new Map(),scheduled=new Map();

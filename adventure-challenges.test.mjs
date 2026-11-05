@@ -50,15 +50,14 @@ test('challenge result waits for durable run save and credits its Adventure outc
  }finally{globalThis.document=old;}
 });
 
-test('challenge pause separates goals and Back never restarts or resumes the run',()=>{
+test('challenge tasks match the three entry missions and Resume returns to the same run',()=>{
  const old=globalThis.document;
- const element=()=>({children:[],classList:{add(){}},append(...nodes){this.children.push(...nodes)},querySelector(){return {focus(){}}},remove(){}});
+ const element=()=>({children:[],setAttribute(){},classList:{add(){}},append(...nodes){this.children.push(...nodes)},querySelector(){return {focus(){}}},remove(){}});
  globalThis.document={createElement:element};
  try{const run=createAdventureChallengeRun({getChallenge:()=>adventureChallenge(30)});run.start(element());let view=element(),resumes=0,exits=0;
  const panel=title=>{view=element();view.title=title;return view},button=(text,click)=>({text,click});
  run.pause(view,{panel,button,resume:()=>resumes++,exit:()=>exits++});assert.deepEqual(view.children.map(n=>n.text),['Resume','Level tasks','Main menu']);
- view.children[1].click();assert.equal(view.title,'Level 30 tasks');assert.equal(view.children[0].children.length,4);view.children[1].click();
- assert.equal(view.title,'Paused');assert.equal(resumes,0);assert.equal(exits,0);view.children[0].click();assert.equal(resumes,1);
+ view.children[1].click();assert.equal(view.title,'Level 30');assert.equal(view.children[2].children.length,3);assert.equal(view.children[3].text,'Resume');assert.equal(resumes,0);assert.equal(exits,0);view.children[3].click();assert.equal(resumes,1);
  }finally{globalThis.document=old;}
 });
 

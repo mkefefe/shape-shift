@@ -1,6 +1,6 @@
 import {prepareMenuImage} from './menu-preload.js?v=494241';
 import {pianoBackingPlan} from './piano-backing.js?v=494241';
-import {createAdventureChallengeRun} from './adventure-challenges.js?v=494241';
+import {createAdventureChallengeRun} from './adventure-challenges.js?ui248';
 import {flushResultStorage,recoverJournaledResult} from './result-storage.js?v=494241';
 import {createResultJournal} from './run-results.js?v=494241';
 import {beginModeTransition} from './mode-transition.js?v=494241';
@@ -9,7 +9,7 @@ import {translate} from './localization.js?v=494241';
 import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard,pianoInputClock} from './piano-input.js?v=494241';
 import {createMiniTutorial} from './mini-tutorial.js';
-import {createModePractice,continuePracticeRun} from './mode-practice.js?v=494241';
+import {createModePractice,continuePracticeRun} from './mode-practice.js?ui248';
 import {createMiniResults} from './mini-results.js?v=494241';
 import {createMiniContinue} from './mini-continue.js';
 import {createHitFeedback} from './mini-hit-feedback.js';

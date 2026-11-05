@@ -3392,7 +3392,7 @@ async function mainService(request, env, reply) {
 }
 
 // worker.mjs
-var origins = /* @__PURE__ */ new Set(["https://shape-shift-rsq.game-files.crazygames.com", "https://games.crazygames.com", "https://mkefefe.github.io", "https://appassets.androidplatform.net", "http://localhost:4173", "http://127.0.0.1:4173", "http://localhost:4421", "http://127.0.0.1:4421"]);
+var origins = /* @__PURE__ */ new Set(["https://shape-shift-rsq.game-files.crazygames.com", "https://games.crazygames.com", "https://mkefefe.github.io", "https://appassets.androidplatform.net", "http://localhost:4173", "http://127.0.0.1:4173", "http://localhost:4421", "http://127.0.0.1:4421", "http://127.0.0.1:8898", "http://localhost:8898"]);
 var worker_default = { async fetch(request, env) {
   const origin = request.headers.get("Origin");
   const headers = { "Content-Type": "application/json", "Cache-Control": "no-store", "Vary": "Origin" };

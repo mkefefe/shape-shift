@@ -16,7 +16,7 @@ export function bindPauseKeyboard(doc=document){
   const mini=dialog&&['shape-drop','shape-slice','piano-flow'].includes(dialog.id);
   if(mini&&dialog.dataset.paused!=='true')return;
   const pause=dialog?.id==='pause-dialog'||(mini&&dialog.dataset.paused==='true');
-  const panel=mini?dialog.querySelector('.drop-pause-panel'):dialog||(home?doc.querySelector('#app'):null);
+  const panel=mini?dialog.querySelector('.drop-pause-panel,.adventure-task-panel'):dialog||(home?doc.querySelector('#app'):null);
   if(!panel||doc.querySelector('#startup-ready:not([hidden])'))return;
   // The carousel owns mode switching and confirmation, even with a stale card/dot focus.
   if(home&&['KeyA','KeyD','Space','Enter','NumpadEnter'].includes(event.code)&&(!panel.contains(focused)||focused.closest('.mode-carousel,#mode-dots,.home-actions')))return;

@@ -50,3 +50,8 @@
 - November 5 clarification: retain the full energy-to-center transformation, explosion, fireworks and all celebration sound cues. Dock the logo at the top, show the level title and resolve three missions sequentially (earned star or red failure), then tally rewards and offer Next level. Place the return-to-map instruction outside the panel. The 4.60 reference is not authorization to remove this celebration.
 
 - Reward polish: resolve the task/star phase 2.5× faster while preserving the fireworks timing. Slide/fade totals and Next level upward within the result frame. Entry/pause collection goals use a taller shared tray with separate shape tiles and small bottom-right counts matching the gameplay HUD.
+
+## Pause menus and online availability — November 5, 2026
+- Practice hands, trails and teaching text must hide behind every pause, tasks and other modal menu, then resume without resetting the practice. Apply this to all modes.
+- Paused Adventure missions match the compact level-entry layout: three framed cards, filled gold star icons, the shared goal tray and gold Resume button. Do not add a fourth finishing-instruction row or oversized progress rows. This supersedes the restored 4.60 pause-task layout; keep the victory sequence.
+- A leaderboard connection failure must not block Endless play or put a connection-error paragraph over the home controls. Only server-verified runs can enter the online ranking.

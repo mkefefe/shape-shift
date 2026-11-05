@@ -2,7 +2,7 @@ import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
 import {loadStartupAssets} from './startup-loader.js?v=494241';
 import {loadDestination} from './destination-loader.js?v=494241';
-import {adventureChallenge,challengeTasks,challengeGoal,challengeEnding} from './adventure-challenges.js?v=494241';
+import {adventureChallenge,challengeTasks,challengeGoal,challengeEnding} from './adventure-challenges.js?ui248';
 import {starTasks} from './adventure-star-tasks.js?v=494241';
 import {COSMETICS} from './economy.js?v=494241';
 import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494241';
