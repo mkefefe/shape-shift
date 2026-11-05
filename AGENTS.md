@@ -90,3 +90,5 @@
 - A single matching pair merges into one shape, fills the beacon completely, then the beacon sends four sequential beams that restore the island districts. Do not repeat the shape intake for each district.
 - Lanterns keep rising during the camera pullback and the outgoing island slide, until that old island leaves the screen. Do not fade them with the camera or freeze them into a snapshot.
 - Play synchronized effects for the merge, energy travel, beacon fill, beam launches and arrivals, honoring SFX settings independently of music.
+
+- Beacon opening revision: show all four shape types and wait for one explicit tap, with large centered pulsing white TAP text and a hand. Merge those shapes into the single charge only after that tap. Keep lanterns moving for one second after docking before sliding to the next island.

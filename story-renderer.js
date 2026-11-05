@@ -181,10 +181,16 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   if(chapter>=3||finale)for(const [x,y]of[[402,500],[855,474],[923,623],[300,567]])glow(ix+x*u,iy+y*u,45*u*1.8,4,active*.47);
  }
  ctx.restore();
- // One matching pair becomes one traveling shape and fills the whole beacon.
+ // All four shapes converge into one charge after the opening tap.
  const chargeClock=restorationPhase?restorationClock:t,hit=intro?3.2:finale?1.3:.7,age=chargeClock-hit;
  const chargeShape=restorationPhase?restorationPhase.chargeShape:intro?0:finale?shapeIndex:(chapter-1);
- if(chargeClock<hit){const p=ease(chargeClock,Math.max(0,hit-1.1),hit),gap=mix(160,23,p);shape(chargeShape,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(chargeShape,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
+ if(chargeClock<hit){
+  const p=ease(chargeClock,Math.max(0,hit-1.1),hit);
+  if(restorationPhase){
+   const positions=[[190,460],[530,460],[530,820],[190,820]];
+   positions.forEach(([x,y],i)=>shape(i,mix(x,360,p),mix(y,340,p),mix(106,78,p),1-ease(p,.95,1),(i%2?1:-1)*Math.sin(p*Math.PI)*.2));
+  }else{const gap=mix(160,23,p);shape(chargeShape,360-gap,340-Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),p*.2);shape(chargeShape,360+gap,340+Math.sin(p*Math.PI)*24,88,1-ease(p,.95,1),-p*.2);}
+ }
  if(age>=0&&age<.9){const p=ease(age,restorationPhase?.12:0,.9),x=mix(360,lamp.x,p)+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(mix(360,lamp.x,pp)+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,restorationPhase?chargeShape:(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));if(restorationPhase)shape(chargeShape,x,y,mix(102,25,p),1-ease(age,.72,.9));}
  if(!reduced)particles(lamp.x,lamp.y,age-.7,4,14,100);
  // Lanterns celebrate only after the whole island and sky are restored.

@@ -1,4 +1,4 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?ui254';
+import {loadStoryAssets,drawStory} from './story-renderer.js?ui255';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
 export const RESTORATION_CHARGE_SECONDS=2;
 export const RESTORATION_PHASE_SECONDS=3.9;
@@ -54,7 +54,7 @@ export function restorationPresentation(seconds,islandIndex=0){
  const filmSeconds=seconds<colorDuration?seconds*1.3:RESTORATION_COLOR_SECONDS+seconds-colorDuration;
  const returnAt=islandIndex===9?colorDuration+17:colorDuration+.7;
  const progress=Math.max(0,Math.min(1,(seconds-returnAt)/1.5));
- return {filmSeconds,dock:restorationEase(progress),duration:returnAt+1.5};
+ return {filmSeconds,dock:restorationEase(progress),duration:returnAt+1.5+1};
 }
 
 // Zero velocity and acceleration at both ends, with no spring overshoot.
