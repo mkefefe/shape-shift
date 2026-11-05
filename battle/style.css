@@ -40,7 +40,7 @@ footer{justify-content:center}#nova{width:142px;min-height:54px;display:grid;gri
 #enemy.boss,.shape-boss-preview{background-image:url('assets/skin-monsters-v272.webp');background-repeat:no-repeat;background-size:400% 400%;background-position:calc(var(--x,3)*100% / 3) calc(var(--y,2)*100% / 3)}
 .shape-boss-preview{width:150px;aspect-ratio:1;margin:10px auto}
 #enemy.boss{filter:drop-shadow(0 0 12px #ffd87580) drop-shadow(0 8px 8px #051b3a66)}
-#journey{height:44px;gap:16px;margin:4px 0 8px}#journey span{position:relative;width:34px;height:34px;border-radius:12px;border:1px solid #beeaff55;background:#082b41bb;box-shadow:inset 0 1px #ffffff22;color:transparent}#journey span i{display:block;width:26px;height:26px;background:url('assets/skin-monsters-v272.webp') no-repeat;background-size:400% 400%;background-position:calc(var(--x)*100% / 3) calc(var(--y)*100% / 3);opacity:.55}#journey span:not(:last-child):after{left:34px;width:17px;background:#c0e5ec66}#journey .active{border:2px solid #ffe28a;background:#674d2677;box-shadow:0 0 10px #ffd87566}#journey .active i,#journey .done i{opacity:1}#journey .done{border-color:#84e6c2;background:#115b52aa}#journey .done:before{content:'✓';position:absolute;right:-4px;bottom:-3px;color:white;background:#178569;border-radius:50%;font-size:10px;line-height:14px;width:14px;height:14px;z-index:2}#journey span:last-child::before{content:none}#journey .done:last-child::before{content:'✓'}
+#journey{height:44px;gap:16px;margin:4px 0 8px}#journey span{position:relative;width:34px;height:34px;border-radius:12px;border:1px solid #beeaff55;background:#082b41bb;box-shadow:inset 0 1px #ffffff22;color:transparent}#journey span i{display:block;width:26px;height:26px;background:url('assets/skin-monsters-v272.webp') no-repeat;background-size:400% 400%;background-position:calc(var(--x)*100% / 3) calc(var(--y)*100% / 3);opacity:.55}#journey span:not(:last-child):after{left:34px;width:17px;background:#c0e5ec66}#journey .active{border:2px solid #ffe28a;background:#674d2677;box-shadow:0 0 10px #ffd87566}#journey .active i,#journey .done i{opacity:1}#journey .done{border-color:#84e6c2;background:#115b52aa}#journey .done:before{content:'âœ“';position:absolute;right:-4px;bottom:-3px;color:white;background:#178569;border-radius:50%;font-size:10px;line-height:14px;width:14px;height:14px;z-index:2}#journey span:last-child::before{content:none}#journey .done:last-child::before{content:'âœ“'}
 #board{margin-bottom:8px}#board .tile .shape,#board[data-size="9"] .shape{width:72%;height:72%}
 @media(max-height:650px){#journey{height:36px;margin:2px 0 4px}#journey span{width:28px;height:28px}#journey span i{width:22px;height:22px}#journey span:not(:last-child):after{left:28px}}
 
@@ -86,3 +86,17 @@ footer{justify-content:center}#nova{width:142px;min-height:54px;display:grid;gri
 #board .starburst-charged{border-color:#ffe796;box-shadow:inset 0 0 18px #ffdc7755,0 0 13px #ffdd7766}
 #board .starburst-charged .shape{filter:drop-shadow(0 0 8px #ffdd66)}
 .starburst-shape{position:absolute;pointer-events:none;filter:drop-shadow(0 0 9px #ffe682) drop-shadow(0 0 18px #ffc33199);z-index:2}
+/* Keep the opponent and matching controls in separate columns on short screens. */
+@media(min-width:450px) and (max-height:500px){
+ #app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);grid-template-rows:40px auto auto minmax(0,1fr);gap:5px 12px;padding:6px 12px 10px;min-height:0}
+ #app>header{grid-column:1/-1;grid-row:1;height:40px;margin:0}
+ #app>#journey{grid-column:1;grid-row:2;gap:6px;margin:0;height:36px}
+ #journey span:not(:last-child):after{width:7px}
+ #app>.player{grid-column:2;grid-row:2;margin:0;min-height:52px;padding:4px 6px;gap:3px}
+ .player .identity{gap:4px}.player .identity strong{font-size:11px}.player .identity .shape{width:30px}
+ #app>.arena{grid-column:1;grid-row:3/5;height:100%;min-height:0}
+ .arena h1{font-size:18px}.arena .enemy-health{width:95%}
+ #app>#callout.practice-callout{grid-column:2;grid-row:3;font-size:12px;line-height:1.25;margin:3px 0}
+ #app>#board{grid-column:2;grid-row:4;width:100%;margin:0;align-self:center}
+ #guard-tap,#guard-tap.warning,#guard-tap.ready{left:calc(50% + 45px);width:48px;height:48px}
+}

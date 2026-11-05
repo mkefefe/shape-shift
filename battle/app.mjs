@@ -85,6 +85,11 @@ function render(){
 }
 function fitBoard(){
  const rows=run?.state.board.length===9?3:2,css=getComputedStyle(app),gap=9;
+ if(css.display==='grid'){
+  const board=$('board'),width=board.clientWidth,available=app.clientHeight-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom)-40-app.querySelector('.player').getBoundingClientRect().height-$('callout').getBoundingClientRect().height-28;
+  const size=Math.max(44,Math.floor(Math.min(94,(width-2*gap)/3,(available-gap*(rows-1))/rows)));
+  board.style.setProperty('--card-size',size+'px');board.style.setProperty('--rows',rows);return;
+ }
  const fixed=['header','#journey','.player','#callout'].reduce((sum,selector)=>sum+app.querySelector(selector).getBoundingClientRect().height+(parseFloat(getComputedStyle(app.querySelector(selector)).marginTop)||0)+(parseFloat(getComputedStyle(app.querySelector(selector)).marginBottom)||0),0)+parseFloat(css.paddingTop)+parseFloat(css.paddingBottom);
  const width=app.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight);
  const reserve=(app.clientHeight<650?205:335)-(practice?.active?65:0);
