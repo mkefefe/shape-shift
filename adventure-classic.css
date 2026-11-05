@@ -180,4 +180,8 @@ html body #app :is(#level-dialog,#level-tasks-dialog) .requirement-caption{displ
 /* Count is anchored to the shape, not to the outer tile's corner. */
 html body #app :is(#level-dialog,#level-tasks-dialog) .requirement-symbol{position:relative;display:block;width:52px;height:52px;flex:none}
 html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements) .requirement-symbol .sprite{display:block;position:absolute;left:0;top:0;width:52px;height:52px;margin:0}
-html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements) .requirement-symbol .collection-remaining{left:auto;top:40px;right:-5px;bottom:auto;font:1000 18px/1 Nunito,sans-serif;color:#6b4b16;text-shadow:0 1px #fff;white-space:nowrap}
+html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements) .requirement-symbol .collection-remaining{left:auto;top:40px;right:-5px;bottom:auto;font:1000 20px/1 Nunito,sans-serif;color:#064b63;text-shadow:0 1px #fff,1px 0 #fff,-1px 0 #fff;white-space:nowrap}
+
+/* Special-level goals use the same bold teal text as the mission cards. */
+html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements):has(>strong){display:flex;align-items:center;justify-content:center;min-height:88px;padding:18px 16px;box-sizing:border-box;border:2px solid #e5b344;border-radius:16px;background:linear-gradient(130deg,#fff8cb,#ffe899);box-shadow:inset 0 2px #fffce8,0 3px #b58a2830}
+html body #app :is(#level-dialog,#level-tasks-dialog) :is(#level-requirements,#paused-level-requirements)>strong{font:900 20px/1.3 Nunito,sans-serif;color:#075570;text-align:center}

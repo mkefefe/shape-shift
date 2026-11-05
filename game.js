@@ -47,14 +47,14 @@ import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,SPECIAL
 import {fitBoard} from './board-fit.js?v=494241';
 import {analytics} from './analytics.js?v=494241';
 import {ensureTerms} from './terms.js?v=494241';
-import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=ui246';
+import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?v=ui247';
 import {observeBoard} from './board-fit.js?v=494241';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494241';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?v=494241';
 import {XP_PER_MATCH,adventureCompletionReward,BOOST_UNLOCK_LEVELS,boostUnlocked,grantAdventureBoosts} from './economy.js?v=494241';
 import {adventureChallenge} from './adventure-challenges.js?v=494241';
-import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=ui246';
+import {initWorldMenu,trackLevelAbility,ensureStarChoice,ensureStarPickup,levelSpec,levelTaskStatus,levelRequirementStatus,levelTaskIntroduction,trackLevelPick,levelPrimaryGoal,levelComplete,adventureLayout,collectionBoard,trackLevelCollection,trackBombCollections,adventureDesign,createRockLayout,damageAdjacentRocks,rockFillPlan} from './world-menu.js?v=ui247';
 import {completeAdRun,watchedAd,grantRunAdReward,RUN_AD_REWARD} from './ad-cadence.js?v=494241';
 import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResultTally} from './countdown.js?v=494241';
 

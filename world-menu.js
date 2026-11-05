@@ -2,7 +2,7 @@ import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
 import {loadStartupAssets} from './startup-loader.js?v=494241';
 import {loadDestination} from './destination-loader.js?v=494241';
-import {adventureChallenge,challengeTasks,challengeGoal,challengeEnding,challengeDescription} from './adventure-challenges.js?v=494241';
+import {adventureChallenge,challengeTasks,challengeGoal,challengeEnding} from './adventure-challenges.js?v=494241';
 import {starTasks} from './adventure-star-tasks.js?v=494241';
 import {COSMETICS} from './economy.js?v=494241';
 import {bindMenuSwipe,bindLaunchTap} from './menu-navigation.js?v=494241';
@@ -149,10 +149,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   const challenge=adventureChallenge(n),goal=$('level-goal');goal.replaceChildren();
   const goalName=document.createElement('strong');goalName.textContent=n===100?'Endless finale':challenge?challenge.name:'';goal.append(goalName);
   if(n===100){const note=document.createElement('span');note.textContent='Survive as long as you can. Ending the run completes Adventure.';goal.append(note);}
-  if(challenge){const duration=document.createElement('span');duration.textContent=challengeDescription(challenge);goal.append(duration);}
-  let designNote=$('level-design');if(!designNote){designNote=document.createElement('p');designNote.id='level-design';$('level-goal').after(designNote);}
-  const design=adventureChallenge(n)?null:adventureDesign(n);designNote.hidden=!design;
-  designNote.textContent=design?design.name+' · Black blocks break after '+design.hits+' adjacent '+(design.hits===1?'match':'matches')+'. No bomb needed.':'';
+  $('level-design')?.remove();
   let requirements=$('level-requirements');if(!requirements){requirements=document.createElement('div');requirements.id='level-requirements';$('level-goal').after(requirements);}
   renderLevelRequirements(requirements,n,{},drawShape);
   let goals=$('level-objectives');if(!goals){const heading=document.createElement('h3');heading.className='star-tasks-heading';heading.textContent='Missions';goals=document.createElement('ul');goals.id='level-objectives';requirements.after(heading,goals);}
@@ -386,7 +383,7 @@ export function collectionCounters(goals,collections={}){
 }
 export function renderLevelRequirements(container,level,stats,draw){
  container.replaceChildren();container.className='level-requirements';container.setAttribute('role','list');container.setAttribute('aria-label','Items left to collect');
- const challenge=adventureChallenge(level);if(challenge){const goal=document.createElement('strong');goal.textContent=challengeGoal(challenge);const ending=document.createElement('span');ending.textContent=challengeEnding(challenge);container.append(goal,ending);return;}
+ const challenge=adventureChallenge(level);if(challenge){const goal=document.createElement('strong');goal.textContent=challengeGoal(challenge);container.append(goal);return;}
  const counts={...stats.collections,memory:stats.memoryCollected||0};
  for(const goal of collectionCounters(levelRequirements(level),counts)){
   const item=document.createElement('span');item.className='collection-counter';item.setAttribute('role','listitem');
