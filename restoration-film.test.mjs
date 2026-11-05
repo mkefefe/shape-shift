@@ -1,17 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {restorationFilmFrame,restorationPixelGroup} from './restoration-film.js';
-test('one charge precedes four sequential outward beams on every island',()=>{
+import {restorationFilmFrame,restorationPixelGroup,RESTORATION_CHARGE_SECONDS,RESTORATION_COLOR_SECONDS} from './restoration-film.js';
+test('one charge launches four distinct colored beams on the same frame on every island',()=>{
  for(let island=0;island<10;island++){
-  for(const t of [0,.7,1.6,1.99]){const f=restorationFilmFrame(t,island);assert.equal(f.kind,'restore');assert.equal(f.index,0);assert(f.time<0);}
-  for(let i=0;i<4;i++){const launch=2+i*3.9,f=restorationFilmFrame(launch,island);assert.equal(f.kind,'restore');assert.equal(f.index,i);assert(Math.abs(f.time)<1e-9);assert.equal(f.chargeShape,2);assert.equal(restorationFilmFrame(launch+3.89,island).index,i);}
-  assert.equal(restorationFilmFrame(17.6,island).kind,'lanterns');
-  assert(restorationFilmFrame(24,island).time>restorationFilmFrame(23,island).time,'lantern clock keeps moving if the next island loads late');
+  const before=restorationFilmFrame(RESTORATION_CHARGE_SECONDS-.01,island);assert(before.time<0);
+  const shot=restorationFilmFrame(RESTORATION_CHARGE_SECONDS,island);assert.equal(shot.time,0);assert.equal(shot.beams.length,4);assert.equal(new Set(shot.beams.map(b=>b.shape)).size,4);assert(shot.beams.every(b=>b.launch===RESTORATION_CHARGE_SECONDS));
+  assert.equal(restorationFilmFrame(RESTORATION_COLOR_SECONDS-.01,island).kind,'restore');assert.equal(restorationFilmFrame(RESTORATION_COLOR_SECONDS,island).kind,'lanterns');
+  assert(restorationFilmFrame(24,island).time>restorationFilmFrame(23,island).time);
  }
 });
 test('only the tenth island proceeds into the ending credits',()=>{
- for(let i=0;i<9;i++)for(let t=17.6;t<=40;t+=.1)assert.equal(restorationFilmFrame(t,i).kind,'lanterns');
- assert.equal(restorationFilmFrame(22.1,9).kind,'credits');assert.equal(restorationFilmFrame(34.6,9).time,25);
+ for(let i=0;i<9;i++)for(let t=RESTORATION_COLOR_SECONDS;t<=40;t+=.1)assert.equal(restorationFilmFrame(t,i).kind,'lanterns');
+ assert.equal(restorationFilmFrame(RESTORATION_COLOR_SECONDS+4.5,9).kind,'credits');assert(Math.abs(restorationFilmFrame(RESTORATION_COLOR_SECONDS+17,9).time-25)<1e-9);
 });
 test('the original island preserves authored object masks and covers all four districts',()=>{
  assert.equal(restorationPixelGroup(10),0);assert.equal(restorationPixelGroup(30),0);assert.equal(restorationPixelGroup(40),0);
@@ -32,7 +32,7 @@ test('expansion starts with the card square and ends at exactly the film framing
 
 import {restorationPresentation} from './restoration-film.js';
 test('visual restoration is faster and docks smoothly while lanterns are still moving',()=>{
- const color=17.6/1.3;assert.equal(restorationPresentation(5).filmSeconds,6.5);
+ const color=RESTORATION_COLOR_SECONDS/1.3;assert.equal(restorationPresentation(5).filmSeconds,6.5);
  const begin=restorationPresentation(color+.7),middle=restorationPresentation(color+1.45),end=restorationPresentation(color+2.2);
  assert.equal(begin.dock,0);assert(Math.abs(middle.dock-.5)<1e-9);assert.equal(end.dock,1);assert(end.filmSeconds>middle.filmSeconds);assert(end.duration<22.6);
  assert.equal(restorationPresentation(color+2,9).dock,0);
