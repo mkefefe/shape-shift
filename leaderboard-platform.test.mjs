@@ -133,3 +133,31 @@ test('temporary upload failure retains pending scores and terminal rejection doe
  const result=await board.flushPendingRankedScores({pending:()=>queue,submit:async run=>{if(run.id==='bad')throw Object.assign(Error(),{status:422});if(run.id==='offline')throw Error('offline');},saved:run=>queue=queue.filter(r=>r.id!==run.id),failed:run=>{failed.push(run.id);queue=queue.filter(r=>r.id!==run.id);}});
  assert.equal(result.uploaded,1);assert.equal(result.rejected,1);assert.equal(result.error.message,'offline');assert.deepEqual(failed,['bad']);assert.deepEqual(queue,[{id:'offline'}]);
 });
+
+test('a failed prefetch is retried at launch instead of starting an unranked game',async t=>{
+ const {board,storage}=await fixture(t,{live:true,cloudRankings:true});let calls=0;
+ globalThis.fetch=async()=>{if(++calls===1)throw Error('Connection lost');return {ok:true,status:200,json:async()=>({id:'run-retry',seed:123,rules:44,protocol:2,nonce:'first'})};};
+ const prefetch=board.prepareRankedRun();const launch=board.beginRankedRun();
+ assert.equal(await prefetch,null);assert.equal((await launch).id,'run-retry');assert.equal(calls,2);
+ assert.equal(JSON.parse(storage.getItem('shape-shift-run-proofs-v2'))['run-retry'].nonce,'first');
+});
+
+test('an unavailable ranking connection fails launch rather than returning a null run',async t=>{
+ const {board}=await fixture(t,{live:true,cloudRankings:true});
+ globalThis.fetch=async()=>{throw Error('Connection lost');};
+ await assert.rejects(board.beginRankedRun(),/Connection lost/);
+});
+
+test('a real run checkpoints its complete actions before finish and personal lookup',async t=>{
+ const {board}=await fixture(t,{live:true,cloudRankings:true});const paths=[];
+ globalThis.fetch=async(url,options)=>{const path=new URL(url).pathname,body=JSON.parse(options.body);paths.push(path);
+  let reply;if(path==='/api/run')reply={id:'run',seed:42,rules:44,protocol:2,nonce:'one'};
+  if(path==='/api/checkpoint'){assert.equal(body.offset,0);assert.equal(body.nonce,'one');assert.equal(body.actions.length,2);reply={nonce:'two',count:2};}
+  if(path==='/api/finish'){assert.equal(body.expectedScore,1);reply={saved:true,score:1};}
+  if(path==='/api/personal-rank')reply={entry:{id:await board.currentPlayerId(),name:'Test',score:1,rank:101,runs:1,updatedAt:1800000000000},players:101,ranked:true};
+  return {ok:true,status:200,json:async()=>reply};};
+ const run=await board.beginRankedRun();const actions=[{type:'loadout',frame:'none',map:'garden',upgrade:0},{type:'choose',index:0}];
+ assert.equal((await board.submitRankedRun({...run,actions,expectedScore:1})).saved,true);
+ assert.equal((await board.loadPersonalRanking()).entry.score,1);
+ assert.deepEqual(paths,['/api/run','/api/checkpoint','/api/finish','/api/personal-rank']);
+});

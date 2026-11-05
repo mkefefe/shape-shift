@@ -27,7 +27,11 @@ export function prepareRankedRun(difficulty='normal'){
 export async function beginRankedRun(difficulty='normal'){
  if(!leaderboardAllowed())throw Error('Online features are unavailable with these privacy settings.');
  const pending=prepareRankedRun(difficulty);preparedRuns.delete(difficulty);
- const run=await pending;if(run?.protocol===2){saveProof(run.id,{nonce:run.nonce,count:0});return run;}return null;
+ // A failed background warm-up must not silently turn the next game into an
+ // unranked run. Retry once at launch and surface a real connection failure.
+ const run=await pending||await requestRankedRun(difficulty);
+ if(run?.protocol!==2)throw Error('Could not start a verified run.');
+ saveProof(run.id,{nonce:run.nonce,count:0});return run;
 }
 export function resetRankedSession(){sessionEpoch++;for(const controller of inFlight)controller.abort();inFlight.clear();preparedRuns.clear();queues.clear();scheduled.clear();clearPersonalRanking();window.ShapeShiftPlatform.storage.removeItem('shape-shift-run-proofs-v2');}
 const proofKey='shape-shift-run-proofs-v2';

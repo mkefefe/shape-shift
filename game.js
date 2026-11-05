@@ -1217,7 +1217,14 @@ function resolve(index){
  const b=$('board').children[index];b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:220});sound('click');return;
  }
  }
- if(openingCoach?.active&&!openingCoach.accept(index))return;
+ const practiceWasActive=openingCoach?.active;
+ if(practiceWasActive&&!openingCoach.accept(index))return;
+ if(practiceWasActive&&!openingCoach.active&&runMode==='endless'){
+  // Coaching boards cannot be replayed as a seeded competitive run. End the
+  // practice explicitly and prepare a fresh verified run before accepting input.
+  active=false;counting=false;window.ShapeShiftPlatform.cancelAnimationFrame(frame);
+  state=null;void start();return;
+ }
  const correctAnswers=correctChoiceIndices(state,board);locked=true;modeTurns++;const oldScore=state.score;const oldStrikes=state.strikes;const praisePreviousColor=state.current.color;const questBefore={...state.current};const questTile=index===null?null:board[index];
 
 
@@ -1698,7 +1705,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
- await Promise.all([effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode){ranked=await beginRankedRun(endlessDifficulty).catch(()=>null);}if(token!==countdownToken)return;screen('game');
+ await Promise.all([effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginRankedRun(endlessDifficulty);}catch(error){error.rankingStart=true;throw error;}}if(token!==countdownToken)return;screen('game');
 
 
 
@@ -1803,7 +1810,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
  }catch(error){
   console.error('Unable to start run',error);
   if(forceTutorial&&document.documentElement.classList.contains('startup-loading')){counting=false;active=false;throw error;}
-  if(token===countdownToken){home(true);const message=document.createElement('p');message.id='run-load-error';message.setAttribute('role','status');message.textContent='Could not load the game. Tap Play to try again.';$('play').after(message);}
+  if(token===countdownToken){home(true);const message=document.createElement('p');message.id='run-load-error';message.setAttribute('role','status');message.textContent=error.rankingStart?'Could not connect your score to the leaderboard. Tap Play to retry.':'Could not load the game. Tap Play to try again.';$('play').after(message);}
  }finally{if(token===countdownToken){$('play').disabled=false;$('game').removeAttribute('aria-busy');}}
 }
 
@@ -3078,7 +3085,13 @@ function renderPersonalRanking(entries=[],personal=null,{checking=false}={}){
  else if(summary.rank!==null){
   const date=Number.isFinite(summary.savedAt)?new Date(summary.savedAt).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
   hint.textContent=pending?'Score waiting to upload \u00b7 last verified rank':summary.cached?'Last verified'+(date?' \u00b7 '+date:''):'Your global rank'+(summary.listed?' \u00b7 tap to find':'');
- }else hint.textContent=pending?'Score waiting to upload':checking?'Checking your verified score\u2026':personal?.ranked===false?'Finish an online Endless run to rank':'Verified score unavailable \u00b7 retry to refresh';
+ }else{
+  const latest=profile.runs.find(run=>run.mode==='endless');
+  hint.textContent=pending?'Score waiting to upload':checking?'Checking your verified score\u2026':
+   profile.failedScores?.length?'Score could not be verified \u00b7 saved on this device':
+   latest&&!latest.ranked?'Score '+latest.score+' saved on this device \u00b7 not ranked':
+   personal?.ranked===false?'No verified Endless score yet':'Verified score unavailable \u00b7 retry to refresh';
+ }
  copy.append(name,hint);
  const score=document.createElement('b');score.className='rank-score';score.textContent=summary.score===null?'\u2014':summary.score.toLocaleString();
  footer.replaceChildren(rank,leaderboardAvatar(identity),copy,score);footer.disabled=!summary.listed;footer.hidden=false;
