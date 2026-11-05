@@ -48,3 +48,5 @@
 - Keep the restored presentation separate from current music, authored stages, scores, loading and retained assets. Preserve accessible scrolling where the original fixed panel clipped controls.
 
 - November 5 clarification: retain the full energy-to-center transformation, explosion, fireworks and all celebration sound cues. Dock the logo at the top, show the level title and resolve three missions sequentially (earned star or red failure), then tally rewards and offer Next level. Place the return-to-map instruction outside the panel. The 4.60 reference is not authorization to remove this celebration.
+
+- Reward polish: resolve the task/star phase 2.5× faster while preserving the fireworks timing. Slide/fade totals and Next level upward within the result frame. Entry/pause collection goals use a taller shared tray with separate shape tiles and small bottom-right counts matching the gameplay HUD.
