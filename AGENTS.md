@@ -73,3 +73,7 @@
 ## Adventure matching only — November 5, 2026
 - Remove Shape Drop, Shape Slice and Piano Flow stages from the Adventure map. All Adventure levels use the normal matching game, its collection/memory goals and missions. Preserve map numbering, earned stars and saved completion. The separate Games modes remain available. This supersedes the earlier Adventure special-stage requirements.
 - Slow the mission-to-star animation by another 30% relative to ui250; keep the countdown and energy/fireworks timing.
+
+## Open map and world access — November 5, 2026
+- Endless is available without Adventure progress. Unlock all 100 Adventure levels and all three background worlds for both new and existing saves. Keep earned stars, completed levels, wallet, XP, inventory and restoration achievements factual; access is not completion.
+- Slow the mission-to-star animation by another 20% relative to ui251.

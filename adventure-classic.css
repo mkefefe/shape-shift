@@ -162,7 +162,7 @@ html body #app #over-dialog#over-dialog.adventure-results .reward-objectives li.
 html body #app #over-dialog#over-dialog.adventure-results .result-home-hint{bottom:auto;transform:none;width:100%;max-width:none;height:auto;min-height:0;box-sizing:border-box;text-transform:none;letter-spacing:0}
 
 /* Faster task resolution; rewards rise within the clipped panel instead of popping in. */
-html body #app #over-dialog#over-dialog.adventure-results .star-landed{animation-duration:.157s}
+html body #app #over-dialog#over-dialog.adventure-results .star-landed{animation-duration:.196s}
 html body #app #over-dialog#over-dialog.adventure-results #adventure-result .reward-objectives{transition:max-height .24s ease,opacity .12s ease}
 html body #app #over-dialog#over-dialog.adventure-results:has(.rewards-settled) :is(#final-score,.result-coins,#result-progress,#result-xp-bar,#adventure-continue){animation:adventure-reward-rise .38s cubic-bezier(.2,.7,.25,1) both}
 html body #app #over-dialog#over-dialog.adventure-results:has(.rewards-settled) #result-progress{animation-delay:.04s}

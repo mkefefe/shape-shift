@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {adventureChallenge,challengeTasks,challengeFinished,challengeStats,challengeHud,createAdventureChallengeRun} from './adventure-challenges.js';
-import {freshProfile,grantAdventureBoosts,buyCosmetic} from './economy.js';
+import {freshProfile,normalizeProfile,grantAdventureBoosts,buyCosmetic} from './economy.js';
 import {normalizeAdventure,saveObjectiveStars,levelObjectives,levelRequirements,levelComplete,adventureMechanics,adventureDesign} from './world-menu.js';
 test('retained authored content remains valid for the separate game engines',()=>{
  let modes=[];for(let level=1;level<=100;level++){const c=adventureChallenge(level);assert.equal(!!c,level<100&&level%5===0);if(c){modes.push(c.mode);assert.equal(challengeTasks(c).length,3);assert(c.target>0&&c.target<60);}}
@@ -32,13 +32,14 @@ test('the stage HUD keeps the remaining sequence visible after reaching the goal
  assert.doesNotMatch(challengeHud(game,c),/120s|0s/);
  assert.match(challengeHud({...game,practice:true},c),/Practice first/);
 });
-test('mini-game stars survive normalization and do not unlock levels out of order',()=>{
- const p=normalizeAdventure({cleared:[true,true,true,true]});const next=saveObjectiveStars(p,5,2);assert(next.cleared[4]);assert.equal(normalizeAdventure(next).stars[4],2);assert.equal(saveObjectiveStars(p,10,3),p);
+test('saved stars survive normalization and any selected level can record a real win',()=>{
+ const p=normalizeAdventure({cleared:[true,true,true,true]});const next=saveObjectiveStars(p,5,2);assert(next.cleared[4]);assert.equal(normalizeAdventure(next).stars[4],2);const far=saveObjectiveStars(p,10,3);assert.equal(far.stars[9],3);assert.equal(far.cleared[4],false);
 });
-test('worlds are earned at 25 and 60, existing owners keep them, and coins cannot buy them',()=>{
- let p={...freshProfile(),coins:99999,xp:99999};assert.equal(buyCosmetic(p,'moon'),p);
- p=grantAdventureBoosts(p,24);assert(!p.owned.includes('moon'));p=grantAdventureBoosts(p,25);assert(p.owned.includes('moon'));assert(!p.owned.includes('sunset'));
- assert(grantAdventureBoosts(p,60).owned.includes('sunset'));assert(grantAdventureBoosts({...p,owned:['sunset']},1).owned.includes('sunset'));assert.equal(p.coins,99999);
+test('all worlds are available for new and existing players without awarding progress or boosts',()=>{
+ const fresh=freshProfile();assert(fresh.owned.includes('moon')&&fresh.owned.includes('sunset'));
+ const old={...freshProfile(),owned:['gold'],coins:17,xp:22,inventory:{shield:1,freeze:0,boost:0},equipped:{frame:'gold',background:'moon',skin:'classic'}};
+ const p=normalizeProfile(old);assert.deepEqual(old.owned,['gold']);assert(p.owned.includes('moon')&&p.owned.includes('sunset')&&p.owned.includes('gold'));assert.equal(p.equipped.background,'moon');assert.equal(p.coins,17);assert.equal(p.xp,22);assert.deepEqual(p.inventory,old.inventory);
+ const granted=grantAdventureBoosts(p,0);assert.equal(granted.adventureCompleted,0);assert.deepEqual(granted.inventory,p.inventory);assert.equal(buyCosmetic(p,'moon'),p);
 });
 
 test('challenge result waits for durable run save and credits its Adventure outcome only once',()=>{

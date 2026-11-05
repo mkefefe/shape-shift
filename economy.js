@@ -4,11 +4,11 @@ export const BOOST_UNLOCK_LEVELS=Object.freeze({shield:3,freeze:5,boost:8});
 export const boostUnlocked=(profile,name)=>Object.hasOwn(BOOST_UNLOCK_LEVELS,name)&&(profile.adventureCompleted||0)>=BOOST_UNLOCK_LEVELS[name];
 export const PRICES=Object.freeze({shield:100,freeze:100,boost:100});
 export function boostPrice(profile,item){const base=PRICES[item];if(!base)return 0;const n=profile.purchases?.[item];const count=Number.isSafeInteger(n)&&n>=0?n:0;return Math.min(Math.floor(Number.MAX_SAFE_INTEGER/5)*5,Math.round(base*1.25**count/5)*5);}
-export function freshProfile(){return {coins:0,ownedSkins:['classic'],ownedAvatars:[0],avatarUnlocksMigrated:false,upgrades:{gold:0,ice:0},purchases:{shield:0,freeze:0,boost:0},inventory:{shield:0,freeze:0,boost:0},runs:[],pending:[],xp:0,owned:[],equipped:{frame:"none",background:"garden",skin:"classic"}};}
+export function freshProfile(){return {coins:0,ownedSkins:['classic'],ownedAvatars:[0],avatarUnlocksMigrated:false,upgrades:{gold:0,ice:0},purchases:{shield:0,freeze:0,boost:0},inventory:{shield:0,freeze:0,boost:0},runs:[],pending:[],xp:0,owned:['moon','sunset'],equipped:{frame:"none",background:"garden",skin:"classic"}};}
 export function normalizeProfile(value){
  const p=value&&typeof value==='object'?value:freshProfile();
  const integer=n=>Number.isSafeInteger(n)&&n>=0?n:0;
- const owned=Array.isArray(p.owned)?p.owned.filter(id=>COSMETICS.some(c=>c.id===id)):[];
+ const owned=[...new Set([...(Array.isArray(p.owned)?p.owned.filter(id=>COSMETICS.some(c=>c.id===id)):[]),...COSMETICS.filter(c=>c.kind==='background').map(c=>c.id)])];
  const equipped={frame:'none',background:'garden',skin:p.equipped?.skin};for(const kind of ['frame','background']){const item=COSMETICS.find(c=>c.id===p.equipped?.[kind]&&c.kind===kind);if(item&&owned.includes(item.id))equipped[kind]=item.id;}
  return unlockLevelAvatars(normalizeSkins({...p,ownedAvatars:[...new Set([0,...(Array.isArray(p.ownedAvatars)?p.ownedAvatars.filter(n=>Number.isInteger(n)&&n>=0&&n<6):[])])],avatarUnlocksMigrated:p.avatarUnlocksMigrated===true,upgrades:{gold:owned.includes('gold')?Math.min(1,integer(p.upgrades?.gold)):0,ice:owned.includes('ice')?Math.min(2,integer(p.upgrades?.ice)):0},purchases:Object.fromEntries(Object.keys(PRICES).map(k=>[k,integer(p.purchases?.[k])])),xp:integer(p.xp),owned,equipped,coins:integer(p.coins),inventory:Object.fromEntries(Object.keys(PRICES).map(k=>[k,Math.min(999,integer(p.inventory?.[k]))])),runs:Array.isArray(p.runs)?p.runs.slice(0,30):[],pending:Array.isArray(p.pending)?p.pending.slice(0,20):[]}));
 }
@@ -26,8 +26,8 @@ export const COSMETICS=Object.freeze([
  {id:'ice',kind:'frame',name:'Crystal halo',price:900,level:12,index:1},
  {id:'blossom',kind:'frame',name:'Blossom Wrath',price:1600,level:25,index:2},
  {id:'cosmic',kind:'frame',name:'Cosmic crown',price:3000,level:45,index:3},
- {id:'moon',kind:'background',name:'Moonlit forest',price:1200,level:1,adventureLevel:25,index:0},
- {id:'sunset',kind:'background',name:'Sunset islands',price:2400,level:1,adventureLevel:60,index:1}
+ {id:'moon',kind:'background',name:'Moonlit forest',price:1200,level:1,adventureLevel:0,index:0},
+ {id:'sunset',kind:'background',name:'Sunset islands',price:2400,level:1,adventureLevel:0,index:1}
 ]);
 export const MAX_PLAYER_LEVEL=100;
 export const xpRequiredForLevel=level=>level>=MAX_PLAYER_LEVEL?0:level<=10?50+Math.ceil((Math.max(1,level)-1)*50/9):100+level-10;

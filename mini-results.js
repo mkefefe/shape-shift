@@ -1,4 +1,4 @@
-import {revealAdventureRewards} from './adventure-rewards.js?ui251';
+import {revealAdventureRewards} from './adventure-rewards.js?ui252';
 import {formatSurvivalTime} from './survival-clock.js?v=494241';
 import {playerProgress} from './economy.js?v=494241';
 import {startResultTally} from './countdown.js?v=494241';
