@@ -13,7 +13,7 @@ test('original merge and travel lead into a cue for each staggered launch and la
  assert(RESTORATION_CUES.at(-1).at<RESTORATION_COLOR_SECONDS);
 });
 test('effects sound once at their visual event time, with independent SFX gain',()=>{
- const f=fixture(.4);f.player.step(.69);assert(f.media.every(a=>a.plays===0));
+ const f=fixture(.4);f.player.step(RESTORATION_CUES[0].at-.01);assert(f.media.every(a=>a.plays===0));
  for(const c of RESTORATION_CUES){f.player.step(c.at);f.player.step(c.at);}
  assert(f.media.every(a=>a.plays===1));for(let i=0;i<f.media.length;i++)assert.equal(f.media[i].volume,.4*RESTORATION_CUES[i].gain);
  f.media.forEach(a=>{a.paused=true;a.ended=true;});f.player.step(25);assert(f.media.every(a=>a.plays===1));

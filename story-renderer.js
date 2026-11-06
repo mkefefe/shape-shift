@@ -2,6 +2,8 @@
 // and exported previews. Painted art stays at native proportions throughout.
 import {createStoryRestorationMap,createRestorationStage} from './story-restoration.js?v=494241';
 export {STORY_RESTORATION} from './story-restoration.js?v=494241';
+// Each firework sends six seeds onward; children bloom before their parents fade.
+export const BEACON_FIREWORK_WAVES=Object.freeze([.65,1.6,2.55,3.5]);
 export const STORY_SCENES = Object.freeze({
  intro:{duration:9,title:'A little world',audio:'story-intro.ogg',description:'Clear 100 Adventure levels to fill the Color Beacon and restore your island.'},
  garden:{duration:5,title:'First Bloom',audio:'story-10.ogg'},
@@ -209,11 +211,11 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
    }
   }else{const index=intro?0:finale?shapeIndex:chapter-1;shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,alpha,p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,alpha,-p*.2);}
  }
- // A compact firework marks the merge, then two smaller blooms follow the energy.
+ // The merge sends a branching cascade around the island as the beacon keeps working.
  // These use tapered comet trails and diamond embers, distinct from victory confetti.
- if(restorationPhase&&age>=0&&age<1.4){
+ if(restorationPhase&&age>=0&&age<5.2){
   const burst=(x,y,elapsed,size,count)=>{
-   const duration=.85;if(elapsed<0||elapsed>=duration)return;
+   const duration=1.15;if(elapsed<0||elapsed>=duration)return;
    const p=elapsed/duration,spread=1-Math.pow(1-p,3),fade=1-ease(p,.2,1);
    glow(x,y,size*(.45+spread),4,fade*.7);
    glow(x,y,size*.36,6,(1-ease(p,0,.35))*.95);
@@ -233,6 +235,21 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
    ctx.restore();
   };
   burst(360,340,age,145,28);
+  if(!reduced){
+   const sites=[[145,275],[565,290],[130,530],[585,560],[155,850],[565,890]];
+   const site=(wave,i)=>({x:sites[i][0]+Math.sin(wave*2+i)*24,y:sites[i][1]+Math.cos(wave+i*2)*28});
+   BEACON_FIREWORK_WAVES.forEach((waveAt,wave)=>{
+    sites.forEach((_,i)=>{
+     const at=waveAt+i*.06,travel=.5,start=at-travel;
+     const origin=wave?site(wave-1,(i+1)%6):{x:360,y:340},target=site(wave,i);
+     if(age>=start&&age<at){
+      const p=(age-start)/travel;
+      for(let j=5;j>=0;j--){const q=Math.max(0,p-j*.025);glow(mix(origin.x,target.x,q),mix(origin.y,target.y,q)-Math.sin(q*Math.PI)*35,9+(5-j)*2,i%4,(1-j/7)*.8);}
+     }
+     burst(target.x,target.y,age-at,58+(i*19+wave*23)%68,16+(i%3)*4);
+    });
+   });
+  }
   for(const [at,size] of [[.32,66],[.62,52]]){
    const p=ease(at,0,.9);
    burst(360+Math.sin(p*Math.PI)*65,mix(340,lamp.y,p),age-at,size,12);
