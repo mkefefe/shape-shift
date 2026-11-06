@@ -221,11 +221,11 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
    glow(x,y,size*.36,6,(1-ease(p,0,.35))*.95);
    if(reduced)return;
    ctx.save();ctx.globalAlpha=fade*restorationOpening;ctx.lineCap='round';
-   ctx.strokeStyle='#fff1ae';ctx.lineWidth=2*(1-p);ctx.beginPath();ctx.arc(x,y,size*.68*spread,0,Math.PI*2);ctx.stroke();
+   // Loose sparks rather than a rigid circular outline.
    const colors=['#ffe273','#83efff','#ffa4ba','#c4ff99'];
    for(let i=0;i<count;i++){
-    const angle=i*Math.PI*2/count+.18*Math.sin(i*2.4),reach=size*(.6+(i%4)*.12);
-    const distance=reach*spread,tail=Math.max(0,distance-size*.18*(1-p));
+    const angle=i*2.399963+.12*Math.sin(i*1.7),reach=size*(.52+((i*17)%13)/22);
+    const distance=reach*spread,tail=Math.max(0,distance-size*.26*(1-p));
     const drift=p*p*25,px=x+Math.cos(angle)*distance,py=y+Math.sin(angle)*distance+drift;
     ctx.strokeStyle=colors[i%4];ctx.lineWidth=2.8*(1-p)+.5;
     ctx.beginPath();ctx.moveTo(x+Math.cos(angle)*tail,y+Math.sin(angle)*tail+drift);ctx.lineTo(px,py);ctx.stroke();
@@ -236,17 +236,23 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   };
   burst(360,340,age,145,28);
   if(!reduced){
-   const sites=[[145,275],[565,290],[130,530],[585,560],[155,850],[565,890]];
-   const site=(wave,i)=>({x:sites[i][0]+Math.sin(wave*2+i)*24,y:sites[i][1]+Math.cos(wave+i*2)*28});
+   // Different irregular constellations each wave: no paired columns or fixed center.
+   const sites=[
+    [[120,320],[490,255],[605,590],[220,720],[445,1040],[100,970]],
+    [[245,280],[610,430],[105,620],[480,820],[190,1090],[610,1050]],
+    [[95,430],[430,285],[580,730],[275,960],[115,820],[530,1090]],
+    [[190,330],[585,290],[110,740],[465,925],[275,1130],[620,590]]
+   ];
+   const site=(wave,i)=>({x:sites[wave][i][0],y:sites[wave][i][1]});
    BEACON_FIREWORK_WAVES.forEach((waveAt,wave)=>{
-    sites.forEach((_,i)=>{
-     const at=waveAt+i*.06,travel=.5,start=at-travel;
+    sites[wave].forEach((_,i)=>{
+     const at=waveAt+[0,.18,.07,.25,.12,.3][i],travel=.5,start=at-travel;
      const origin=wave?site(wave-1,(i+1)%6):{x:360,y:340},target=site(wave,i);
      if(age>=start&&age<at){
       const p=(age-start)/travel;
       for(let j=5;j>=0;j--){const q=Math.max(0,p-j*.025);glow(mix(origin.x,target.x,q),mix(origin.y,target.y,q)-Math.sin(q*Math.PI)*35,9+(5-j)*2,i%4,(1-j/7)*.8);}
      }
-     burst(target.x,target.y,age-at,58+(i*19+wave*23)%68,16+(i%3)*4);
+     burst(target.x,target.y,age-at,115+(i*31+wave*47)%95,24+(i%3)*6);
     });
    });
   }

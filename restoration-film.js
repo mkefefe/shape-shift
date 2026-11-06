@@ -1,4 +1,4 @@
-import {loadStoryAssets,drawStory,BEACON_FIREWORK_WAVES} from './story-renderer.js?ui260';
+import {loadStoryAssets,drawStory,BEACON_FIREWORK_WAVES} from './story-renderer.js?ui261';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
 export const RESTORATION_MERGE_SECONDS=2.6;
 export const RESTORATION_CHARGE_SECONDS=3.9;
@@ -6,7 +6,7 @@ export const RESTORATION_BEAM_GAP=.4;
 export const RESTORATION_PHASE_SECONDS=4.9;
 export const RESTORATION_COLOR_SECONDS=RESTORATION_CHARGE_SECONDS+3*RESTORATION_BEAM_GAP+RESTORATION_PHASE_SECONDS;
 export const RESTORATION_CUES=Object.freeze([
- {id:'spiral',at:0,file:'beacon-spiral-ui260.ogg',gain:.6},
+ {id:'spiral',at:0,file:'beacon-spiral-ui261.ogg',gain:.6},
  ...BEACON_FIREWORK_WAVES.map((at,index)=>({id:'cascade-'+index,at:RESTORATION_MERGE_SECONDS+at,file:'victory-spark'+index+'-v49436.ogg',gain:.25})),
  {id:'merge',at:RESTORATION_MERGE_SECONDS,file:'victory-burst-v49436.ogg',gain:.85},
  {id:'travel',at:RESTORATION_MERGE_SECONDS+.25,file:'victory-gather-v4947.ogg',gain:.65},
