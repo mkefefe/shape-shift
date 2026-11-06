@@ -8,7 +8,7 @@ function fixture(volume=1){
  return {player,media,get unregistered(){return unregistered;}};
 }
 test('original merge and travel lead into a cue for each staggered launch and landing',()=>{
- assert.deepEqual(RESTORATION_CUES.slice(0,3).map(c=>c.id),['merge','travel','charge']);assert.equal(RESTORATION_CUES.filter(c=>c.id.startsWith('beam-')).length,4);assert.equal(RESTORATION_CUES.filter(c=>c.id.startsWith('bloom-')).length,4);
+ assert.deepEqual(RESTORATION_CUES.filter(c=>['merge','travel','charge'].includes(c.id)).map(c=>c.id),['merge','travel','charge']);assert.equal(RESTORATION_CUES.filter(c=>c.id.startsWith('beam-')).length,4);assert.equal(RESTORATION_CUES.filter(c=>c.id.startsWith('bloom-')).length,4);
  for(let i=1;i<RESTORATION_CUES.length;i++)assert(RESTORATION_CUES[i].at>RESTORATION_CUES[i-1].at);
  assert(RESTORATION_CUES.at(-1).at<RESTORATION_COLOR_SECONDS);
 });

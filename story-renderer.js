@@ -209,6 +209,35 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
    }
   }else{const index=intro?0:finale?shapeIndex:chapter-1;shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,alpha,p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,alpha,-p*.2);}
  }
+ // A compact firework marks the merge, then two smaller blooms follow the energy.
+ // These use tapered comet trails and diamond embers, distinct from victory confetti.
+ if(restorationPhase&&age>=0&&age<1.4){
+  const burst=(x,y,elapsed,size,count)=>{
+   const duration=.85;if(elapsed<0||elapsed>=duration)return;
+   const p=elapsed/duration,spread=1-Math.pow(1-p,3),fade=1-ease(p,.2,1);
+   glow(x,y,size*(.45+spread),4,fade*.7);
+   glow(x,y,size*.36,6,(1-ease(p,0,.35))*.95);
+   if(reduced)return;
+   ctx.save();ctx.globalAlpha=fade*restorationOpening;ctx.lineCap='round';
+   ctx.strokeStyle='#fff1ae';ctx.lineWidth=2*(1-p);ctx.beginPath();ctx.arc(x,y,size*.68*spread,0,Math.PI*2);ctx.stroke();
+   const colors=['#ffe273','#83efff','#ffa4ba','#c4ff99'];
+   for(let i=0;i<count;i++){
+    const angle=i*Math.PI*2/count+.18*Math.sin(i*2.4),reach=size*(.6+(i%4)*.12);
+    const distance=reach*spread,tail=Math.max(0,distance-size*.18*(1-p));
+    const drift=p*p*25,px=x+Math.cos(angle)*distance,py=y+Math.sin(angle)*distance+drift;
+    ctx.strokeStyle=colors[i%4];ctx.lineWidth=2.8*(1-p)+.5;
+    ctx.beginPath();ctx.moveTo(x+Math.cos(angle)*tail,y+Math.sin(angle)*tail+drift);ctx.lineTo(px,py);ctx.stroke();
+    const r=(i%3===0?4.8:3)*(1-p*.6);ctx.fillStyle=i%3===0?'#fff9df':colors[i%4];
+    ctx.beginPath();ctx.moveTo(px,py-r*1.5);ctx.lineTo(px+r,py);ctx.lineTo(px,py+r*1.5);ctx.lineTo(px-r,py);ctx.closePath();ctx.fill();
+   }
+   ctx.restore();
+  };
+  burst(360,340,age,145,28);
+  for(const [at,size] of [[.32,66],[.62,52]]){
+   const p=ease(at,0,.9);
+   burst(360+Math.sin(p*Math.PI)*65,mix(340,lamp.y,p),age-at,size,12);
+  }
+ }
  if(age>=0&&age<.9){const p=ease(age,0,.9),x=360+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(360+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));}
  if(!reduced)particles(lamp.x,lamp.y,age-.7,4,14,100);
  // Lanterns celebrate only after the whole island and sky are restored.
