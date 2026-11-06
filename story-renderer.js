@@ -113,8 +113,8 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  const finale=sceneId==='ending',intro=sceneId==='intro';
  const chapter={garden:1,river:2,village:3,sky:4}[sceneId]||0;
  const level={garden:10,river:25,village:50,sky:75}[sceneId]||0;
- const passTime=restorationPhase?.time??t;
- const rise=restorationPhase?ease(passTime,1.1,4.9):finale?ease(t,2.7,7.2):ease(t,1,3.2);
+ const districtRises=restorationPhase?.beams.map(beam=>ease(restorationClock-beam.launch,1.1,4.9));
+ const rise=restorationPhase?districtRises.reduce((sum,value)=>sum+value,0)/4:finale?ease(t,2.7,7.2):ease(t,1,3.2);
  // The one finale begins with the whole island uncolored. The sky brightens
  // with the outward color wave, rather than inheriting a previous chapter.
  const skyPower=restorationPhase ? .15+.85*rise:finale?mix(.035,1,ease(t,4.5,8)):sceneId==='sky'?mix(.035,.65,rise):.035;
@@ -154,11 +154,12 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   // composite on every frame after the color reveal has finished.
   ctx.drawImage(after,ix,iy,iw,iw);
  }else if(restorationPhase&&rise>0){
-  // Reveal each district from its own beam landing point on the same clock.
+  // Each landing starts its own reveal while the later beams are still traveling.
   const q=a.districtReveal.getContext('2d'),n=a.districtReveal.width;
   for(let i=0;i<4;i++){
+   const districtRise=districtRises[i];if(districtRise<=0)continue;
    q.clearRect(0,0,n,n);q.globalCompositeOperation='source-over';q.drawImage(a.restorationGroups[i],0,0,n,n);
-   const target=restorationPhase.targets[i],radius=20+rise*n*1.3,gradient=q.createRadialGradient(target.x*n,target.y*n,Math.max(0,radius-n*.18),target.x*n,target.y*n,radius);
+   const target=restorationPhase.targets[i],radius=20+districtRise*n*1.3,gradient=q.createRadialGradient(target.x*n,target.y*n,Math.max(0,radius-n*.18),target.x*n,target.y*n,radius);
    gradient.addColorStop(0,'#fff');gradient.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=gradient;q.fillRect(0,0,n,n);q.globalCompositeOperation='source-over';ctx.drawImage(a.districtReveal,ix,iy,iw,iw);
   }
  }else if(!intro&&rise>0){
@@ -167,7 +168,7 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   else if(rise<1){const radius=10+rise*900,grad=q.createRadialGradient(destination.x,destination.y,Math.max(0,radius-140),destination.x,destination.y,radius);grad.addColorStop(0,'#fff');grad.addColorStop(1,'#fff0');q.globalCompositeOperation='destination-in';q.fillStyle=grad;q.fillRect(0,0,720,1280);q.globalCompositeOperation='source-over';}
   ctx.drawImage(a.reveal,0,0,720,1280);
  }
- const fill=restorationPhase?ease(restorationClock,1.4,1.9):intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
+ const fill=restorationPhase?ease(restorationClock,restorationPhase.mergeAt+.7,restorationPhase.mergeAt+1.2):intro?ease(t,3.5,4.7)*.01:finale?ease(t,1.6,3):mix((level-1)/100,level/100,ease(t,.8,1.4));
  ctx.save();ctx.globalAlpha=restorationOpening;ctx.beginPath();ctx.ellipse(lamp.x,lamp.y,lamp.rx,lamp.ry,0,0,Math.PI*2);ctx.clip();
  const glass=ctx.createRadialGradient(lamp.x-20,lamp.y-20,0,lamp.x,lamp.y,100*u*2);glass.addColorStop(0,'#254e67');glass.addColorStop(1,'#102e43');ctx.fillStyle=glass;ctx.fillRect(lamp.x-80,lamp.y-80,160,160);
  const waterTop=lamp.y+lamp.ry-2-lamp.ry*1.9*fill;
@@ -175,16 +176,16 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  const liquid=ctx.createLinearGradient(0,lamp.y-lamp.ry,0,lamp.y+lamp.ry);liquid.addColorStop(0,'#ffe69e');liquid.addColorStop(.3,'#b8edb4');liquid.addColorStop(.65,'#86dcee');liquid.addColorStop(1,'#e3a2c0');ctx.fillStyle=liquid;ctx.fill();
  ctx.fillStyle='#ffffff4a';ctx.beginPath();ctx.ellipse(lamp.x-23*u*1.8,lamp.y-24*u*1.8,7*u*1.8,21*u*1.8,.55,0,Math.PI*2);ctx.fill();ctx.restore();
  glow(lamp.x,lamp.y,150+(restorationPhase?Math.sin(ambientTime*1.4)*.15+.85:rise)*80,4,.14+fill*.3);
- // All four colored beams leave together and reach their own districts together.
+ // Closely spaced launches overlap in flight and restore their districts independently.
  if(restorationPhase){
   destinations.forEach((destination,i)=>{
-   const color=restorationPhase.beams[i].shape;
-   if(passTime>=0&&passTime<1.9){
-    const p=ease(passTime,0,1.1),bend=-65-i*15,at=u=>({x:mix(lamp.x,destination.x,u),y:mix(lamp.y,destination.y,u)+Math.sin(u*Math.PI)*bend});
-    for(let j=12;j>=0;j--){const v=at(Math.max(0,p-j*.025));glow(v.x,v.y,14+(12-j)*1.6,color,(1-j/14)*(1-ease(passTime,1.1,1.9)));}
-    const v=at(p);glow(v.x,v.y,56,color,1-ease(passTime,1.1,1.9));
+   const color=restorationPhase.beams[i].shape,beamTime=restorationClock-restorationPhase.beams[i].launch;
+   if(beamTime>=0&&beamTime<1.9){
+    const p=ease(beamTime,0,1.1),bend=-65-i*15,at=u=>({x:mix(lamp.x,destination.x,u),y:mix(lamp.y,destination.y,u)+Math.sin(u*Math.PI)*bend});
+    for(let j=12;j>=0;j--){const v=at(Math.max(0,p-j*.025));glow(v.x,v.y,14+(12-j)*1.6,color,(1-j/14)*(1-ease(beamTime,1.1,1.9)));}
+    const v=at(p);glow(v.x,v.y,56,color,1-ease(beamTime,1.1,1.9));
    }
-   if(!reduced)particles(destination.x,destination.y,passTime-1.1,color,20,110);
+   if(!reduced)particles(destination.x,destination.y,beamTime-1.1,color,20,110);
   });
  }
  // Water and cottage lights wake only after the complete island is colored.
@@ -195,15 +196,17 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
  }
  ctx.restore();
  // Use the original two-shape convergence and energy trail, with four inputs in the restoration film.
- const matchTime=restorationPhase?restorationClock:t,hit=intro?3.2:finale?1.3:.7,age=matchTime-hit;
+ const matchTime=restorationPhase?restorationClock:t,hit=restorationPhase?restorationPhase.mergeAt:intro?3.2:finale?1.3:.7,age=matchTime-hit;
  if(matchTime<hit){
   const p=ease(matchTime,Math.max(0,hit-1.1),hit),gap=mix(160,23,p),alpha=1-ease(p,.95,1);
   if(restorationPhase){
-   const positions=[[210,475],[510,475],[510,805],[210,805]];
-   positions.forEach(([x,y],i)=>{
-    const side=i%2?1:-1,dx=x-360,dy=y-340,length=Math.hypot(dx,dy),remaining=mix(length,23,p);
-    shape(i,360+dx/length*remaining,340+dy/length*remaining+side*Math.sin(p*Math.PI)*24,mix(116,88,p),alpha,-side*p*.2);
-   });
+   const progress=ease(matchTime,0,hit),scale=Math.min(w/720,h/1280);
+   // Start beyond every viewport edge, then orbit inward into the original merge point.
+   const radius=mix(Math.hypot(w,h)/scale*.8,0,progress),turn=progress*Math.PI*2.5;
+   for(let i=0;i<4;i++){
+    const angle=Math.PI/4+i*Math.PI/2+turn;
+    shape(i,360+Math.cos(angle)*radius,340+Math.sin(angle)*radius,mix(116,88,progress),1-ease(progress,.96,1),Math.sin(turn)*.2);
+   }
   }else{const index=intro?0:finale?shapeIndex:chapter-1;shape(index,360-gap,340-Math.sin(p*Math.PI)*24,88,alpha,p*.2);shape(index,360+gap,340+Math.sin(p*Math.PI)*24,88,alpha,-p*.2);}
  }
  if(age>=0&&age<.9){const p=ease(age,0,.9),x=360+Math.sin(p*Math.PI)*65,y=mix(340,lamp.y,p);for(let i=5;i>=0;i--){const pp=Math.max(0,p-i*.025);glow(360+Math.sin(pp*Math.PI)*65,mix(340,lamp.y,pp),24-i*2,(chapter+2)%4,.45-i*.06);}glow(x,y,40,4,1-ease(age,.7,.9));}

@@ -93,13 +93,3 @@ html body dialog.restoration-celebration::backdrop{background:transparent}
 html body dialog.restoration-celebration canvas{display:block;width:100%;height:100%;object-fit:contain;min-width:0;min-height:0}
 
 html:has(dialog.restoration-celebration[open]),body:has(dialog.restoration-celebration[open]){overflow:hidden!important}
-
-/* One clear, full-screen invitation before the beacon charge begins. */
-html body .restoration-celebration .restoration-tap{position:absolute;inset:0;z-index:3;display:block;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:pointer;touch-action:manipulation}
-html body .restoration-celebration .restoration-tap[hidden]{display:none!important}
-.restoration-tap strong{position:absolute;left:50%;top:50%;color:#fff;font:1000 clamp(64px,18vw,112px)/1 Nunito,sans-serif;letter-spacing:.04em;text-shadow:0 4px 0 #073a55,0 0 22px #042d58;transform:translate(-50%,-50%);animation:beacon-tap-pulse 1.1s ease-in-out infinite}
-.restoration-tap img{position:absolute;left:calc(50% - 28px);top:calc(50% + 50px);width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 3px 4px #042d58);transform:rotate(-135deg);animation:beacon-tap-hand 1.1s ease-in-out infinite}
-.restoration-tap:focus-visible{outline:4px solid white;outline-offset:-8px}
-@keyframes beacon-tap-pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.84}50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}}
-@keyframes beacon-tap-hand{0%,100%{transform:translateY(8px) rotate(-135deg)}50%{transform:translateY(0) rotate(-135deg)}}
-@media(prefers-reduced-motion:reduce){.restoration-tap strong,.restoration-tap img{animation:none}}

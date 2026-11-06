@@ -1,11 +1,11 @@
 import {createRestorationEffects} from './restoration-audio.js?ui254';
-import {prepareRestorationFilm,restorationPresentation,restorationEase,restorationTransition} from './restoration-film.js?ui257';
+import {prepareRestorationFilm,restorationPresentation,restorationEase,restorationTransition} from './restoration-film.js?ui258';
 import {loadRestorationIsland,drawRestorationIsland} from './restoration-islands.js?v=494241';
 import {RESTORATION_MODES,restorationView} from './restoration-view.js?v=494241';
 const bounded=value=>Math.max(0,Math.min(100,Number(value)||0));
 function ensureStyles(doc=document){
  if(doc.getElementById('restoration-styles'))return;
- const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?ui257',import.meta.url).href;doc.head.append(css);
+ const css=doc.createElement('link');css.id='restoration-styles';css.rel='stylesheet';css.href=new URL('./restoration-ui.css?ui258',import.meta.url).href;doc.head.append(css);
 }
 
 // Shared progression is deliberately a small destination, not another opening
@@ -102,9 +102,7 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
   const token=++epoch;celebrating=true;panel.classList.add('is-restoring');
   const rect=canvas.getBoundingClientRect();
   const overlay=document.createElement('dialog');overlay.className='restoration-celebration';overlay.setAttribute('role','status');overlay.setAttribute('aria-label','Restoring '+island.title);
-  overlay.innerHTML='<canvas width="720" height="1280"></canvas><button class="restoration-tap" type="button" aria-label="Tap to fill the beacon" hidden><strong>TAP</strong><img alt="" src="'+new URL('./assets/delivery-v144/ability-hand-v169.webp',import.meta.url).href+'"></button>';
-  const tap=overlay.querySelector('.restoration-tap');let launched=false,canLaunch=false;
-  tap.onclick=event=>{event.preventDefault();event.stopPropagation();if(!canLaunch||launched||document.hidden||window.ShapeShiftPlatform?.paused)return;launched=true;tap.hidden=true;};
+  overlay.innerHTML='<canvas width="720" height="1280"></canvas>';
   const surface=overlay.querySelector('canvas'),q=surface.getContext('2d');celebrationOverlay=overlay;Object.assign(overlay.style,{left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px'});surface.width=Math.round(rect.width);surface.height=Math.round(rect.height);film.draw(q,0,0);document.body.append(overlay);overlay.showModal();overlay.addEventListener('cancel',event=>event.preventDefault());
   const startRect={x:rect.left,y:rect.top,w:rect.width,h:rect.height};
   let nextArtworkReady=false;const nextArtwork=warm().finally(()=>{nextArtworkReady=true;}); // Prepare the next card behind the still-playing film.
@@ -116,16 +114,16 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
   await new Promise(resolve=>{if(media.readyState>=3)return resolve();const timeout=setTimeout(done,5000);function done(){clearTimeout(timeout);media.removeEventListener('canplaythrough',done);media.removeEventListener('error',done);resolve();}media.addEventListener('canplaythrough',done,{once:true});media.addEventListener('error',done,{once:true});media.load();});
   if(token!==epoch){stopSound();return;}window.gameAudio?.pause();
   let finalFilmSeconds=0,finalImageFrame;
-  await new Promise(resolve=>{finishAnimation=resolve;let elapsed=0,expansionElapsed=0,last=performance.now(),soundStarted=false;
+  await new Promise(resolve=>{finishAnimation=resolve;let elapsed=0,last=performance.now(),soundStarted=false;
    function frame(now){
     if(token!==epoch||!panel.open){stopSound();resolve();return;}
     const dt=Math.max(0,Math.min(100,now-last));last=now;
     const paused=document.hidden||window.ShapeShiftPlatform?.paused;
-    if(!paused){expansionElapsed=Math.min(1050,expansionElapsed+dt);if(launched)elapsed+=dt;}
+    if(!paused)elapsed+=dt;
     if(paused){media.pause();}else if(soundStarted&&media.paused&&!media.ended&&media.volume>0)media.play().catch(()=>{});
     const bounds={width:window.innerWidth,height:window.innerHeight};
-    const seconds=elapsed/1000,pose=restorationPresentation(seconds,island.index);
-    const expand=expansionElapsed/1050,e=restorationEase(expand)*(1-pose.dock);
+    const seconds=Math.max(0,(elapsed-1050)/1000),pose=restorationPresentation(seconds,island.index);
+    const expand=Math.min(1,elapsed/1050),e=restorationEase(expand)*(1-pose.dock);
     const motion=restorationTransition(startRect,{w:bounds.width,h:bounds.height},e);
     overlay.style.borderRadius=(22*(1-e))+'px';overlay.style.left=motion.x+'px';overlay.style.top=motion.y+'px';
     overlay.style.width=motion.w+'px';overlay.style.height=motion.h+'px';
@@ -133,15 +131,13 @@ export function initRestorationUI({getSummary,sound=()=>{},onAdventure=()=>{},on
     if(surface.width!==width||surface.height!==height){surface.width=width;surface.height=height;}
     finalFilmSeconds=pose.filmSeconds;finalImageFrame={x:motion.image.x*pixelRatio,y:motion.image.y*pixelRatio,size:motion.image.size*pixelRatio};
     film.draw(q,finalFilmSeconds,e,finalImageFrame);
-    canLaunch=expand>=1;tap.hidden=launched||!canLaunch;
-    effects.step(pose.filmSeconds,{paused:paused||!launched,enabled:window.ShapeShiftPlatform?.audioAllowed!==false});
-    if(launched){
+    effects.step(pose.filmSeconds,{paused:paused||expand<1,enabled:window.ShapeShiftPlatform?.audioAllowed!==false});
+    if(expand>=1){
      if(!soundStarted){soundStarted=true;if(media.volume>0)media.play().catch(()=>{});}
      media.volume=musicVolume*Math.min(1,Math.max(0,pose.duration-seconds));
      overlay.setAttribute('aria-label',film.describe(pose.filmSeconds));
     }
-    if(!launched)overlay.setAttribute('aria-label','Tap to fill the beacon');
-    if(!launched||elapsed<pose.duration*1000+240||!nextArtworkReady)animation=requestAnimationFrame(frame);
+    if(elapsed<1050+pose.duration*1000+240||!nextArtworkReady)animation=requestAnimationFrame(frame);
     else {stopSound();finishAnimation=null;resolve();}
    }animation=requestAnimationFrame(frame);
   });

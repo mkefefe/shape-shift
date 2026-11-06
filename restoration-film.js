@@ -1,18 +1,22 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?ui257';
+import {loadStoryAssets,drawStory} from './story-renderer.js?ui258';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
-export const RESTORATION_CHARGE_SECONDS=2;
+export const RESTORATION_MERGE_SECONDS=2.6;
+export const RESTORATION_CHARGE_SECONDS=3.9;
+export const RESTORATION_BEAM_GAP=.4;
 export const RESTORATION_PHASE_SECONDS=4.9;
-export const RESTORATION_COLOR_SECONDS=RESTORATION_CHARGE_SECONDS+RESTORATION_PHASE_SECONDS;
+export const RESTORATION_COLOR_SECONDS=RESTORATION_CHARGE_SECONDS+3*RESTORATION_BEAM_GAP+RESTORATION_PHASE_SECONDS;
 export const RESTORATION_CUES=Object.freeze([
- {id:'merge',at:.7,file:'victory-transform-v4947.ogg',gain:.85},
- {id:'travel',at:.95,file:'victory-gather-v4947.ogg',gain:.65},
- {id:'charge',at:1.6,file:'victory-resolve-v4947.ogg',gain:.8},
- {id:'beams',at:RESTORATION_CHARGE_SECONDS,file:'victory-reward-flight-v49459.ogg',gain:.85},
- {id:'bloom',at:RESTORATION_CHARGE_SECONDS+1.1,file:'victory-spark0-v49436.ogg',gain:.65}
-].map(Object.freeze));
+ {id:'merge',at:RESTORATION_MERGE_SECONDS,file:'victory-transform-v4947.ogg',gain:.85},
+ {id:'travel',at:RESTORATION_MERGE_SECONDS+.25,file:'victory-gather-v4947.ogg',gain:.65},
+ {id:'charge',at:RESTORATION_MERGE_SECONDS+.9,file:'victory-resolve-v4947.ogg',gain:.8},
+ ...STAGES.flatMap((stage,index)=>[
+  {id:'beam-'+index,at:RESTORATION_CHARGE_SECONDS+index*RESTORATION_BEAM_GAP,file:'victory-reward-flight-v49459.ogg',gain:.5},
+  {id:'bloom-'+index,at:RESTORATION_CHARGE_SECONDS+index*RESTORATION_BEAM_GAP+1.1,file:'victory-spark'+index+'-v49436.ogg',gain:.45}
+ ])
+].sort((a,b)=>a.at-b.at).map(Object.freeze));
 export function restorationFilmFrame(seconds,islandIndex=0){
  const finalIsland=islandIndex===9,duration=RESTORATION_COLOR_SECONDS+(finalIsland?17:5),t=Math.max(0,seconds);
- if(t<RESTORATION_COLOR_SECONDS)return {duration,kind:'restore',time:t-RESTORATION_CHARGE_SECONDS,scene:'garden',beams:STAGES.map((stage,index)=>({...stage,index,launch:RESTORATION_CHARGE_SECONDS}))};
+ if(t<RESTORATION_COLOR_SECONDS)return {duration,kind:'restore',time:t-RESTORATION_CHARGE_SECONDS,scene:'garden',mergeAt:RESTORATION_MERGE_SECONDS,beams:STAGES.map((stage,index)=>({...stage,index,launch:RESTORATION_CHARGE_SECONDS+index*RESTORATION_BEAM_GAP}))};
  return {duration,kind:finalIsland&&t>=RESTORATION_COLOR_SECONDS+4.5?'credits':'lanterns',time:8+t-RESTORATION_COLOR_SECONDS,scene:'ending',finalIsland};
 }
 export function restorationPixelGroup(stage,r,g,b){

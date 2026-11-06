@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {restorationFilmFrame,restorationPixelGroup,RESTORATION_CHARGE_SECONDS,RESTORATION_COLOR_SECONDS} from './restoration-film.js';
-test('one charge launches four distinct colored beams on the same frame on every island',()=>{
+import {restorationFilmFrame,restorationPixelGroup,RESTORATION_CHARGE_SECONDS,RESTORATION_BEAM_GAP,RESTORATION_COLOR_SECONDS} from './restoration-film.js';
+test('one charge staggers four beams with overlapping flights on every island',()=>{
  for(let island=0;island<10;island++){
   const before=restorationFilmFrame(RESTORATION_CHARGE_SECONDS-.01,island);assert(before.time<0);
-  const shot=restorationFilmFrame(RESTORATION_CHARGE_SECONDS,island);assert.equal(shot.time,0);assert.equal(shot.beams.length,4);assert.equal(new Set(shot.beams.map(b=>b.shape)).size,4);assert(shot.beams.every(b=>b.launch===RESTORATION_CHARGE_SECONDS));
+  const shot=restorationFilmFrame(RESTORATION_CHARGE_SECONDS,island);assert.equal(shot.time,0);assert.equal(shot.beams.length,4);assert.equal(new Set(shot.beams.map(b=>b.shape)).size,4);assert(RESTORATION_BEAM_GAP>0&&RESTORATION_BEAM_GAP<1.1);assert(shot.beams.every((b,i)=>b.launch===RESTORATION_CHARGE_SECONDS+i*RESTORATION_BEAM_GAP));
   assert.equal(restorationFilmFrame(RESTORATION_COLOR_SECONDS-.01,island).kind,'restore');assert.equal(restorationFilmFrame(RESTORATION_COLOR_SECONDS,island).kind,'lanterns');
   assert(restorationFilmFrame(24,island).time>restorationFilmFrame(23,island).time);
  }
