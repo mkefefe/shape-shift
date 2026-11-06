@@ -399,7 +399,7 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 .board:not([data-layout="classic"]){background:transparent}
 /* A square painted sprite is cropped, never stretched, to fill each blocked cell. */
 .board-rock{position:relative;display:block;min-width:0;min-height:0;overflow:hidden;border-radius:15%;pointer-events:none;filter:drop-shadow(0 3px 2px #09374e66);container-type:size}
-.stone-art{position:absolute;width:max(100cqw,100cqh);height:max(100cqw,100cqh);left:50%;top:50%;transform:translate(-50%,-50%);background:url('./assets/stone-states-v140.webp') 0 0/300% 100% no-repeat}
+.stone-art{position:absolute;inset:0;width:100%;height:100%;background:url('./assets/stone-states-v140.webp') 0 0/300% 100% no-repeat}
 .board-rock.cracked .stone-art{background-position:50% 0}
 .board-rock.shattered .stone-art{background-position:100% 0}
 
@@ -469,12 +469,14 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 }
 
 /* Keep gameplay feedback at the health HUD and give the board the spare height. */
-#app[data-screen=game]{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+body:has(#app[data-screen=game]){padding-bottom:0}
+#app[data-screen=game]{height:100dvh;min-height:0;max-height:100dvh;padding-bottom:max(24px,env(safe-area-inset-bottom))}
 #game{display:flex;flex-direction:column;min-height:calc(100dvh - max(8px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)))}
 #game>.feedback-slot,#game>.rule-note{display:none}
 #game>.streaks:not(:has(span:not(:empty))){display:none}
 #game>.board{flex:1 0 auto;max-height:440px}
-#game>.abilities{margin-top:auto;padding-top:14px;flex-shrink:0}
+#game>.abilities{margin-top:8px;padding-top:4px;flex-shrink:0}
+#game>.timer-track{margin-top:8px}
 #game>.timer-track,#game>.current,#game>.score-row{flex-shrink:0}
 
 /* Compact continue panel: retain the painted top/bottom at the same scale,
@@ -517,8 +519,8 @@ html:has(#shop-dialog[open]),body:has(#shop-dialog[open]){overflow:hidden;oversc
 .mode-adventure{container-type:inline-size}
 .mode-adventure>em{position:absolute;left:50%;top:calc(50% + 34.5cqw);transform:translate(-50%,-50%);margin:0;padding:0;width:70%;text-align:center;white-space:nowrap;background:none;border:0;box-shadow:none;color:#653300;font:1000 clamp(13px,3.6vw,18px)/1 Nunito,sans-serif;text-shadow:0 1px 0 #fff4a6}
 /* Square tracks use the available play area, not the phone's aspect ratio. */
-#game{height:calc(100dvh - max(8px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));min-height:0}
-#game>#board{flex:1 1 0;height:auto;min-height:0;max-height:none;max-width:100%;width:100%;margin:0;grid-template-columns:repeat(var(--cols,1),var(--track,60px))!important;grid-template-rows:repeat(var(--rows,1),var(--track,60px))!important;grid-auto-rows:var(--track,60px);align-content:center;justify-content:center}
+#game{height:100%;min-height:0}
+#game>#board{flex:1 1 0;height:auto;min-height:0;max-height:var(--board-fit-height,440px);max-width:100%;width:100%;margin:0;grid-template-columns:repeat(var(--cols,1),var(--track,60px))!important;grid-template-rows:repeat(var(--rows,1),var(--track,60px))!important;grid-auto-rows:var(--track,60px);align-content:center;justify-content:center}
 #game>#board>.choice,#game>#board>.board-rock{width:var(--track);height:var(--track);aspect-ratio:1;align-self:center;justify-self:center;padding:0}
 #game>#board .sprite{width:var(--tile-art)!important;height:var(--tile-art)!important}
 #game>#board .sprite.special-art{height:calc(var(--tile-art)*1.2)!important}

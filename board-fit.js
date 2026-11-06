@@ -8,7 +8,12 @@ export function fitBoard(board){
   const rows=Math.max(Math.ceil(Number(board.dataset.count||1)/columns),...Array.from(board.children).filter(e=>e.style.display!=='none').map(e=>Number(e.style.gridRow)||1));
   const width=board.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
   const height=board.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
-  const size=squareTrack(width,height,columns,rows,parseFloat(style.gap)||0);
+  // Sparse boards must not stretch the space around their square rows and
+  // push the timer and powers to the viewport edge.
+  const gap=parseFloat(style.gap)||0;
+  const preferred=squareTrack(width,Infinity,columns,rows,gap)*rows+gap*(rows-1)+parseFloat(style.paddingTop)+parseFloat(style.paddingBottom);
+  board.style.setProperty('--board-fit-height',preferred+'px');
+  const size=squareTrack(width,height,columns,rows,gap);
   board.style.setProperty('--track',size+'px');board.style.setProperty('--cols',columns);board.style.setProperty('--rows',rows);
   board.style.setProperty('grid-template-columns',`repeat(${columns}, ${size}px)`,'important');
   board.style.setProperty('grid-template-rows',`repeat(${rows}, ${size}px)`,'important');

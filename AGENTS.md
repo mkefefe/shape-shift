@@ -99,3 +99,8 @@
 
 ## Final beacon release - November 5, 2026
 - Supersedes older beacon presentation notes: start automatically with four offscreen shapes spiraling into the original merged energy trail. No TAP gate or hand. Use airy spiral SFX, a merge burst and chained fireworks: four waves of six large irregular bursts spread across the full viewport, without increasing the count. Four outbound beams launch in a quick overlapping stagger. Preserve rising lanterns through docking, the one-second hold and the slide.
+
+## Gameplay viewport correction - November 5, 2026
+- Adventure and Endless must fit the full HUD, square board, round timer and available ability controls inside the visible game viewport. Cap sparse boards at their natural row height instead of stretching empty space above/below the choices. Keep the timer directly below the board and leave bottom safe-area clearance.
+- Await Adventure blocker artwork before revealing gameplay; retain loaded assets between visits. This is destination preparation, not permission to preload every mode at startup.
+- Preserve the existing early-Adventure ability/tutorial unlock rules. Cache-version both the HTML entry and its bootstrap import when changing the runtime.

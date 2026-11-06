@@ -29,6 +29,10 @@ test('full round progression and rewind always replace stale tracks within phone
  const cols=count===1?1:count===3?3:count<=4?2:count<=9?3:4,rows=Math.ceil(count/cols);
  board.dataset={count:String(count),columns:String(cols)};board.children=Array.from({length:count},()=>({style:{}}));fitBoard(board);
  const size=parseFloat(values['--track']);assert(size*cols+8*(cols-1)<=width-28);assert(size*rows+8*(rows-1)<=height-28);
+ // The preferred height follows width and row count, not the previous board's
+ // shrunken height. Sparse -> dense transitions must be able to grow again.
+ const preferred=squareTrack(width-28,Infinity,cols,rows,8)*rows+8*(rows-1)+28;
+ assert.equal(values['--board-fit-height'],preferred+'px');
  assert.equal(values['grid-template-columns'],`repeat(${cols}, ${size}px)`);assert.equal(values['grid-template-rows'],`repeat(${rows}, ${size}px)`);
  }
  }

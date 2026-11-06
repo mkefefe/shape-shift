@@ -1,4 +1,4 @@
-import {guidedMatch} from './guided-match.js?v=494241';
+import {guidedMatch} from './guided-match.js?ui263';
 import {nativeWelcome,runWelcome} from './welcome-platform.js?v=208';
 import {flushResultStorage} from './result-storage.js?v=494241';
 import {checkpointRunResult,finalizeRunResult,recoverRunResult} from './run-results.js?v=494241';
@@ -45,11 +45,11 @@ import {initSettingsExtras} from './settings-extras.js?v=494241';
 import {initGamesHub} from './games-hub.js?v=494241';
 import {normalizeMiniQuestEvent} from './mini-quest-events.js?v=494241';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,abilityGuideVisible,adventureAbilitiesAvailable,adventurePickupBoard,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?ui250';
-import {fitBoard} from './board-fit.js?v=494241';
+import {fitBoard} from './board-fit.js?ui263';
 import {analytics} from './analytics.js?v=494241';
 import {ensureTerms} from './terms.js?v=494241';
 import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui252';
-import {observeBoard} from './board-fit.js?v=494241';
+import {observeBoard} from './board-fit.js?ui263';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494241';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?ui252';
@@ -74,7 +74,7 @@ import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=4
 
 
 
-import {createSpecialEffect,createHeartOverflow} from './special-effects.js?v=494241';
+import {createSpecialEffect,createHeartOverflow} from './special-effects.js?ui263';
 
 
 
@@ -1710,7 +1710,7 @@ async function prepareRun(forceTutorial,onPrepared,beforeTutorial,gate){
 
 
 
- await Promise.all([runMode==='adventure'?gameplayScene.preload():null,audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginPlayableRun(endlessDifficulty);}catch(error){ranked=null;}}if(token!==countdownToken)return;screen('game');
+ await Promise.all([runMode==='adventure'?Promise.all([gameplayScene.preload(),loadStartupAssets(()=>{},{assets:['assets/stone-states-v140.webp']})]):null,audio()?.prepareGameStart(runMode==='adventure'?'adventure':'game'),effectArtReady,skinArtReady,runMode==='adventure'&&adventureMechanics(adventureLevel).lock==='shape'?ensureSkinArt(activeSkin(),true):null]);if(token!==countdownToken)return;ranked=null;if(runMode==='endless'&&!openingCoach&&!profile.adminMode&&leaderboardAllowed()){try{ranked=await beginPlayableRun(endlessDifficulty);}catch(error){ranked=null;}}if(token!==countdownToken)return;screen('game');
 
 
 
