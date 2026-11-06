@@ -548,7 +548,7 @@ function update(){
 
 
 
-  $(name).hidden=runMode==='adventure'&&!adventureAbilitiesAvailable(adventureLevel);
+  $(name).hidden=false;
   $(name+'-charges').textContent=runBoostUnlocked(name)?boostCharges(name):'Map '+BOOST_UNLOCK_LEVELS[name];$(name).classList.toggle('level-locked',!runBoostUnlocked(name));
 
 
@@ -595,8 +595,10 @@ function update(){
 
 
 
- document.querySelector('.abilities').hidden=runMode==='adventure'&&!adventureAbilitiesAvailable(adventureLevel);
- for(const name of Object.keys(PRICES)){$(name).disabled=locked||rockFills.length>0||paused||counting||(runBoostUnlocked(name)&&!autoPowers.has(name)&&!abilityActive(state,name)&&boostCharges(name)===0);$(name).setAttribute('aria-pressed',String(autoPowers.has(name)||abilityActive(state,name)));}
+ // Keep the HUD visible during the introduction; availability controls input,
+ // never the presence or position of the three power buttons.
+ document.querySelector('.abilities').hidden=false;
+ for(const name of Object.keys(PRICES)){$(name).disabled=locked||rockFills.length>0||paused||counting||openingCoach?.active||(runMode==='adventure'&&!adventureAbilitiesAvailable(adventureLevel))||(runBoostUnlocked(name)&&!autoPowers.has(name)&&!abilityActive(state,name)&&boostCharges(name)===0);$(name).setAttribute('aria-pressed',String(autoPowers.has(name)||abilityActive(state,name)));}
 
 
 
