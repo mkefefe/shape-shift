@@ -1,4 +1,4 @@
-import {STARTUP_ASSETS} from './startup-assets.js?v=494241';
+import {STARTUP_ASSETS} from './startup-assets.js?ui274';
 // Show the welcome artwork first; the session barrier prepares every playable
 // destination before any game controls become available.
 export const OPENING_ASSETS=['assets/Nunito.ttf','assets/delivery-v144/logo-v2-cut.webp','assets/delivery-v144/menu-panel-v240.webp','assets/delivery-v144/action-v45.webp','assets/close-v45.webp'];
@@ -7,7 +7,7 @@ export const CORE_STARTUP_ASSETS=[
  'assets/delivery-v144/menu-panel-v240.webp','assets/delivery-v144/action-v45.webp','assets/close-v45.webp',
  'assets/delivery-v144/specials-v13.webp','assets/delivery-v144/health-boost-v5.webp','assets/delivery-v144/abilities-v4.webp',
  'assets/coin-v10.webp','assets/pause-v30.webp','assets/delivery-v144/ability-hand-v169.webp',
- 'assets/delivery-v144/browser-shield-hd1.webp','assets/delivery-v144/browser-time-hd1.webp','assets/delivery-v144/browser-boost-hd1.webp',
+ 'assets/ability-shield-ui268.webp','assets/ability-time-ui268.webp','assets/ability-boost-ui268.webp',
  'assets/delivery-v144/xp-gold-painted-v335.webp'
 ];
 const NEXT_ASSETS=['assets/delivery-v144/home-world-v101.webp','assets/mode-cards-v101.webp',

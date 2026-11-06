@@ -10,11 +10,11 @@ import {createSceneryTint} from './scenery-progress.js';
 import {createPianoInput,bindPianoKeyboard,pianoInputClock} from './piano-input.js?v=494241';
 import {createMiniTutorial} from './mini-tutorial.js';
 import {createModePractice,continuePracticeRun} from './mode-practice.js?ui250';
-import {createMiniResults} from './mini-results.js?ui250';
-import {createMiniContinue} from './mini-continue.js';
+import {createMiniResults} from './mini-results.js?ui274';
+import {createMiniContinue} from './mini-continue.js?ui274';
 import {createHitFeedback} from './mini-hit-feedback.js';
 import {drawPianoHoldGlow} from './piano-hold-glow.js';
-import {createPianoGame,pianoProgress,finishPianoProgress,createPianoPerformedSupport,createPianoRhythmScheduler,PIANO_STALL_SECONDS} from './piano-flow-engine.js?v=494241';
+import {createPianoGame,pianoProgress,finishPianoProgress,createPianoPerformedSupport,createPianoRhythmScheduler,PIANO_STALL_SECONDS} from './piano-flow-engine.js?ui274';
 
 import {skinArtReady,skinCrop} from './shape-skin-art.js?v=494241';
 
@@ -34,7 +34,7 @@ const KEY='shape-shift-piano-v1',COLORS=['#ff7979','#63caff','#75e6a5','#ffe49a'
 export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=()=>({}),sound=name=>window.gameAudio?.ui(name),getXp=()=>0,reward=()=>false,onQuestEvent:reportQuest=()=>{},onProgress=()=>{},getLoadout=()=>({}),onClose=()=>{}}={}){
 
  const teaching=createMiniTutorial('piano');
- const practice=createModePractice('piano',{onComplete:()=>continuePracticeRun(game,()=>{engagement.startRun('piano');onQuestEvent({type:'start',mode:'piano',time:game.time});hint.hidden=false;hint.textContent='Tap any visible note’s strip';last=gameLast=window.ShapeShiftPlatform.now();update();draw();},getAdventureChallenge())});
+ const practice=createModePractice('piano',{onComplete:()=>continuePracticeRun(game,()=>{engagement.startRun('piano');onQuestEvent({type:'start',mode:'piano',time:game.time});hint.hidden=false;hint.textContent='Play the note marked NEXT';last=gameLast=window.ShapeShiftPlatform.now();update();draw();},getAdventureChallenge())});
  const onQuestEvent=event=>{if(!practice.active)reportQuest(event);};
  const dialog=document.createElement('dialog');dialog.id='piano-flow';dialog.setAttribute('aria-label','Piano Flow');document.body.append(dialog);
 
@@ -87,9 +87,9 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
  function begin(){removePanel();game.start();last=gameLast=window.ShapeShiftPlatform.now();canvas.focus();dialog.dataset.paused='false';}
 
- function resume(){if(!game||game.over)return;removePanel();game.resume();last=gameLast=window.ShapeShiftPlatform.now();canvas.focus();dialog.dataset.paused='false';hint.textContent='Tap any visible note’s strip';}
+ function resume(){if(!game||game.over)return;removePanel();game.resume();last=gameLast=window.ShapeShiftPlatform.now();canvas.focus();dialog.dataset.paused='false';hint.textContent='Play the note marked NEXT';}
 
- function help(){const card=panel('How to play');card.append(el('p','','Tap a strip or press A, S, D or F whenever a matching note is visible. Each fresh press plays a visible note immediately. Short notes earn their point on press. You can play visible notes in different strips in any order.'),el('p','','Press again for each new note. Long notes earn their point when you finish holding the trail. If you lift early, hold again before the note leaves the board. You can hold different strips together.'),button('Got it',resume));card.querySelector('button').focus();}
+ function help(){const card=panel('How to play');card.append(el('p','','Tap the strip or press A, S, D or F for the note marked NEXT. You can play it as soon as it is visible. Short notes earn their point on press. Play the note marked NEXT before moving to another note. A wrong strip costs one point and can cost a life.'),el('p','','Press again for each new note. Long notes earn their point when you finish holding the trail. If you lift early, hold again before the note leaves the board. You can hold different strips together.'),button('Got it',resume));card.querySelector('button').focus();}
 
  function pause(){if(!game||!game.started||game.over||game.paused)return;game.pause();window.gameAudio?.stopPraise();clearInput();dialog.dataset.paused='true';const card=panel('Paused');card.classList.add('piano-pause','drop-pause-panel');if(!adventureRun.pause(card,{panel,button,resume,exit:close}))card.append(button('Resume',resume),button('End',()=>{game.end();result();},'drop-secondary'));card.querySelector('button').focus();}
 
@@ -123,25 +123,25 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
   else if(e.type==='recover'){window.gameAudio?.stopPiano();voices.clear();support.clear();rhythm.clear();hint.textContent='Try this note again';}
   else if(e.type==='stall'){window.gameAudio?.stopPiano(true);support.clear();rhythm.resyncAfterStall();}
-  else if(e.type==='recovered'){hint.textContent='Tap any visible note’s strip';}
+  else if(e.type==='recovered'){hint.textContent='Play the note marked NEXT';}
   else if(e.type==='sustain-end'){voices.delete(e.note.id);}
   else if(e.type==='release'){voices.get(e.note.id)?.();voices.delete(e.note.id);hint.textContent=e.optional?'Point earned':'Hold again to finish the trail';}
 
-  else if(e.type==='miss'){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}window.gameAudio?.stopPraise();hitFeedback.hit();hint.textContent=e.reason==='wrong'?'Wrong strip — choose a visible shape':'Missed note — keep going';}
+  else if(e.type==='miss'){if(e.note){voices.get(e.note.id)?.();voices.delete(e.note.id);}window.gameAudio?.stopPraise();hitFeedback.hit();hint.textContent=e.reason==='wrong'?'Wrong strip — play the NEXT note':'Missed note — keep going';}
 
   else if(e.type==='beat')window.gameAudio?.pianoNote(e.pitch,.7,true);
   // Accompaniment is scheduled from the performed note above, never a second clock.
 
-  else if(e.type==='timing')hint.textContent='Choose a visible note’s strip';
+  else if(e.type==='timing')hint.textContent='Play the note marked NEXT';
 
   else if(e.type==='countdown')play('countdown');
 
-  else if(e.type==='ready'){play('countdown');hint.textContent=dialog.classList.contains('piano-desktop-keys')?'A S D F · Play any visible note':'Go! Tap any visible note’s strip';}
+  else if(e.type==='ready'){play('countdown');hint.textContent=dialog.classList.contains('piano-desktop-keys')?'A S D F · Play the NEXT note':'Go! Play the note marked NEXT';}
 
  }
 
  function setText(node,value){value=String(value);if(node.textContent!==value)node.textContent=value;}
- function update(){setText(score,game.score);setText(best,'BEST '+(game.practice?progress.best:Math.max(progress.best,game.score)));setText(coins,game.practice?0:game.coins);if(hearts.dataset.count!==String(game.lives)){hearts.dataset.count=game.lives;hearts.replaceChildren(...Array.from({length:game.maxLives},(_,i)=>el('i','heart'+(i>=game.lives?' empty':''))));hearts.setAttribute('aria-label',game.lives+' of '+game.maxLives+' hearts left');}const label=`Falling musical shapes. Score ${game.score}. ${game.lives} hearts.`;if(canvas.getAttribute('aria-label')!==label)canvas.setAttribute('aria-label',label);}
+ function update(){setText(score,game.score);setText(best,'BEST '+(game.practice?progress.best:Math.max(progress.best,game.score)));setText(coins,game.practice?0:game.coins);if(hearts.dataset.count!==String(game.lives)){hearts.dataset.count=game.lives;hearts.replaceChildren(...Array.from({length:game.maxLives},(_,i)=>el('i','heart'+(i>=game.lives?' empty':''))));hearts.setAttribute('aria-label',game.lives+' of '+game.maxLives+' hearts left');}const next=game.nextRequired();const label=`Falling musical shapes. Score ${game.score}. ${game.lives} hearts.${next?' Next '+['A','S','D','F'][next.lane]+(next.hold?' hold':'')+'.':''}`;if(canvas.getAttribute('aria-label')!==label)canvas.setAttribute('aria-label',label);}
 
  // Cache eight tiny glow sprites instead of applying a canvas blur to every particle each frame.
 
@@ -211,6 +211,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
   ctx.save();ctx.beginPath();ctx.rect(0,top-12,w,h-top+12);ctx.clip();
 
+  const nextNote=game.nextRequired();
   for(const n of game.notes){if(!game.started||['done','missed'].includes(n.status))continue;const p=pianoTarget(n,game.beat,layout),held=n.status==='holding',started=held||n.status==='partial'||n.status==='queued',color=started?COLORS[n.color]:'#dddddd',crop=skinCrop(n);const length=n.hold*layout.unit;if(p.y+p.size/2<top-45||p.y-length-p.size/2>h)continue;
 
    if(n.hold)drawPianoHoldGlow(ctx,{x:p.x,y:p.y,length,size:p.size,color:COLORS[n.color],progress:started?(n.heldBeats||0)/n.hold:0,held});
@@ -221,9 +222,9 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
 
 
-   if(n.hold&&p.y+p.size/2>=top-12){
+   if((n.hold||n===nextNote)&&p.y+p.size/2>=top-12){
     // This stays visible as soon as the shape enters, even before its tail does.
-    const label=held?'SUSTAINING':'HOLD',badgeY=Math.min(layout.missLine-26,p.y+p.size/2+7),badgeW=Math.min(lane-8,Math.max(76,ctx.measureText(translate(label)).width+16));
+    const label=held?'SUSTAINING':n===nextNote?(n.hold?'NEXT · HOLD':'NEXT'):'HOLD',badgeY=Math.min(layout.missLine-26,p.y+p.size/2+7),badgeW=Math.min(lane-8,Math.max(76,ctx.measureText(translate(label)).width+16));
     ctx.fillStyle=started?'#183348ee':'#edf2f4ee';round(p.x-badgeW/2,badgeY,badgeW,22,11);ctx.fill();
     ctx.fillStyle=started?color:'#253747';ctx.textAlign='center';ctx.font='900 10px Nunito,sans-serif';ctx.fillText(translate(label),p.x,badgeY+14);
    }
@@ -252,7 +253,7 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
  let entering=false;
 
  function practicePoint(){const note=game.notes.find(n=>!['done','missed'].includes(n.status));if(!note||!layout)return null;const p=pianoTarget(note,game.beat,layout),r=canvas.getBoundingClientRect();if(p.y+p.size/2<layout.top||p.y-p.size/2>layout.h)return null;return {x:r.left+(p.x-p.size*.32)*r.width/layout.w,y:r.top+Math.min(p.y,layout.hit)*r.height/layout.h};}
- function startPractice(){if(!practice.active)return;hint.hidden=true;practice.mount(dialog);practice.guide('Tap any visible note’s strip.',practicePoint);}
+ function startPractice(){if(!practice.active)return;hint.hidden=true;practice.mount(dialog);practice.guide('Play the note marked NEXT.',practicePoint);}
 
  async function start(){if(entering)return;entering=true;let gate;try{await prepareResources();gate=beginModeTransition('Piano Flow');await gate.covered;document.getElementById('games-hub')?.close();if(!dialog.open)dialog.showModal();await prepareRun(gate);}catch(error){if(!dialog.open)dialog.showModal();const card=panel('Piano Flow');card.append(el('p','','The piano could not load. Try again.'),button('Try again',start),button('Games',close,'drop-secondary'));}finally{gate?.dispose();entering=false;}}
  async function prepareRun(gate){if(!game&&!recoverResult()){const card=panel('Unable to save progress');card.append(button('Retry',start),button('Games',close));return;}if(game&&!save())return;stop();const version=epoch;dialog.replaceChildren();dialog.dataset.view='play';dialog.dataset.paused='true';overlay=null;saved=false;pendingSave=null;runId='piano-flow-'+crypto.randomUUID();quiet=document.body.classList.contains('reduce-motion');window.gameAudio?.setScene('piano');window.gameAudio?.start()?.catch(()=>{});
@@ -261,8 +262,8 @@ export function initPianoFlow({getAdventureChallenge=()=>null,onAdventureResult=
 
   const hud=el('header','piano-hud'),pauseButton=button('',pause,'piano-pause-button');pauseButton.setAttribute('aria-label','Pause Piano Flow');score=el('strong','piano-score','0');score.setAttribute('aria-label','Score');best=el('small','piano-best');hearts=el('div','piano-lives');hearts.setAttribute('role','img');const wallet=el('div','piano-coins'),coin=el('img');coin.src='assets/coin-v10.webp';coin.alt='Coins';coins=el('strong','','0');wallet.append(coin,coins);hud.append(pauseButton,score,hearts,best,wallet);dialog.append(hud);
 
-  hint=el('p','piano-hint','Tap any visible note’s strip');dialog.append(hint);
- if(keyboard.mount())hint.textContent='A S D F · Play any visible note';
+  hint=el('p','piano-hint','Play the note marked NEXT');dialog.append(hint);
+ if(keyboard.mount())hint.textContent='A S D F · Play the NEXT note';
 
   game=createPianoGame({...getLoadout(),adventure:practice.active?null:getAdventureChallenge(),practice:practice.active,directTouch:true,rhythm:true,stripTap:true,melodicStrips:true,fullSongs:true,recoverWrongTap:true,brightSongs:true,onEvent:event});settle();update();draw();
 

@@ -1,4 +1,4 @@
-import {startWelcomeMusic} from './welcome-audio.js?ui249';
+import {startWelcomeMusic} from './welcome-audio.js?ui274';
 import {prepareBootstrap} from './startup-loader.js?v=494241';
 import {createSaveStore, createScheduler, requestPlatformReward} from './playables-core.mjs?v=494241';
 import {initialAudioEnabled, createScoreReporter, renderPersonalScores} from './playables-scores.mjs?v=494241';
@@ -108,9 +108,9 @@ async function start() {
     await prepareBootstrap({initialize:async()=>{
       await store.initialize();
       platform.language = (await sdk?.system?.getLanguage?.().catch(() => 'en')) || 'en';
-    },loadAudio:()=>loadScript('audio.js?ui249')});
+    },loadAudio:()=>loadScript('audio.js?ui274')});
   startWelcomeMusic();
-    await import('./game.js?ui265');
+    await import('./game.js?ui276');
     const scoresButton=document.getElementById('leaderboard-open');
     scoresButton.setAttribute('aria-label','Global leaderboard');
     scoresButton.title='Global leaderboard';

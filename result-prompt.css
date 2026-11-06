@@ -1,0 +1,11 @@
+/* One screen-space prompt across matching, mini-games and Battle results. */
+html body #app #over-dialog#over-dialog#over-dialog > .result-home-hint,
+html body #app #overlay#overlay > .result-tap{
+ position:absolute;top:calc(100% + var(--result-prompt-gap,24px));bottom:auto;
+ left:50%;right:auto;transform:translate(-50%,-50%);width:calc(100vw - 32px);max-width:560px;
+ height:auto;min-height:0;box-sizing:border-box;margin:0;padding:0;
+ color:#fff!important;text-shadow:0 2px 5px #002638cc;
+ font:1000 clamp(15px,3.8vw,18px)/1.35 Nunito,sans-serif!important;
+ text-align:center;text-transform:uppercase;letter-spacing:.35px;z-index:1;
+}
+html body #app #overlay#overlay:has(> .result-tap){overflow:visible;max-height:calc(100dvh - 104px)}

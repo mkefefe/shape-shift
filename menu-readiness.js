@@ -33,7 +33,9 @@ export function bindPreparedDialog(dialog,{sources,assets,extra=async()=>{},pain
   const list=sources();
   if(extraReady&&assets.has(list)&&paintReady()){show();return;}
   const token=++generation;controller=new AbortController();
-  load(dialog.querySelector('h2')?.textContent||'Loading',prepare,{signal:controller.signal}).then(ok=>{
+  const loadMenu=()=>load(dialog.querySelector('h2')?.textContent||'Loading',prepare,{signal:controller.signal});
+  const opening=extraReady&&assets.has(list)?prepare().then(()=>true,()=>token===generation?loadMenu():false):loadMenu();
+  opening.then(ok=>{
    if(token!==generation)return;controller=null;
    if(ok&&dialog.isConnected&&!dialog.open){show();dialog.querySelector('[autofocus],button:not([disabled]),input')?.focus({preventScroll:true});}
   });
@@ -43,7 +45,7 @@ export function bindPreparedDialog(dialog,{sources,assets,extra=async()=>{},pain
 }
 
 const HOME_ART=['assets/mode-cards-v101.webp','assets/avatars-v7.webp','assets/delivery-v144/settings-v351.webp','assets/delivery-v144/quests-v351.webp','assets/delivery-v144/browser-shop-hd1.webp','assets/delivery-v144/browser-leaderboard-hd1.webp','assets/delivery-v144/achievements-v350.webp','assets/delivery-v144/xp-gold-painted-v335.webp'];
-const COMMON=['assets/delivery-v144/menu-panel-v240.webp','assets/delivery-v144/action-v45.webp','assets/close-v45.webp','assets/coin-v10.webp','assets/delivery-v144/xp-gold-painted-v335.webp'];
+const COMMON=['assets/ability-shield-ui268.webp','assets/ability-time-ui268.webp','assets/ability-boost-ui268.webp','assets/delivery-v144/menu-panel-v240.webp','assets/delivery-v144/action-v45.webp','assets/close-v45.webp','assets/coin-v10.webp','assets/delivery-v144/xp-gold-painted-v335.webp'];
 const frames=()=>['gold','ice','blossom','cosmic'].map(name=>`assets/avatar-frame-${name}-${Math.min(4,Math.max(1,Math.ceil(globalThis.devicePixelRatio||1)))}x-v49462.webp`);
 // Scores are useful before remote player portraits arrive. In particular, newly
 // fetched rows must not hold a hidden leaderboard behind their lazy image decode.
@@ -85,7 +87,9 @@ export function initMenuReadiness({getProfile,skinSources=[],prepareSkins=async(
   openHome(action){
    if(homeRequest)return homeRequest;
    homeController=new AbortController();
-   homeRequest=loadDestination('Main menu',prepareHome,{signal:homeController.signal}).then(ok=>{homeRequest=null;homeController=null;if(ok){action();return true;}return false;});return homeRequest;
+   const signal=homeController.signal;
+   const loadHome=()=>loadDestination('Main menu',prepareHome,{signal});
+   homeRequest=(assets.has(homeSources())?prepareHome().then(()=>!signal.aborted,()=>signal.aborted?false:loadHome()):loadHome()).then(ok=>{homeRequest=null;homeController=null;if(ok){action();return true;}return false;});return homeRequest;
   },
   cancelHome(){homeController?.abort();},
   warm(){

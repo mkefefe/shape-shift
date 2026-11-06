@@ -174,3 +174,11 @@ test('Back on the real destination loader cannot open the pending leaderboard la
  }finally{restore();}
 });
 
+
+test('reopening a cached menu decodes replacement nodes without a loading screen',async()=>{
+ let loads=0,paints=0,painted=false;const dialog=node('dialog');
+ bindPreparedDialog(dialog,{sources:()=>['cached.webp'],assets:{has:()=>true,prepare:async()=>{}},paintReady:()=>painted,paint:async()=>{paints++;painted=true;},load:async(title,prepare)=>{loads++;await prepare();return true;}});
+ dialog.showModal();await settle();assert(dialog.open);assert.equal(loads,1);
+ for(let i=0;i<3;i++){dialog.close();painted=false;dialog.showModal();await settle();assert(dialog.open);}
+ assert.equal(loads,1);assert.equal(paints,4);
+});

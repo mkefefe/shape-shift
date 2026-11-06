@@ -55,9 +55,9 @@ html,body{overflow:hidden;}
 #story-library .beacon-status{font-size:13px;color:#075a75;}
 
 /* Dedicated high-resolution raster ability art; avoid atlas-edge sampling. */
-#freeze .power-art,.power-art[data-ability="freeze"]{background-image:url('assets/delivery-v144/browser-time-hd1.webp');background-position:center;background-size:contain}
-#shield .power-art,.power-art[data-ability="shield"],.health-shield{background-image:url('assets/delivery-v144/browser-shield-hd1.webp');background-position:center;background-size:contain}
-#boost .power-art,.power-art.boost-art{background-image:url('assets/delivery-v144/browser-boost-hd1.webp');background-position:center;background-size:contain}
+#freeze .power-art,.power-art[data-ability="freeze"]{background-image:url('assets/ability-time-ui268.webp');background-position:center;background-size:contain}
+#shield .power-art,.power-art[data-ability="shield"],.health-shield{background-image:url('assets/ability-shield-ui268.webp');background-position:center;background-size:contain}
+#boost .power-art,.power-art.boost-art{background-image:url('assets/ability-boost-ui268.webp');background-position:center;background-size:contain}
 .power-art,.health-shield{image-rendering:auto;background-repeat:no-repeat}
 #shield-charges{letter-spacing:0;font-size:10px;white-space:nowrap}
 

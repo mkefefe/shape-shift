@@ -3,7 +3,7 @@
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 // Same recorded-music level and master as the parent game's gameplay scene.
 export const BATTLE_MUSIC_LEVEL=.56*.52;
-export const BATTLE_RECORDING_GAIN=10**((-20-(-15.71))/20);
+export const BATTLE_RECORDING_GAIN=10**((-20-(-16.21))/20);
 export const battleMusicVolume=value=>clamp(Number.isFinite(Number(value))?Number(value):40,0,100)/100;
 export function cueNotes(kind,combo=0,random=Math.random){
  const lift=2**((clamp(combo,0,6)*.025+random()*.20)/12);

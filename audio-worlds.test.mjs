@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {createEndlessMusicState} from './adaptive-music.js';
 
 const source=fs.readFileSync(new URL('./audio.js',import.meta.url),'utf8');
 const path=world=>'assets/music/'+({garden:'indie-game-soundtrack-251864.mp3',moon:'menu-moon-efficient-v245.ogg',sunset:'game-music-loop-4-144341.mp3'})[world];
@@ -33,9 +34,26 @@ function harness(options={}){
  window.ShapeShiftPlatform={audioAllowed:true,paused:false,setInterval:window.setInterval,clearInterval:window.clearInterval};state.platform=window.ShapeShiftPlatform;
  const fetch=async url=>{state.fetches.push(url);const r=options.fetch?await options.fetch(url):response();return {...r,arrayBuffer:async()=>{const data=await r.arrayBuffer();data.url=url;return data;}};};
  const math=Object.create(Math);math.random=options.random||Math.random;
- vm.runInNewContext(source,{window,fetch,document:state.document,Math:math});
+ if(options.adaptive)AudioContext.prototype.createMediaElementSource=()=>node();
+ const script=options.adaptive?source.replace(/import\('\.\/adaptive-music\.js\?ui\d+'\)/,'loadAdaptive()'):source;
+ vm.runInNewContext(script,{window,fetch,document:state.document,Math:math,Audio:options.adaptive?function(){}:undefined,loadAdaptive:async()=>options.adaptive});
  return {audio:window.gameAudio,state,tracks:()=>state.sources.filter(n=>n.loop&&n.startArgs)};
 }
+
+test('Endless routes both time abilities, their expiration and rewind into the retained player',async()=>{
+ const tempos=[],player={playing:false,prepare:async()=>true,start:async()=>{player.playing=true;},stop:()=>{player.playing=false;},dispose(){},setTempo:(bpm,immediate=false)=>tempos.push({bpm,immediate})};
+ const {audio,tracks}=harness({adaptive:{createAdaptiveMusic:async()=>player,createEndlessMusicState}});
+ const run={picks:80,score:80,stage:80,difficulty:'normal',slowRounds:0,pickupSlowRounds:0};
+ audio.updateEndlessMusic(run);audio.setScene('game');await audio.start();await flush();
+ const base=tempos.at(-1).bpm;assert(base>108);assert(player.playing);assert.equal(tracks().length,0,'no second fixed-tempo recording');
+ audio.updateEndlessMusic({...run,slowRounds:5});assert.equal(tempos.at(-1).bpm,base-12);
+ audio.updateEndlessMusic({...run,slowRounds:5,pickupSlowRounds:3});assert.equal(tempos.at(-1).bpm,base-24);
+ audio.updateEndlessMusic({...run,pickupSlowRounds:1});assert.equal(tempos.at(-1).bpm,base-12);
+ audio.updateEndlessMusic(run);assert.equal(tempos.at(-1).bpm,base);
+ audio.updateEndlessMusic({...run,stage:0},true);assert.equal(tempos.at(-1).bpm,base-18);
+ audio.updateEndlessMusic({...run,stage:19});assert.equal(tempos.at(-1).bpm,base);
+ audio.updateEndlessMusic({...run,picks:0,score:0,stage:0});assert.deepEqual(tempos.at(-1),{bpm:108,immediate:true});
+});
 
 test('Piano prepares its stereo room impulse before the first playable note',async()=>{
  const {audio,state}=harness();assert(await audio.preparePiano());
@@ -195,7 +213,7 @@ test('star rewards use the recorded victory family through the centered effects 
 
 
 test('starting a run does not wait for an uncached optional backing track',async()=>{
- let resolveTrack;const track='assets/music/endless-239.ogg';
+ let resolveTrack;const track='assets/music/endless-274.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track?new Promise(resolve=>resolveTrack=resolve):response()});
  assert.equal(await audio.prepareGameStart('game'),true);
  audio.setScene('game');await flush();assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -204,7 +222,7 @@ test('starting a run does not wait for an uncached optional backing track',async
 });
 
 test('an unavailable optional backing does not block gameplay and can retry later',async()=>{
- let fail=true;const track='assets/music/shape-slice-239.ogg';
+ let fail=true;const track='assets/music/shape-slice-274.ogg';
  const {audio,state,tracks}=harness({fetch:url=>url===track&&fail?{ok:false}:response()});
  assert.equal(await audio.prepareGameStart('slice'),true);audio.setScene('slice');await flush();
  assert.equal(tracks().filter(n=>n.buffer.url===track).length,0);
@@ -343,7 +361,7 @@ test('each world hands off to the final dedicated Slice and Drop recordings',asy
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
   for(const mode of ['slice','drop','menu']){
    state.context.currentTime+=5;audio.setScene(mode);await flush();
-   assert.equal(tracks().at(-1).buffer.url,mode==='menu'?path(world):'assets/music/'+({slice:'shape-slice-239.ogg',drop:'shape-drop-239.ogg'})[mode]);
+   assert.equal(tracks().at(-1).buffer.url,mode==='menu'?path(world):'assets/music/'+({slice:'shape-slice-274.ogg',drop:'shape-drop-274.ogg'})[mode]);
    assert.equal(tracks().at(-1).startArgs[0],state.context.currentTime);
   }
  }
@@ -364,7 +382,7 @@ test('Piano Flow schedules authored support without a competing automatic pulse'
 test('entering gameplay switches recordings without added synthetic bridge notes',async()=>{
  const {audio,state,tracks}=harness();await audio.start();await flush();state.context.currentTime=1.137;
  const voices=state.oscillators.length;audio.setScene('slice');await flush();
- assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-slice-239.ogg');
+ assert.equal(tracks().at(-1).buffer.url,'assets/music/shape-slice-274.ogg');
  assert.equal(tracks().at(-1).startArgs[0],1.137);assert.equal(state.oscillators.length,voices);
 });
 
@@ -398,11 +416,11 @@ test('Piano Flow does not render song names or section captions',()=>{
 test('Endless loads its newly composed recording with no tone processing in every world',async()=>{
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);audio.setScene('game');await audio.start();await flush();
-  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/endless-239.ogg');
+  const original=tracks()[0];assert.equal(original.buffer.url,'assets/music/endless-274.ogg');
   assert.equal(state.gains[1].connections.at(-1),state.gains[3],'music routes directly to ducking, bypassing the new tone filters');
   state.context.currentTime=8;audio.pause();await audio.resume();await flush();assert.equal(tracks()[0],original);assert.equal(original.stops.length,0);
   audio.setScene('menu');await flush();state.context.currentTime=12;for(const tick of state.timers.values())tick();
-  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/endless-239.ogg');
+  audio.setScene('game');await flush();assert.equal(tracks().at(-1).buffer.url,'assets/music/endless-274.ogg');
  }
 });
 
@@ -410,7 +428,7 @@ test('Adventure uses its authored 104 BPM score instead of any menu world song',
  for(const world of ['garden','moon','sunset']){
   const {audio,state,tracks}=harness();audio.setMenuWorld(world);await audio.start();await flush();
   state.context.currentTime=8;audio.setScene('adventure');await flush();
-  assert.equal(tracks().at(-1).buffer.url,'assets/music/adventure-239.ogg');
+  assert.equal(tracks().at(-1).buffer.url,'assets/music/adventure-274.ogg');
   assert.equal(tracks().at(-1).startArgs[0],8);
  }
 });
@@ -427,7 +445,7 @@ test('all mastered recordings bypass tonal processing and retain both source cha
 });
 
 test('measured replay gain aligns every recording without changing slider percentages or pitch',async()=>{
- const readings={garden:[-26.75,-10],moon:[-14.78,-2.30],sunset:[-17.98,-1.84],adventure:[-15.83,-3.62],slice:[-15.79,-4.43],drop:[-15.64,-5.45],game:[-15.72,-4.78]};
+ const readings={garden:[-26.75,-10],moon:[-14.78,-2.30],sunset:[-17.98,-1.84],adventure:[-16.12,-2.23],slice:[-16.11,-2.38],drop:[-16.14,-1.76],game:[-16.14,-2.29]};
  for(const [name,[lufs,peak]] of Object.entries(readings)){
   const {audio,state,tracks}=harness();if(['garden','moon','sunset'].includes(name))audio.setMenuWorld(name);else audio.setScene(name);
   audio.setMusicVolume(63);await audio.start();await flush();const voice=tracks()[0],trim=voice.connections[0].connections[0];

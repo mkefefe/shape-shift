@@ -1,7 +1,8 @@
+import {bindResultPrompt} from '../result-prompt.js?ui274';
 import {createModePractice,continuePracticeRun} from '../mode-practice.js?ui250';
 import {burstPath} from '../burst.js';
 import {showEnemyHit} from './enemy-impact.mjs?v=494241';
-import {createBattleAudio,battleMusicVolume} from './audio.mjs?v=494241';
+import {createBattleAudio,battleMusicVolume} from './audio.mjs?ui274';
 import {createBattlePlatformState} from './platform-state.mjs';
 import {bindBoardKeyboard} from '../board-keyboard.js?v=494241';
 import {bindPauseKeyboard} from '../pause-keyboard.js?ui248';
@@ -30,7 +31,7 @@ function fightMetric(outcome){metric(`fight_${run.state.set*5+run.state.stage+1}
 setInterval(()=>{if(run)send('telemetry',{action:'state',playing:run.state.status==='fight'&&!busy,paused:paused||document.hidden});},250);
 function remember(){if(run.state.status!=='won')return;cleared=Math.max(cleared,run.state.set+1);pendingReward=['bomb','starburst','shield'][Math.floor(Math.random()*3)];if(embedded)send('progress',{completedSets:cleared,reward:pendingReward});else try{localStorage.setItem('shape-shift-battle-sets',String(cleared));}catch{}}
 try{if(!embedded)cleared=Math.max(0,Number(localStorage.getItem('shape-shift-battle-sets'))||0);}catch{}
-const music=new Audio('assets/battle-239.ogg');music.loop=true;music.preload='auto';
+const music=new Audio('assets/battle-274.ogg');music.loop=true;music.preload='auto';
 let effectsAllowed=true,effectsVolume=.65,musicVolume=.4;let attackPose={enemyX:0,enemyY:0,index:-1},windMotion,lastEnemyStage=-1,attackSoundTimer;
 let battlePlatform;
 const battleAudio=createBattleAudio(music,()=>({muted:muted||battlePlatform?.audioAllowed===false,effectsAllowed,effectsVolume,musicVolume}));
@@ -42,7 +43,8 @@ const damageSound=()=>battleAudio.damage();
 const playMusic=()=>battleAudio.playMusic();
 function sprite(node,t){node.style.setProperty('--x',t.shape);node.style.setProperty('--y',t.color);if(node.id!=='enemy')node.replaceChildren(skinCanvas(t));}
 function message(text,time=2200){if(practice?.active)return;clearTimeout(noteTimer);$('callout').textContent=text;if(time)noteTimer=setTimeout(()=>{if(run?.state.status==='fight')$('callout').textContent=run.state.combo>=3?`${run.state.combo} in a row · +4 attack`:'Match your shape OR color';},time);}
-function dialog(html){panel.innerHTML=html;let close=modal.querySelector('.original-close');if(!close){close=document.createElement('button');close.className='original-close';close.setAttribute('aria-label','Close');close.innerHTML='<img src="../assets/close-v45.webp" alt="">';modal.append(close);}close.onclick=()=>run?.state.status==='fight'?resume():embedded?send('close'):intro();if(!modal.open)modal.showModal();}
+let stopResultPrompt=null;
+function dialog(html){stopResultPrompt?.();stopResultPrompt=null;modal.querySelector(':scope > .result-tap')?.remove();panel.innerHTML=html;const prompt=panel.querySelector('.result-tap');if(prompt){modal.append(prompt);stopResultPrompt=bindResultPrompt(modal,prompt);}let close=modal.querySelector('.original-close');if(!close){close=document.createElement('button');close.className='original-close';close.setAttribute('aria-label','Close');close.innerHTML='<img src="../assets/close-v45.webp" alt="">';modal.append(close);}close.onclick=()=>run?.state.status==='fight'?resume():embedded?send('close'):intro();if(!modal.open)modal.showModal();}
 function intro(){paused=true;music.pause();dialog(`<span class="eyebrow">Battle · Chapter 1</span><h2>The stolen<br>colors</h2><div class="shape-boss-preview" role="img" aria-label="The Root King, a green star monster"></div><p>The Root King and his guardians stole the land’s colors. Adventure restores the map. Here, you fight to bring those colors home.</p><span class="pill">3 lives · 5 fights · 6 choices</span><div class="campaign">${ENCOUNTERS.map((e,i)=>`<span class="${i<cleared?'restored':''}">${i<cleared?'✓':i+1} ${e.name}</span>`).join('')}</div><button class="gold" id="begin">Enter the Wildwood</button><button class="text-button" id="existing">Main menu</button>`);$('begin').onclick=start;$('existing').onclick=()=>embedded?send('close'):location.href='../';}
 async function start(){if(embedded&&!activated)return;practice?.clear();practice=createModePractice('battle',{seen:tutorialSeen,sound:()=>cue('start'),onComplete:()=>continuePracticeRun(run,()=>{tutorialSeen=true;send('tutorial-complete');metric('start');fightMetric('start');sharedReward('match');practiceStep='done';warningPlayed=false;last=performance.now();message('Match your shape OR color to attack.',0);fitBoard();meter();},pendingReward)});practiceStep='attack';if(run?.state.status==='lost')metric('battle_retry');if(cleared>=6)cleared=0;windMotion?.cancel();const startToken=++epoch;paused=true;busy=true;await loadStage(Math.min(cleared,5));if(startToken!==epoch||!activated)return;busy=false;needPause=false;run=createRun(Math.random,battleDamage,cleared,practice.active?null:pendingReward,{practice:practice.active});metric('start');fightMetric('start');warningPlayed=false;$('fx').replaceChildren();modal.close();paused=false;app.classList.remove('paused');playMusic();cue('start');render();delete app.dataset.loading;$('board').tabIndex=-1;$('board').focus({preventScroll:true});send('visible');if(practice.active){practice.mount(app);practice.guide('Match YOUR shape or color to attack—not the enemy’s.',()=>{const index=run.state.board.findIndex(t=>matches(t,run.state.current));const r=$('board').children[index]?.getBoundingClientRect();return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;});fitBoard();}message('Match your shape OR color to attack.',0);last=performance.now();if(cleared<5)void loadStage(cleared+1);if(pendingReward&&!practice.active){paused=true;busy=true;$('pause').disabled=true;await rewardArrival();if(startToken!==epoch||!activated)return;busy=false;paused=false;$('pause').disabled=false;last=performance.now();}}
 const loadedStages=new Map();
@@ -140,7 +142,7 @@ function finishIfNeeded(){const s=run.state;
   setTimeout(async()=>{
    if(token!==epoch)return;
    $('enemy').getAnimations().forEach(a=>a.cancel());windMotion?.cancel();lastEnemyStage=-1;
-   if(nextSet&&s.set>=5){metric('end');busy=false;$('pause').disabled=false;dialog('<h2>Colors restored!</h2><p>You defeated all 30 guardians.</p><button class="gold" id="campaign-home">Continue</button>');$('campaign-home').onclick=()=>embedded?send('close'):intro();return;}
+   if(nextSet&&s.set>=5){metric('end');busy=false;$('pause').disabled=false;dialog('<h2>Colors restored!</h2><p>You defeated all 30 guardians.</p><button class="gold" id="campaign-home">Continue</button><p class="result-tap">Tap anywhere to continue</p>');$('campaign-home').onclick=()=>embedded?send('close'):intro();return;}
    if(nextSet){await loadStage(cleared);if(token!==epoch)return;const previous=run.state;run=createRun(Math.random,battleDamage,cleared,practice.active?null:pendingReward,{practice:practice.active});for(const key of ['score','hits','misses','elapsed'])run.state[key]=previous[key];}else run.advance();
    fightMetric('start');render();
    $('enemy').animate([{opacity:0,transform:'translateY(-14px) scale(.8)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:400,easing:'ease-out'});
@@ -149,7 +151,7 @@ function finishIfNeeded(){const s=run.state;
    busy=false;$('pause').disabled=false;message(encounter(run.state).rule,3000);paused=false;last=performance.now();
    if(needPause||document.hidden){needPause=false;pause();}
   },850);
- }else if(s.status==='lost'){fightMetric('loss');metric('end');paused=true;dialog(`<h2>You lost</h2><button class="gold" id="retry">Continue</button><p class="result-tap">Tap anywhere else to go back</p>`);$('retry').onclick=()=>embedded?send('close'):intro();}
+ }else if(s.status==='lost'){fightMetric('loss');metric('end');paused=true;dialog(`<h2>You lost</h2><button class="gold" id="retry">Continue</button><p class="result-tap">Tap anywhere to continue</p>`);$('retry').onclick=()=>embedded?send('close'):intro();}
  else if(needPause){needPause=false;pause();}}
 function pause(){if(!run||paused)return;if(busy){needPause=true;return;}windMotion?.pause();clearTimeout(attackSoundTimer);paused=true;app.classList.add('paused');music.pause();dialog(`<h2>Paused</h2><div class="pause-options"><button class="gold pause-option" id="resume">Resume</button><button class="gold pause-option" id="leave">Main menu</button></div>`);$('resume').onclick=resume;$('leave').onclick=()=>embedded?send('close'):intro();}
 

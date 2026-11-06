@@ -134,7 +134,7 @@ test('ASDF holds require sustained input on all four strips and survive pointer 
 
 test('simultaneous A S D F keydowns each score and show an independent held hint',()=>{
  const notes=[0,1,2,3].map(lane=>note(900+lane,2+lane*.2,lane,2)),f=fixture(notes,{beat:0}),k=keyboardFixture(f);
- for(const key of ['f','s','a','d'])k.dispatch('keydown',key);
+ for(const key of ['a','s','d','f'])k.dispatch('keydown',key);
  assert.equal(f.game.hits,0);assert.equal(f.game.pressed.size,4);assert(k.row.children.every(e=>e.classList.contains('pressed')));
  k.dispatch('keyup','s');assert.equal(notes[1].status,'partial');assert.equal(notes[0].status,'holding');assert(k.row.children[0].classList.contains('pressed'));
  k.dispatch('keydown','s');advance(f,2.05);for(const key of ['a','s','d','f'])k.dispatch('keyup',key);assert.equal(f.game.pressed.size,0);assert.equal(f.game.hits,4);

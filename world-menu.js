@@ -1,3 +1,4 @@
+import {createMapScenery} from './map-scenery.js?ui274';
 import {createAdventureSave} from './adventure-save.js';
 import {routeArtwork} from './map-route.js?v=212';
 import {loadStartupAssets} from './startup-loader.js?v=494241';
@@ -19,12 +20,19 @@ export function unlockedLevel(progress){const i=progress.cleared.findIndex(n=>!n
 export function adventureLaunchLevel(requested,progress,admin=false){const unlocked=unlockedLevel(progress),value=Number(requested);return Math.max(1,Math.min(100,Number.isFinite(value)?Math.floor(value):unlocked));}
 export function completeLevel(progress,level,strikes){if(!Number.isInteger(level)||level<1||level>100)return progress;const next=normalizeAdventure(progress);next.cleared[level-1]=true;next.stars[level-1]=Math.max(next.stars[level-1],Math.max(1,3-Math.min(2,strikes)));return next;}
 export function carouselPosition(index,selected){return index-selected;}
+// Late requirements build in small steps. Vary the shapes and mechanics, not
+// the workload with a modulo cycle that makes the next stage suddenly easier.
+const LATE_COLLECTION_STEPS=[
+ [99,10,10,10],[94,10,10,9],[90,10,9,9],[87,10,8,9],[84,9,8,9],
+ [82,9,8,8],[79,9,7,8],[76,8,7,8],[73,8,7,7],[70,8,6,7]
+];
 export function memoryLevelGoals(level){
  const n=levelSpec(level).level;if(!adventureMechanics(n).memory)return [];
- const count=n<15?2+Math.floor((n-10)/2):Math.min(10,3+Math.floor((n-20)/15));
+ const late=n>=70?LATE_COLLECTION_STEPS.find(step=>n>=step[0]):null;
+ const count=late?late[1]:n<15?2+Math.floor((n-10)/2):Math.min(10,3+Math.floor((n-20)/15));
  const goals=[{type:'memoryCollected',target:count,required:true,label:'Collect '+count+' memory cards'}];
  for(let i=0;i<(n>=30?2:1);i++){
-  const color=(Math.floor(n/4)+i)%4,shape=(n+i)%4,target=n<15?3:Math.min(6,3+Math.floor(n/30));
+  const color=(Math.floor(n/4)+i)%4,shape=(n+i)%4,target=late?late[i+2]:n<15?3:Math.min(6,3+Math.floor(n/30));
   goals.push({type:'collection',color,shape,target,required:true,label:'Collect '+target+' '+['red','blue','green','yellow'][color]+' '+['circles','triangles','squares','stars'][shape]});
  }
  return goals;
@@ -32,7 +40,7 @@ export function memoryLevelGoals(level){
 export function levelRequirements(level){
  if(Number(level)===100)return [];
  const n=levelSpec(level).level,memory=memoryLevelGoals(n);if(memory.length)return memory;
- const count=n<=3?1:n<20?2:3,target=n<=3?3+n:n<10?3:n<20?4:Math.min(8,4+Math.floor(n/25));
+ const count=n<=3?1:n<20?2:3,target=n<=3?3+n:n<10?3:n<20?4:n>=70?6+Math.floor((n-70)/10)+(n%3):Math.min(8,4+Math.floor(n/25));
  return Array.from({length:count},(_,i)=>{const color=(n-1+i)%4,shape=(Math.floor((n-1)/4)+i)%4;
  return {type:'collection',required:true,color,shape,target,label:'Collect '+target+' '+['red','blue','green','yellow'][color]+' '+['circles','triangles','squares','stars'][shape]};});
 }
@@ -147,8 +155,8 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   n=adventureLaunchLevel(n,progress);
   level=n;$('level-title').textContent='Level '+n;
   const goal=$('level-goal');goal.replaceChildren();
-  const goalName=document.createElement('strong');goalName.textContent=n===100?'Endless finale':'';goal.append(goalName);
-  if(n===100){const note=document.createElement('span');note.textContent='Survive as long as you can. Ending the run completes Adventure.';goal.append(note);}
+  const goalName=document.createElement('strong');goalName.textContent='';goal.append(goalName);
+
   $('level-design')?.remove();
   let requirements=$('level-requirements');if(!requirements){requirements=document.createElement('div');requirements.id='level-requirements';$('level-goal').after(requirements);}
   renderLevelRequirements(requirements,n,{},drawShape);
@@ -165,6 +173,7 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   if(!$('level-dialog').open)$('level-dialog').showModal();$('level-play').focus({preventScroll:true});if(!silent)sound('click');
  }
  $('level-close').onclick=()=>$('level-dialog').close();bindLaunchTap($('level-play'),()=>startMode('adventure'));
+ const retainedScenery=createMapScenery();
  let mapWindow='',mapFrame=0,mapWidth=0,mapSelected=1,mapKeyboard=false;
  function markMapSelection(focus=false){
   $('map-levels').querySelectorAll('.level-node').forEach(node=>{
@@ -196,14 +205,14 @@ export function initWorldMenu({start,home,screen,sound,getBest,getDifficulty,set
   const visible=visibleMapSections(Math.max(0,viewport.scrollTop-$('map-landscape').offsetTop),viewport.clientHeight,width);
   if(key===mapWindow){for(const tile of $('map-levels').querySelectorAll('.route-tile'))tile.classList.toggle('map-visible',Number(tile.dataset.section)>=visible[0]&&Number(tile.dataset.section)<=visible[1]);return;}const restoreFocus=mapKeyboard&&$('map-levels').contains(document.activeElement);mapWindow=key;$('map-levels').replaceChildren();
   for(let section=range[0];section<=range[1];section++){
-   const tile=document.createElement('div');tile.className='route-tile';tile.dataset.section=String(section);tile.classList.toggle('map-visible',section>=visible[0]&&section<=visible[1]);tile.setAttribute('aria-hidden','true');tile.style.setProperty('--map-drift-delay',(-section%7)+'s');tile.dataset.region=section>=30?'sunset':section>=13?'moon':'garden';const moon=Math.max(0,Math.min(1,(section-10)/6)),sunset=Math.max(0,Math.min(1,(section-27)/6));tile.style.setProperty('--terrain-filter',`hue-rotate(${38*moon-63*sunset}deg) saturate(${.96-.28*moon+.2*sunset}) brightness(${1.055-.235*moon+.15*sunset}) sepia(${.4*sunset})`);tile.style.top=((49-section)*width)+'px';tile.style.height=width+'px';tile.innerHTML=routeArtwork(section);$('map-levels').append(tile);
+   const tile=document.createElement('div');tile.className='route-tile';tile.dataset.section=String(section);tile.classList.toggle('map-visible',section>=visible[0]&&section<=visible[1]);tile.setAttribute('aria-hidden','true');tile.style.setProperty('--map-drift-delay',(-section%7)+'s');tile.dataset.region=section>=30?'sunset':section>=13?'moon':'garden';const moon=Math.max(0,Math.min(1,(section-10)/6)),sunset=Math.max(0,Math.min(1,(section-27)/6));tile.style.setProperty('--terrain-filter',`hue-rotate(${38*moon-63*sunset}deg) saturate(${.96-.28*moon+.2*sunset}) brightness(${1.055-.235*moon+.15*sunset}) sepia(${.4*sunset})`);tile.style.top=((49-section)*width)+'px';tile.style.height=width+'px';tile.innerHTML=routeArtwork(section);const scenery=retainedScenery.get(section);if(scenery)tile.querySelector('.route-scenery').append(scenery);$('map-levels').append(tile);
    for(let j=0;j<2;j++){const n=section*2+j+1,pos=mapNodePosition(n,width),b=document.createElement('button');b.dataset.level=String(n);b.className='level-node'+(n===unlockedLevel(progress)?' next':progress.cleared[n-1]?' completed':'');b.style.left=(pos.x*100)+'%';b.style.top=pos.y+'px';b.setAttribute('aria-label','Level '+n+', '+progress.stars[n-1]+' stars'+(progress.lightning[n-1]?', Lightning Finish':''));b.setAttribute('aria-disabled','false');b.innerHTML=`<strong>${n}</strong><span class="level-stars" aria-hidden="true">${stars(progress.stars[n-1])}</span>${progress.lightning[n-1]?'<span class=map-lightning aria-hidden=true>&#9889;</span>':''}`;b.onclick=()=>{mapSelected=n;openLevel(n);};$('map-levels').append(b);}
   }
   markMapSelection(restoreFocus);
  }
  function sizeMap(){const width=$('adventure-map').clientWidth||390;if(mapWidth!==width)mapWindow='';mapWidth=width;$('map-landscape').style.height=(50*width)+'px';}
  let mapReady=false,mapOpening=false,mapPreparation;
- const prepare=()=>mapReady?Promise.resolve():mapPreparation??=(async()=>{await loadStartupAssets(()=>{},{assets:['assets/map-meadow-v212.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']});mapReady=true;})().finally(()=>{mapPreparation=null;});
+ const prepare=()=>mapReady?Promise.resolve():mapPreparation??=(async()=>{await loadStartupAssets(()=>{},{assets:['assets/map-meadow-v212.webp','assets/map-buttons-v106.webp','assets/stars-v101.webp']});await retainedScenery.prepare();mapReady=true;})().finally(()=>{mapPreparation=null;});
  async function map({silent=false}={}){if(mapOpening)return;if(!mapReady){mapOpening=true;const loaded=await loadDestination('Adventure map',prepare);mapOpening=false;if(!loaded)return;}mapSelected=unlockedLevel(progress);mapKeyboard=false;screen('map');$('adventure-map').hidden=false;sizeMap();const pos=mapNodePosition(unlockedLevel(progress),mapWidth);$('adventure-map').scrollTop=Math.max(0,pos.y+$('map-landscape').offsetTop-$('adventure-map').clientHeight*.60);paintMap();if(!silent)sound('click');}
  const mapNotice=document.createElement('div');mapNotice.id='map-notice';mapNotice.setAttribute('role','status');mapNotice.setAttribute('aria-live','polite');mapNotice.hidden=true;document.body.append(mapNotice);let mapNoticeAnimation;
  function showMapNotice(message){
@@ -231,7 +240,7 @@ export function mapNodePosition(level,width){const section=Math.floor((level-1)/
 export function visibleMapSections(scroll,height,width){const first=Math.max(0,Math.floor(scroll/width)-1),last=Math.min(49,Math.ceil((scroll+height)/width)+1);return [Math.max(0,49-last),Math.min(49,49-first)];}
 
 export function levelTaskIntroduction(level){
- if(Number(level)===100)return '<h3 class="collection-heading">Endless finale</h3><p>Survive as long as you can. Ending the run completes Adventure.</p><h3 class="star-tasks-heading">Missions</h3>';
+
  return '<div id="paused-level-requirements"></div><h3 class="star-tasks-heading">Missions</h3>';
 }
 
@@ -321,10 +330,12 @@ export function createModeCardTap(interval=350){
 // Color changes unlock at level 15 and remain active alongside later mechanics.
 export function adventureMechanics(level){
  if(level<5||level===100)return {lock:null,memory:0,wheel:false};
+ if(level===99)return {lock:'color',memory:5,wheel:true};
  if(level<8)return {lock:'shape',memory:0,wheel:false};
  if(level<10)return {lock:'color',memory:0,wheel:false};
  if(level<15)return {lock:null,memory:1,wheel:false};
  if(level<20)return {lock:null,memory:0,wheel:true};
+ if(level>=70){const pattern=[{lock:null,memory:3},{lock:'shape',memory:2},{lock:'color',memory:3},{lock:'shape',memory:4},{lock:'color',memory:4},{lock:null,memory:5}][(level-70)%6];return {...pattern,wheel:true};}
  const variant=(level-20)%4;
  return {lock:variant===1?'shape':variant===3?'color':null,memory:variant===0||variant===3?2:variant===2?3:0,wheel:true};
 }
@@ -382,13 +393,14 @@ export function collectionCounters(goals,collections={}){
 }
 export function renderLevelRequirements(container,level,stats,draw){
  container.replaceChildren();container.className='level-requirements';container.setAttribute('role','list');container.setAttribute('aria-label','Items left to collect');
+ if(Number(level)===100){container.setAttribute('role','group');container.setAttribute('aria-label','FINAL RUN');const label=document.createElement('strong');label.textContent='FINAL RUN';container.append(label);return;}
  const counts={...stats.collections,memory:stats.memoryCollected||0};
  for(const goal of collectionCounters(levelRequirements(level),counts)){
   const item=document.createElement('span');item.className='collection-counter';item.setAttribute('role','listitem');
   const label=goal.type==='memoryCollected'?'Flip cards':['Red','Blue','Green','Yellow'][goal.color]+' '+['circles','triangles','squares','stars'][goal.shape];
   item.setAttribute('aria-label',label+': '+goal.remaining+' remaining');
   const art=document.createElement('span');art.className='sprite';art.setAttribute('aria-hidden','true');
-  if(goal.type==='memoryCollected'){art.classList.add('collection-memory');art.textContent='?';}else draw(art,goal);
+  if(goal.type==='memoryCollected'){art.classList.add('collection-memory');art.textContent='';}else draw(art,goal);
   const count=document.createElement('strong');count.className='collection-remaining';count.textContent=collectionCountLabel(goal.remaining);
   const caption=document.createElement('span');caption.className='requirement-caption';caption.textContent=goal.remaining?'Collect '+goal.remaining+' '+label.toLowerCase():'Collected';
   const symbol=document.createElement('span');symbol.className='requirement-symbol';symbol.append(art,count);
@@ -404,7 +416,7 @@ export function renderCollectionCounters(hud,goals,collections,draw,runKey){
   let item=[...hud.children].find(el=>el.dataset.goal===goal.key);
   if(!item){
    item=document.createElement('span');item.className='collection-counter';item.dataset.goal=goal.key;
-   const art=document.createElement('span');art.className='sprite';art.setAttribute('aria-hidden','true');if(goal.type==='memoryCollected'){art.className='sprite collection-memory';art.textContent='?';}else draw(art,goal);
+   const art=document.createElement('span');art.className='sprite';art.setAttribute('aria-hidden','true');if(goal.type==='memoryCollected'){art.className='sprite collection-memory';art.textContent='';}else draw(art,goal);
    const count=document.createElement('strong');count.className='collection-remaining';item.append(art,count);hud.append(item);
   }
   const label=goal.type==='memoryCollected'?'Memory cards':['Red','Blue','Green','Yellow'][goal.color]+' '+['circle','triangle','square','star'][goal.shape];

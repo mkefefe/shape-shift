@@ -64,3 +64,24 @@ test('victory replaces every cell with a fresh round without mutating the finish
  const oldChoice={old:true};root.children=[oldChoice];refreshVictoryChoices(root,tiles,(_,tile)=>drawn.push(tile));
  assert(!root.children.includes(oldChoice));assert.equal(drawn.length,4);assert(root.children.every(c=>c.disabled&&c.children[0].className==='sprite'));
 });
+
+// Exercise the actual victory controller, including the preview-to-energy boundary.
+for(const reduced of [false,true])test('a full nine-choice round stays visible before victory effects'+(reduced?' with reduced motion':''),async()=>{
+ const {showAdventureVictory,VICTORY_BOARD_PREVIEW,VICTORY_DURATION}=await import('./adventure-victory.js');
+ let time=0,serial=0,done=0,revealed=0;const frames=new Map(),sounds=[];
+ const make=()=>({dataset:{},children:[],style:{setProperty(k,v){this[k]=v;},removeProperty(k){delete this[k];}},classList:{add(){},remove(){}},
+  setAttribute(){},append(...nodes){this.children.push(...nodes);},replaceChildren(...nodes){this.children=nodes;},
+  getBoundingClientRect:()=>({x:40,y:100,width:80,height:80}),addEventListener(){},remove(){},showModal(){this.open=true;},close(){this.open=false;}});
+ const board=make(),body=make(),doc={body,createElement:make,documentElement:{clientWidth:600,clientHeight:900},defaultView:{addEventListener(){},removeEventListener(){}},getElementById:id=>id==='board'?board:null,querySelectorAll:()=>board.children};
+ board.ownerDocument=doc;const old=Array.from({length:9},()=>make());old[4].style.visibility='hidden';board.children=old;
+ const tiles=Array.from({length:9},(_,i)=>({shape:i%4,color:Math.floor(i/4)}));let visible=true;
+ const cancel=showAdventureVictory({document:doc,tiles,drawShape:(art,tile)=>{art.tile=tile;},level:4,sound:s=>sounds.push(s),done:()=>done++,reveal:()=>revealed++,visible:()=>visible,reduced,
+  raf:fn=>{frames.set(++serial,fn);return serial;},caf:id=>frames.delete(id),now:()=>time});
+ const advance=ms=>{for(let elapsed=0;elapsed<ms;elapsed+=20){time+=20;const pending=[...frames.values()];frames.clear();pending.forEach(fn=>fn(time));}};
+ const dialog=body.children[0];assert.equal(board.children.length,9);assert(board.children.every((node,i)=>node!==old[i]&&node.disabled&&node.children[0].tile===tiles[i]));
+ advance(VICTORY_BOARD_PREVIEW-20);assert.equal(dialog.dataset.phase,'board-preview');assert.equal(dialog.style['--victory-dim'],'0');assert(board.children.every(node=>!node.style.opacity&&!node.style.transform));assert.deepEqual(sounds,[]);
+ visible=false;advance(2000);assert.equal(dialog.dataset.phase,'board-preview');assert.equal(revealed,0);
+ visible=true;advance(40);assert.equal(dialog.dataset.phase,'celebration');assert(board.children.every(node=>node.style.opacity==='1'));assert.equal(sounds.length,0);
+ advance(400);assert.equal(sounds[0],'victory-transform');assert(board.children.every(node=>Number(node.style.opacity)<1));assert.equal(dialog.children.filter(node=>node.className==='victory-orb').length,9);
+ advance(VICTORY_DURATION);assert.equal(done,1);assert.equal(revealed,1);assert(sounds.includes('victory-burst')&&sounds.includes('victory-panel'));assert.equal(frames.size,0);cancel();assert.equal(done,1);
+});

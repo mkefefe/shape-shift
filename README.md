@@ -2,7 +2,15 @@
 
 Play at https://mkefefe.github.io/shape-shift/.
 
-## 4.94.82 complete startup and simpler controls
+## 4.94.247 current release
+
+Level 100 displays FINAL RUN. The four skin cards fit in a compact tray without descriptive subtitles. Late Adventure requirements now increase toward Level 99; the victory board refreshes before the celebration. Piano Flow identifies the next note and requires completed holds. Result prompts share the same placement, and map/shop artwork remains prepared after opening.
+
+Adventure, Endless, Shape Drop, Shape Slice and Battle include the current clear piano melodies and lighter indie-style arrangements. Endless music follows game intensity and time abilities without changing pitch. Menu music and Piano Flow recordings are preserved.
+
+Startup prepares the core menu first; additional destinations prepare their required assets on demand and retain them. Public builds keep normal progression and coin balances. `scripts/build-personal-preview.py` creates a separate local preview with unlocks and unlimited coins; its output is never deployed.
+
+## Historical 4.94.82 startup and controls
 
 Startup waits for the complete verified media inventory: images are downloaded and decoded, and audio files are fully downloaded. Home and menu artwork is prepared before entry, including actual DOM images and the Drop/Slice artwork and physics. The first tutorial opens only after readiness completes and the loading cover is removed. Download or decode failures keep the game inactive and offer Retry.
 

@@ -1,0 +1,8897 @@
+{
+  "id": "adventure",
+  "title": "Sunbeam Avenue",
+  "bpm": 104,
+  "key": "D major",
+  "beats": 128,
+  "bars": 32,
+  "form": [
+    "A",
+    "A variation",
+    "B contrast",
+    "A return"
+  ],
+  "chords": [
+    "Dmaj9",
+    "A/C#",
+    "Bm7",
+    "Gmaj7",
+    "D/F#",
+    "Em7",
+    "G6",
+    "A6",
+    "Dmaj9",
+    "A/C#",
+    "Bm7",
+    "Gmaj7",
+    "D/F#",
+    "Em7",
+    "G6",
+    "A6",
+    "Gmaj7",
+    "D/F#",
+    "Em7",
+    "A6",
+    "Bm7",
+    "F#m7",
+    "Gmaj7",
+    "A6",
+    "Dmaj9",
+    "A/C#",
+    "Bm7",
+    "Gmaj7",
+    "D/F#",
+    "Em7",
+    "G6",
+    "A6"
+  ],
+  "events": [
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 0.0,
+      "durationBeats": 0.39,
+      "gain": 0.3,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 0.52197,
+      "durationBeats": 0.39,
+      "gain": 0.2328,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 0.99898,
+      "durationBeats": 0.88,
+      "gain": 0.27307,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 1.9963,
+      "durationBeats": 0.39,
+      "gain": 0.26794,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 2.51998,
+      "durationBeats": 0.39,
+      "gain": 0.22369,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 3.00319,
+      "durationBeats": 0.88,
+      "gain": 0.2606,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 0.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 0.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 0.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 0.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 2.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 2.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 2.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 2.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 0.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 61,
+      "beat": 0.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 38,
+      "beat": 0,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 1.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 38,
+      "beat": 2.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 3.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 0,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 2.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 1.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 3.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 0.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 0.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 1.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 1.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 2.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 2.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 3.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 3.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 4.52137,
+      "durationBeats": 0.39,
+      "gain": 0.30682,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 5.00171,
+      "durationBeats": 0.39,
+      "gain": 0.26794,
+      "pan": -0.077617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 5.51419,
+      "durationBeats": 0.39,
+      "gain": 0.22369,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 5.99927,
+      "durationBeats": 0.88,
+      "gain": 0.2606,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 7.00399,
+      "durationBeats": 0.88,
+      "gain": 0.26513,
+      "pan": -0.077617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 4.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 4.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 4.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 4.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 6.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 6.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 6.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 6.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.274465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 37,
+      "beat": 4,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 44,
+      "beat": 5.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 37,
+      "beat": 6.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 7.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 4,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 6.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 5.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 7.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 4.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 4.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 5.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 5.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 6.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 6.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 7.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 7.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 8.00364,
+      "durationBeats": 0.585,
+      "gain": 0.29432,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 8.74788,
+      "durationBeats": 0.195,
+      "gain": 0.22253,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 8.99691,
+      "durationBeats": 0.88,
+      "gain": 0.26513,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 10.00292,
+      "durationBeats": 0.39,
+      "gain": 0.27139,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 10.52034,
+      "durationBeats": 0.39,
+      "gain": 0.23364,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 10.99648,
+      "durationBeats": 0.88,
+      "gain": 0.26975,
+      "pan": 0.004883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 8.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 8.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 8.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 8.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 10.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 10.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 10.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 10.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 8.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 8.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 8,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 9.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 10.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 59,
+      "beat": 11.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 8,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 10.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 9.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 11.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 8.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 8.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 9.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 9.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 10.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 10.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 11.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 11.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 12.00056,
+      "durationBeats": 0.88,
+      "gain": 0.2979,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 12.996,
+      "durationBeats": 0.39,
+      "gain": 0.27139,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 13.51847,
+      "durationBeats": 0.39,
+      "gain": 0.23364,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 14.00388,
+      "durationBeats": 0.88,
+      "gain": 0.26975,
+      "pan": -0.057617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 12.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 12.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 12.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 12.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 14.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 14.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 14.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 14.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 15.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 66,
+      "beat": 15.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 12,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 13.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 14.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 15.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 12,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 14.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 13.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 15.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 12.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 12.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 13.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 13.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 14.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 14.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 15.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 15.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 15.5,
+      "durationBeats": 0.1,
+      "gain": 0.05976,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 15.99697,
+      "durationBeats": 0.39,
+      "gain": 0.30742,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 16.5158,
+      "durationBeats": 0.39,
+      "gain": 0.23035,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 17.00359,
+      "durationBeats": 0.585,
+      "gain": 0.26337,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 17.75128,
+      "durationBeats": 0.195,
+      "gain": 0.2223,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 17.99608,
+      "durationBeats": 0.88,
+      "gain": 0.26342,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 18.99973,
+      "durationBeats": 0.88,
+      "gain": 0.2698,
+      "pan": 0.067383
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 16.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 16.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 16.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 16.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 18.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 18.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 18.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 18.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 16.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": -0.625535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 64,
+      "beat": 16.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 16,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 17.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 18.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 19.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 16,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 18.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 17.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 19.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 16.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 16.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 17.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 17.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 18.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 18.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 19.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 19.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 19.99616,
+      "durationBeats": 0.39,
+      "gain": 0.29592,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 20.51962,
+      "durationBeats": 0.39,
+      "gain": 0.2223,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 21.00342,
+      "durationBeats": 0.88,
+      "gain": 0.26342,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 21.9975,
+      "durationBeats": 0.39,
+      "gain": 0.2698,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 22.51523,
+      "durationBeats": 0.39,
+      "gain": 0.23365,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 23.00322,
+      "durationBeats": 0.88,
+      "gain": 0.27134,
+      "pan": -0.045117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 20.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 20.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 20.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 20.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 22.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 22.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 22.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 22.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.274465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 20,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 21.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 22.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 23.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 20,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 22.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 21.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 23.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 20.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 20.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 21.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 21.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 22.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 22.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 23.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 23.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 23.99888,
+      "durationBeats": 0.88,
+      "gain": 0.29598,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 25.00395,
+      "durationBeats": 0.39,
+      "gain": 0.2698,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 25.5181,
+      "durationBeats": 0.39,
+      "gain": 0.23365,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 25.99602,
+      "durationBeats": 0.88,
+      "gain": 0.27134,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 27.00093,
+      "durationBeats": 0.39,
+      "gain": 0.26508,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 27.52174,
+      "durationBeats": 0.39,
+      "gain": 0.22252,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 24.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 24.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 24.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 67,
+      "beat": 24.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 26.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 26.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 26.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 67,
+      "beat": 26.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 24.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": -0.625535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 64,
+      "beat": 24.3,
+      "durationBeats": 6.5,
+      "gain": 0.01577,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 24,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 25.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 26.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 27.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 24,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 26.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 25.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 27.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 24.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 24.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 25.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 25.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 26.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 26.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 27.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 27.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 28.00263,
+      "durationBeats": 0.585,
+      "gain": 0.30743,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 28.75265,
+      "durationBeats": 0.195,
+      "gain": 0.23171,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 28.99669,
+      "durationBeats": 0.88,
+      "gain": 0.26508,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 29.9982,
+      "durationBeats": 0.39,
+      "gain": 0.26058,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 30.52177,
+      "durationBeats": 0.39,
+      "gain": 0.22372,
+      "pan": -0.077617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 28.65,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 28.662,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 28.674,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 28.686,
+      "durationBeats": 0.75,
+      "gain": 0.03071,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 30.65,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 30.662,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 30.674,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 30.686,
+      "durationBeats": 0.75,
+      "gain": 0.02764,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 69,
+      "beat": 31.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 31.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 28,
+      "durationBeats": 1.1,
+      "gain": 0.1494,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 29.75,
+      "durationBeats": 0.45,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 30.5,
+      "durationBeats": 0.8,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 57,
+      "beat": 31.5,
+      "durationBeats": 0.35,
+      "gain": 0.11653,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 28,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 30.5,
+      "durationBeats": 0.1,
+      "gain": 0.14342,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 29.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 31.013,
+      "durationBeats": 0.1,
+      "gain": 0.10757,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 28.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 28.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 29.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 29.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 30.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 30.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 31.0,
+      "durationBeats": 0.1,
+      "gain": 0.04482,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 31.518,
+      "durationBeats": 0.1,
+      "gain": 0.06275,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 31.5,
+      "durationBeats": 0.1,
+      "gain": 0.05976,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 31.25,
+      "durationBeats": 0.1,
+      "gain": 0.04781,
+      "pan": -0.1
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 31.5,
+      "durationBeats": 0.1,
+      "gain": 0.05833,
+      "pan": 0.0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 31.75,
+      "durationBeats": 0.1,
+      "gain": 0.06884,
+      "pan": 0.1
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 32.00396,
+      "durationBeats": 0.39,
+      "gain": 0.29784,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 32.51691,
+      "durationBeats": 0.39,
+      "gain": 0.22252,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 32.99632,
+      "durationBeats": 0.88,
+      "gain": 0.26199,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 34.00203,
+      "durationBeats": 0.39,
+      "gain": 0.268,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 34.52115,
+      "durationBeats": 0.39,
+      "gain": 0.2332,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 34.99715,
+      "durationBeats": 0.88,
+      "gain": 0.27258,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 32.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 32.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 32.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 32.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 34.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 34.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 34.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 34.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 32.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 61,
+      "beat": 32.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 38,
+      "beat": 32,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 33.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 38,
+      "beat": 34.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 35.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 32,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 34.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 33.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 35.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 32.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 32.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 33.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 33.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 34.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 34.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 35.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 35.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 36.51965,
+      "durationBeats": 0.39,
+      "gain": 0.29437,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 36.99617,
+      "durationBeats": 0.39,
+      "gain": 0.268,
+      "pan": -0.077617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 37.51734,
+      "durationBeats": 0.39,
+      "gain": 0.2332,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 38.004,
+      "durationBeats": 0.88,
+      "gain": 0.27258,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 38.99963,
+      "durationBeats": 0.88,
+      "gain": 0.26694,
+      "pan": -0.077617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 36.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 36.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 36.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 36.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 38.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 38.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 38.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 38.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.274465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 37,
+      "beat": 36,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 44,
+      "beat": 37.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 37,
+      "beat": 38.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 39.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 36,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 38.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 37.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 39.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 36.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 36.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 37.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 37.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 38.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 38.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 39.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 39.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 39.99782,
+      "durationBeats": 0.585,
+      "gain": 0.30685,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 40.74695,
+      "durationBeats": 0.195,
+      "gain": 0.23277,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 41.00296,
+      "durationBeats": 0.88,
+      "gain": 0.26694,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 42.00228,
+      "durationBeats": 0.39,
+      "gain": 0.26135,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 42.51445,
+      "durationBeats": 0.39,
+      "gain": 0.22284,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 42.99863,
+      "durationBeats": 0.88,
+      "gain": 0.26612,
+      "pan": 0.004883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 40.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 40.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 40.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 40.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 42.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 42.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 42.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 42.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 40.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 40.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 40,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 41.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 42.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 59,
+      "beat": 43.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 40,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 42.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 41.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 43.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 40.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 40.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 41.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 41.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 42.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 42.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 43.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 43.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 43.996,
+      "durationBeats": 0.39,
+      "gain": 0.29993,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 44.51853,
+      "durationBeats": 0.39,
+      "gain": 0.22318,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 45.00386,
+      "durationBeats": 0.39,
+      "gain": 0.26096,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 45.51647,
+      "durationBeats": 0.39,
+      "gain": 0.22725,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 45.99653,
+      "durationBeats": 0.88,
+      "gain": 0.27209,
+      "pan": 0.004883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 44.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 44.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 44.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 44.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 46.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 46.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 46.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 46.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 47.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 66,
+      "beat": 47.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 44,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 45.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 46.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 47.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 44,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 46.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 45.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 47.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 44.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 44.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 45.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 45.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 46.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 46.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 47.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 47.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 47.5,
+      "durationBeats": 0.1,
+      "gain": 0.0684,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 47.99785,
+      "durationBeats": 0.39,
+      "gain": 0.29321,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 48.52162,
+      "durationBeats": 0.39,
+      "gain": 0.22725,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 49.00121,
+      "durationBeats": 0.585,
+      "gain": 0.27209,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 49.74606,
+      "durationBeats": 0.195,
+      "gain": 0.23345,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 49.9998,
+      "durationBeats": 0.88,
+      "gain": 0.26881,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 51.00399,
+      "durationBeats": 0.88,
+      "gain": 0.26257,
+      "pan": 0.067383
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 48.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 48.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 48.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 48.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 50.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 50.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 50.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 50.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 48.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": -0.625535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 64,
+      "beat": 48.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 48,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 49.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 50.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 51.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 48,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 50.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 49.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 51.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 48.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 48.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 49.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 49.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 50.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 50.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 51.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 51.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 52.00168,
+      "durationBeats": 0.39,
+      "gain": 0.30572,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 52.52138,
+      "durationBeats": 0.39,
+      "gain": 0.23345,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 52.99745,
+      "durationBeats": 0.88,
+      "gain": 0.26881,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 53.99727,
+      "durationBeats": 0.39,
+      "gain": 0.26257,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 54.52125,
+      "durationBeats": 0.39,
+      "gain": 0.22237,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 55.00189,
+      "durationBeats": 0.88,
+      "gain": 0.2643,
+      "pan": -0.045117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 52.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 52.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 52.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 52.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 54.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 54.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 54.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 54.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.274465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 52,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 53.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 54.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 55.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 52,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 54.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 53.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 55.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 52.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 52.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 53.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 53.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 54.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 54.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 55.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 55.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 56.00396,
+      "durationBeats": 0.88,
+      "gain": 0.30203,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 57.00003,
+      "durationBeats": 0.39,
+      "gain": 0.26257,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 57.51403,
+      "durationBeats": 0.39,
+      "gain": 0.22237,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 58.00099,
+      "durationBeats": 0.88,
+      "gain": 0.2643,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 59.00372,
+      "durationBeats": 0.39,
+      "gain": 0.27068,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 59.51605,
+      "durationBeats": 0.39,
+      "gain": 0.2337,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 56.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 56.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 56.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 67,
+      "beat": 56.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 58.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 58.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 58.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 67,
+      "beat": 58.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 56.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": -0.625535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 64,
+      "beat": 56.3,
+      "durationBeats": 6.5,
+      "gain": 0.01805,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 56,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 57.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 58.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 59.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 56,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 58.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 57.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 59.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 56.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 56.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 57.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 57.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 58.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 58.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 59.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 59.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 60.0026,
+      "durationBeats": 0.39,
+      "gain": 0.29259,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 60.51465,
+      "durationBeats": 0.39,
+      "gain": 0.2257,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 60.99826,
+      "durationBeats": 0.88,
+      "gain": 0.27068,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 62.0038,
+      "durationBeats": 0.39,
+      "gain": 0.27367,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 62.51876,
+      "durationBeats": 0.39,
+      "gain": 0.23102,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 60.65,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 60.662,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 60.674,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 60.686,
+      "durationBeats": 0.75,
+      "gain": 0.03515,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 62.65,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 62.662,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 62.674,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 62.686,
+      "durationBeats": 0.75,
+      "gain": 0.03163,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 69,
+      "beat": 63.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 63.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 60,
+      "durationBeats": 1.1,
+      "gain": 0.171,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 61.75,
+      "durationBeats": 0.45,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 62.5,
+      "durationBeats": 0.8,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 57,
+      "beat": 63.5,
+      "durationBeats": 0.35,
+      "gain": 0.13338,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 60,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 62.5,
+      "durationBeats": 0.1,
+      "gain": 0.16416,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 61.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 63.013,
+      "durationBeats": 0.1,
+      "gain": 0.12312,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 60.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 60.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 61.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 61.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 62.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 62.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 63.0,
+      "durationBeats": 0.1,
+      "gain": 0.0513,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 63.518,
+      "durationBeats": 0.1,
+      "gain": 0.07182,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 63.5,
+      "durationBeats": 0.1,
+      "gain": 0.0684,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 63.25,
+      "durationBeats": 0.1,
+      "gain": 0.05472,
+      "pan": -0.1
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 63.5,
+      "durationBeats": 0.1,
+      "gain": 0.06676,
+      "pan": 0.0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 63.75,
+      "durationBeats": 0.1,
+      "gain": 0.0788,
+      "pan": 0.1
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 63.99885,
+      "durationBeats": 0.88,
+      "gain": 0.28589,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 64.99635,
+      "durationBeats": 0.39,
+      "gain": 0.25725,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 65.52009,
+      "durationBeats": 0.39,
+      "gain": 0.21715,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 66.00311,
+      "durationBeats": 0.88,
+      "gain": 0.24829,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 66.99711,
+      "durationBeats": 0.88,
+      "gain": 0.24476,
+      "pan": 0.042383
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 64.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 64.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 64.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 64.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 66.65,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 66.662,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 66.674,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 66.686,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 55,
+      "beat": 64.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 64.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 64,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 65.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 64,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 66,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 65.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 67.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 64.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 65.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 66.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 67.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 67.99615,
+      "durationBeats": 0.39,
+      "gain": 0.28573,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 68.5174,
+      "durationBeats": 0.39,
+      "gain": 0.21203,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 69.004,
+      "durationBeats": 0.88,
+      "gain": 0.24476,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 69.99957,
+      "durationBeats": 0.88,
+      "gain": 0.24694,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 70.99611,
+      "durationBeats": 0.88,
+      "gain": 0.25284,
+      "pan": 0.029883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 68.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 68.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 68.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 68.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 68,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 69.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 68,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 70,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 69.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 71.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 68.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 69.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 70.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 71.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 71.997,
+      "durationBeats": 0.39,
+      "gain": 0.27501,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 72.52101,
+      "durationBeats": 0.39,
+      "gain": 0.21087,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 73.00223,
+      "durationBeats": 0.88,
+      "gain": 0.25284,
+      "pan": -0.077617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 73.99642,
+      "durationBeats": 0.39,
+      "gain": 0.25703,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 74.51669,
+      "durationBeats": 0.39,
+      "gain": 0.21831,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 75.00392,
+      "durationBeats": 0.88,
+      "gain": 0.24998,
+      "pan": 0.004883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 72.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 72.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 72.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 72.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 74.65,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 74.662,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 74.674,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 74.686,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 72.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 72.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 72,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 73.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 74.5,
+      "durationBeats": 0.8,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 75.5,
+      "durationBeats": 0.35,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 72,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 74.5,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 73.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 75.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 72.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 72.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 73.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 73.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 74.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 74.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 75.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 75.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 76.0006,
+      "durationBeats": 0.88,
+      "gain": 0.28409,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 77.00384,
+      "durationBeats": 0.39,
+      "gain": 0.25703,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 77.51641,
+      "durationBeats": 0.39,
+      "gain": 0.21831,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 77.99657,
+      "durationBeats": 0.39,
+      "gain": 0.24998,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 78.52048,
+      "durationBeats": 0.39,
+      "gain": 0.20941,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 79.0028,
+      "durationBeats": 0.88,
+      "gain": 0.24576,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 76.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 76.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 76.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 76.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 76,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 77.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 78.5,
+      "durationBeats": 0.8,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 57,
+      "beat": 79.5,
+      "durationBeats": 0.35,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 76,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 78.5,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 77.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 79.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 76.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 76.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 77.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 77.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 78.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 78.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 79.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 79.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 79.5,
+      "durationBeats": 0.1,
+      "gain": 0.05688,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 80.00365,
+      "durationBeats": 0.585,
+      "gain": 0.28725,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 80.75115,
+      "durationBeats": 0.195,
+      "gain": 0.21347,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 80.99605,
+      "durationBeats": 0.39,
+      "gain": 0.24523,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 81.51787,
+      "durationBeats": 0.39,
+      "gain": 0.20986,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 82.00398,
+      "durationBeats": 0.88,
+      "gain": 0.25109,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 82.9991,
+      "durationBeats": 0.88,
+      "gain": 0.25632,
+      "pan": 0.004883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 80.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 80.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 80.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 80.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 82.65,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 82.662,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 82.674,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 82.686,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 80.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 80.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 80,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 81.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 82.5,
+      "durationBeats": 0.8,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 59,
+      "beat": 83.5,
+      "durationBeats": 0.35,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 80,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 82.5,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 81.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 83.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 80.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 80.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 81.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 81.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 82.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 82.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 83.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 83.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 84.00335,
+      "durationBeats": 0.39,
+      "gain": 0.27554,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 84.5154,
+      "durationBeats": 0.39,
+      "gain": 0.20986,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 84.99732,
+      "durationBeats": 0.88,
+      "gain": 0.25109,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 86.00329,
+      "durationBeats": 0.88,
+      "gain": 0.25632,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 87.00183,
+      "durationBeats": 0.88,
+      "gain": 0.25664,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 84.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 84.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 84.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 84.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 84,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 85.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 86.5,
+      "durationBeats": 0.8,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 87.5,
+      "durationBeats": 0.35,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 84,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 86.5,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 85.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 87.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 84.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 84.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 85.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 85.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 86.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 86.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 87.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 87.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 87.99996,
+      "durationBeats": 0.39,
+      "gain": 0.28212,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 88.51404,
+      "durationBeats": 0.39,
+      "gain": 0.21888,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 89.00106,
+      "durationBeats": 0.88,
+      "gain": 0.25664,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 90.00369,
+      "durationBeats": 0.39,
+      "gain": 0.25176,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 90.51599,
+      "durationBeats": 0.39,
+      "gain": 0.2102,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 90.99683,
+      "durationBeats": 0.88,
+      "gain": 0.245,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 88.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 88.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 88.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 88.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 90.65,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 90.662,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 90.674,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 90.686,
+      "durationBeats": 0.75,
+      "gain": 0.02631,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 55,
+      "beat": 88.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 88.3,
+      "durationBeats": 6.5,
+      "gain": 0.01501,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 88,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 89.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 90.5,
+      "durationBeats": 0.8,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 91.5,
+      "durationBeats": 0.35,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 88,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 90.5,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 89.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 91.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 88.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 88.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 89.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 89.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 90.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 90.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 91.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 91.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 91.99662,
+      "durationBeats": 0.39,
+      "gain": 0.28836,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 92.51632,
+      "durationBeats": 0.39,
+      "gain": 0.21498,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 93.00382,
+      "durationBeats": 0.39,
+      "gain": 0.24616,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 93.51869,
+      "durationBeats": 0.39,
+      "gain": 0.20921,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 93.996,
+      "durationBeats": 0.88,
+      "gain": 0.24933,
+      "pan": -0.045117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 92.65,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 92.662,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 92.674,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 92.686,
+      "durationBeats": 0.75,
+      "gain": 0.02923,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 69,
+      "beat": 95.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 95.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 92,
+      "durationBeats": 1.1,
+      "gain": 0.1422,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 93.75,
+      "durationBeats": 0.45,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 94.5,
+      "durationBeats": 0.8,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 57,
+      "beat": 95.5,
+      "durationBeats": 0.35,
+      "gain": 0.11092,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 92,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 94.5,
+      "durationBeats": 0.1,
+      "gain": 0.13651,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 93.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 95.013,
+      "durationBeats": 0.1,
+      "gain": 0.10238,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 92.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 92.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 93.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 93.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 94.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 94.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 95.0,
+      "durationBeats": 0.1,
+      "gain": 0.04266,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 95.518,
+      "durationBeats": 0.1,
+      "gain": 0.05972,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 95.5,
+      "durationBeats": 0.1,
+      "gain": 0.05688,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 95.25,
+      "durationBeats": 0.1,
+      "gain": 0.0455,
+      "pan": -0.1
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 95.5,
+      "durationBeats": 0.1,
+      "gain": 0.05551,
+      "pan": 0.0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 95.75,
+      "durationBeats": 0.1,
+      "gain": 0.06553,
+      "pan": 0.1
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 95.99638,
+      "durationBeats": 0.39,
+      "gain": 0.29424,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 96.52015,
+      "durationBeats": 0.39,
+      "gain": 0.22256,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 97.00307,
+      "durationBeats": 0.88,
+      "gain": 0.26525,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 97.99706,
+      "durationBeats": 0.39,
+      "gain": 0.27147,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 98.51569,
+      "durationBeats": 0.39,
+      "gain": 0.23362,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 99.00354,
+      "durationBeats": 0.88,
+      "gain": 0.26964,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 96.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 96.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 96.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 96.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 98.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 98.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 98.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 98.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 96.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 61,
+      "beat": 96.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 38,
+      "beat": 96,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 97.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 38,
+      "beat": 98.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 99.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 96,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 98.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 97.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 99.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 96.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 96.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 97.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 97.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 98.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 98.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 99.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 99.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 100.51747,
+      "durationBeats": 0.39,
+      "gain": 0.29803,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 101.004,
+      "durationBeats": 0.39,
+      "gain": 0.27147,
+      "pan": -0.077617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 101.5175,
+      "durationBeats": 0.39,
+      "gain": 0.23362,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 101.99613,
+      "durationBeats": 0.88,
+      "gain": 0.26964,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 103.0015,
+      "durationBeats": 0.88,
+      "gain": 0.26327,
+      "pan": -0.077617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 100.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 100.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 100.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 100.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 102.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 102.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 102.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 102.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.274465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 37,
+      "beat": 100,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 44,
+      "beat": 101.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 37,
+      "beat": 102.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 103.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 100,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 102.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 101.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 103.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 100.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 100.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 101.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 101.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 102.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 102.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 103.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 103.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 104.00305,
+      "durationBeats": 0.585,
+      "gain": 0.3074,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 104.75217,
+      "durationBeats": 0.195,
+      "gain": 0.23026,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 104.99639,
+      "durationBeats": 0.88,
+      "gain": 0.26327,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 105.99876,
+      "durationBeats": 0.39,
+      "gain": 0.26033,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 106.52193,
+      "durationBeats": 0.39,
+      "gain": 0.22503,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 107.00023,
+      "durationBeats": 0.88,
+      "gain": 0.26991,
+      "pan": 0.004883
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 104.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 104.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 104.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 104.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 106.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 106.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 106.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 106.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 57,
+      "beat": 104.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": 0.174465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 59,
+      "beat": 104.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": 0.174465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 104,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 105.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 106.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 59,
+      "beat": 107.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 104,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 106.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 105.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 107.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 104.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 104.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 105.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 105.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 106.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 106.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 107.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 107.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 108.00383,
+      "durationBeats": 0.88,
+      "gain": 0.29581,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 108.99835,
+      "durationBeats": 0.39,
+      "gain": 0.26033,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 109.5146,
+      "durationBeats": 0.39,
+      "gain": 0.22503,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 110.00253,
+      "durationBeats": 0.88,
+      "gain": 0.26991,
+      "pan": -0.057617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 108.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 108.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 108.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 108.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 54,
+      "beat": 110.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.28109
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 110.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 110.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 110.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 111.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 66,
+      "beat": 111.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 108,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 109.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 110.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 111.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 108,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 110.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 109.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 111.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 108.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 108.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 109.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 109.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 110.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 110.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 111.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 111.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 111.5,
+      "durationBeats": 0.1,
+      "gain": 0.072,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 78,
+      "beat": 112.00108,
+      "durationBeats": 0.88,
+      "gain": 0.29609,
+      "pan": 0.092383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 76,
+      "beat": 112.99604,
+      "durationBeats": 0.39,
+      "gain": 0.26991,
+      "pan": 0.067383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 113.51794,
+      "durationBeats": 0.39,
+      "gain": 0.23366,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 114.00397,
+      "durationBeats": 0.39,
+      "gain": 0.27125,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 114.51704,
+      "durationBeats": 0.39,
+      "gain": 0.22626,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 114.99627,
+      "durationBeats": 0.88,
+      "gain": 0.26055,
+      "pan": -0.077617
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 112.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 112.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 112.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 112.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 114.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 114.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 114.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 114.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 112.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": -0.625535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 64,
+      "beat": 112.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 112,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 49,
+      "beat": 113.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 42,
+      "beat": 114.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 54,
+      "beat": 115.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 112,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 114.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 113.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 115.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 112.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 112.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 113.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 113.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 114.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 114.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 115.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 115.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 115.99735,
+      "durationBeats": 0.39,
+      "gain": 0.30745,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 116.51537,
+      "durationBeats": 0.39,
+      "gain": 0.23163,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 117.00333,
+      "durationBeats": 0.88,
+      "gain": 0.26497,
+      "pan": -0.045117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 118.00177,
+      "durationBeats": 0.39,
+      "gain": 0.26055,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 118.51421,
+      "durationBeats": 0.39,
+      "gain": 0.22379,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 67,
+      "beat": 118.99921,
+      "durationBeats": 0.88,
+      "gain": 0.26812,
+      "pan": -0.045117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 116.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 116.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 116.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 116.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 118.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 118.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 118.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 118.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.274465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 116,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 47,
+      "beat": 117.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 40,
+      "beat": 118.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 119.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 116,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 118.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 117.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 119.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 116.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 116.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 117.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 117.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 118.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 118.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 119.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 119.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 66,
+      "beat": 119.99605,
+      "durationBeats": 0.88,
+      "gain": 0.29771,
+      "pan": -0.057617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 121.00112,
+      "durationBeats": 0.39,
+      "gain": 0.26055,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 121.52166,
+      "durationBeats": 0.39,
+      "gain": 0.22379,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 74,
+      "beat": 121.99793,
+      "durationBeats": 0.88,
+      "gain": 0.26812,
+      "pan": 0.042383
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 122.99687,
+      "durationBeats": 0.39,
+      "gain": 0.27314,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 123.52087,
+      "durationBeats": 0.39,
+      "gain": 0.23271,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 120.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 120.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 120.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 67,
+      "beat": 120.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 59,
+      "beat": 122.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.003313
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 62,
+      "beat": 122.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.163354
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 64,
+      "beat": 122.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.274465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 67,
+      "beat": 122.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 62,
+      "beat": 120.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": -0.625535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pad",
+      "pitch": 64,
+      "beat": 120.3,
+      "durationBeats": 6.5,
+      "gain": 0.019,
+      "pan": -0.625535
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 120,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 50,
+      "beat": 121.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 43,
+      "beat": 122.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 55,
+      "beat": 123.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 120,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 122.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 121.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 123.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 120.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 120.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 121.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 121.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 122.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 122.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 123.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 123.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 73,
+      "beat": 123.99838,
+      "durationBeats": 0.39,
+      "gain": 0.29446,
+      "pan": 0.029883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 71,
+      "beat": 124.52184,
+      "durationBeats": 0.39,
+      "gain": 0.22895,
+      "pan": 0.004883
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 125.00063,
+      "durationBeats": 0.88,
+      "gain": 0.27314,
+      "pan": -0.020117
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 64,
+      "beat": 125.996,
+      "durationBeats": 0.39,
+      "gain": 0.27252,
+      "pan": -0.077617
+    },
+    {
+      "bus": "melody",
+      "instrument": "piano",
+      "pitch": 69,
+      "beat": 126.5184,
+      "durationBeats": 0.39,
+      "gain": 0.22785,
+      "pan": -0.020117
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 124.65,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 124.662,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 124.674,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 124.686,
+      "durationBeats": 0.75,
+      "gain": 0.037,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 55,
+      "beat": 126.65,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.225535
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 57,
+      "beat": 126.662,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": -0.114424
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 61,
+      "beat": 126.674,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.107798
+    },
+    {
+      "bus": "harmony",
+      "instrument": "ep",
+      "pitch": 66,
+      "beat": 126.686,
+      "durationBeats": 0.75,
+      "gain": 0.0333,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 69,
+      "beat": 127.15,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "harmony",
+      "instrument": "pluck",
+      "pitch": 67,
+      "beat": 127.57,
+      "durationBeats": 0.25,
+      "gain": 0.044,
+      "pan": 0.374465
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 124,
+      "durationBeats": 1.1,
+      "gain": 0.18,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 52,
+      "beat": 125.75,
+      "durationBeats": 0.45,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 45,
+      "beat": 126.5,
+      "durationBeats": 0.8,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "bass",
+      "instrument": "bass",
+      "pitch": 57,
+      "beat": 127.5,
+      "durationBeats": 0.35,
+      "gain": 0.1404,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 124,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "kick",
+      "pitch": 0,
+      "beat": 126.5,
+      "durationBeats": 0.1,
+      "gain": 0.1728,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 125.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 127.013,
+      "durationBeats": 0.1,
+      "gain": 0.1296,
+      "pan": 0
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 124.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 124.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 125.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 125.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 126.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 126.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 127.0,
+      "durationBeats": 0.1,
+      "gain": 0.054,
+      "pan": -0.383717
+    },
+    {
+      "bus": "drums",
+      "instrument": "hat",
+      "pitch": 0,
+      "beat": 127.518,
+      "durationBeats": 0.1,
+      "gain": 0.0756,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "open",
+      "pitch": 0,
+      "beat": 127.5,
+      "durationBeats": 0.1,
+      "gain": 0.072,
+      "pan": 0.176283
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 127.25,
+      "durationBeats": 0.1,
+      "gain": 0.0576,
+      "pan": -0.1
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 127.5,
+      "durationBeats": 0.1,
+      "gain": 0.07027,
+      "pan": 0.0
+    },
+    {
+      "bus": "drums",
+      "instrument": "rim",
+      "pitch": 0,
+      "beat": 127.75,
+      "durationBeats": 0.1,
+      "gain": 0.08294,
+      "pan": 0.1
+    }
+  ]
+}

@@ -9,14 +9,26 @@ test('stereo piano is centered without cancelling opposite-phase channels',()=>{
  assert.deepEqual([...source.getChannelData(1)], [...channels[1]],'original samples are retained');
 });
 test('tempo grows with difficulty, caps at 170 and rewind preserves run pressure',()=>{
- const music=createEndlessMusicState();assert.equal(music.update().targetBpm,120);
- const fast=music.update({intensity:.8,stage:50});assert.equal(fast.targetBpm,160);
- const rewind=music.update({intensity:.8,stage:0,rewind:true});assert.equal(rewind.baseBpm,160);assert.equal(rewind.targetBpm,142);
- assert.equal(music.update({intensity:0,stage:0}).targetBpm,142,'reset board does not reset accumulated difficulty');
- assert(music.update({intensity:.8,stage:17}).targetBpm<160);
- assert.equal(music.update({intensity:.8,stage:19}).targetBpm,160);
+ const music=createEndlessMusicState();assert.equal(music.update().targetBpm,108);
+ const fast=music.update({intensity:.8,stage:50});assert.equal(fast.targetBpm,157.6);
+ const rewind=music.update({intensity:.8,stage:0,rewind:true});assert.equal(rewind.baseBpm,157.6);assert.equal(rewind.targetBpm,139.6);
+ assert.equal(music.update({intensity:0,stage:0}).targetBpm,139.6,'reset board does not reset accumulated difficulty');
+ assert(music.update({intensity:.8,stage:17}).targetBpm<157.6);
+ assert.equal(music.update({intensity:.8,stage:19}).targetBpm,157.6);
  assert.equal(music.update({intensity:10,stage:21}).targetBpm,170);
- assert.equal(endlessMusicTempo(-1),120);
+ assert.equal(endlessMusicTempo(-1),108);
+});
+
+test('time abilities slow the current theme and expiration restores retained run pressure',()=>{
+ const music=createEndlessMusicState(),normal=music.update({intensity:.7,stage:80});
+ const slow=music.update({intensity:.7,stage:80,timeScale:.5});
+ assert.equal(slow.baseBpm,normal.baseBpm);assert.equal(slow.targetBpm,normal.targetBpm-12);
+ assert.equal(music.update({intensity:.7,stage:80,timeScale:.25}).targetBpm,normal.targetBpm-24);
+ assert.equal(music.update({intensity:.7,stage:85,timeScale:1}).targetBpm,normal.targetBpm);
+ const rewind=music.update({intensity:.7,stage:0,rewind:true,timeScale:.5});
+ assert.equal(rewind.targetBpm,normal.targetBpm-18-12);
+ assert.equal(music.update({intensity:.7,stage:19,timeScale:1}).targetBpm,normal.targetBpm);
+ assert.equal(endlessMusicTempo(0,0,.25),72,'combined early-run effects stay within the playable tempo range');
 });
 
 
@@ -35,10 +47,11 @@ test('native Endless retains pitch, stereo routing, calibrated gain and one sour
  const previous=globalThis.Audio,h=nativeHarness();globalThis.Audio=h.Media;let player;
  try{
   const trim=10**((-20-(-15.72))/20);player=await createAdaptiveMusic(h.context,h.destination,{recordingGain:trim});
-  assert(await player.prepare());assert.equal(h.state.media.plays,0);assert(h.state.media.src.endsWith('/assets/music/endless-239.ogg'));
-  assert.equal(h.state.media.preservesPitch,true);assert.equal(h.state.media.playbackRate,120/140);
+  assert(await player.prepare());assert.equal(h.state.media.plays,0);assert(h.state.media.src.endsWith('/assets/music/endless-274.ogg'));
+  assert.equal(h.state.media.preservesPitch,true);assert.equal(h.state.media.playbackRate,108/140);
   await player.start();await player.start();assert.equal(h.state.media.plays,1);assert.equal(h.state.mediaSources,1);
   player.setTempo(170,true);assert.equal(h.state.media.playbackRate,170/140);player.setTempo(102,true);assert.equal(h.state.media.playbackRate,102/140);
+  player.setTempo(72,true);assert.equal(h.state.media.playbackRate,72/140,'combined rewind and slow ability reaches the renderer');
   const gain=h.state.nodes.find(n=>n.connections.includes(h.destination));assert.equal(gain.gain.value,trim);player.setVolume(.4);assert.equal(gain.gain.value,trim*.4);
   assert.equal(gain.channelCount,undefined,'native recording must not be forced into mono');player.stop();assert.equal(player.playing,false);assert.equal(h.state.media.currentTime,11);
  }finally{player?.dispose();globalThis.Audio=previous;}
@@ -58,8 +71,8 @@ test('native loading cannot reset the first audible Endless tempo before its gra
  try{
   player=await createAdaptiveMusic(h.context,h.destination);h.state.media.readyState=0;
   assert(await player.prepare());assert.equal(h.state.media.playbackRate,1,'media load follows the browser default-rate reset');
-  await player.start();assert.equal(h.state.media.playRates[0],120/140,'the first play already has the intended tempo');
-  player.setTempo(170);tick();assert.equal(h.state.media.playbackRate,120.35/140);assert(h.state.media.playbackRate>h.state.media.playRates[0]);
+  await player.start();assert.equal(h.state.media.playRates[0],108/140,'the first play already has the intended tempo');
+  player.setTempo(170);tick();assert.equal(h.state.media.playbackRate,108.35/140);assert(h.state.media.playbackRate>h.state.media.playRates[0]);
   const ramped=h.state.media.playbackRate;player.stop();h.state.media.playbackRate=1;await player.start();
   assert.equal(h.state.media.playRates[1],ramped,'resuming restores the retained tempo before playback too');
  }finally{player?.dispose();globalThis.Audio=previous;}

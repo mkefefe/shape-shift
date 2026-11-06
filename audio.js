@@ -25,14 +25,15 @@
     adaptiveLastPicks=state.picks||0;
     const settings={easy:[3600,6],normal:[2800,9],hard:[2400,15],extreme:[2000,22]}[state.difficulty]||[2800,9];
     const intensity=Math.min(1,Math.max(state.picks||0,(state.score||0)/2)*settings[1]/(settings[0]-750));
-    adaptiveState={intensity,stage:state.stage??state.picks??0,rewind};
+    const timeScale=(state.slowRounds>0?.5:1)*(state.pickupSlowRounds>0?.5:1);
+    adaptiveState={intensity,stage:state.stage??state.picks??0,rewind,timeScale};
     if(adaptiveMusic&&adaptiveModel){adaptiveMusic.setTempo(adaptiveModel.update(adaptiveState).targetBpm,newRun);adaptiveState.rewind=false;}
   }
   function prepareAdaptive(retry=false){
     if(adaptiveLoading)return adaptiveLoading;
     if(adaptiveMusic)return Promise.resolve(true);
     if(!retry&&context.currentTime<adaptiveRetryAt)return Promise.resolve(false);
-    adaptiveLoading=import('./adaptive-music.js?v=494241').then(async module=>{
+    adaptiveLoading=import('./adaptive-music.js?ui274').then(async module=>{
       const player=await module.createAdaptiveMusic(context,musicBus,{recordingGain:recordingGain('game')});
       if(!await player.prepare()){player.dispose();throw Error('Endless audio unavailable');}
       adaptiveMusic=player;adaptiveFactory=module.createEndlessMusicState;adaptiveModel=adaptiveFactory();
@@ -349,10 +350,10 @@
   }
 
   // Five new original mode themes are packaged with their scores and checksums.
-  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/menu-moon-efficient-v245.ogg','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-239.ogg',adventure:'assets/music/adventure-239.ogg',slice:'assets/music/shape-slice-239.ogg',drop:'assets/music/shape-drop-239.ogg'};
+  const musicTracks={'menu-garden':'assets/music/indie-game-soundtrack-251864.mp3','menu-moon':'assets/music/menu-moon-efficient-v245.ogg','menu-sunset':'assets/music/game-music-loop-4-144341.mp3',game:'assets/music/endless-274.ogg',adventure:'assets/music/adventure-274.ogg',slice:'assets/music/shape-slice-274.ogg',drop:'assets/music/shape-drop-274.ogg'};
   // Measured integrated loudness; replay gain changes no file, pitch or saved
   // slider. A common -20 LUFS reference removes the 12 dB menu-world jump.
-  const musicLoudness={'menu-garden':-26.75,'menu-moon':-14.78,'menu-sunset':-17.98,game:-15.72,adventure:-15.83,slice:-15.79,drop:-15.64};
+  const musicLoudness={'menu-garden':-26.75,'menu-moon':-14.78,'menu-sunset':-17.98,game:-16.14,adventure:-16.12,slice:-16.11,drop:-16.14};
   const recordingGain=name=>10**((-20-musicLoudness[name])/20);
   const MUSIC_BEAT=60/110,MUSIC_BAR=MUSIC_BEAT*4,MUSIC_CROSSFADE=.85;
   let musicMood=null;

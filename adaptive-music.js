@@ -10,9 +10,9 @@ export function centeredPianoBuffer(context,buffer){
 async function recordedEndless(context,destination,recordingGain=1){
  // Native media time stretching retains the authored arrangement and changes
  // tempo without transposing it; no replacement melody or synthesized timbre.
- const media=new Audio(new URL('./assets/music/endless-239.ogg',import.meta.url));media.preload='auto';media.loop=true;media.preservesPitch=true;
+ const media=new Audio(new URL('./assets/music/endless-274.ogg',import.meta.url));media.preload='auto';media.loop=true;media.preservesPitch=true;
  const source=context.createMediaElementSource(media),gain=context.createGain();gain.gain.value=recordingGain;source.connect(gain);gain.connect(destination);
- let bpm=120,target=120,timer=null,playing=false,starting=null,epoch=0,preparing=null;media.playbackRate=bpm/140;
+ let bpm=108,target=108,timer=null,playing=false,starting=null,epoch=0,preparing=null;media.playbackRate=bpm/140;
  function prepare(){
   if(media.readyState>=4)return Promise.resolve(true);
   if(preparing)return preparing;
@@ -26,19 +26,22 @@ async function recordedEndless(context,destination,recordingGain=1){
 
  // load() resets playbackRate to the media default. Restore the current tempo
  // before the first audible sample, rather than waiting for the 50 ms ramp.
- return {prepare,start(){if(playing)return Promise.resolve();if(starting)return starting;const token=epoch;media.playbackRate=bpm/140;starting=media.play().then(()=>{if(token!==epoch){media.pause();return;}playing=true;timer=setInterval(()=>{if(context.state!=='running')return;bpm+=Math.max(-.7,Math.min(.35,target-bpm));media.playbackRate=bpm/140;},50);}).finally(()=>{starting=null;});return starting;},stop(){epoch++;playing=false;clearInterval(timer);timer=null;media.pause();},setTempo(n,immediate=false){target=Math.max(102,Math.min(170,n));if(immediate){bpm=target;media.playbackRate=bpm/140;}},setVolume(n){gain.gain.setTargetAtTime(recordingGain*Math.max(0,Math.min(1,n)),context.currentTime,.04);},get bpm(){return bpm;},get phrase(){return Math.floor(media.currentTime/(60/140*4))%2?'B':'A';},get playing(){return playing;},dispose(){this.stop();media.removeAttribute('src');media.load();source.disconnect();gain.disconnect();}};
+ return {prepare,start(){if(playing)return Promise.resolve();if(starting)return starting;const token=epoch;media.playbackRate=bpm/140;starting=media.play().then(()=>{if(token!==epoch){media.pause();return;}playing=true;timer=setInterval(()=>{if(context.state!=='running')return;bpm+=Math.max(-.7,Math.min(.35,target-bpm));media.playbackRate=bpm/140;},50);}).finally(()=>{starting=null;});return starting;},stop(){epoch++;playing=false;clearInterval(timer);timer=null;media.pause();},setTempo(n,immediate=false){target=Math.max(72,Math.min(170,n));if(immediate){bpm=target;media.playbackRate=bpm/140;}},setVolume(n){gain.gain.setTargetAtTime(recordingGain*Math.max(0,Math.min(1,n)),context.currentTime,.04);},get bpm(){return bpm;},get phrase(){return Math.floor(media.currentTime/(60/140*4))%2?'B':'A';},get playing(){return playing;},dispose(){this.stop();media.removeAttribute('src');media.load();source.disconnect();gain.disconnect();}};
 }
-export function endlessMusicTempo(intensity=0,recovery=1){
- const base=120+50*Math.max(0,Math.min(1,Number(intensity)||0));
- return base-18*(1-Math.max(0,Math.min(1,Number(recovery)||0)));
+export function endlessMusicTempo(intensity=0,recovery=1,timeScale=1){
+ const base=108+62*Math.max(0,Math.min(1,Number(intensity)||0));
+ // Musical slowdown is gentler than the board timer: each halving takes off
+ // 12 BPM, so the arrangement stays clear while the ability is audible.
+ const slow=12*Math.log2(1/Math.max(.25,Math.min(1,Number(timeScale)||1)));
+ return Math.max(72,base-18*(1-Math.max(0,Math.min(1,Number(recovery)||0)))-slow);
 }
 export function createEndlessMusicState(){
  let highWater=0,recovery=1,lastStage=0;
- return {update({intensity=0,stage=0,rewind=false}={}){
+ return {update({intensity=0,stage=0,rewind=false,timeScale=1}={}){
   highWater=Math.max(highWater,Math.max(0,Math.min(1,intensity)));
   if(rewind){recovery=0;lastStage=stage;}
   else if(recovery<1){recovery=Math.min(1,recovery+Math.max(0,stage-lastStage)/19);lastStage=stage;}
-  return {baseBpm:120+50*highWater,targetBpm:endlessMusicTempo(highWater,recovery),recovery};
+  return {baseBpm:108+62*highWater,targetBpm:endlessMusicTempo(highWater,recovery,timeScale),recovery};
  }};
 }
 export async function createAdaptiveMusic(context,destination,{mode='endless',assetRoot='assets/music/keys/',recordingGain=1}={}){
@@ -78,5 +81,5 @@ export async function createAdaptiveMusic(context,destination,{mode='endless',as
    next+=beat*.5;step++;
   }
  }
- return {start(){if(playing)return;playing=true;next=context.currentTime+.04;timer=setInterval(schedule,25);schedule();},stop(){playing=false;clearInterval(timer);for(const s of live)try{s.stop();}catch{}live.clear();},setTempo(n){target=Math.max(90,Math.min(170,n));},setVolume(n){bus.gain.setTargetAtTime(Math.max(0,Math.min(1,n)),context.currentTime,.04);},get bpm(){return bpm;},get phrase(){return Math.floor(step/8)%2?'B':'A';},get playing(){return playing;},dispose(){this.stop();bus.disconnect();}};
+ return {start(){if(playing)return;playing=true;next=context.currentTime+.04;timer=setInterval(schedule,25);schedule();},stop(){playing=false;clearInterval(timer);for(const s of live)try{s.stop();}catch{}live.clear();},setTempo(n){target=Math.max(72,Math.min(170,n));},setVolume(n){bus.gain.setTargetAtTime(Math.max(0,Math.min(1,n)),context.currentTime,.04);},get bpm(){return bpm;},get phrase(){return Math.floor(step/8)%2?'B':'A';},get playing(){return playing;},dispose(){this.stop();bus.disconnect();}};
 }

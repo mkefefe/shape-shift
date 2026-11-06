@@ -206,10 +206,47 @@ test('center-card double taps start once and ignore slow or interrupted pairs',(
 
 import {levelTaskIntroduction} from './world-menu.js';
 test('finale task panel explains endless completion and optional scores without an empty collection section',()=>{
- const intro=levelTaskIntroduction(100);assert.match(intro,/Endless finale/);assert.match(intro,/Ending the run completes Adventure/);assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert(!intro.includes('paused-level-requirements'));
+ const intro=levelTaskIntroduction(100);assert(!intro.includes('Endless finale'));assert(!intro.includes('Survive as long')); assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert(intro.includes('paused-level-requirements'));
  assert.deepEqual(levelTasks(100).map(t=>t.target),[100,200,500]);
 });
 test('mission panels keep required goal data without redundant headings',()=>{
  for(const level of [5,10,15,30,95]){const intro=levelTaskIntroduction(level);assert.match(intro,/Missions/);assert(!intro.includes('Collect to win'));assert.match(intro,/paused-level-requirements/);assert(['collection','memoryCollected'].includes(levelRequirements(level)[0].type));}
  assert.match(levelTaskIntroduction(11),/Missions/);assert(!levelTaskIntroduction(11).includes('Collect to win'));
+});
+
+test('late Adventure levels vary workload and combine more demanding mechanics',()=>{
+ for(let level=70;level<99;level++){
+  assert.notDeepEqual(adventureMechanics(level),adventureMechanics(level+1));
+  assert(adventureMechanics(level).memory>=2);
+  assert(levelRequirements(level).every(goal=>goal.target<=10));
+ }
+ assert.notDeepEqual(levelRequirements(83).map(g=>g.target),levelRequirements(84).map(g=>g.target));
+ assert(memoryLevelGoals(83)[0].target>memoryLevelGoals(23)[0].target);
+});
+
+test('late collection requirements never fall at a pattern or world boundary',()=>{
+ let previous=levelRequirements(70).map(goal=>goal.target);
+ for(let level=71;level<=99;level++){
+  const current=levelRequirements(level).map(goal=>goal.target);
+  assert.equal(current.length,3);
+  current.forEach((target,index)=>assert(target>=previous[index],`Level ${level} goal ${index} must not fall below level ${level-1}`));
+  assert(current.every(target=>target<=10),'late levels remain bounded rather than becoming collection grinds');
+  previous=current;
+ }
+ assert.deepEqual(levelRequirements(98).map(goal=>goal.target),[10,10,9]);
+ assert.deepEqual(levelRequirements(99).map(goal=>goal.target),[10,10,10]);
+ assert.equal(adventureMechanics(99).lock,adventureMechanics(98).lock,'99 retains the matching restriction');
+ assert(adventureMechanics(99).memory>adventureMechanics(98).memory);
+});
+
+test('level 99 completion requires the increased displayed targets',()=>{
+ const goals=levelRequirements(99),stats={memoryCollected:10,collections:{}};
+ for(const goal of goals.filter(goal=>goal.type==='collection'))stats.collections[goal.color+':'+goal.shape]=goal.target;
+ assert(levelComplete(99,stats));
+ for(const goal of goals){
+  const short={...stats,collections:{...stats.collections}};
+  if(goal.type==='memoryCollected')short.memoryCollected--;
+  else short.collections[goal.color+':'+goal.shape]--;
+  assert(!levelComplete(99,short),'every required goal must be completed');
+ }
 });

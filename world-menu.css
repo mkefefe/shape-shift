@@ -979,3 +979,10 @@ html body #home .mode-card[data-position="0"]{border-color:#ffe878;box-shadow:0 
 #map-levels .route-tile::after{inset:-12% 0;mask-image:linear-gradient(transparent,#000 25%,#000 75%,transparent);background:radial-gradient(ellipse at 20% 30%,#fff8c640,transparent 40%),radial-gradient(ellipse at 80% 65%,#c4f2ff30,transparent 40%);animation:map-cloud-light 13s ease-in-out infinite alternate}
 @keyframes map-cloud-light{from{opacity:.35;transform:translateX(-4%)}to{opacity:.8;transform:translateX(4%)}}
 @media(prefers-reduced-motion:reduce){#map-levels .route-tile::after{animation:none}}
+
+/* The requirement card and gameplay cover share the exact same card face. */
+.level-requirements .collection-memory,#mode-hud.collection-goal .collection-memory{position:relative;border:0;background:none!important;box-shadow:none;font-size:clamp(20px,6vw,42px);line-height:1;color:transparent}
+.choice.memory-card:not(.memory-open)::after,.level-requirements .collection-memory::after,#mode-hud.collection-goal .collection-memory::after{content:'?';position:absolute;display:grid;place-items:center;box-sizing:border-box;border:2px solid #a8e9ff;border-radius:16%;color:#fff2ab;background:repeating-linear-gradient(45deg,#154a79 0 9px,#1a5686 9px 18px);font-family:Nunito,sans-serif;font-weight:1000;line-height:1;pointer-events:none;text-shadow:0 2px #073653}
+.level-requirements .collection-memory::after,#mode-hud.collection-goal .collection-memory::after{inset:0;font-size:clamp(20px,5vw,34px)}
+#map-levels .route-tile[data-region] .route-scenery:has(canvas){background:none;filter:none;mask-image:none}
+#map-levels .route-scenery canvas{display:block;width:100%;height:100%}

@@ -1,13 +1,14 @@
 import {makeBoard} from './engine.js?v=494241';
 export const VICTORY_DURATION=5000;
+export const VICTORY_BOARD_PREVIEW=600;
 const clamp=n=>Math.max(0,Math.min(1,n));
 const ease=n=>{n=clamp(n);return n*n*(3-2*n);};
 export function victoryPose(ms){return {dim:ease(ms/420),enter:ease((ms-1700)/650),gather:ease((ms-600)/850),dock:ease((ms-3650)/1100),panel:ease((ms-3900)/900)};}
 
-export function victoryTimeline(done,{visible=()=>true,update=()=>{},raf=requestAnimationFrame,caf=cancelAnimationFrame,now=()=>window.ShapeShiftPlatform.now()}={}){
+export function victoryTimeline(done,{visible=()=>true,update=()=>{},duration=VICTORY_DURATION,raf=requestAnimationFrame,caf=cancelAnimationFrame,now=()=>window.ShapeShiftPlatform.now()}={}){
  let elapsed=0,last=now(),frame,ended=false;
  const finish=()=>{if(ended)return;ended=true;caf(frame);done();};
- function tick(time){if(ended)return;const delta=Math.min(80,Math.max(0,time-last));last=time;if(visible())elapsed+=delta;update(elapsed/VICTORY_DURATION);if(elapsed>=VICTORY_DURATION)finish();else if(!ended)frame=raf(tick);}
+ function tick(time){if(ended)return;const delta=Math.min(80,Math.max(0,time-last));last=time;if(visible())elapsed+=delta;update(elapsed/duration);if(elapsed>=duration)finish();else if(!ended)frame=raf(tick);}
  frame=raf(tick);return {finish,cancel(){ended=true;caf(frame);}};
 }
 
@@ -28,7 +29,7 @@ export function refreshVictoryChoices(root,tiles,drawShape,layout,fit=()=>{}){
  });
  fit(root);return choices;
 }
-export function showAdventureVictory({document,points=[],tiles=[],drawShape,layout:boardLayout,fitBoard,level,sound,stopSound=()=>{},done,reveal=()=>{},resultDialog=document.getElementById('over-dialog'),visible=()=>!window.ShapeShiftPlatform.paused,reduced=false}){
+export function showAdventureVictory({document,points=[],tiles=[],drawShape,layout:boardLayout,fitBoard,level,sound,stopSound=()=>{},done,reveal=()=>{},resultDialog=document.getElementById('over-dialog'),visible=()=>!window.ShapeShiftPlatform.paused,reduced=false,raf,caf,now}){
  const dialog=document.createElement('dialog');dialog.id='adventure-victory';dialog.setAttribute('aria-labelledby','victory-title');
  const glow=document.createElement('div');glow.className='victory-glow';glow.setAttribute('aria-hidden','true');dialog.append(glow);
  const title=document.createElement('h2');title.id='victory-title';title.textContent='Level '+level+' complete!';
@@ -45,6 +46,9 @@ export function showAdventureVictory({document,points=[],tiles=[],drawShape,layo
    piece.style.setProperty('--spark-color',['#ffcf48','#55dfff','#ff6f86','#99ee74','#fff6ca'][i%5]);piece.style.setProperty('--spark-size',(7+i%6)+'px');dialog.append(piece);pieces.push(piece);
   }
  }
+ // The transparent modal locks input while the complete next board is visible.
+ // Keep all celebration art and dimming off until this foreground preview ends.
+ dialog.dataset.phase='board-preview';dialog.style.setProperty('--victory-dim','0');
  document.body.append(dialog);dialog.showModal();
  let finished=false,revealed=false,target;
  const viewport=document.documentElement,field=document.getElementById('app');
@@ -66,8 +70,12 @@ export function showAdventureVictory({document,points=[],tiles=[],drawShape,layo
    else resultDialog.querySelector('#record')?.focus({preventScroll:true});}
  }
  const cues=new Set();
- const timeline=victoryTimeline(()=>{if(finished)return;finished=true;prepareResults();clean();done();},{visible,update:p=>{
-  const ms=p*VICTORY_DURATION,pose=victoryPose(ms),{w,h}=layout;
+ const duration=VICTORY_BOARD_PREVIEW+VICTORY_DURATION;
+ const timeline=victoryTimeline(()=>{if(finished)return;finished=true;prepareResults();clean();done();},{visible,raf,caf,now,duration,update:progress=>{
+  const ms=progress*duration-VICTORY_BOARD_PREVIEW;
+  if(ms<0)return;
+  dialog.dataset.phase='celebration';
+  const p=ms/VICTORY_DURATION,pose=victoryPose(ms),{w,h}=layout;
   for(const [at,name] of [[300,'victory-transform'],[600,'victory-gather'],[1450,'victory-burst'],[1700,'victory'],[2000,'victory-spark'],[2300,'victory-spark'],[2600,'victory-spark'],[2900,'victory-spark'],[3900,'victory-panel']]){if(ms>=at&&!cues.has(at)){cues.add(at);sound(name);}}
   if(ms>=3650)prepareResults();
   if(revealed&&resultDialog){

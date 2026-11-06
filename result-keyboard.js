@@ -1,8 +1,10 @@
+import {bindResultPrompt} from './result-prompt.js?ui274';
 // Use the existing result actions so saving, ad waits and Adventure routing stay intact.
 export function bindResultKeyboard(host=window){
  const doc=host.document,dialog=doc.getElementById('over-dialog');
  const hint=doc.createElement('p');hint.className='result-keyboard-hint';hint.textContent='Space: Continue · Esc: Back';
  dialog.querySelector('.result-content').append(hint);
+ const stopPrompt=host.ResizeObserver?bindResultPrompt(dialog,dialog.querySelector('.result-home-hint'),host):()=>{};
  const nextButton=doc.getElementById('adventure-continue');
  const syncHint=()=>{hint.textContent=!nextButton.hidden?'Space: '+nextButton.textContent.trim()+' · Esc: Back':'Esc: Back';};
  const observer=new MutationObserver(syncHint);observer.observe(nextButton,{attributes:true,childList:true,subtree:true});syncHint();
@@ -22,5 +24,5 @@ export function bindResultKeyboard(host=window){
   else {const action=doc.getElementById('continue-ad');if(!action.hidden){if(!action.disabled)action.click();}else dialog.click();}
  }
  doc.addEventListener('keydown',keydown,true);
- return ()=>{observer.disconnect();doc.removeEventListener('keydown',keydown,true);hint.remove();};
+ return ()=>{stopPrompt();observer.disconnect();doc.removeEventListener('keydown',keydown,true);hint.remove();};
 }

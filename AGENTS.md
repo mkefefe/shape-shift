@@ -105,3 +105,41 @@
 - Await Adventure blocker artwork before revealing gameplay; retain loaded assets between visits. This is destination preparation, not permission to preload every mode at startup.
 - Preserve the existing early-Adventure ability/tutorial unlock rules. Cache-version both the HTML entry and its bootstrap import when changing the runtime.
 - Further user correction: the three ability buttons must remain visible in the first Adventure tutorial and early levels too. Show their locked state in the fixed footer; disable unavailable actions rather than hiding the buttons or their row. Preserve the no-forced-ability-tutorial rule.
+
+## Winning-round refresh and personal preview — November 6, 2026
+- The winning choice uses the ordinary round-transition delay. Do not wait for coin flights or collection-counter fade-outs before refreshing the complete board. A full-board preview may precede energy conversion only after that refresh.
+- User explicitly wants all unlocks and unlimited coins for their personal preview only. Build it separately with scripts/build-personal-preview.py; keep its save slot isolated, restrict it to localhost, and exclude it from public release packages. Do not grant server administrator permissions or submit its scores to rankings.
+
+## Piano order, late Adventure and retained menus — November 6, 2026
+- Piano Flow shows NEXT on the earliest visible required note, or NEXT · HOLD for a long note. Play notes in chart order; later visible lanes do not score ahead of NEXT. The required note remains immediately playable anywhere visible. Active holds can sustain independently; unfinished released holds must be resumed in order. This supersedes the earlier any-visible-lane order rule. Wrong presses use the existing life penalty and deduct one available score point, without repeated charges for the same mistake.
+- Level 100 uses Endless run inside the shared requirement frame. Entry, paused tasks and gameplay use the same centered memory-card face.
+- Late Adventure levels should vary memory counts, collection targets and rule combinations while preserving earlier introductory levels.
+- Retain painted map sections; do not recreate expensive terrain filters on scrolling. Cached menu artwork may need new DOM nodes decoded, but that alone must not reopen the loading screen.
+- Use the regenerated transparent ability-shield/time/boost-ui268.webp assets for the Shield, double-time and five-times-reward controls.
+
+## Result prompts and mode piano accompaniment — November 6, 2026
+- Every result screen uses bold uppercase TAP ANYWHERE TO CONTINUE, centered horizontally and halfway between the actual outer frame bottom and the game viewport bottom. Recalculate after resize and reward-panel height changes; keep it outside the frame. Preserve save-failure guidance when continuing is unavailable.
+- Adventure, Endless, Shape Drop, Shape Slice and Battle use the 271 masters with repeating acoustic-piano accompaniment fitted to the existing chord chart and tempo. Preserve Piano Flow and menu tracks. Renderer and score provenance: scripts/music271/piano-chords.py.
+
+## Clear piano melody correction — November 6, 2026
+- Supersedes the 271 chord accompaniment: use 272 masters built directly from the original 239 backing tracks plus clear, dry, single-note piano melodies. No new sustained chord bed or reverb. Each mode has a distinct authored hook that repeats exactly before an answering phrase and return. Source: scripts/music272/piano-melodies.py. Piano Flow and menu music stay unchanged.
+- Endless begins at 108 BPM and smoothly increases toward 170 BPM with run intensity. Keep the piano and original backing synchronized and preserve pitch; retain pause/resume and rewind recovery.
+
+## Piano tone clarity — November 6, 2026
+- The 272 melody was still unclear to the user. Current local candidate 273 uses lossless Salamander Grand Piano V3 FLAC samples, source SFZ retuning and onset offsets, velocity layers 8/9, bandlimited resampling limited to one semitone, short natural releases and narrowed stereo. No added piano reverb.
+- Preserve the written 272 hooks and original 239 bass/drum/harmony events. Lower the competing original melody bus 10 dB so the new piano is foreground. Piano Flow/menu tracks and Endless tempo behavior are unchanged. Renderer/provenance: scripts/music273/clear-piano.py and instrument-manifest.json.
+- This is a local listening candidate; user has been offered a piano-only audition to distinguish tone from composition. Technical tests do not establish subjective musical quality. No piano plugin was found connected or installed; do not claim one was used.
+
+## Soundtrack family — November 6, 2026
+- User approved 273's clear piano tone. The next concern is the stylistic jump from the indie menu recording into gameplay. They explicitly chose distinct mode tracks with the indie track's musical style, rather than using the menu recording as every mode's foundation.
+- Local candidate 274 retains that piano voice, each mode's written hook/key/tempo and the existing bass/drum event patterns. Use a lighter low end, short plucked backing chords and quieter competing lead; omit the old sustained pad. Source: scripts/music274/indie-family.py. Menu recordings and Piano Flow remain unchanged. Subjective musical cohesion still needs the user's listening judgment.
+- Endless music follows gameplay intensity, retains pitch and playback position, and responds to both time abilities as well as rewind. Each active time ability reduces the target by 12 BPM; rewind reduces it by 18 BPM with the existing recovery. Smoothly return to retained run pressure as effects end. This is music-only; do not change gameplay speed or ability duration.
+
+## Late-level progression — November 6, 2026
+- Replace the repeating late-level requirement-count cycle with bounded, nondecreasing steps from levels 70 through 99. Retain shape/color variety and earlier introductory requirements.
+- Level 98 requires 10 flip cards, 10 red squares and 9 blue stars. Level 99 requires 10 flip cards, 10 red stars and 10 blue circles; it retains the color-only matching intervals and increases hidden cards from four to five. Level 100 remains the Endless run.
+
+## Release 247 presentation — November 6, 2026
+- Level 100's requirement and gameplay label is FINAL RUN, exactly in uppercase. Its existing endless gameplay remains.
+- Show the four Shop skins compactly in one tray: remove descriptive subtitles, retain skin names and purchase/equip/locked actions, and preserve square preview artwork. Use two rows in portrait and one row of four in landscape.
+- User explicitly authorized publishing this updated build to Playgama, GitHub and the existing Google Play track, with the current music and fixes. Publish the public build; personal preview unlocks/unlimited coins remain excluded.
