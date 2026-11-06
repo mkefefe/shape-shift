@@ -137,7 +137,7 @@
       "spiralFile": "assets/audio/beacon-spiral-ui261.ogg"
     }
   },
-  "version": "4.94.245",
+  "version": "4.94.246",
   "presentation": {
     "playbackTargetLUFS": -20,
     "userVolumePreferences": "retained",
@@ -145,9 +145,9 @@
     "musicPitch": "original; Endless tempo changes preserve pitch",
     "preparation": "Core art and the main menu gate startup. Other destinations prepare on selection before gameplay begins. Hidden-tab time does not expire shared image preparation deadlines."
   },
-  "androidVersionCode": 1245,
+  "androidVersionCode": 1246,
   "adventure": {
-    "version": "4.94.245",
+    "version": "4.94.246",
     "specialStageCount": 0,
     "content": [
       "adventure-challenges.js",
