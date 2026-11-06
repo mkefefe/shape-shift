@@ -1,4 +1,4 @@
-import {loadStoryAssets,drawStory,BEACON_FIREWORK_WAVES} from './story-renderer.js?ui261';
+import {loadStoryAssets,drawStory,BEACON_FIREWORK_WAVES} from './story-renderer.js?ui262';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
 export const RESTORATION_MERGE_SECONDS=2.6;
 export const RESTORATION_CHARGE_SECONDS=3.9;

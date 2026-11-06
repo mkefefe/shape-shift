@@ -236,14 +236,15 @@ export function drawStory(ctx,a,sceneId,seconds,{reduced=false,restorationTitle,
   };
   burst(360,340,age,145,28);
   if(!reduced){
-   // Different irregular constellations each wave: no paired columns or fixed center.
+   // Six bursts per wave, distributed over the actual viewport, including wide screens.
    const sites=[
-    [[120,320],[490,255],[605,590],[220,720],[445,1040],[100,970]],
-    [[245,280],[610,430],[105,620],[480,820],[190,1090],[610,1050]],
-    [[95,430],[430,285],[580,730],[275,960],[115,820],[530,1090]],
-    [[190,330],[585,290],[110,740],[465,925],[275,1130],[620,590]]
+    [[.13,.12],[.73,.08],[.89,.45],[.12,.56],[.37,.91],[.87,.87]],
+    [[.30,.09],[.88,.24],[.09,.43],[.80,.64],[.15,.89],[.66,.93]],
+    [[.09,.22],[.66,.10],[.90,.57],[.42,.91],[.13,.72],[.87,.90]],
+    [[.18,.11],[.87,.12],[.10,.62],[.73,.79],[.32,.94],[.90,.41]]
    ];
-   const site=(wave,i)=>({x:sites[wave][i][0],y:sites[wave][i][1]});
+   const screenScale=Math.min(w/720,h/1280),screenWidth=w/screenScale,screenHeight=h/screenScale;
+   const site=(wave,i)=>({x:(720-screenWidth)/2+sites[wave][i][0]*screenWidth,y:(1280-screenHeight)/2+sites[wave][i][1]*screenHeight});
    BEACON_FIREWORK_WAVES.forEach((waveAt,wave)=>{
     sites[wave].forEach((_,i)=>{
      const at=waveAt+[0,.18,.07,.25,.12,.3][i],travel=.5,start=at-travel;
