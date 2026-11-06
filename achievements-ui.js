@@ -1,6 +1,6 @@
-import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=494241';
+import {ACHIEVEMENTS,achievementState,advanceAchievements} from './achievements.js?v=494248';
 import {MODE_ACHIEVEMENTS,achievementProgress,achievementVisible,sortedAchievements} from './achievement-catalog.js?v=494241';
-import {onlineAllowed} from './audience.js?v=494241';
+import {googleAchievementsAvailable,syncGoogleAchievements} from './play-games.js?v=494248';
 const key='shape-shift-achievements-v1';let saved;try{saved=JSON.parse(window.ShapeShiftPlatform.storage.getItem(key));}catch{}
 let state=achievementState(saved),notify=()=>{},noticeTimer,hooks={},tab='endless',selected=null,collecting=false;
 const $=id=>document.getElementById(id),claimed=id=>(hooks.getProfile?.().achievementClaims||[]).includes(id);
@@ -8,11 +8,13 @@ const ready=mode=>MODE_ACHIEVEMENTS.filter(a=>(!mode||a.mode===mode)&&achievemen
 function updateBadge(){const badge=$('achievement-badge');if(!badge)return;const count=ready().length;badge.textContent=count;badge.hidden=!count;badge.parentElement.setAttribute('aria-label','Achievements'+(count?', '+count+' rewards ready':''));}
 
 const complete=(s,a)=>claimed(a.id)||achievementProgress(s.modeStats,a)>=a.target;
-export function syncAchievements(){if(onlineAllowed()&&window.ShapeShiftGames?.configured())window.ShapeShiftGames.sync(JSON.stringify(state.unlocked));}
+export function syncAchievements(){return syncGoogleAchievements(state);}
 export function trackAchievements(event){
  const next=advanceAchievements(state,event),fresh=MODE_ACHIEVEMENTS.filter(a=>achievementVisible(next.modeStats,a,hooks.getProfile?.())&&complete(next,a)&&!complete(state,a));
+ const googleFresh=next.unlocked.some(id=>!state.unlocked.includes(id));
  try{window.ShapeShiftPlatform.storage.setItem(key,JSON.stringify(next));}catch{return;}state=next;
- if(fresh.length&&event.type!=='history'){notify();syncAchievements();const notice=$('achievement-notice');notice.textContent=fresh[0].name+(fresh.length>1?' +'+(fresh.length-1):'');notice.hidden=false;window.ShapeShiftPlatform.clearTimeout(noticeTimer);noticeTimer=window.ShapeShiftPlatform.setTimeout(()=>notice.hidden=true,2600);}
+ if(googleFresh)syncAchievements();
+ if(fresh.length&&event.type!=='history'){notify();const notice=$('achievement-notice');notice.textContent=fresh[0].name+(fresh.length>1?' +'+(fresh.length-1):'');notice.hidden=false;window.ShapeShiftPlatform.clearTimeout(noticeTimer);noticeTimer=window.ShapeShiftPlatform.setTimeout(()=>notice.hidden=true,2600);}
  updateBadge();if($('achievements-dialog')?.open)renderAchievements();
 }
 const shapeCenters=[[-3.11,-5.662],[0.08,-4.705],[1.834,-5.024],[4.067,-3.589],[-2.951,-0.718],[0.08,0.399],[1.834,0.08],[4.067,1.675],[-3.11,3.589],[0.08,4.545],[1.834,4.226],[4.067,5.821],[-2.951,8.852],[0.08,9.968],[1.994,9.649],[4.067,11.244]];
@@ -51,7 +53,7 @@ function renderAchievements(){
  const collectAll=$('achievement-collect-all'),count=ready(tab).length;
  collectAll.hidden=!count;collectAll.disabled=collecting;collectAll.textContent=collecting?'Collecting…':'Collect all';
  collectAll.setAttribute('aria-label','Collect all '+count+' '+tab+' achievement rewards');
- const configured=onlineAllowed()&&window.ShapeShiftGames?.configured();$('google-achievements').hidden=!configured;$('achievement-status').textContent='';
+ const configured=googleAchievementsAvailable();$('google-achievements').hidden=!configured;$('achievement-status').textContent='';
 }
 export function initAchievements(onAward,options={}){
  notify=onAward;hooks=options;
@@ -77,5 +79,5 @@ export function initAchievements(onAward,options={}){
  popup.addEventListener('click',e=>{if(e.target!==popup)return;const r=popup.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom){hooks.sound?.('close');popup.close();}});
  $('achievements-dialog').addEventListener('close',()=>{if(popup.open)popup.close();});
  $('achievements-open').onclick=()=>{tab='endless';selected=null;$('achievement-list').scrollTop=0;$('achievement-grid-wrap').scrollTop=0;$('achievements-dialog').querySelector('.dialog-content').scrollTop=0;renderAchievements();$('achievements-dialog').showModal();$('achievement-tabs').firstElementChild.focus({preventScroll:true});$('achievement-list').scrollTop=0;$('achievement-grid-wrap').scrollTop=0;$('achievements-dialog').querySelector('.dialog-content').scrollTop=0;syncAchievements();};$('google-achievements').onclick=()=>window.ShapeShiftGames?.show();
- window.addEventListener('playgamesstatus',event=>{$('achievement-status').textContent=event.detail;});window.addEventListener('playgamesconnected',syncAchievements);window.addEventListener('androidresume',syncAchievements);syncAchievements();
+ window.addEventListener('playgamesstatus',event=>{$('achievement-status').textContent=event.detail;});window.addEventListener('playgamesconnected',syncAchievements);window.addEventListener('androidresume',syncAchievements);window.addEventListener('online',syncAchievements);syncAchievements();
 }

@@ -2,7 +2,9 @@
 
 Play at https://mkefefe.github.io/shape-shift/.
 
-## 4.94.247 current release
+## 4.94.248 current release
+
+Skin purchase, equip and level-locked buttons now share one larger, consistent layout, with clear coin prices. The Android edition connects ten earned milestones to Google Play Games achievements; offline milestones retry on reconnection without blocking gameplay.
 
 Level 100 displays FINAL RUN. The four skin cards fit in a compact tray without descriptive subtitles. Late Adventure requirements now increase toward Level 99; the victory board refreshes before the celebration. Piano Flow identifies the next note and requires completed holds. Result prompts share the same placement, and map/shop artwork remains prepared after opening.
 

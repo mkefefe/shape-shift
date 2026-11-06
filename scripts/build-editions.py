@@ -135,6 +135,11 @@ def main():
         for source in (ROOT/'platforms'/name).iterdir():
             if source.name=='host-loader.js':continue
             shutil.copy2(source,output/name/source.name)
+    # Version-controlled native changes override the historical wrapper. Never
+    # rely on an edit made only in a generated edition for a future release.
+    native_overlay=ROOT/'platforms/android-native'
+    if native_overlay.is_dir():
+        shutil.copytree(native_overlay,mobile/'android',dirs_exist_ok=True)
 
     frame=read(site/'game-frame.html')
     native=frame.replace('playables-bootstrap.js','android-bootstrap.js')

@@ -29,7 +29,7 @@ async function start(){
   const {ensureTerms}=await import('./terms.js?v=494241');const {ensureAudience}=await import('./audience.js?v=494241');
   await ensureTerms();await ensureAudience();
   cover.hidden=false;document.documentElement.classList.add('startup-loading');
-  await import('./game.js?v=494241');
+  await import('./game.js?ui277');
  }catch(error){
   console.error('Android game startup failed',error);
   cover.hidden=false;cover.querySelector('p').textContent='Could not load the game. Please try again.';

@@ -143,3 +143,8 @@
 - Level 100's requirement and gameplay label is FINAL RUN, exactly in uppercase. Its existing endless gameplay remains.
 - Show the four Shop skins compactly in one tray: remove descriptive subtitles, retain skin names and purchase/equip/locked actions, and preserve square preview artwork. Use two rows in portrait and one row of four in landscape.
 - User explicitly authorized publishing this updated build to Playgama, GitHub and the existing Google Play track, with the current music and fixes. Publish the public build; personal preview unlocks/unlimited coins remain excluded.
+
+## Release 248 Shop and Google achievements - November 6, 2026
+- Skin actions (Buy, Equip, Equipped and locked level labels) use the same full-width 48px gold button. Define the skin card grid column explicitly so text never changes its footprint. Put the coin icon before the price. Preserve four compact skins and all prices/unlock rules.
+- Android Google achievements use the published Shape Shift Play Games project 223390978532 and the public mappings in platforms/android-native/play-games.properties. The native overlay must be copied by build-editions.py. Initialize the SDK in the Application; save pending awards and acknowledge successful sync per Google account. Sign-in is optional and must not gate gameplay. Keep localhost personal-preview progress excluded from Google and leaderboard uploads.
+- The user specifically requested public Google Play production release and approved the Google terms and sign-in configuration.

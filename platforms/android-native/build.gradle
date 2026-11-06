@@ -1,0 +1,113 @@
+plugins { id 'com.android.application' version '8.11.1' }
+
+def adSettings = new Properties()
+file('admob.properties').withInputStream { adSettings.load(it) }
+def gamesSettings = new Properties()
+file('play-games.properties').withInputStream { gamesSettings.load(it) }
+def achievementKeys = ['first_match','score_50','score_100','score_250','streak_10','picks_100','quest_1','quests_10','adventure_1','adventure_perfect']
+def gamesProject = gamesSettings.getProperty('projectId','').trim()
+def gamesIds = achievementKeys.collectEntries { [(it): gamesSettings.getProperty(it,'').trim()] }
+def gamesReady = gamesProject.matches('[0-9]+') && gamesIds.values().every { it.matches('[A-Za-z0-9_-]+') }
+def workRoot = file('../../android-build')
+layout.buildDirectory = new File(workRoot, 'gradle-output')
+android {
+    namespace 'com.shapeshift.game'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'com.mkplaycraftstudio.shapeshift'
+        minSdk 26
+        targetSdk 36
+        versionCode 1248
+        versionName '4.94.248'
+        testInstrumentationRunner 'com.shapeshift.game.GateRuntimeCheck'
+        resValue 'string', 'game_services_project_id', gamesProject
+        buildConfigField 'boolean', 'PLAY_GAMES_ENABLED', gamesReady.toString()
+        buildConfigField 'String', 'PLAY_GAMES_IDS', groovy.json.JsonOutput.toJson(groovy.json.JsonOutput.toJson(gamesIds))
+    }
+    buildFeatures { buildConfig true }
+    signingConfigs {
+        localDevelopment {
+            storeFile new File(workRoot, 'shape-shift-development.p12')
+            storePassword 'android'
+            keyAlias 'shape-shift-dev'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.localDevelopment
+            manifestPlaceholders = [admobAppId: 'ca-app-pub-3940256099942544~3347511713']
+            buildConfigField 'String', 'REWARDED_AD_ID', '"ca-app-pub-3940256099942544/5224354917"'
+            buildConfigField 'String', 'BANNER_AD_ID', '"ca-app-pub-3940256099942544/9214589741"'
+            buildConfigField 'String', 'RUN_BONUS_AD_ID', '"ca-app-pub-3940256099942544/5224354917"'
+            buildConfigField 'boolean', 'TEST_ADS', 'true'
+        }
+        release {
+            // Unsigned until a production signing key is supplied for store distribution.
+            manifestPlaceholders = [admobAppId: adSettings.getProperty('appId')]
+            buildConfigField 'String', 'REWARDED_AD_ID', '"' + adSettings.getProperty('rewardedUnitId') + '"'
+            buildConfigField 'String', 'BANNER_AD_ID', '"' + adSettings.getProperty('bannerUnitId') + '"'
+            buildConfigField 'String', 'RUN_BONUS_AD_ID', '"' + adSettings.getProperty('runBonusUnitId') + '"'
+            buildConfigField 'boolean', 'TEST_ADS', 'false'
+            minifyEnabled false
+        }
+    }
+    testOptions { unitTests.returnDefaultValues = true }
+    sourceSets {
+        test.java.srcDirs = ['unit-tests']
+        androidTest.java.srcDirs = ['qa-android/java']
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = [new File(workRoot, 'web-assets')]
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+}
+// Packaging-only exclusions: source art remains untouched and the build fails
+// if a removed original gains a reference or its retained WebP is unavailable.
+def assetAuditReport = new File(workRoot, 'asset-audit.json')
+def assetExclusionList = new File(workRoot, 'asset-exclusions.txt')
+tasks.register('auditGameAssets', Exec) {
+    commandLine 'python', file('audit-assets.py'), '--root', file('..'),
+        '--policy', file('asset-exclusions.json'), '--report', assetAuditReport,
+        '--list', assetExclusionList
+    outputs.upToDateWhen { false }
+}
+tasks.register('syncGameAssets', Sync) {
+    dependsOn 'auditGameAssets'
+    def auditedExclusions = [] as Set
+    doFirst { auditedExclusions = assetExclusionList.readLines('UTF-8') as Set }
+    exclude { detail -> auditedExclusions.contains(detail.relativePath.pathString) }
+    from('..') {
+        include '*.html', '*.css', '*.js', '*.mjs', '*.webmanifest', '*.png', 'assets/**', 'battle/**'
+        exclude 'battle/*.test.mjs', 'shape-jumper.js', 'shape-jumper-engine.js', 'shape-jumper.css', 'assets/jumper-sky-v276.png', 'assets/skin-pals-v272.png', 'assets/skin-monsters-v272.png', '*.test.*', 'server.*', 'assets/ability-hand-v168.png', 'assets/copy-v75.png', 'assets/reward-video-v23.png', 'assets/tutorial-hand-v34.png'
+    }
+    into new File(workRoot, 'web-assets')
+    doLast {
+        exec {
+            commandLine 'python', file('audit-assets.py'), '--root', file('..'),
+                '--policy', file('asset-exclusions.json'), '--report', assetAuditReport,
+                '--stage', new File(workRoot, 'web-assets')
+        }
+    }
+}
+tasks.named('preBuild').configure { dependsOn 'syncGameAssets' }
+dependencies {
+    implementation 'com.google.android.play:app-update:2.1.0'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'org.json:json:20240303'
+    // Keep AndroidX support libraries current instead of inheriting legacy Play services versions.
+    implementation 'androidx.activity:activity:1.13.0'
+    implementation 'androidx.fragment:fragment:1.9.0'
+    implementation 'com.google.android.gms:play-services-games-v2:22.1.0'
+    implementation 'com.google.android.gms:play-services-ads:25.5.0'
+    implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
+}
+
+
+
+
+

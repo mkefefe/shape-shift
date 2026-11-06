@@ -61,7 +61,7 @@ import {shouldOfferContinue,runContinueCountdown,startResultCountdown,startResul
 import {createCoinFlight,showQuestReward} from './coin-flight.js?v=494241';
 import {earnsMatchCoin} from './economy.js?ui252';
 
-import {initAchievements,trackAchievements} from './achievements-ui.js?v=494241';
+import {initAchievements,trackAchievements} from './achievements-ui.js?v=494248';
 import {claimAchievement,claimAllAchievements} from './achievement-catalog.js?v=494241';
 
 
@@ -2990,7 +2990,7 @@ function renderSkinShop(){
 function shopAction(button,label,price){
  button.replaceChildren();
  const text=document.createElement('span');text.textContent=label;button.append(text);
- if(price!==undefined){const cost=document.createElement('span');cost.className='shop-action-price';cost.append(document.createTextNode(String(price)+' '));const coin=document.createElement('img');coin.src='assets/coin-v10.webp';coin.alt='coins';cost.append(coin);button.append(cost);}
+ if(price!==undefined){const cost=document.createElement('span');cost.className='shop-action-price';const coin=document.createElement('img');coin.src='assets/coin-v10.webp';coin.alt='coins';cost.append(coin,document.createTextNode(String(price)));button.append(cost);}
 }
 function shop(){
  syncAdventureBoosts();

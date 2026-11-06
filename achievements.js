@@ -7,7 +7,9 @@ export const ACHIEVEMENTS=[
  {id:'streak_10',name:'Perfect Ten',description:'Make 10 correct picks without a mistake.',stat:'streakBest',target:10},
  {id:'picks_100',name:'Match Maker',description:'Make 100 correct picks across your runs.',stat:'picks',target:100},
  {id:'quest_1',name:'Quest Complete',description:'Collect your first quest reward.',stat:'quests',target:1},
- {id:'quests_10',name:'Quest Champion',description:'Collect 10 quest rewards.',stat:'quests',target:10}
+ {id:'quests_10',name:'Quest Champion',description:'Collect 10 quest rewards.',stat:'quests',target:10},
+ {id:'adventure_1',name:'Adventure Begins',description:'Complete your first Adventure level.',mode:'adventure',stat:'wins',target:1},
+ {id:'adventure_perfect',name:'Three-Star Victory',description:'Complete an Adventure level with all three stars.',mode:'adventure',stat:'perfectWins',target:1}
 ];
 export function achievementState(value={}){
  const result={};for(const key of ['picks','best','streak','streakBest','quests'])result[key]=Number.isSafeInteger(value?.[key])&&value[key]>=0?value[key]:0;
@@ -22,6 +24,6 @@ export function advanceAchievements(previous,event){
  if(event.type==='runStart')s.streak=0;
  if(event.type==='quest')s.quests++;
  if(Number.isSafeInteger(event.score)&&event.score>=0)s.best=Math.max(s.best,event.score);
- for(const a of ACHIEVEMENTS)if(s[a.stat]>=a.target&&!s.unlocked.includes(a.id))s.unlocked.push(a.id);
+ for(const a of ACHIEVEMENTS)if((a.mode?s.modeStats[a.mode]?.[a.stat]:s[a.stat])>=a.target&&!s.unlocked.includes(a.id))s.unlocked.push(a.id);
  return s;
 }
