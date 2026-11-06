@@ -1,4 +1,4 @@
-import {guidedMatch} from './guided-match.js?ui263';
+import {guidedMatch} from './guided-match.js?ui264';
 import {nativeWelcome,runWelcome} from './welcome-platform.js?v=208';
 import {flushResultStorage} from './result-storage.js?v=494241';
 import {checkpointRunResult,finalizeRunResult,recoverRunResult} from './run-results.js?v=494241';
@@ -45,11 +45,11 @@ import {initSettingsExtras} from './settings-extras.js?v=494241';
 import {initGamesHub} from './games-hub.js?v=494241';
 import {normalizeMiniQuestEvent} from './mini-quest-events.js?v=494241';
 import {showBoardGuide,showAbilityGuide,showAbilityLock,abilityGuideOpen,abilityGuideVisible,adventureAbilitiesAvailable,adventurePickupBoard,SPECIAL_LESSONS,nextSpecialLesson,BOOST_LESSONS} from './ability-guide.js?ui250';
-import {fitBoard} from './board-fit.js?ui263';
+import {fitBoard} from './board-fit.js?ui264';
 import {analytics} from './analytics.js?v=494241';
 import {ensureTerms} from './terms.js?v=494241';
 import {renderColorChangeCue,renderCollectionCounters,renderMatchRuleBadge,clearExpiredMatchRule,adventureMechanics,adventureRule,prepareLevelMemoryBoard,renderLevelRequirements,ensureAdventureMatch,levelObjectives,levelTasks,levelRequirements} from './world-menu.js?ui252';
-import {observeBoard} from './board-fit.js?ui263';
+import {observeBoard} from './board-fit.js?ui264';
 observeBoard(document.getElementById('board'));
 import {createGameplayScene} from './gameplay-scene.js?v=494241';
 import {revealAdventureRewards,resultXpState} from './adventure-rewards.js?ui252';
@@ -74,7 +74,7 @@ import {ensureAudience,onlineAllowed,leaderboardAllowed} from './audience.js?v=4
 
 
 
-import {createSpecialEffect,createHeartOverflow} from './special-effects.js?ui263';
+import {createSpecialEffect,createHeartOverflow} from './special-effects.js?ui264';
 
 
 

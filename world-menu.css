@@ -519,8 +519,18 @@ body:has(#app[data-screen=game]){padding-bottom:0}
 .mode-adventure{container-type:inline-size}
 .mode-adventure>em{position:absolute;left:50%;top:calc(50% + 34.5cqw);transform:translate(-50%,-50%);margin:0;padding:0;width:70%;text-align:center;white-space:nowrap;background:none;border:0;box-shadow:none;color:#653300;font:1000 clamp(13px,3.6vw,18px)/1 Nunito,sans-serif;text-shadow:0 1px 0 #fff4a6}
 /* Square tracks use the available play area, not the phone's aspect ratio. */
-#game{height:100%;min-height:0}
-#game>#board{flex:1 1 0;height:auto;min-height:0;max-height:var(--board-fit-height,440px);max-width:100%;width:100%;margin:0;grid-template-columns:repeat(var(--cols,1),var(--track,60px))!important;grid-template-rows:repeat(var(--rows,1),var(--track,60px))!important;grid-auto-rows:var(--track,60px);align-content:center;justify-content:center}
+#game{height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:94px 70px 58px minmax(0,1fr) 17px 20px 94px}
+#game>.score-row{grid-row:1;min-height:0}
+#game>.current{grid-row:2;min-height:0;align-self:center}
+#game>#mode-hud{grid-row:3;align-self:center}
+#game>.board-heading{position:absolute;top:0}
+#game>.timer-track{grid-row:5;align-self:center;height:9px;margin:0 2px}
+#game>.streaks{grid-row:6;align-self:center;margin:0;min-height:0}
+#game>.abilities{grid-row:7;align-self:stretch;align-items:stretch;height:100%;min-height:0;margin:0;padding:0}
+/* Keep the same slots even when goals, streaks or early-level powers are hidden.
+   Only the square tiles change size as a round adds/removes choices. */
+@media(max-height:650px){#game{grid-template-rows:76px 54px 48px minmax(0,1fr) 15px 18px 70px}#game>.timer-track{height:7px}}
+#game>#board{grid-row:4;height:100%;min-height:0;max-height:none;max-width:100%;width:100%;margin:0;grid-template-columns:repeat(var(--cols,1),var(--track,60px))!important;grid-template-rows:repeat(var(--rows,1),var(--track,60px))!important;grid-auto-rows:var(--track,60px);align-content:center;justify-content:center}
 #game>#board>.choice,#game>#board>.board-rock{width:var(--track);height:var(--track);aspect-ratio:1;align-self:center;justify-self:center;padding:0}
 #game>#board .sprite{width:var(--tile-art)!important;height:var(--tile-art)!important}
 #game>#board .sprite.special-art{height:calc(var(--tile-art)*1.2)!important}
