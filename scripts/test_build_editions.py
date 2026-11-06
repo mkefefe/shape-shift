@@ -47,7 +47,7 @@ class PortalStartupTests(unittest.TestCase):
         frames = [attrs for tag, attrs in parsed.tags if tag == 'iframe']
         self.assertEqual(len(frames), 1)
         self.assertNotIn('src', frames[0])
-        self.assertTrue(frames[0]['data-playgama-src'].startswith('game-frame.html?v='))
+        self.assertRegex(frames[0]['data-playgama-src'], r'^game-frame\.html\?(?:v=\d+|ui\d+)$')
         self.assertEqual(frames[0]['title'], 'Shape Shift game')
         self.assertLess(output.index('<meta charset="utf-8">'), 1024)
         self.assertNotIn('playgama-bridge-sdk', source)

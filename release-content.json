@@ -128,9 +128,16 @@
       "audio.js",
       "drop-merge-audio.js",
       "battle/audio.mjs"
-    ]
+    ],
+    "beacon": {
+      "spiral": "Four shapes enter automatically in a spiral with airy whoosh; no tap prompt.",
+      "fireworks": "Merge and traveling bursts followed by four waves of six large fireworks spread over the full viewport.",
+      "beams": "Four overlapping staggered launches restore districts independently.",
+      "lanterns": "Continuous rise during docking, one-second hold and outgoing map slide.",
+      "spiralFile": "assets/audio/beacon-spiral-ui261.ogg"
+    }
   },
-  "version": "4.94.244",
+  "version": "4.94.245",
   "presentation": {
     "playbackTargetLUFS": -20,
     "userVolumePreferences": "retained",
@@ -138,16 +145,15 @@
     "musicPitch": "original; Endless tempo changes preserve pitch",
     "preparation": "Core art and the main menu gate startup. Other destinations prepare on selection before gameplay begins. Hidden-tab time does not expire shared image preparation deadlines."
   },
-  "androidVersionCode": 1242,
+  "androidVersionCode": 1245,
   "adventure": {
-    "version": "4.94.244",
-    "specialStageCount": 19,
+    "version": "4.94.245",
+    "specialStageCount": 0,
     "content": [
-      "adventure-drop.js",
-      "adventure-slice.js",
-      "adventure-piano.js"
+      "adventure-challenges.js",
+      "adventure-star-tasks.js",
+      "adventure-victory.js"
     ],
-    "behavior": "Fixed authored piece orders, waves and Piano phrases. Success is evaluated after the complete stage and its sound, physics and effect tails, never at the first score threshold. Tutorial content resets before the authored opening. Standalone Games and the separate Battle campaign keep their existing content.",
-    "piano": "Six written nine-bar arrangements with repeated short motifs, a repeated two-bar hook, turnaround and sustained tonic. Visible A/S/D/F input stays immediate; long notes require holding for credit. Goals count completed notes."
+    "behavior": "All 100 Adventure levels use normal matching gameplay. All maps and worlds are accessible; earned completion, stars, XP and inventory remain factual. Separate Games retain Piano Flow, Shape Drop and Shape Slice."
   }
 }

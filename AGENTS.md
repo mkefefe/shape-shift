@@ -96,3 +96,6 @@
 - Beacon revision ui256: use a smaller left-hand tap pointer. Four shapes visibly gather, shine and become a gold star before entering the beacon. All four colored beams now launch simultaneously to their respective districts and spread color together; this supersedes sequential beams. Keep the tap gate and one-second lantern pause.
 
 - Beacon correction ui257: rotate the original pointing hand upright without mirroring. Restore the original two-shape merge timing, curved glowing line and arrival particles, adapted to four starting shapes; remove the gold-star transformation. Retain simultaneous outward beams and the lantern pause.
+
+## Final beacon release - November 5, 2026
+- Supersedes older beacon presentation notes: start automatically with four offscreen shapes spiraling into the original merged energy trail. No TAP gate or hand. Use airy spiral SFX, a merge burst and chained fireworks: four waves of six large irregular bursts spread across the full viewport, without increasing the count. Four outbound beams launch in a quick overlapping stagger. Preserve rising lanterns through docking, the one-second hold and the slide.
