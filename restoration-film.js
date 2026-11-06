@@ -1,13 +1,12 @@
-import {loadStoryAssets,drawStory} from './story-renderer.js?ui256';
+import {loadStoryAssets,drawStory} from './story-renderer.js?ui257';
 const STAGES=[{title:'The trees awaken',shape:2},{title:'Water finds its color',shape:1},{title:'The village comes alive',shape:0},{title:'The land shines again',shape:3}];
-export const RESTORATION_CHARGE_SECONDS=4.4;
+export const RESTORATION_CHARGE_SECONDS=2;
 export const RESTORATION_PHASE_SECONDS=4.9;
 export const RESTORATION_COLOR_SECONDS=RESTORATION_CHARGE_SECONDS+RESTORATION_PHASE_SECONDS;
 export const RESTORATION_CUES=Object.freeze([
- {id:'merge',at:.95,file:'victory-transform-v4947.ogg',gain:.85},
- {id:'flare',at:1.2,file:'victory-reward-land3-v49459.ogg',gain:.55},
- {id:'travel',at:2,file:'victory-gather-v4947.ogg',gain:.65},
- {id:'charge',at:3.6,file:'victory-resolve-v4947.ogg',gain:.8},
+ {id:'merge',at:.7,file:'victory-transform-v4947.ogg',gain:.85},
+ {id:'travel',at:.95,file:'victory-gather-v4947.ogg',gain:.65},
+ {id:'charge',at:1.6,file:'victory-resolve-v4947.ogg',gain:.8},
  {id:'beams',at:RESTORATION_CHARGE_SECONDS,file:'victory-reward-flight-v49459.ogg',gain:.85},
  {id:'bloom',at:RESTORATION_CHARGE_SECONDS+1.1,file:'victory-spark0-v49436.ogg',gain:.65}
 ].map(Object.freeze));

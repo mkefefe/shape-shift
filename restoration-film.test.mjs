@@ -32,7 +32,7 @@ test('expansion starts with the card square and ends at exactly the film framing
 
 import {restorationPresentation} from './restoration-film.js';
 test('visual restoration is faster and docks smoothly while lanterns are still moving',()=>{
- const color=RESTORATION_COLOR_SECONDS/1.3;assert.equal(restorationPresentation(5).filmSeconds,6.5);
+ const color=RESTORATION_COLOR_SECONDS/1.3;assert.equal(restorationPresentation(2).filmSeconds,2.6);
  const begin=restorationPresentation(color+.7),middle=restorationPresentation(color+1.45),end=restorationPresentation(color+2.2);
  assert.equal(begin.dock,0);assert(Math.abs(middle.dock-.5)<1e-9);assert.equal(end.dock,1);assert(end.filmSeconds>middle.filmSeconds);assert(end.duration<22.6);
  assert.equal(restorationPresentation(color+2,9).dock,0);

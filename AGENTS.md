@@ -94,3 +94,5 @@
 - Beacon opening revision: show all four shape types and wait for one explicit tap, with large centered pulsing white TAP text and a hand. Merge those shapes into the single charge only after that tap. Keep lanterns moving for one second after docking before sliding to the next island.
 
 - Beacon revision ui256: use a smaller left-hand tap pointer. Four shapes visibly gather, shine and become a gold star before entering the beacon. All four colored beams now launch simultaneously to their respective districts and spread color together; this supersedes sequential beams. Keep the tap gate and one-second lantern pause.
+
+- Beacon correction ui257: rotate the original pointing hand upright without mirroring. Restore the original two-shape merge timing, curved glowing line and arrival particles, adapted to four starting shapes; remove the gold-star transformation. Retain simultaneous outward beams and the lantern pause.
